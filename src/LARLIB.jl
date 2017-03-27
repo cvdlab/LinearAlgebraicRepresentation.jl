@@ -1,5 +1,7 @@
+# This a test in Julia
 module LARLIB
+var = 7 * 6
 
-# package code goes here
+println("Result: ", var)
 
-end # module
+end
