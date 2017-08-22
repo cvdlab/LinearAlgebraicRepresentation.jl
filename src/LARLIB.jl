@@ -1,7 +1,9 @@
-# This a test in Julia
 module LARLIB
-var = 7 * 6
+    module PlanarArrangement
+        include("./planar_arrangement.jl")
+    end
 
-println("Result: ", var)
-
+    function planar_arrangement(V, EV)
+        PlanarArrangement.planar_arrangement(V, EV)
+    end
 end
