@@ -1,0 +1,19 @@
+language: julia
+
+os:
+  - linux
+  - osx
+
+branches:
+  only:
+  - master
+  
+julia:
+  - 0.5
+  - 0.6
+
+notifications:
+  email: false
+
+after_success:
+  - julia -e 'cd(Pkg.dir("LARLIB")); Pkg.add("Coverage"); using Coverage; Coveralls.submit(process_folder())'
