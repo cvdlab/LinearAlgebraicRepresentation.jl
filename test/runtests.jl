@@ -1,5 +1,3 @@
-using LARLIB
-using Base.Test
-
-# write your own tests here
-@test 1 == 2
+include("./planar_arrangement.jl")
+include("./dimension_travel.jl")
+include("./utilities.jl")
