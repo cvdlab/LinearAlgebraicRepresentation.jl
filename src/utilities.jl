@@ -213,4 +213,62 @@ function vequals(v1, v2)
     err = 10e-8
     return length(v1) == length(v2) && all(map((x1, x2)->-err < x1-x2 < err, v1, v2))
 end
+function triangulate(V, EV, FE)
+    triangulated_faces = Array{Any, 1}(FE.m)
+
+    for f in 1:FE.m
+        vs_idxs = Array{Int64, 1}()
+        edges_idxs = FE[f, :].nzind
+        edge_num = length(edges_idxs)
+        edges = zeros(Int64, edge_num, 2)
+
+        for (i, ee) in enumerate(edges_idxs)
+            edge = EV[ee, :].nzind
+            edges[i, :] = edge
+            vs_idxs = union(vs_idxs, edge)
+        end
+        
+        vs = V[vs_idxs, :]
+
+        v1 = normalize(vs[2, :] - vs[1, :])
+        v2 = [0 0 0]
+        v3 = [0 0 0]
+        err = 1e-8
+        i = 3
+        while -err < norm(v3) < err
+            v2 = normalize(vs[i, :] - vs[1, :])
+            v3 = cross(v1, v2)
+            i = i + 1
+        end
+        M = reshape([v1; v2; v3], 3, 3)
+
+        vs = vs*M
+        println(f)
+        triangulated_faces[f] = TRIANGLE.constrained_triangulation(vs, vs_idxs, edges, fill(true, edge_num))
+    end
+
+    return triangulated_faces
+end
+
+function lar2obj(V, EV, FE, CF)
+    obj = ""
+
+    for v in 1:size(V, 1)
+        obj = string(obj, "v ", round(V[v, 1], 6), " ", round(V[v, 2], 6), " ", round(V[v, 3], 6), "\n")
+    end
+
+    triangulated_faces = triangulate(V, EV, FE)
+
+    for c in 1:CF.m
+        obj = string(obj, "\ng cell", c, "\n")
+        for f in CF[c, :].nzind
+            triangles = triangulated_faces[f]
+            for t in triangles
+                obj = string(obj, "f ", t[1], " ", t[2], " ", t[3], "\n")
+            end
+        end
+    end
+
+    return obj
+end
 

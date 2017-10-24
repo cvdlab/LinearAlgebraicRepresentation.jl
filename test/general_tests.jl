@@ -56,7 +56,7 @@ function generate_random_lines(n, points_range, alphas_range)
     V, EV
 end
 
-function rubiks_example()
+function rubiks_example(ncubes = 3)
     V = Float64[
         0 0 0; 0 1 0;
         1 1 0; 1 0 0;
@@ -91,27 +91,28 @@ function rubiks_example()
     cube = [V, EV, FE]
     cubesRow = (zeros(0,3),spzeros(Int8,0,0),spzeros(Int8,0,0))
 
-    for i in 1:3
+    for i in 1:ncubes
         cubesRow = LARLIB.skel_merge(cubesRow..., cube...)
         cube[1] = cube[1] + [zeros(8) zeros(8) ones(8)]
     end
 
     cubesRow = collect(cubesRow)
     cubesPlane = cubesRow
-    for i in 1:3
+    num = size(cubesRow[1], 1)
+    for i in 1:ncubes
         cubesPlane = LARLIB.skel_merge(cubesPlane..., cubesRow...)
-        cubesRow[1] = cubesRow[1] + [zeros(8*3) ones(8*3) zeros(8*3)]
+        cubesRow[1] = cubesRow[1] + [zeros(num) ones(num) zeros(num)]
     end
 
     cubesPlane = collect(cubesPlane)
     cubesCube = cubesPlane
     num = size(cubesPlane[1], 1)
-    for i in 1:3
+    for i in 1:ncubes
         cubesCube = LARLIB.skel_merge(cubesCube..., cubesPlane...)
         cubesPlane[1] = cubesPlane[1] + [ones(num) zeros(num) zeros(num)]
     end
 
-    println("Arranging a cube of 27 cubes...")
+    println("Arranging a cube of ", ncubes^3," cubes...")
     rubik = LARLIB.spatial_arrangement(cubesCube...)
     println("DONE")
 
