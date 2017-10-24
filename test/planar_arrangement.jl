@@ -55,7 +55,7 @@ end
               0 0 1 0 0 0 0 0 0 0 0 0 0 0 1 0;
               0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 1]
     EV = sparse(EV)
-    V, EV = merge_vertices(V, EV)
+    V, EV = merge_vertices!(V, EV, [])
 
     @test V == [n0 n0; n0 n1u; n1u n1u; n1u n0]
     @test full(EV) == [1 1 0 0;

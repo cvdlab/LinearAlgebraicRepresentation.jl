@@ -2,8 +2,7 @@ using Base.Test
 include("../src/dimension_travel.jl")
 
 V = rand(3, 3)
-face = sparsevec(Int8[1 1 1])
-m = submanifold_mapping(V, face)
+m = submanifold_mapping(V[1,:], V[2,:], V[3,:])
 err = 1e-10 
 @testset "submanifold_mapping test" begin
     @test any(map((x,y)->-err<x-y<err, m*inv(m), eye(4)))
