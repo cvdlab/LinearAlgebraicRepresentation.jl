@@ -1,4 +1,5 @@
 using Base.Test
+include("../src/LARLIB.jl")
 
 function generate_perpendicular_lines(steps::Int, minlen, maxlen)
     V = zeros(0,2)
@@ -53,5 +54,77 @@ function generate_random_lines(n, points_range, alphas_range)
         EV[i, n+i] = 1
     end
     V, EV
+end
+
+function rubiks_example()
+    V = Float64[
+        0 0 0; 0 1 0;
+        1 1 0; 1 0 0;
+        0 0 1; 0 1 1;
+        1 1 1; 1 0 1
+    ]
+
+    EV = sparse(Int8[
+        -1  1  0  0  0  0  0  0;
+        0 -1  1  0  0  0  0  0;
+        0  0 -1  1  0  0  0  0;
+        -1  0  0  1  0  0  0  0;
+        -1  0  0  0  1  0  0  0;
+        0 -1  0  0  0  1  0  0;
+        0  0 -1  0  0  0  1  0;
+        0  0  0 -1  0  0  0  1;
+        0  0  0  0 -1  1  0  0;
+        0  0  0  0  0 -1  1  0;
+        0  0  0  0  0  0 -1  1;
+        0  0  0  0 -1  0  0  1;
+    ])
+
+    FE = sparse(Int8[
+        1  1  1 -1  0  0  0  0  0  0  0  0;
+        0  0  0  0  0  0  0  0 -1 -1 -1  1;
+        -1  0  0  0  1 -1  0  0  1  0  0  0;
+        0 -1  0  0  0  1 -1  0  0  1  0  0;
+        0  0 -1  0  0  0  1 -1  0  0  1  0;
+        0  0  0  1 -1  0  0  1  0  0  0 -1;
+    ])
+
+    cube = [V, EV, FE]
+    cubesRow = (zeros(0,3),spzeros(Int8,0,0),spzeros(Int8,0,0))
+
+    for i in 1:3
+        cubesRow = LARLIB.skel_merge(cubesRow..., cube...)
+        cube[1] = cube[1] + [zeros(8) zeros(8) ones(8)]
+    end
+
+    cubesRow = collect(cubesRow)
+    cubesPlane = cubesRow
+    for i in 1:3
+        cubesPlane = LARLIB.skel_merge(cubesPlane..., cubesRow...)
+        cubesRow[1] = cubesRow[1] + [zeros(8*3) ones(8*3) zeros(8*3)]
+    end
+
+    cubesPlane = collect(cubesPlane)
+    cubesCube = cubesPlane
+    num = size(cubesPlane[1], 1)
+    for i in 1:3
+        cubesCube = LARLIB.skel_merge(cubesCube..., cubesPlane...)
+        cubesPlane[1] = cubesPlane[1] + [ones(num) zeros(num) zeros(num)]
+    end
+
+    println("Arranging a cube of 27 cubes...")
+    rubik = LARLIB.spatial_arrangement(cubesCube...)
+    println("DONE")
+
+    rubik = rubik[1] - 1.5, rubik[2:3]...
+    c = cos(pi/6); s = sin(pi/6)
+    M1 = [1  0 0; 0 c -s; 0 s c]
+    M2 = [c -s 0; s c  0; 0 0 1]
+    rot_rubik = rubik[1]*M1*M2, rubik[2:3]...
+
+    println("Arranging two rubik cubes...")
+    two_rubiks = LARLIB.skel_merge(rubik..., rot_rubik...)
+    println("DONE")
+
+    arranged_rubiks = LARLIB.spatial_arrangement(two_rubiks...)
 end
 

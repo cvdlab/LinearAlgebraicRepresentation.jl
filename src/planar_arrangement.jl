@@ -2,11 +2,11 @@ include("./utilities.jl")
 using NearestNeighbors
 include("./minimal_cycles.jl")
 
-function frag_edge(V::Verts, EV::Cells, edgenum::Int)
+function frag_edge(V::Verts, EV::Cells, edge_idx::Int)
     alphas = Dict{Float64, Int}()
-    edge = EV[edgenum, :]
+    edge = EV[edge_idx, :]
     for i in 1:size(EV, 1)
-        if i != edgenum
+        if i != edge_idx
             intersection = intersect_edges(V, edge, EV[i, :])
             for (point, alpha) in intersection
                 V = [V; point]
@@ -18,11 +18,11 @@ function frag_edge(V::Verts, EV::Cells, edgenum::Int)
     alphas[0.0], alphas[1.0] = edge.nzind
 
     alphas_keys = sort(collect(keys(alphas)))
-    cells_num = length(alphas_keys)-1
+    edge_num = length(alphas_keys)-1
     verts_num = size(V, 1)
-    EV = spzeros(Int8, cells_num, verts_num)
+    EV = spzeros(Int8, edge_num, verts_num)
 
-    for i in 1:cells_num
+    for i in 1:edge_num
         EV[i, alphas[alphas_keys[i]]] = 1
         EV[i, alphas[alphas_keys[i+1]]] = 1
     end
@@ -30,17 +30,24 @@ function frag_edge(V::Verts, EV::Cells, edgenum::Int)
     V, EV
 end
 function intersect_edges(V::Verts, edge1::Cell, edge2::Cell)
+    err = 10e-8
+
     x1, y1, x2, y2 = vcat(map(c->V[c, :], edge1.nzind)...)
     x3, y3, x4, y4 = vcat(map(c->V[c, :], edge2.nzind)...)
     ret = Array{Tuple{Verts, Float64}, 1}()
-    denom = (y4-y3)*(x2-x1) - (x4-x3)*(y2-y1)
-    a = ((x4-x3)*(y1-y3) - (y4-y3)*(x1-x3)) / denom
-    b = ((x2-x1)*(y1-y3) - (y2-y1)*(x1-x3)) / denom
+
+    v1 = [x2-x1, y2-y1];
+    v2 = [x4-x3, y4-y3];
+    v3 = [x3-x1, y3-y1];
+
+    ang1 = dot(normalize(v1), normalize(v2))
+    ang2 = dot(normalize(v1), normalize(v3))
     
-    if 0 <= a <= 1 && 0 <= b <= 1
-        p = [(x1 + a*(x2-x1))  (y1 + a*(y2-y1))]
-        push!(ret, (p, a))
-    elseif isnan(a) && isnan(b) 
+    parallel = 1-err < abs(ang1) < 1+err
+    colinear = parallel && (1-err < abs(ang2) < 1+err || -err < norm(v3) < err)
+    
+
+    if colinear
         o = [x1 y1] 
         v = [x2 y2] - o
         alpha = 1/dot(v,v')
@@ -52,43 +59,76 @@ function intersect_edges(V::Verts, edge1::Cell, edge2::Cell)
             end
         end
         
+    elseif !parallel
+        denom = (v2[2])*(v1[1]) - (v2[1])*(v1[2])
+        a = ((v2[1])*(-v3[2]) - (v2[2])*(-v3[1])) / denom
+        b = ((v1[1])*(-v3[2]) - (v1[2])*(-v3[1])) / denom
+
+        if -err < a < 1+err && -err <= b <= 1+err
+            p = [(x1 + a*(x2-x1))  (y1 + a*(y2-y1))]
+            push!(ret, (p, a)) 
+        end
     end
+
     return ret
 end
-function merge_vertices(V::Verts, EV::Cells, err=1e-4)
+function merge_vertices!(V::Verts, EV::Cells, edge_map, err=1e-4)
+    vertsnum = size(V, 1)
+    edgenum = size(EV, 1)
+    newverts = zeros(Int, vertsnum)
     kdtree = KDTree(V')
-    tocheck = collect(size(V,1):-1:1)
-    todelete = Array{Int64, 1}()
-    while !isempty(tocheck)
-        vi = pop!(tocheck)
+
+    todelete = []
+    
+    i = 1
+    for vi in 1:vertsnum
         if !(vi in todelete)
             nearvs = inrange(kdtree, V[vi, :], err)
-            for vj in nearvs
-                if vj != vi
-                    push!(todelete, vj)
-                    EV[:,vi] = EV[:, vi] + EV[:, vj]
-                end
-            end
+    
+            newverts[nearvs] = i
+    
+            nearvs = setdiff(nearvs, vi)
+            todelete = union(todelete, nearvs)
+    
+            i = i + 1
         end
     end
     
-    tokeep = setdiff(collect(1:size(V,1)), todelete)
-    EV = EV[:, tokeep]
-    V = V[tokeep, :]
+    nV = V[setdiff(collect(1:vertsnum), todelete), :]
     
-    tokeep = Array{Int64, 1}()
-    cells = [Set(EV[i, :].nzind) for i in size(EV,1):-1:1]
-    i = 0
-    while !isempty(cells)
-        i += 1
-        c = pop!(cells)
-        if !(length(c) != 2 || c in cells)
-            push!(tokeep, i)
-        end
+    edges = Array{Tuple{Int, Int}, 1}(edgenum)
+    oedges = Array{Tuple{Int, Int}, 1}(edgenum)
+    
+    for ei in 1:edgenum
+        v1, v2 = EV[ei, :].nzind
+        
+        edges[ei] = sort([newverts[v1], newverts[v2]])
+        oedges[ei] = sort([v1, v2])
+    
     end
-    EV = EV[tokeep, :]
+    nedges = union(edges)
+    nedges = filter(t->t[1]!=t[2], nedges)
     
-    V,EV
+    nedgenum = length(nedges)
+    nEV = spzeros(Int8, nedgenum, size(nV, 1))
+    
+    etuple2idx = Dict{Tuple{Int, Int}, Int}()
+    
+    for ei in 1:nedgenum
+        nEV[ei, collect(nedges[ei])] = 1
+        etuple2idx[nedges[ei]] = ei
+    end
+    
+    for i in 1:length(edge_map)
+        row = edge_map[i]
+        row = map(x->edges[x], row)
+        row = filter(t->t[1]!=t[2], row)
+        row = map(x->etuple2idx[x], row)
+        edge_map[i] = row
+    end
+    
+
+    return nV, nEV
 end
 function biconnected_components(EV::Cells)
     ps = Array{Tuple{Int, Int, Int}, 1}()
@@ -238,37 +278,10 @@ function prune_containment_graph(n, V, EVs, shells, graph)
         for j in 1:n
             if i != j
                 if graph[i, j] == 1
-                    contains = false
-                    hits = 0
-                    visited_verts = []
                     shell_edge_indexes = shells[j].nzind
                     ev = EVs[j][shell_edge_indexes, :]
-                    
-                    for edge in 1:ev.m
-                        a_id, b_id = ev[edge, :].nzind
-                        a = V[a_id, :]
-                        b = V[b_id, :]
-                        v = b - a
-                        alpha = (origin[2] - a[2]) / v[2]
-                        if 0 <= alpha <= 1
-                            x_int = a[1] + v[1]*alpha
-                            if x_int > origin[1]
-                                if 0 <= alpha <= 1
-                                    hits += 1
-                                else
-                                    p = (alpha == 0) ? a : b
-                                    if !(p in visited_verts)
-                                        hits += 1
-                                        push!(visited_verts, p)
-                                    end
-                                end
-                            end
-                        end
-                    end
-                    
-                    contains = hits % 2 == 1
-                    
-                    if !contains
+
+                    if !point_in_face(origin, V, ev)
                         graph[i, j] = 0
                     end
                 end
@@ -348,13 +361,20 @@ function cell_merging(n, containment_graph, V, EVs, boundaries, shells, shell_bb
 end
 
 
-function planar_arrangement(V::Verts, EV::Cells)
+function planar_arrangement(V::Verts, EV::Cells, sigma::Cell=spzeros(Int8, 0))
+    edgenum = size(EV, 1)
+    edge_map = Array{Array{Int, 1}, 1}(edgenum)
     EVs = Array{Cells, 1}()
     finalcells_num = 0
     
-    edgenum = size(EV, 1)
+
     for i in 1:edgenum
         V, ev = frag_edge(V, EV, i)
+        
+        newedges_nums = map(x->x+finalcells_num, collect(1:size(ev, 1)))
+        
+        edge_map[i] = newedges_nums
+        
         finalcells_num += size(ev, 1)
         push!(EVs, ev)
         
@@ -367,7 +387,45 @@ function planar_arrangement(V::Verts, EV::Cells)
         newcell_index += s[1]
     end
     
-    V, EV = merge_vertices(V, EV)
+
+    V, EV = merge_vertices!(V, EV, edge_map)
+    
+    if sigma.n > 0
+        todel = []
+        
+        new_edges = []
+        map(i->new_edges=union(new_edges, edge_map[i]), sigma.nzind)
+        ev = EV[new_edges, :]
+    
+        for e in 1:EV.m
+            if !(e in new_edges)
+    
+                vidxs = EV[e, :].nzind
+                v1, v2 = map(i->V[vidxs[i], :], [1,2])
+                centroid = .5*(v1 + v2)
+                
+                if !point_in_face(centroid, V, ev) 
+                    push!(todel, e)
+                end
+            end
+        end
+    
+        for i in reverse(todel)
+            for row in edge_map
+        
+                filter!(x->x!=i, row)
+        
+                for j in 1:length(row)
+                    if row[j] > i
+                        row[j] -= 1
+                    end
+                end
+            end
+        end
+        
+    
+        V, EV = delete_edges(todel, V, EV)
+    end
     
     bicon_comps = biconnected_components(EV)
     
@@ -376,19 +434,26 @@ function planar_arrangement(V::Verts, EV::Cells)
         return
     end
     
-    todel = setdiff(collect(1:size(EV,1)), union(bicon_comps...))
-    EV = EV[union(bicon_comps...), :]
     
-    vertinds = 1:size(EV, 2)
-    todel = Array{Int64, 1}()
-    for i in vertinds
-        if length(EV[:, i].nzind) == 0
-            push!(todel, i)
+    edges = sort(union(bicon_comps...))
+    todel = sort(setdiff(collect(1:size(EV,1)), edges))
+    
+    for i in reverse(todel)
+        for row in edge_map
+    
+            filter!(x->x!=i, row)
+    
+            for j in 1:length(row)
+                if row[j] > i
+                    row[j] -= 1
+                end
+            end
         end
     end
-    tokeep = setdiff(vertinds, todel)
-    EV = EV[:, tokeep]
-    V = V[tokeep, :]
+    
+    
+    V, EV = delete_edges(todel, V, EV)
+    
     
     bicon_comps = biconnected_components(EV)
     
@@ -397,7 +462,7 @@ function planar_arrangement(V::Verts, EV::Cells)
     boundaries = Array{Cells, 1}(n)
     EVs = Array{Cells, 1}(n)
     for p in 1:n
-        ev = EV[bicon_comps[p], :]
+        ev = EV[sort(bicon_comps[p]), :]
         fe = minimal_2cycles(V, ev)
         shell_num = get_external_cycle(V, ev, fe)
     
@@ -421,7 +486,7 @@ function planar_arrangement(V::Verts, EV::Cells)
     EV, FE = cell_merging(n, containment_graph, V, EVs, boundaries, shells, shell_bboxes)
     
     
-    
+      
 
-    V, EV, FE
+    V, EV, FE, edge_map
 end 
