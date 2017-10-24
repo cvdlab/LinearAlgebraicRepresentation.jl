@@ -1,7 +1,3 @@
-using BinDeps
-
-isfile("deps.jl") && rm("deps.jl")
-
 try
    Pkg.installed("TRIANGLE")
 catch
