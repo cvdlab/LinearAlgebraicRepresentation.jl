@@ -21,22 +21,16 @@ function face_area(V::Verts, EV::Cells, face::Cell)
     fv = buildFV(EV, face)
 
     verts_num = length(fv)
+    v1 = fv[1]
 
-    for i in 1:verts_num
+    for i in 2:(verts_num-1)
 
-        v1 = fv[i]
-        v2 = i == verts_num ? fv[1] : fv[i+1]
-        v3 = 0
-        if i == verts_num
-            v3 = fv[2]
-        elseif i == (verts_num - 1)
-            v3 = fv[i]
-        else
-            v3 = fv[i+2]
-        end
-        
+        v2 = fv[i]
+        v3 = fv[i+1]
 
         area += triangle_area(V[[v1, v2, v3], :])
+
+        println(v1, " ", v2, " ", v3, " -> ", triangle_area(V[[v1, v2, v3], :]))
     end
 
     return area
@@ -194,8 +188,7 @@ function triangulate(V, EV, FE)
         if f % 10 == 0
             print(".")
         end
-
-        #=
+        
         edges_idxs = FE[f, :].nzind
         edge_num = length(edges_idxs)
         edges = zeros(Int64, edge_num, 2)
@@ -231,38 +224,6 @@ function triangulate(V, EV, FE)
         end
         
         triangulated_faces[f] = TRIANGLE.constrained_triangulation(vs, fv, edges, fill(true, edge_num))
-        =#
-
-        vs_idxs = Array{Int64, 1}()
-        edges_idxs = FE[f, :].nzind
-        edge_num = length(edges_idxs)
-        edges = zeros(Int64, edge_num, 2)
-        
-        for (i, ee) in enumerate(edges_idxs)
-            edge = EV[ee, :].nzind
-            edges[i, :] = edge
-            vs_idxs = union(vs_idxs, edge)
-        end
-        
-        vs = V[vs_idxs, :]
-        
-        v1 = normalize(vs[2, :] - vs[1, :])
-        v2 = [0 0 0]
-        v3 = [0 0 0]
-        err = 1e-8
-        i = 3
-        while -err < norm(v3) < err
-            v2 = normalize(vs[i, :] - vs[1, :])
-            v3 = cross(v1, v2)
-            i = i + 1
-        end
-        
-        M = reshape([v1; v2; v3], 3, 3)
-        
-        vs = vs*M
-        
-        triangulated_faces[f] = TRIANGLE.constrained_triangulation(
-            vs, vs_idxs, edges, fill(true, edge_num))
     end
 
     return triangulated_faces
