@@ -431,7 +431,7 @@ function planar_arrangement(V::Verts, EV::Cells, sigma::Cell=spzeros(Int8, 0))
     
     if isempty(bicon_comps)
         println("No biconnected components found.")
-        return
+        return (nothing, nothing, nothing)
     end
     
     

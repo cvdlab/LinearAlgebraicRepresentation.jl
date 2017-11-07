@@ -1,12 +1,12 @@
 include("./utilities.jl")
 using IntervalTrees
 
-function submanifold_mapping(p1, p2, p3)
-    u1 = p2-p1
-    u2 = p3-p1
+function submanifold_mapping(vs)
+    u1 = vs[2,:] - vs[1,:]
+    u2 = vs[3,:] - vs[1,:]
     u3 = cross(u1, u2)
     T = eye(4)
-    T[4, 1:3] = -p1
+    T[4, 1:3] = - vs[1,:]
     M = eye(4)
     M[1:3, 1:3] = [u1 u2 u3]
     return T*M

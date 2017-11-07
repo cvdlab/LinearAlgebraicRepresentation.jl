@@ -89,6 +89,8 @@ function merge_vertices(V::Verts, EV::Cells, FE::Cells, err=1e-4)
 end
 
 
+include("../../plasm.jl")
+
 function spatial_arrangement(V::Verts, EV::Cells, FE::Cells)
     vs_num = size(V, 1)
     es_num = size(EV, 1)
@@ -107,7 +109,7 @@ function spatial_arrangement(V::Verts, EV::Cells, FE::Cells)
         sV = V[sigmavs, :]
         sEV = EV[FE[sigma, :].nzind, sigmavs]
 
-        M = submanifold_mapping(sV[1,:], sV[2,:], sV[3,:])
+        M = submanifold_mapping(sV)
         tV = ([V ones(vs_num)]*M)[:, 1:3]
         
         sV = tV[sigmavs, :]
@@ -123,6 +125,10 @@ function spatial_arrangement(V::Verts, EV::Cells, FE::Cells)
 
         nV, nEV, nFE = planar_arrangement(sV, sEV, sparsevec(ones(Int8, length(sigmavs))))
 
+        if nV == nothing
+            continue
+        end
+        
         nvsize = size(nV, 1)
         nV = [nV zeros(nvsize) ones(nvsize)]*inv(M)[:, 1:3]
 
@@ -131,7 +137,12 @@ function spatial_arrangement(V::Verts, EV::Cells, FE::Cells)
 
     rV, rEV, rFE = merge_vertices(rV, rEV, rFE)
 
+    
+    
+    
+    
     rCF = minimal_3cycles(rV, rEV, rFE)
+    
 
     return rV, rEV, rFE, rCF
 end

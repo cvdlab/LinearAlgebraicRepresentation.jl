@@ -17,33 +17,26 @@ function face_area(V::Verts, EV::Cells, face::Cell)
     end
 
     area = 0
-    ps = [0, 0, 0]
 
-    for i in face.nzind
-        edge = face[i]*EV[i, :]
-        skip = false
+    fv = buildFV(EV, face)
 
-        for e in edge.nzind
-            if e != ps[1]
-                if edge[e] < 0
-                    if ps[1] == 0
-                        ps[1] = e
-                        skip = true
-                    else
-                        ps[2] = e
-                    end
-                else
-                    ps[3] = e
-                end
-            else
-                skip = true
-                break
-            end
+    verts_num = length(fv)
+
+    for i in 1:verts_num
+
+        v1 = fv[i]
+        v2 = i == verts_num ? fv[1] : fv[i+1]
+        v3 = 0
+        if i == verts_num
+            v3 = fv[2]
+        elseif i == (verts_num - 1)
+            v3 = fv[i]
+        else
+            v3 = fv[i+2]
         end
+        
 
-        if !skip
-            area += triangle_area(V[ps, :])
-        end
+        area += triangle_area(V[[v1, v2, v3], :])
     end
 
     return area
@@ -63,6 +56,283 @@ function skel_merge(V1::Verts, EV1::Cells, FE1::Cells, V2::Verts, EV2::Cells, FE
     V, EV = skel_merge(V1, EV1, V2, EV2)
     V, EV, FE
 end
+function delete_edges(todel, V::Verts, EV::Cells)
+    tokeep = setdiff(collect(1:EV.m), todel)
+    EV = EV[tokeep, :]
+    
+    vertinds = 1:EV.n
+    todel = Array{Int64, 1}()
+    for i in vertinds
+        if length(EV[:, i].nzind) == 0
+            push!(todel, i)
+        end
+    end
+
+    tokeep = setdiff(vertinds, todel)
+    EV = EV[:, tokeep]
+    V = V[tokeep, :]
+
+    return V, EV
+end
+function buildFV(EV::Cells, face::Cell)
+    startv = -1
+    nextv = 0
+    edge = 0
+
+    vs = Array{Int64, 1}()
+
+    while startv != nextv
+        if startv < 0
+            edge = face.nzind[1]
+            startv = EV[edge,:].nzind[face[edge] < 0 ? 2 : 1]
+            push!(vs, startv)
+        else
+            edge = setdiff(intersect(face.nzind, EV[:, nextv].nzind), edge)[1]
+        end
+        nextv = EV[edge,:].nzind[face[edge] < 0 ? 1 : 2]
+        push!(vs, nextv)
+
+    end
+
+    return vs[1:end-1]
+end
+function buildFE(FV, edges)
+    faces = []
+
+    for face in FV
+        f = []
+        for (i,v) in enumerate(face)
+            edge = [v, face[i==length(face)?1:i+1]]
+            ord_edge = sort(edge)
+
+            edge_idx = findfirst(e->e==ord_edge, edges)
+
+            push!(f, (edge_idx, sign(edge[2]-edge[1])))
+        end
+        
+        push!(faces, f)
+    end
+
+    FE = spzeros(Int8, length(faces), length(edges))
+
+    for (i,f) in enumerate(faces)
+        for e in f
+            FE[i, e[1]] = e[2]
+        end
+    end
+
+    return FE
+end
+
+function buildEV(edges)
+    maxv = max(map(x->max(x...), edges)...)
+    EV = spzeros(Int8, length(edges), maxv)
+
+    for (i,e) in enumerate(edges)
+        e = sort(collect(e))
+        EV[i, e] = [-1, 1]
+    end
+
+    return EV
+end
+
+
+function buildFV(EV, face)
+    startv = face[1]
+    nextv = startv
+
+    vs = []
+    visited_edges = []
+
+    while true
+        curv = nextv
+        push!(vs, curv)
+
+        edge = 0
+        for edge in EV[:, curv].nzind
+            nextv = setdiff(EV[edge, :].nzind, curv)[1]
+            if nextv in face && (nextv == startv || !(nextv in vs)) && !(edge in visited_edges)
+                break
+            end
+        end
+
+        push!(visited_edges, edge)
+
+        if nextv == startv
+            break
+        end
+    end
+
+    return vs
+end
+
+
+function build_bounds(edges, faces)
+    EV = buildEV(edges)
+    FV = map(x->buildFV(EV,x), faces)
+    FE = buildFE(FV, edges)
+
+    return EV, FE
+end
+function vin(vertex, vertices_set)
+    for v in vertices_set
+        if vequals(vertex, v)
+            return true
+        end
+    end
+    return false
+end
+
+function vequals(v1, v2)
+    err = 10e-8
+    return length(v1) == length(v2) && all(map((x1, x2)->-err < x1-x2 < err, v1, v2))
+end
+function triangulate(V, EV, FE)
+    triangulated_faces = Array{Any, 1}(FE.m)
+
+    for f in 1:FE.m
+        if f % 10 == 0
+            print(".")
+        end
+
+        #=
+        edges_idxs = FE[f, :].nzind
+        edge_num = length(edges_idxs)
+        edges = zeros(Int64, edge_num, 2)
+
+        
+        fv = buildFV(EV, FE[f, :])
+
+        vs = V[fv, :]
+
+        v1 = normalize(vs[2, :] - vs[1, :])
+        v2 = [0 0 0]
+        v3 = [0 0 0]
+        err = 1e-8
+        i = 3
+        while -err < norm(v3) < err
+            v2 = normalize(vs[i, :] - vs[1, :])
+            v3 = cross(v1, v2)
+            i = i + 1
+        end
+        M = reshape([v1; v2; v3], 3, 3)
+
+        vs = (vs*M)[:, 1:2]
+        tV = (V*M)[:, 1:2]
+
+        area = face_area(tV, EV, FE[f, :])
+        if area > 0 
+            fv = fv[end:-1:1]
+        end
+        
+        for i in 1:length(fv)
+            edges[i, 1] = fv[i]
+            edges[i, 2] = i == length(fv) ? fv[1] : fv[i+1]
+        end
+        
+        triangulated_faces[f] = TRIANGLE.constrained_triangulation(vs, fv, edges, fill(true, edge_num))
+        =#
+
+        vs_idxs = Array{Int64, 1}()
+        edges_idxs = FE[f, :].nzind
+        edge_num = length(edges_idxs)
+        edges = zeros(Int64, edge_num, 2)
+        
+        for (i, ee) in enumerate(edges_idxs)
+            edge = EV[ee, :].nzind
+            edges[i, :] = edge
+            vs_idxs = union(vs_idxs, edge)
+        end
+        
+        vs = V[vs_idxs, :]
+        
+        v1 = normalize(vs[2, :] - vs[1, :])
+        v2 = [0 0 0]
+        v3 = [0 0 0]
+        err = 1e-8
+        i = 3
+        while -err < norm(v3) < err
+            v2 = normalize(vs[i, :] - vs[1, :])
+            v3 = cross(v1, v2)
+            i = i + 1
+        end
+        
+        M = reshape([v1; v2; v3], 3, 3)
+        
+        vs = vs*M
+        
+        triangulated_faces[f] = TRIANGLE.constrained_triangulation(
+            vs, vs_idxs, edges, fill(true, edge_num))
+    end
+
+    return triangulated_faces
+end
+function lar2obj(V, EV, FE, CF)
+    obj = ""
+    for v in 1:size(V, 1)
+        obj = string(obj, "v ", round(V[v, 1], 6), " ", round(V[v, 2], 6), " ", round(V[v, 3], 6), "\n")
+    end
+
+    print("Triangulating")
+    triangulated_faces = triangulate(V, EV, FE)
+    println("DONE")
+
+    for c in 1:CF.m
+        obj = string(obj, "\ng cell", c, "\n")
+        for f in CF[c, :].nzind
+            triangles = triangulated_faces[f]
+            for tri in triangles
+                t = CF[c, f] > 0 ? tri : tri[end:-1:1]
+                obj = string(obj, "f ", t[1], " ", t[2], " ", t[3], "\n")
+            end
+        end
+    end
+
+    return obj
+end
+function obj2lar(path)
+    fd = open(path, "r")
+    vs = Array{Float64, 2}(0, 3)
+    edges = Array{Array{Int, 1}, 1}()
+    faces = Array{Array{Int, 1}, 1}()
+
+    while (line = readline(fd)) != ""
+        elems = split(line)
+        if length(elems) > 0
+            if elems[1] == "v"
+
+                x = parse(Float64, elems[2])
+                y = parse(Float64, elems[3])
+                z = parse(Float64, elems[4])
+                vs = [vs; x y z]
+
+            elseif elems[1] == "f"
+                v1 = parse(Int, elems[2])
+                v2 = parse(Int, elems[3])
+                v3 = parse(Int, elems[4])
+
+                e1 = sort([v1, v2])
+                e2 = sort([v2, v3])
+                e3 = sort([v1, v3])
+
+                if !(e1 in edges)
+                    push!(edges, e1)
+                end
+                if !(e2 in edges)
+                    push!(edges, e2)
+                end
+                if !(e3 in edges)
+                    push!(edges, e3)
+                end
+
+                push!(faces, sort([v1, v2, v3]))
+            end
+        end
+    end
+
+    close(fd)
+    vs, build_bounds(edges, faces)...
+end  
 function point_in_face(origin, V::Verts, ev::Cells)
     return pointInPolygonClassification(V, ev)(origin) == "p_in"
 end
@@ -159,116 +429,5 @@ function pointInPolygonClassification(V,EV)
         end
     end
     return pointInPolygonClassification0
-end
-function delete_edges(todel, V::Verts, EV::Cells)
-    tokeep = setdiff(collect(1:EV.m), todel)
-    EV = EV[tokeep, :]
-    
-    vertinds = 1:EV.n
-    todel = Array{Int64, 1}()
-    for i in vertinds
-        if length(EV[:, i].nzind) == 0
-            push!(todel, i)
-        end
-    end
-
-    tokeep = setdiff(vertinds, todel)
-    EV = EV[:, tokeep]
-    V = V[tokeep, :]
-
-    return V, EV
-end
-function buildFV(EV::Cells, face::Cell)
-    startv = -1
-    nextv = 0
-    edge = 0
-
-    vs = []
-
-    while startv != nextv
-        if startv < 0
-            edge = face.nzind[1]
-            startv = EV[edge,:].nzind[face[edge] < 0 ? 2 : 1]
-            push!(vs, startv)
-        else
-            edge = setdiff(intersect(face.nzind, EV[:, nextv].nzind), edge)[1]
-        end
-        nextv = EV[edge,:].nzind[face[edge] < 0 ? 1 : 2]
-        push!(vs, nextv)
-
-    end
-
-    return vs[1:end-1]
-end
-function vin(vertex, vertices_set)
-    for v in vertices_set
-        if vequals(vertex, v)
-            return true
-        end
-    end
-    return false
-end
-
-function vequals(v1, v2)
-    err = 10e-8
-    return length(v1) == length(v2) && all(map((x1, x2)->-err < x1-x2 < err, v1, v2))
-end
-function triangulate(V, EV, FE)
-    triangulated_faces = Array{Any, 1}(FE.m)
-
-    for f in 1:FE.m
-        vs_idxs = Array{Int64, 1}()
-        edges_idxs = FE[f, :].nzind
-        edge_num = length(edges_idxs)
-        edges = zeros(Int64, edge_num, 2)
-
-        for (i, ee) in enumerate(edges_idxs)
-            edge = EV[ee, :].nzind
-            edges[i, :] = edge
-            vs_idxs = union(vs_idxs, edge)
-        end
-        
-        vs = V[vs_idxs, :]
-
-        v1 = normalize(vs[2, :] - vs[1, :])
-        v2 = [0 0 0]
-        v3 = [0 0 0]
-        err = 1e-8
-        i = 3
-        while -err < norm(v3) < err
-            v2 = normalize(vs[i, :] - vs[1, :])
-            v3 = cross(v1, v2)
-            i = i + 1
-        end
-        M = reshape([v1; v2; v3], 3, 3)
-
-        vs = vs*M
-        println(f)
-        triangulated_faces[f] = TRIANGLE.constrained_triangulation(vs, vs_idxs, edges, fill(true, edge_num))
-    end
-
-    return triangulated_faces
-end
-
-function lar2obj(V, EV, FE, CF)
-    obj = ""
-
-    for v in 1:size(V, 1)
-        obj = string(obj, "v ", round(V[v, 1], 6), " ", round(V[v, 2], 6), " ", round(V[v, 3], 6), "\n")
-    end
-
-    triangulated_faces = triangulate(V, EV, FE)
-
-    for c in 1:CF.m
-        obj = string(obj, "\ng cell", c, "\n")
-        for f in CF[c, :].nzind
-            triangles = triangulated_faces[f]
-            for t in triangles
-                obj = string(obj, "f ", t[1], " ", t[2], " ", t[3], "\n")
-            end
-        end
-    end
-
-    return obj
 end
 
