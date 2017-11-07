@@ -1,5 +1,4 @@
-using Base.Test
-include("../src/LARLIB.jl")
+using LARLIB
 
 function generate_perpendicular_lines(steps::Int, minlen, maxlen)
     V = zeros(0,2)
@@ -116,7 +115,7 @@ function rubiks_example(ncubes = 3)
     rubik = LARLIB.spatial_arrangement(cubesCube...)
     println("DONE")
 
-    rubik = rubik[1] - 1.5, rubik[2:3]...
+    rubik = rubik[1] - (.5*ncubes), rubik[2:3]...
     c = cos(pi/6); s = sin(pi/6)
     M1 = [1  0 0; 0 c -s; 0 s c]
     M2 = [c -s 0; s c  0; 0 0 1]

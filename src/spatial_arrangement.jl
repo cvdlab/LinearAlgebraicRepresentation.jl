@@ -89,8 +89,6 @@ function merge_vertices(V::Verts, EV::Cells, FE::Cells, err=1e-4)
 end
 
 
-include("../../plasm.jl")
-
 function spatial_arrangement(V::Verts, EV::Cells, FE::Cells)
     vs_num = size(V, 1)
     es_num = size(EV, 1)
