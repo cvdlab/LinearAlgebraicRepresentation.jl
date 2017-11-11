@@ -84,13 +84,13 @@ function minimal_3cycles(V::Verts, EV::Cells, FE::Cells)
 
     EF = FE'
 
-    FC = minimal_cycles(face_angle)(V, EF)
+    FC = minimal_cycles(face_angle, true)(V, EF)
 
     return -FC'
 end
 
 
-function minimal_cycles(angles_fn::Function)
+function minimal_cycles(angles_fn::Function, verbose=false)
 
     function _minimal_cycles(V::Verts, ld_bounds::Cells)
         lld_cellsnum, ld_cellsnum = size(ld_bounds)
@@ -140,6 +140,11 @@ function minimal_cycles(angles_fn::Function)
         
         
         while (sigma = get_seed_cell()) > 0
+        
+            if verbose
+                println(Int(floor(50 * sum(count_marks) / ld_cellsnum)), "%")
+            end
+        
             c_ld = spzeros(Int8, ld_cellsnum)
             if count_marks[sigma] == 0
                 c_ld[sigma] = 1

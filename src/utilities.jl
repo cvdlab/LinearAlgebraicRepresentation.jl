@@ -210,12 +210,6 @@ function triangulate(V::Verts, EV::Cells, FE::Cells)
         M = reshape([v1; v2; v3], 3, 3)
 
         vs = (vs*M)[:, 1:2]
-        tV = (V*M)[:, 1:2]
-
-        area = face_area(tV, EV, FE[f, :])
-        if area > 0 
-            fv = fv[end:-1:1]
-        end
         
         for i in 1:length(fv)
             edges[i, 1] = fv[i]
@@ -223,6 +217,15 @@ function triangulate(V::Verts, EV::Cells, FE::Cells)
         end
         
         triangulated_faces[f] = TRIANGLE.constrained_triangulation(vs, fv, edges, fill(true, edge_num))
+
+        tV = (V*M)[:, 1:2]
+        
+        area = face_area(tV, EV, FE[f, :])
+        if area < 0 
+            for i in 1:length(triangulated_faces[f])
+                triangulated_faces[f][i] = triangulated_faces[f][i][end:-1:1]
+            end
+        end
     end
 
     return triangulated_faces
@@ -238,15 +241,15 @@ function lar2obj(V::Verts, EV::Cells, FE::Cells, CF::Cells)
     println("DONE")
 
     for c in 1:CF.m
-        obj = string(obj, "\ng cell", c, "\n")
-        for f in CF[c, :].nzind
-            triangles = triangulated_faces[f]
-            for tri in triangles
-                t = CF[c, f] > 0 ? tri : tri[end:-1:1]
-                obj = string(obj, "f ", t[1], " ", t[2], " ", t[3], "\n")
-            end
+    obj = string(obj, "\ng cell", c, "\n")
+    for f in CF[c, :].nzind
+        triangles = triangulated_faces[f]
+        for tri in triangles
+            t = CF[c, f] > 0 ? tri : tri[end:-1:1]
+            obj = string(obj, "f ", t[1], " ", t[2], " ", t[3], "\n")
         end
     end
+end
 
     return obj
 end
