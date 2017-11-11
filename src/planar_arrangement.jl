@@ -1,7 +1,3 @@
-include("./utilities.jl")
-using NearestNeighbors
-include("./minimal_cycles.jl")
-
 function frag_edge(V::Verts, EV::Cells, edge_idx::Int)
     alphas = Dict{Float64, Int}()
     edge = EV[edge_idx, :]
@@ -102,8 +98,8 @@ function merge_vertices!(V::Verts, EV::Cells, edge_map, err=1e-4)
     for ei in 1:edgenum
         v1, v2 = EV[ei, :].nzind
         
-        edges[ei] = sort([newverts[v1], newverts[v2]])
-        oedges[ei] = sort([v1, v2])
+        edges[ei] = Tuple{Int, Int}(sort([newverts[v1], newverts[v2]]))
+        oedges[ei] = Tuple{Int, Int}(sort([v1, v2]))
     
     end
     nedges = union(edges)

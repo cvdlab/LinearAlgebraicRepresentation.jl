@@ -1,8 +1,8 @@
 using Base.Test
-include("../src/dimension_travel.jl")
+using LARLIB
 
 V = rand(3, 3)
-m = submanifold_mapping(V)
+m = LARLIB.submanifold_mapping(V)
 err = 1e-10 
 @testset "submanifold_mapping test" begin
     @test any(map((x,y)->-err<x-y<err, m*inv(m), eye(4)))

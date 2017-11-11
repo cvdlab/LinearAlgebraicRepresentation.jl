@@ -1,6 +1,3 @@
-include("./utilities.jl")
-using TRIANGLE
-
 function minimal_2cycles(V::Verts, EV::Cells)
 
     function edge_angle(v::Int, e::Int)
@@ -25,7 +22,7 @@ function minimal_3cycles(V::Verts, EV::Cells, FE::Cells)
     triangulated_faces = Array{Any, 1}(FE.m)
     
     function face_angle(e::Int, f::Int)
-        if !isdefined(triangulated_faces, f)
+        if !isassigned(triangulated_faces, f)
             vs_idxs = Array{Int64, 1}()
             edges_idxs = FE[f, :].nzind
             edge_num = length(edges_idxs)
@@ -114,7 +111,6 @@ function minimal_cycles(angles_fn::Function)
             end
             return s
         end
-        
         for lld in 1:lld_cellsnum
             as = []
             for ld in ld_bounds[lld, :].nzind

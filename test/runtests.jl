@@ -1,6 +1,4 @@
-const Verts = Array{Float64, 2}
-const Cells = SparseMatrixCSC{Int8, Int}
-const Cell = SparseVector{Int8, Int}
+using LARLIB
 
 include("./planar_arrangement.jl")
 include("./dimension_travel.jl")

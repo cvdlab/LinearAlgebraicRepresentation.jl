@@ -1,9 +1,3 @@
-
-include("./utilities.jl")
-include("./planar_arrangement.jl")
-include("./dimension_travel.jl")
-using NearestNeighbors
-
 function merge_vertices(V::Verts, EV::Cells, FE::Cells, err=1e-4)
     vertsnum = size(V, 1)
     edgenum = size(EV, 1)
@@ -35,8 +29,8 @@ function merge_vertices(V::Verts, EV::Cells, FE::Cells, err=1e-4)
     for ei in 1:edgenum
         v1, v2 = EV[ei, :].nzind
         
-        edges[ei] = sort([newverts[v1], newverts[v2]])
-        oedges[ei] = sort([v1, v2])
+        edges[ei] = Tuple{Int, Int}(sort([newverts[v1], newverts[v2]]))
+        oedges[ei] = Tuple{Int, Int}(sort([v1, v2]))
     
     end
     nedges = union(edges)
