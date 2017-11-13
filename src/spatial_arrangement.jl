@@ -97,7 +97,7 @@ function spatial_arrangement(V::Verts, EV::Cells, FE::Cells)
     for sigma in 1:fs_num
         println(sigma, "/", fs_num)
 
-        sigmavs = (abs(FE[sigma:sigma,:])*abs(EV))[1,:].nzind 
+        sigmavs = (abs.(FE[sigma:sigma,:])*abs.(EV))[1,:].nzind 
         sV = V[sigmavs, :]
         sEV = EV[FE[sigma, :].nzind, sigmavs]
 

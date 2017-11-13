@@ -14,7 +14,7 @@ function spatial_index(V::Verts, EV::Cells, FE::Cells)
     IntervalsType = IntervalValue{Float64, Int64}
     boxes1D = Array{IntervalsType, 2}(0, d)
     for fi in 1:faces_num
-        vidxs = (abs(FE[fi:fi,:])*abs(EV))[1,:].nzind
+        vidxs = (abs.(FE[fi:fi,:])*abs.(EV))[1,:].nzind
         intervals = map((l,u)->IntervalsType(l,u,fi), bbox(V[vidxs, :])...)
         boxes1D = vcat(boxes1D, intervals)
     end

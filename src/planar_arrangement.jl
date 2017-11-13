@@ -219,8 +219,8 @@ function biconnected_components(EV::Cells)
     bicon_comps
 end
 function get_external_cycle(V::Verts, EV::Cells, FE::Cells)
-    FV = abs(FE)*EV
-    vs = sparsevec(mapslices(sum, abs(EV), 1)).nzind
+    FV = abs.(FE)*EV
+    vs = sparsevec(mapslices(sum, abs.(EV), 1)).nzind
     minv_x1 = maxv_x1 = minv_x2 = maxv_x2 = pop!(vs)
     for i in vs
         if V[i, 1] > V[maxv_x1, 1]
@@ -316,7 +316,7 @@ function cell_merging(n, containment_graph, V, EVs, boundaries, shells, shell_bb
 
     for father in 1:n
         if sum(containment_graph[:, father]) > 0
-            father_bboxes = bboxes(V, abs(EVs[father]')*abs(boundaries[father]'))
+            father_bboxes = bboxes(V, abs.(EVs[father]')*abs.(boundaries[father]'))
             for child in 1:n
                 if containment_graph[child, father] > 0
                     child_bbox = shell_bboxes[child]
@@ -470,7 +470,7 @@ function planar_arrangement(V::Verts, EV::Cells, sigma::Cell=spzeros(Int8, 0))
     
     shell_bboxes = []
     for i in 1:n
-        vs_indexes = (abs(EVs[i]')*abs(shells[i])).nzind
+        vs_indexes = (abs.(EVs[i]')*abs.(shells[i])).nzind
         push!(shell_bboxes, bbox(V[vs_indexes, :]))
     end
     

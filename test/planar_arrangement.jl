@@ -145,7 +145,7 @@ end
         shell_bboxes = []
         n = 5
         for i in 1:n
-            vs_indexes = (abs(EVs[i]')*abs(shells[i])).nzind
+            vs_indexes = (abs.(EVs[i]')*abs.(shells[i])).nzind
             push!(shell_bboxes, LARLIB.bbox(V[vs_indexes, :]))
         end
     
@@ -187,7 +187,7 @@ end
         shell_bboxes = []
         n = 2
         for i in 1:n
-            vs_indexes = (abs(EVs[i]')*abs(shells[i])).nzind
+            vs_indexes = (abs.(EVs[i]')*abs.(shells[i])).nzind
             push!(shell_bboxes, LARLIB.bbox(V[vs_indexes, :]))
         end
     
