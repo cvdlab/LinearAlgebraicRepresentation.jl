@@ -360,29 +360,22 @@ end
 function planar_arrangement(V::Verts, EV::Cells, sigma::Cell=spzeros(Int8, 0))
     edgenum = size(EV, 1)
     edge_map = Array{Array{Int, 1}, 1}(edgenum)
-    EVs = Array{Cells, 1}()
+    rV = zeros(0, 2)
+    rEV = spzeros(Int8, 0, 0)
     finalcells_num = 0
     
 
     for i in 1:edgenum
-        V, ev = frag_edge(V, EV, i)
+        v, ev = frag_edge(V, EV, i)
         
         newedges_nums = map(x->x+finalcells_num, collect(1:size(ev, 1)))
-        
         edge_map[i] = newedges_nums
-        
         finalcells_num += size(ev, 1)
-        push!(EVs, ev)
+        
+        rV, rEV = skel_merge(rV, rEV, v, ev)
         
     end
-    EV = spzeros(Int8, finalcells_num, size(V,1))
-    newcell_index = 1
-    for ev in EVs
-        s = size(ev)
-        EV[newcell_index:newcell_index+s[1]-1, 1:s[2]] = ev
-        newcell_index += s[1]
-    end
-    
+    V, EV = rV, rEV
 
     V, EV = merge_vertices!(V, EV, edge_map)
     
