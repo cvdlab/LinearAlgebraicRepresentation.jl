@@ -8,11 +8,11 @@
 Official Julia implementation of [LAR](http://dx.doi.org/10.1016/j.cad.2013.08.044).
 
 ### Version
-0.2.0
+0.2.11
 
 ## Installing
 
-Just run `Pkg.clone("https://github.com/cvdlab/LARLIB.jl")`
+Just run `Pkg.clone("https://github.com/cvdlab/LARLIB.jl")` within a Julia console.
 
 ## API
 
@@ -24,3 +24,7 @@ Include the module (`using LARLIB`).
 * [Giulio Martella](https://github.com/giuliom95)
 * [Francesco Furiani](https://github.com/furio)
 * [Alberto Paoluzzi](https://github.com/apaoluzzi)
+
+## How to contribute
+
+Follow the instructions on [the development repo](https://github.com/cvdlab/larlib-literate).
