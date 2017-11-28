@@ -15,5 +15,6 @@ module LARLIB
     include("./dimension_travel.jl")
     include("./planar_arrangement.jl")
     include("./spatial_arrangement.jl")
+    include("./largrid.jl")
     
 end
