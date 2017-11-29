@@ -1,3 +1,45 @@
+function frag_face_channel(in_chan, out_chan, V, EV, FE, sp_idx)
+    run_loop = true
+    while run_loop
+        sigma = take!(in_chan)
+        if sigma != -1
+            put!(out_chan, frag_face(V, EV, FE, sp_idx, sigma))
+        else
+            run_loop = false
+        end
+    end
+end
+function frag_face(V, EV, FE, sp_idx, sigma)
+    vs_num = size(V, 1)
+
+    sigmavs = (abs.(FE[sigma:sigma,:])*abs.(EV))[1,:].nzind 
+    sV = V[sigmavs, :]
+    sEV = EV[FE[sigma, :].nzind, sigmavs]
+
+    M = submanifold_mapping(sV)
+    tV = ([V ones(vs_num)]*M)[:, 1:3]
+    
+    sV = tV[sigmavs, :]
+    
+    for i in sp_idx[sigma]
+        tmpV, tmpEV = face_int(tV, EV, FE[i, :])
+        
+        sV, sEV = skel_merge(sV, sEV, tmpV, tmpEV)
+    end
+    
+    sV = sV[:, 1:2]
+    
+
+    nV, nEV, nFE = planar_arrangement(sV, sEV, sparsevec(ones(Int8, length(sigmavs))))
+
+    if nV == nothing
+        return [], spzeros(Int8, 0,0), spzeros(Int8, 0,0)
+    end
+
+    nvsize = size(nV, 1)
+    nV = [nV zeros(nvsize) ones(nvsize)]*inv(M)[:, 1:3]
+    return nV, nEV, nFE
+end
 function merge_vertices(V::Verts, EV::Cells, FE::Cells, err=1e-4)
     vertsnum = size(V, 1)
     edgenum = size(EV, 1)
@@ -83,48 +125,44 @@ function merge_vertices(V::Verts, EV::Cells, FE::Cells, err=1e-4)
 end
 
 
-function spatial_arrangement(V::Verts, EV::Cells, FE::Cells)
-    vs_num = size(V, 1)
-    es_num = size(EV, 1)
-    fs_num = size(FE, 1)
 
+function spatial_arrangement(V::Verts, EV::Cells, FE::Cells; multiproc=false)
+    fs_num = size(FE, 1)
     sp_idx = spatial_index(V, EV, FE)
 
     rV = Verts(0,3)
     rEV = spzeros(Int8,0,0)
     rFE = spzeros(Int8,0,0)
 
-    for sigma in 1:fs_num
-        print(sigma, "/", fs_num, "\r")
-
-        sigmavs = (abs.(FE[sigma:sigma,:])*abs.(EV))[1,:].nzind 
-        sV = V[sigmavs, :]
-        sEV = EV[FE[sigma, :].nzind, sigmavs]
-
-        M = submanifold_mapping(sV)
-        tV = ([V ones(vs_num)]*M)[:, 1:3]
+    if (multiproc == true)
+        in_chan = RemoteChannel(()->Channel{Int64}(0))
+        out_chan = RemoteChannel(()->Channel{Tuple}(0))
         
-        sV = tV[sigmavs, :]
-        
-        for i in sp_idx[sigma]
-            tmpV, tmpEV = face_int(tV, EV, FE[i, :])
-            
-            sV, sEV = skel_merge(sV, sEV, tmpV, tmpEV)
+        @schedule begin
+            for sigma in 1:fs_num
+                put!(in_chan, sigma)
+            end
+            for p in workers()
+                put!(in_chan, -1)
+            end
         end
         
-        sV = sV[:, 1:2]
-        
-
-        nV, nEV, nFE = planar_arrangement(sV, sEV, sparsevec(ones(Int8, length(sigmavs))))
-
-        if nV == nothing
-            continue
+        for p in workers()
+            @async Base.remote_do(
+                frag_face_channel, p, in_chan, out_chan, V, EV, FE, sp_idx)
         end
         
-        nvsize = size(nV, 1)
-        nV = [nV zeros(nvsize) ones(nvsize)]*inv(M)[:, 1:3]
-
-        rV, rEV, rFE = skel_merge(rV, rEV, rFE, nV, nEV, nFE)
+        for sigma in 1:fs_num
+            rV, rEV, rFE = skel_merge(rV, rEV, rFE, take!(out_chan)...)
+        end
+        
+    else
+        for sigma in 1:fs_num
+            print(sigma, "/", fs_num, "\r")
+            nV, nEV, nFE = frag_face(V, EV, FE, sp_idx, sigma)
+            rV, rEV, rFE = skel_merge(rV, rEV, rFE, nV, nEV, nFE)
+        end
+        
     end
 
     rV, rEV, rFE = merge_vertices(rV, rEV, rFE)

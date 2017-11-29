@@ -1,29 +1,41 @@
+function frag_edge_channel(in_chan, out_chan, V, EV)
+    run_loop = true
+    while run_loop
+        edgenum = take!(in_chan)
+        if edgenum != -1
+            put!(out_chan, (edgenum, frag_edge(V, EV, edgenum)))
+        else
+            run_loop = false
+        end
+    end
+end
 function frag_edge(V::Verts, EV::Cells, edge_idx::Int)
     alphas = Dict{Float64, Int}()
     edge = EV[edge_idx, :]
+    verts = V[edge.nzind, :]
     for i in 1:size(EV, 1)
         if i != edge_idx
             intersection = intersect_edges(V, edge, EV[i, :])
             for (point, alpha) in intersection
-                V = [V; point]
-                alphas[alpha] = size(V, 1)
+                verts = [verts; point]
+                alphas[alpha] = size(verts, 1)
             end
         end
     end
 
-    alphas[0.0], alphas[1.0] = edge.nzind
+    alphas[0.0], alphas[1.0] = [1, 2]
 
     alphas_keys = sort(collect(keys(alphas)))
     edge_num = length(alphas_keys)-1
-    verts_num = size(V, 1)
-    EV = spzeros(Int8, edge_num, verts_num)
+    verts_num = size(verts, 1)
+    ev = spzeros(Int8, edge_num, verts_num)
 
     for i in 1:edge_num
-        EV[i, alphas[alphas_keys[i]]] = 1
-        EV[i, alphas[alphas_keys[i+1]]] = 1
+        ev[i, alphas[alphas_keys[i]]] = 1
+        ev[i, alphas[alphas_keys[i+1]]] = 1
     end
 
-    V, EV
+    verts, ev
 end
 function intersect_edges(V::Verts, edge1::Cell, edge2::Cell)
     err = 10e-8
@@ -357,7 +369,7 @@ function cell_merging(n, containment_graph, V, EVs, boundaries, shells, shell_bb
 end
 
 
-function planar_arrangement(V::Verts, EV::Cells, sigma::Cell=spzeros(Int8, 0))
+function planar_arrangement(V::Verts, EV::Cells, sigma::Cell=spzeros(Int8, 0); multiproc=false)
     edgenum = size(EV, 1)
     edge_map = Array{Array{Int, 1}, 1}(edgenum)
     rV = zeros(0, 2)
@@ -365,16 +377,56 @@ function planar_arrangement(V::Verts, EV::Cells, sigma::Cell=spzeros(Int8, 0))
     finalcells_num = 0
     
 
-    for i in 1:edgenum
-        v, ev = frag_edge(V, EV, i)
+    if (multiproc == true)
+        in_chan = RemoteChannel(()->Channel{Int64}(0))
+        out_chan = RemoteChannel(()->Channel{Tuple}(0))
         
-        newedges_nums = map(x->x+finalcells_num, collect(1:size(ev, 1)))
-        edge_map[i] = newedges_nums
-        finalcells_num += size(ev, 1)
+        ordered_dict = SortedDict{Int64,Tuple}()
         
-        rV, rEV = skel_merge(rV, rEV, v, ev)
+        @schedule begin
+            for i in 1:edgenum
+                put!(in_chan,i)
+            end
+            for p in workers()
+                put!(in_chan,-1)
+            end
+        end
+        
+        for p in workers()
+            @async Base.remote_do(frag_edge_channel, p, in_chan, out_chan, V, EV)
+        end
+        
+        for i in 1:edgenum
+            frag_done_job = take!(out_chan)
+            ordered_dict[frag_done_job[1]] = frag_done_job[2]
+        end
+        
+        for (dkey, dval) in ordered_dict
+            i = dkey
+            v, ev = dval
+            newedges_nums = map(x->x+finalcells_num, collect(1:size(ev, 1)))
+            
+            edge_map[i] = newedges_nums
+            
+            finalcells_num += size(ev, 1)
+            
+            rV, rEV = skel_merge(rV, rEV, v, ev)
+        end
+        
+    else
+        for i in 1:edgenum
+            v, ev = frag_edge(V, EV, i)
+        
+            newedges_nums = map(x->x+finalcells_num, collect(1:size(ev, 1)))
+        
+            edge_map[i] = newedges_nums
+        
+            finalcells_num += size(ev, 1)
+            rV, rEV = skel_merge(rV, rEV, v, ev)
+        end
         
     end
+    
     V, EV = rV, rEV
 
     V, EV = merge_vertices!(V, EV, edge_map)

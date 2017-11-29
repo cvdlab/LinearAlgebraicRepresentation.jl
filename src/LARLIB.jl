@@ -1,6 +1,7 @@
 module LARLIB
 
     using NearestNeighbors
+    using DataStructures
     using NearestNeighbors
     using IntervalTrees
     using TRIANGLE
