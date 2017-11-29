@@ -8,7 +8,7 @@
 Official Julia implementation of [LAR](http://dx.doi.org/10.1016/j.cad.2013.08.044).
 
 ### Version
-0.2.11
+0.3.1
 
 ## Installing
 
