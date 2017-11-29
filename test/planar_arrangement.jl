@@ -22,12 +22,10 @@ using LARLIB
 
     @testset "frag_edge" begin
         rV, rEV = LARLIB.frag_edge(V, EV, 5)
-        @test rV == [2.0 2.0; 4.0 2.0; 3.0 3.5; 1.0 3.0; 
-                     5.0 3.0; 1.0 2.0; 5.0 2.0; 2.0 2.0; 
-                     4.0 2.0; 4.0 2.0; 2.0 2.0]
-        @test full(rEV) == [0 0 0 0 0 1 0 0 0 0 1; 
-                            0 0 0 0 0 0 0 0 0 1 1;
-                            0 0 0 0 0 0 1 0 0 1 0]
+        @test rV == [1.0 2.0; 5.0 2.0; 2.0 2.0; 4.0 2.0; 4.0 2.0; 2.0 2.0]
+        @test full(rEV) == [1 0 0 0 0 1;
+                             0 0 0 0 1 1; 
+                             0 1 0 0 1 0]
     end
 end
 @testset "merge_vertices test set" begin
