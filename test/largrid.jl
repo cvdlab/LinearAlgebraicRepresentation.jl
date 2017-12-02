@@ -198,10 +198,10 @@ end
    @test typeof(EV) == Array{Array{Int64,1},1}
    V,FV = model_2
    @test typeof(V) ==  Array{Float64,2}
-   @test typeof(FV) == Array{Any,1}
+   @test typeof(FV) == Array{Array{Int64,1},1}
    V,CV = model_3
    @test typeof(V) ==  Array{Float64,2}
-   @test typeof(CV) == Array{Any,1}
+   @test typeof(CV) == Array{Array{Int64,1},1}
 
    modelOne = ([0 0 1 1; 0 1 0 1], Array{Int64,1}[[1, 2, 3, 4]])
    modelTwo = ([0 1], Array{Int64,1}[[1, 2]])
