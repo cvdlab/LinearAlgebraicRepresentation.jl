@@ -9,6 +9,7 @@ module LARLIB
     const Verts = Array{Float64, 2}
     const Cells = SparseMatrixCSC{Int8, Int}
     const Cell = SparseVector{Int8, Int}
+    const LarCells = Array{Array{Int, 1}, 1}
     
 
     include("./utilities.jl")

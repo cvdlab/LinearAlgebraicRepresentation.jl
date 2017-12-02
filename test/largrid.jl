@@ -134,3 +134,78 @@ end
       @test typeof(basis) == Array{Array{Int64,1},1}
     end
 end
+
+@testset "LarImageVerts Tests" "$shape" for shape in [[3,2,1],[3,2],[10,10,10]]
+   @test size(LARLIB.larImageVerts(shape)) == (length(shape),prod(shape + 1))
+end
+
+@testset "LarCuboids Tests" begin
+   @testset "LarCuboids Tests" "$shape" for shape in [[3,2,1],[1,1,1],[3,3,10]]
+      @test size(LARLIB.larCuboids(shape)[1],2) == prod(collect(shape) + 1)
+      @test length(LARLIB.larCuboids(shape)[2]) == prod(shape)
+      cubes = LARLIB.larCuboids(shape,true)
+      verts, cells = cubes
+      @test typeof(verts) == Array{Int64,2}
+      VV,EV,FV,CV = cells
+      @testset "$basis" for basis in [VV,EV,FV,CV]
+        @test typeof(basis) == Array{Array{Int64,1},1}
+      end
+   end
+
+   @testset "LarCuboids Tests" "$shape" for shape in [[3,2],[1,1],[3,10]]
+      @test size(LARLIB.larCuboids(shape)[1],2) == prod(collect(shape) + 1)
+      @test length(LARLIB.larCuboids(shape)[2]) == prod(shape)
+      cubes = LARLIB.larCuboids(shape,true)
+      verts, cells = cubes
+      @test typeof(verts) == Array{Int64,2}
+      VV,EV,FV = cells
+      @testset "$basis" for basis in [VV,EV,FV]
+        @test typeof(basis) == Array{Array{Int64,1},1}
+      end
+   end
+
+   @testset "LarCuboids Tests" "$shape" for shape in [[3],[1],[10]]
+      @test size(LARLIB.larCuboids(shape)[1],2) == prod(collect(shape) + 1)
+      @test length(LARLIB.larCuboids(shape)[2]) == prod(shape)
+      cubes = LARLIB.larCuboids(shape,true)
+      verts, cells = cubes
+      @test typeof(verts) == Array{Int64,2}
+      VV,EV = cells
+      @testset "$basis" for basis in [VV,EV]
+        @test typeof(basis) == Array{Array{Int64,1},1}
+      end
+   end
+end
+
+@testset "LARLIB.LarModelProduct Tests" begin
+   geom_0 = hcat([[x] for x=0.:10]...)
+   topol_0 = [[i,i+1] for i=1:9]
+   geom_1 = hcat([[0.],[1.],[2.]]...)
+   topol_1 = [[1,2],[2,3]]
+   model_0 = (geom_0, topol_0)
+   model_1 = (geom_1, topol_1)
+   model_2 = LARLIB.larModelProduct(model_0, model_1)
+   model_3 = LARLIB.larModelProduct(model_2, model_1)
+   @test size(model_2[1],2) == size(model_0[1],2) * size(model_1[1],2)
+   @test length(model_2[2]) == length(model_0[2]) * length(model_1[2])
+   @test size(model_3[1],2) == size(model_2[1],2) * size(model_1[1],2)
+   @test length(model_3[2]) == length(model_2[2]) * length(model_1[2])
+   V,EV = model_0
+   @test typeof(V) == Array{Float64,2}
+   @test typeof(EV) == Array{Array{Int64,1},1}
+   V,EV = model_1
+   @test typeof(V) == Array{Float64,2}
+   @test typeof(EV) == Array{Array{Int64,1},1}
+   V,FV = model_2
+   @test typeof(V) ==  Array{Float64,2}
+   @test typeof(FV) == Array{Any,1}
+   V,CV = model_3
+   @test typeof(V) ==  Array{Float64,2}
+   @test typeof(CV) == Array{Any,1}
+
+   modelOne = ([0 0 1 1; 0 1 0 1], Array{Int64,1}[[1, 2, 3, 4]])
+   modelTwo = ([0 1], Array{Int64,1}[[1, 2]])
+   @test LARLIB.larModelProduct(modelOne, modelTwo) == LARLIB.larModelProduct(modelTwo, modelOne)
+   @test LARLIB.larModelProduct(modelTwo, modelTwo)[1] == [0  0  1  1; 0  1  0  1]
+   @test LARLIB.larModelProduct(modelOne,modelOne)[2][1] == Any[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16]
+end

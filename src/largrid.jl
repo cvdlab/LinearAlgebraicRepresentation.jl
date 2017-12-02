@@ -107,15 +107,16 @@ function larCuboids(shape, full=false)
    return vertGrid, cells
 end
 
-function larModelProduct(modelOne, modelTwo)
+function larModelProduct( modelOne, modelTwo )
     (V, cells1) = modelOne
     (W, cells2) = modelTwo
 
-    vertices = collections.OrderedDict(); 
+    vertices = DataStructures.OrderedDict(); 
     k = 1
-    vertices = OrderedDict()
-    for v in V
-        for w in W
+    for j in 1:size(V,2)
+       v = V[:,j]
+        for i in 1:size(W,2)
+          w = W[:,i]
             id = [v;w]
             if haskey(vertices, id) == false
                 vertices[id] = k
@@ -130,7 +131,7 @@ function larModelProduct(modelOne, modelTwo)
             cell = []
             for vc in c1
                 for wc in c2 
-                    push!(cell, vertices[[V[vc];W[wc]]] )
+                    push!(cell, vertices[[V[:,vc];W[:,wc]]] )
                 end
             end
             push!(cells, cell)
@@ -142,7 +143,9 @@ function larModelProduct(modelOne, modelTwo)
     for v in keys(vertices)
         push!(vertexmodel, v)
     end
-    return (vertexmodel, cells)
+    verts = hcat(vertexmodel...)
+    cells = [[v for v in cell] for cell in cells]
+    return (verts, cells)
 end
 
 function larModelProduct(twoModels)
