@@ -104,7 +104,7 @@ function larCuboids(shape, full=false)
       skeletonIds = 0:length(shape)
       cells = [ gridMap(id) for id in skeletonIds ]
    end
-   return vertGrid, cells
+   return convert(Array{Float64,2},vertGrid), cells
 end
 
 function larModelProduct( modelOne, modelTwo )

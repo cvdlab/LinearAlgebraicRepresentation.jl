@@ -8,7 +8,7 @@
 Official Julia implementation of [LAR](http://dx.doi.org/10.1016/j.cad.2013.08.044).
 
 ### Version
-0.3.2
+Master is always the latest version you can get, check it in the file [VERSION](https://github.com/cvdlab/LARLIB.jl/blob/master/VERSION). Older version are tagged.
 
 ## Installing
 
@@ -18,7 +18,7 @@ Just run `Pkg.clone("https://github.com/cvdlab/LARLIB.jl")` within a Julia conso
 
 Include the module (`using LARLIB`).
 
-[WiP]
+Read the included [document](https://github.com/cvdlab/LARLIB.jl/blob/master/doc/book.pdf) for the API interface and the theory about the library.
 
 ## Authors
 * [Giulio Martella](https://github.com/giuliom95)
