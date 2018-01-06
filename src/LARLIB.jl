@@ -78,6 +78,32 @@ module LARLIB
        vedges = [findn(larEV[:,v]) for v=1:size(larEV,2)]
    
        
+       # Loop on faces
+       for f=1:length(FE)
+           fedges = Set(FE[f])
+           next = pop!(fedges)
+           col = 1
+           vpivot = infos[4,col]
+           infos = zeros(Int64,(4,length(FE[f])))
+           while fedges != Set()
+               nextedge = intersect(fedges, Set(vedges[vpivot]))
+               fedges = setdiff(fedges,nextedge)
+               next = pop!(nextedge)
+               col += 1
+               vpivot = columninfo(col)
+               if vpivot == infos[4,col-1]
+                   infos[3,col],infos[4,col] = infos[4,col],infos[3,col]
+                   infos[1,col] = -1
+                   vpivot = infos[4,col]
+               end
+           end
+           for j=1:size(infos,2)
+               push!(I, f)
+               push!(J, infos[2,j])
+               push!(V, infos[1,j])
+           end
+       end
+       
        spboundary2 = sparse(I,J,V)
        return spboundary2
    end
