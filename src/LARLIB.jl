@@ -70,8 +70,8 @@ module LARLIB
    
    # Initialization
    function boundary2(FV,EV)
-       sp_u_boundary2 = uboundary2(FV,EV)
-       larEV = characteristicMatrix(EV)
+       sp_u_boundary2 = LARLIB.uboundary2(FV,EV)
+       larEV = LARLIB.characteristicMatrix(EV)
        # unsigned incidence relation
        FE = [findn(sp_u_boundary2[f,:]) for f=1:size(sp_u_boundary2,1) ]
        I,J,V = Int64[],Int64[],Int8[]
