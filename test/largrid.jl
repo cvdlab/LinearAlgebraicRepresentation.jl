@@ -128,7 +128,7 @@ end
     shape = (3,2,1)
     cubes = LARLIB.larCuboids(shape,true)
     verts, cells = cubes
-    @test typeof(verts) == Array{Int64,2}
+    @test typeof(verts) == Array{Float64,2}
     VV,EV,FV,CV = cells
     @testset "$basis" for basis in [VV,EV,FV,CV]
       @test typeof(basis) == Array{Array{Int64,1},1}
@@ -145,7 +145,7 @@ end
       @test length(LARLIB.larCuboids(shape)[2]) == prod(shape)
       cubes = LARLIB.larCuboids(shape,true)
       verts, cells = cubes
-      @test typeof(verts) == Array{Int64,2}
+      @test typeof(verts) == Array{Float64,2}
       VV,EV,FV,CV = cells
       @testset "$basis" for basis in [VV,EV,FV,CV]
         @test typeof(basis) == Array{Array{Int64,1},1}
@@ -157,7 +157,7 @@ end
       @test length(LARLIB.larCuboids(shape)[2]) == prod(shape)
       cubes = LARLIB.larCuboids(shape,true)
       verts, cells = cubes
-      @test typeof(verts) == Array{Int64,2}
+      @test typeof(verts) == Array{Float64,2}
       VV,EV,FV = cells
       @testset "$basis" for basis in [VV,EV,FV]
         @test typeof(basis) == Array{Array{Int64,1},1}
@@ -169,7 +169,7 @@ end
       @test length(LARLIB.larCuboids(shape)[2]) == prod(shape)
       cubes = LARLIB.larCuboids(shape,true)
       verts, cells = cubes
-      @test typeof(verts) == Array{Int64,2}
+      @test typeof(verts) == Array{Float64,2}
       VV,EV = cells
       @testset "$basis" for basis in [VV,EV]
         @test typeof(basis) == Array{Array{Int64,1},1}
