@@ -133,6 +133,20 @@ module LARLIB
        return V',bases,coboundaries
    end
    
+   # Collect LAR models in a single LAR model
+   function collection2model(collection)
+      W,FW,EW = collection[1]
+      shiftV = size(W,2)
+      for k=2:length(collection)
+         V,FV,EV = collection[k]
+         W = [W V]
+         FW = [FW; FV + shiftV]
+         EW = [EW; EV + shiftV]
+         shiftV = size(W,2)
+      end
+      return W,FW,EW
+   end
+   
 
    include("./utilities.jl")
    include("./minimal_cycles.jl")
