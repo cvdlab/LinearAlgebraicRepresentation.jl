@@ -29,7 +29,7 @@ module LARLIB
    
    # Computation of sparse boundary $C_1 \to C_0$
    function boundary1(EV)
-      spboundary1 = characteristicMatrix(EV)'
+      spboundary1 = LARLIB.characteristicMatrix(EV)'
       for e = 1:length(EV)
          spboundary1[EV[e][1],e] = -1
       end
@@ -77,13 +77,11 @@ module LARLIB
        I,J,V = Int64[],Int64[],Int8[]
        vedges = [findn(larEV[:,v]) for v=1:size(larEV,2)]
    
-       
        # Loop on faces
        for f=1:length(FE)
            fedges = Set(FE[f])
            next = pop!(fedges)
            col = 1
-          infos = zeros(Int64,(4,length(FE[f])))
            vpivot = infos[4,col]
            infos = zeros(Int64,(4,length(FE[f])))
            vpivot = columninfo(infos,EV,next,col)
@@ -108,6 +106,31 @@ module LARLIB
        
        spboundary2 = sparse(I,J,V)
        return spboundary2
+   end
+   
+   # Chain 3-complex construction
+   function chaincomplex(W,FW,EW)
+       V = convert(Array{Float64,2},W')
+       EV = characteristicMatrix(EW)
+       FE = boundary2(FW,EW)
+       V,cscEV,cscFE,cscCF = LARLIB.spatial_arrangement(V,EV,FE)
+       ne,nv = size(cscEV)
+       nf = size(cscFE,1)
+       nc = size(cscCF,1)
+       EV = [findn(cscEV[e,:]) for e=1:ne]
+       FV = [collect(Set(vcat([EV[e] for e in findn(cscFE[f,:])]...)))  for f=1:nf]
+       CV = [collect(Set(vcat([FV[f] for f in findn(cscCF[c,:])]...)))  for c=2:nc]
+       function ord(cells)
+           return [sort(cell) for cell in cells]
+       end
+       temp = copy(cscEV')
+       for k=1:size(temp,2)
+           h = findn(temp[:,k])[1]
+           temp[h,k] = -1
+       end    
+       cscEV = temp'
+       bases, coboundaries = (ord(EV),ord(FV),ord(CV)), (cscEV,cscFE,cscCF)
+       return V',bases,coboundaries
    end
    
 
