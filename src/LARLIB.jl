@@ -59,7 +59,7 @@ module LARLIB
    
    
    # Local storage
-   function columninfo(col)
+   function columninfo(infos,EV,next,col)
        infos[1,col] = 1
        infos[2,col] = next
        infos[3,col] = EV[next][1]
@@ -83,14 +83,16 @@ module LARLIB
            fedges = Set(FE[f])
            next = pop!(fedges)
            col = 1
+          infos = zeros(Int64,(4,length(FE[f])))
            vpivot = infos[4,col]
            infos = zeros(Int64,(4,length(FE[f])))
+           vpivot = columninfo(infos,EV,next,col)
            while fedges != Set()
                nextedge = intersect(fedges, Set(vedges[vpivot]))
                fedges = setdiff(fedges,nextedge)
                next = pop!(nextedge)
                col += 1
-               vpivot = columninfo(col)
+               vpivot = columninfo(infos,EV,next,col)
                if vpivot == infos[4,col-1]
                    infos[3,col],infos[4,col] = infos[4,col],infos[3,col]
                    infos[1,col] = -1
