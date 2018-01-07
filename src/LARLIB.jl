@@ -82,8 +82,8 @@ module LARLIB
            fedges = Set(FE[f])
            next = pop!(fedges)
            col = 1
-           vpivot = infos[4,col]
            infos = zeros(Int64,(4,length(FE[f])))
+           vpivot = infos[4,col]
            vpivot = columninfo(infos,EV,next,col)
            while fedges != Set()
                nextedge = intersect(fedges, Set(vedges[vpivot]))
