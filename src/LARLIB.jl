@@ -200,6 +200,42 @@ module LARLIB
       return TV
    end
    
+   # Map 3-cells to local bases
+   function map_3cells_to_localbases(CV,FV,cscCF,cscFE)
+      local3cells = []
+      for c=1:length(CV)
+         cf = findnz(cscCF[c+1,:])
+         tv = triangulate(cf,FV,cscFE,cscCF)
+         vs = sort(collect(Set(hcat(tv...))))
+         vsdict = Dict([(v,k) for (k,v) in enumerate(vs)])
+         tvs = [[vsdict[t[1]],vsdict[t[2]],vsdict[t[3]]] for t in tv]
+         v = hcat([V[:,w] for w in vs]...)
+         cell = [v,tvs]
+         append!(local3cells,[cell])
+      end
+      return local3cells
+   end
+   
+   # Visualize solid cells
+   function viewsolidcells(sx=1.2, sy=1.2, sz=1.2)
+      scaling = [sx; sy; sz]
+      function viewsolidcells0(CV,FV,cscCF,cscFE)
+         local3cells = map_3cells_to_localbases(CV,FV,cscCF,cscFE)
+         hpcs = Any[]
+         for local3cell in local3cells
+            v,tv = local3cell
+            centroid = sum(v,2)/size(v,2)
+            scaledcentroid = scaling.*centroid
+            translation = scaledcentroid - centroid
+            w = v .+ translation
+            hpc = p.SOLIDIFY(LARVIEW.lar2hpc(w,tv))
+            append!(hpcs, [hpc])
+         end
+         p.VIEW(p.STRUCT(hpcs))
+         return viewsolidcells0
+      end
+   end
+   
 
    include("./utilities.jl")
    include("./minimal_cycles.jl")
