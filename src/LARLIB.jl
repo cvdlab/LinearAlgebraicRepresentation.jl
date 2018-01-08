@@ -201,7 +201,7 @@ module LARLIB
    end
    
    # Map 3-cells to local bases
-   function map_3cells_to_localbases(CV,FV,cscCF,cscFE)
+   function map_3cells_to_localbases(V,CV,FV,cscCF,cscFE)
       local3cells = []
       for c=1:length(CV)
          cf = findnz(cscCF[c+1,:])
@@ -219,8 +219,8 @@ module LARLIB
    # Visualize solid cells
    function viewsolidcells(sx=1.2, sy=1.2, sz=1.2)
       scaling = [sx; sy; sz]
-      function viewsolidcells0(CV,FV,cscCF,cscFE)
-         local3cells = map_3cells_to_localbases(CV,FV,cscCF,cscFE)
+      function viewsolidcells0(V,CV,FV,cscCF,cscFE)
+         local3cells = map_3cells_to_localbases(V,CV,FV,cscCF,cscFE)
          hpcs = Any[]
          for local3cell in local3cells
             v,tv = local3cell
