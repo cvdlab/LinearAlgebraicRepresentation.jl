@@ -55,4 +55,25 @@
    @testset "collection2model Tests" begin
       @test typeof(collection)==Array{Array{Array,1},1}
    end
+
+   @testset "facetriangulation Tests" begin
+      V,(VV,EV,FV,CV) = LARLIB.larCuboids([2,2,1],true)
+      W,FW,EW = copy(V),copy(FV),copy(EV)
+      collection = Array{Array,1}[]
+      for k=1:2
+       W,FW,EW = copy(W)+.5,copy(FV),copy(EV)
+       append!(collection, [[W,FV,EV]])
+      end
+      V,FV,EV = LARLIB.collection2model(collection)
+      V,bases,coboundaries = LARLIB.chaincomplex(V,FV,EV)
+      EV,FV,CV = bases
+      cscEV,cscFE,cscCF = coboundaries
+      TV = triangulate((1:length(FV),ones(length(FV))),V,FV,cscFE,cscCF)
+      @test typeof(TV)==Array{Array{Int64,1},1}
+      @test typeof((V,FV))==Tuple{Array{Float64,2},Array{Array{Int64,1},1}}
+      @test typeof((1:length(FV),ones(length(FV))))==Tuple{UnitRange{Int64},Array{Float64,1}}
+      @testset "$triangle" for triangle in TV
+         @test length(triangle)==3
+      end
+   end
 end
