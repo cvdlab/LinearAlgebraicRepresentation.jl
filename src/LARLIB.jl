@@ -205,7 +205,7 @@ module LARLIB
       local3cells = []
       for c=1:length(CV)
          cf = findnz(cscCF[c+1,:])
-         tv = LARLIB.triangulate(cf,FV,cscFE,cscCF)
+         tv = LARLIB.triangulate(cf,V,FV,EV,cscFE,cscCF)
          vs = sort(collect(Set(hcat(tv...))))
          vsdict = Dict([(v,k) for (k,v) in enumerate(vs)])
          tvs = [[vsdict[t[1]],vsdict[t[2]],vsdict[t[3]]] for t in tv]
