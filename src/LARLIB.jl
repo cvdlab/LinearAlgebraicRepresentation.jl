@@ -148,7 +148,7 @@ module LARLIB
    end
    
    # Triangulation of a single facet
-   function facetriangulation(V,FV,cscFE,cscCF)
+   function facetriangulation(V,FV,EV,cscFE,cscCF)
       function facetrias(f)
          vs = [V[:,v] for v in FV[f]]
          vs_indices = [v for v in FV[f]]
@@ -187,7 +187,7 @@ module LARLIB
    
    # Triangulation of the 2-skeleton
    function triangulate(cf,V,FV,cscFE,cscCF)
-      mktriangles = LARLIB.facetriangulation(V,FV,cscFE,cscCF)
+      mktriangles = LARLIB.facetriangulation(V,FV,EV,cscFE,cscCF)
       TV = Array{Int64,1}[]
       for (f,sign) in zip(cf[1],cf[2])
          triangles = mktriangles(f)
