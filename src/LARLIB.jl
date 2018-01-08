@@ -186,7 +186,7 @@ module LARLIB
    end
    
    # Triangulation of the 2-skeleton
-   function triangulate(cf,V,FV,cscFE,cscCF)
+   function triangulate(cf,V,FV,EV,cscFE,cscCF)
       mktriangles = LARLIB.facetriangulation(V,FV,EV,cscFE,cscCF)
       TV = Array{Int64,1}[]
       for (f,sign) in zip(cf[1],cf[2])
