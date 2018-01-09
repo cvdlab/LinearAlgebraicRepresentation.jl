@@ -220,7 +220,7 @@ module LARLIB
    function viewsolidcells(sx=1.2, sy=1.2, sz=1.2)
       scaling = [sx; sy; sz]
       function viewsolidcells0(V,CV,FV,EV,cscCF,cscFE)
-         local3cells = map_3cells_to_localbases(V,CV,FV,EV,cscCF,cscFE)
+         local3cells = LARLIB.map_3cells_to_localbases(V,CV,FV,EV,cscCF,cscFE)
          hpcs = Any[]
          for local3cell in local3cells
             v,tv = local3cell
