@@ -125,8 +125,19 @@ function merge_vertices(V::Verts, EV::Cells, FE::Cells, err=1e-4)
 end
 
 
+"""
+    spatial_arrangement(V::Verts, EV::Cells, FE::Cells; [multiproc::Bool])
 
-function spatial_arrangement(V::Verts, EV::Cells, FE::Cells; multiproc=false)
+Compute the arrangement on the given cellular complex 2-skeleton in 3D.
+
+A cellular complex is arranged when the intersection of every possible pair of cell 
+of the complex is empty and the union of all the cells is the whole Euclidean space.
+The function returns the full arranged complex as a list of vertices V and a chain of borders EV, FE, CF.
+
+## Additional arguments:
+- `multiproc::Bool`: Runs the computation in parallel mode. Defaults to `false`.
+"""
+function spatial_arrangement(V::Verts, EV::Cells, FE::Cells, multiproc::Bool=false)
     fs_num = size(FE, 1)
     sp_idx = spatial_index(V, EV, FE)
 

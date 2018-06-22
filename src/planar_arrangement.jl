@@ -369,13 +369,32 @@ function cell_merging(n, containment_graph, V, EVs, boundaries, shells, shell_bb
 end
 
 
-function planar_arrangement(V::Verts, EV::Cells, sigma::Cell=spzeros(Int8, 0); multiproc=false)
+"""
+    planar_arrangement(V::Verts, EV::Cells, [sigma::Cell], [return_edge_map::Bool], [multiproc::Bool])
+
+Compute the arrangement on the given cellular complex 1-skeleton in 2D.
+
+A cellular complex is arranged when the intersection of every possible pair of cell 
+of the complex is empty and the union of all the cells is the whole Euclidean space.
+The basic method of the function without the `sigma`, `return_edge_map` and `multiproc` arguments 
+returns the full arranged complex `V`, `EV` and `FE`.
+
+## Additional arguments:
+- `sigma::Cell`: if specified, `planar_arrangement` will delete from the output every edge and face outside this cell. Defaults to an empty cell.
+- `return_edge_map::Bool`: makes the function return also an `edge_map` which maps the edges of the imput to the one of the output. Defaults to `false`.
+- `multiproc::Bool`: Runs the computation in parallel mode. Defaults to `false`.
+"""
+function planar_arrangement(
+        V::Verts, EV::Cells, 
+        sigma::Cell=spzeros(Int8, 0), 
+        return_edge_map::Bool=false, 
+        multiproc::Bool=false)
+
     edgenum = size(EV, 1)
     edge_map = Array{Array{Int, 1}, 1}(edgenum)
     rV = zeros(0, 2)
     rEV = spzeros(Int8, 0, 0)
     finalcells_num = 0
-    
 
     if (multiproc == true)
         in_chan = RemoteChannel(()->Channel{Int64}(0))
@@ -418,7 +437,7 @@ function planar_arrangement(V::Verts, EV::Cells, sigma::Cell=spzeros(Int8, 0); m
             v, ev = frag_edge(V, EV, i)
         
             newedges_nums = map(x->x+finalcells_num, collect(1:size(ev, 1)))
-        
+            
             edge_map[i] = newedges_nums
         
             finalcells_num += size(ev, 1)
@@ -431,6 +450,7 @@ function planar_arrangement(V::Verts, EV::Cells, sigma::Cell=spzeros(Int8, 0); m
 
     V, EV = merge_vertices!(V, EV, edge_map)
     
+    # Deletes edges outside sigma area
     if sigma.n > 0
         todel = []
         
@@ -463,7 +483,6 @@ function planar_arrangement(V::Verts, EV::Cells, sigma::Cell=spzeros(Int8, 0); m
                 end
             end
         end
-        
     
         V, EV = delete_edges(todel, V, EV)
     end
@@ -472,29 +491,33 @@ function planar_arrangement(V::Verts, EV::Cells, sigma::Cell=spzeros(Int8, 0); m
     
     if isempty(bicon_comps)
         println("No biconnected components found.")
-        return (nothing, nothing, nothing)
+        if (return_edge_map)
+            return (nothing, nothing, nothing, nothing)
+        else
+            return (nothing, nothing, nothing)
+        end
     end
     
-    
-    edges = sort(union(bicon_comps...))
-    todel = sort(setdiff(collect(1:size(EV,1)), edges))
-    
-    for i in reverse(todel)
-        for row in edge_map
-    
-            filter!(x->x!=i, row)
-    
-            for j in 1:length(row)
-                if row[j] > i
-                    row[j] -= 1
+    # This code is not necessary if the user doesn't want the edge_map
+    if (return_edge_map)
+        edges = sort(union(bicon_comps...))
+        todel = sort(setdiff(collect(1:size(EV,1)), edges))
+        
+        for i in reverse(todel)
+            for row in edge_map
+        
+                filter!(x->x!=i, row)
+        
+                for j in 1:length(row)
+                    if row[j] > i
+                        row[j] -= 1
+                    end
                 end
             end
         end
     end
     
-    
     V, EV = delete_edges(todel, V, EV)
-    
     
     bicon_comps = biconnected_components(EV)
     
@@ -526,8 +549,9 @@ function planar_arrangement(V::Verts, EV::Cells, sigma::Cell=spzeros(Int8, 0); m
     
     EV, FE = cell_merging(n, containment_graph, V, EVs, boundaries, shells, shell_bboxes)
     
-    
-      
-
-    V, EV, FE, edge_map
+    if (return_edge_map)
+        V, EV, FE, edge_map
+    else
+        V, EV, FE
+    end
 end 
