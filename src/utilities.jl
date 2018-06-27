@@ -1,14 +1,34 @@
+"""
+    bbox(vertices::Verts)
+
+The axis aligned bounding box of the provided set of n-dim `vertices`.
+
+The box is returned as the couple of `Verts` of the two opposite corners of the box.
+"""
 function bbox(vertices::Verts)
     minimum = mapslices(x->min(x...), vertices, 1)
     maximum = mapslices(x->max(x...), vertices, 1)
     minimum, maximum
 end
 
+"""
+    bbox_contains(container, contained)
+
+Check if the axis aligned bounding box `container` contains `contained`.
+
+Each input box must be passed as the couple of `Verts` standing on the opposite corners of the box.
+"""
 function bbox_contains(container, contained)
     b1_min, b1_max = container
     b2_min, b2_max = contained
     all(map((i,j,k,l)->i<=j<=k<=l, b1_min, b2_min, b2_max, b1_max))
 end
+
+"""
+    face_area(V::Verts, EV::Cells, face::Cell)
+
+The area of `face` given a geometry `V` and an edge topology `EV`.
+"""
 function face_area(V::Verts, EV::Cells, face::Cell)
     function triangle_area(triangle_points::Verts)
         ret = ones(3,3)
@@ -33,6 +53,12 @@ function face_area(V::Verts, EV::Cells, face::Cell)
 
     return area
 end
+
+"""
+    skel_merge(V1::Verts, EV1::Cells, V2::Verts, EV2::Cells)
+
+Merge two **1-skeletons**
+"""
 function skel_merge(V1::Verts, EV1::Cells, V2::Verts, EV2::Cells)
     V = [V1; V2]
     EV = spzeros(Int8, EV1.m + EV2.m, EV1.n + EV2.n)
@@ -41,6 +67,11 @@ function skel_merge(V1::Verts, EV1::Cells, V2::Verts, EV2::Cells)
     V, EV
 end
 
+"""
+    skel_merge(V1::Verts, EV1::Cells, FE1::Cells, V2::Verts, EV2::Cells, FE2::Cells)
+
+Merge two **2-skeletons**
+"""
 function skel_merge(V1::Verts, EV1::Cells, FE1::Cells, V2::Verts, EV2::Cells, FE2::Cells)
     FE = spzeros(Int8, FE1.m + FE2.m, FE1.n + FE2.n)
     FE[1:FE1.m, 1:FE1.n] = FE1
@@ -48,6 +79,15 @@ function skel_merge(V1::Verts, EV1::Cells, FE1::Cells, V2::Verts, EV2::Cells, FE
     V, EV = skel_merge(V1, EV1, V2, EV2)
     V, EV, FE
 end
+
+"""
+    delete_edges(todel, V::Verts, EV::Cells)
+
+Delete edges and remove unused vertices from a **2-skeleton**.
+
+Loop over the `todel` edge index list and remove the marked edges from `EV`.
+The vertices in `V` which remained unconnected after the edge deletion are deleted too.
+"""
 function delete_edges(todel, V::Verts, EV::Cells)
     tokeep = setdiff(collect(1:EV.m), todel)
     EV = EV[tokeep, :]
@@ -66,6 +106,8 @@ function delete_edges(todel, V::Verts, EV::Cells)
 
     return V, EV
 end
+
+
 function buildFV(EV::Cells, face::Cell)
     startv = -1
     nextv = 0
