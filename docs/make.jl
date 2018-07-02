@@ -9,6 +9,7 @@ makedocs(
 		"Home" => "index.md",
 		"LAR" => "lar.md",
 		"Arrangement" => "arrangement.md",
+		"Mapper" => "mapper.md",
 		"Glossary" => "glossary.md"
 	]
 )
