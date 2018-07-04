@@ -113,7 +113,7 @@ module LARLIB
        V = convert(Array{Float64,2},W')
        EV = characteristicMatrix(EW)
        FE = boundary2(FW,EW)
-       V,cscEV,cscFE,cscCF = LARLIB.spatial_arrangement(V,EV,FE)
+       V,cscEV,cscFE,cscCF,_ = LARLIB.spatial_arrangement(V,EV,FE)
        ne,nv = size(cscEV)
        nf = size(cscFE,1)
        nc = size(cscCF,1)
@@ -243,6 +243,5 @@ module LARLIB
    include("./planar_arrangement.jl")
    include("./spatial_arrangement.jl")
    include("./largrid.jl")
-   include("./mapper.jl")
    
 end

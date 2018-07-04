@@ -10,7 +10,6 @@ makedocs(
 		"LAR" => "lar.md",
 		"Arrangement" => "arrangement.md",
 		"Mapper" => "mapper.md",
-		"Assemblies" => "struct.md",
 		"Glossary" => "glossary.md"
 	]
 )
