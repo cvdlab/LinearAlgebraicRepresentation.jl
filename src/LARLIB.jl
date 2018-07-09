@@ -216,27 +216,6 @@ module LARLIB
       return local3cells
    end
    
-   # Visualize solid cells
-   function viewsolidcells(sx=1.2, sy=1.2, sz=1.2)
-      scaling = [sx; sy; sz]
-      function viewsolidcells0(V,CV,FV,EV,cscCF,cscFE)
-         local3cells = LARLIB.map_3cells_to_localbases(V,CV,FV,EV,cscCF,cscFE)
-         hpcs = Any[]
-         for local3cell in local3cells
-            v,tv = local3cell
-            centroid = sum(v,2)/size(v,2)
-            scaledcentroid = scaling.*centroid
-            translation = scaledcentroid - centroid
-            w = v .+ translation
-            hpc = p.SOLIDIFY(LARVIEW.lar2hpc(w,tv))
-            append!(hpcs, [hpc])
-         end
-         p.VIEW(p.STRUCT(hpcs))
-         return viewsolidcells0
-      end
-   end
-   
-
    include("./utilities.jl")
    include("./minimal_cycles.jl")
    include("./dimension_travel.jl")

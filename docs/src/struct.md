@@ -116,7 +116,8 @@ W,FW,EW = struct2lar(struct02)	# single LAR model
 ```
 Anyway, the `larView` function, which instances a `pyplasm` viewer, can be applied both to an array of models and to a single model. The examples below intend to show either the 2-cells or the 1-cells of the generated cellular complex, respectively.
 
-```julia 
+```julia
+using LARVIEW
 larView(scene)
 larView(W,EW)
 ```
@@ -125,6 +126,7 @@ A different example provides a `sphere`, and a `cylinder` instance suitably tran
 
 ```julia
 assembly = Struct([sphere()(), t(3,0,-1), cylinder()()])
+using LARVIEW
 larView(struct2lar(assembly))
 ```
 
