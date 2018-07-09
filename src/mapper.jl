@@ -136,6 +136,7 @@ function simplexGrid(shape)
     end
     V, CV = model
     V = hcat(V...)
+    V = convert(Array{Float64,2}, V)
     return V, CV
 end
 
@@ -170,7 +171,7 @@ function larView(model::Tuple{Array{Array{Float64,N} where N,1},Array{Array{Int6
 	p.VIEW(LARVIEW.lar2hpc(V,CV))
 end
 function larView(model::Array{Any,1})
-	HPC_value_array = [LARVIEW.lar2hpc(hcat(item[1]...),item[2]) for item in model]
+	HPC_value_array = [LARVIEW.lar2hpc(item[1],item[2]) for item in model]
 	p.VIEW(p.STRUCT(HPC_value_array))
 end
 function larView(V::Array{Float64, 2}, CV::Array{Array{Int64, 1}, 1})
@@ -185,7 +186,7 @@ end
 Array{Array{Float64,1},1}
 
 """
-	circle(radius=1., angle=2*pi)(shape=36)
+	circle(radius=1.; angle=2*pi)(shape=36)
 	
 Compute an approximation of the circunference curve in 2D, centered on the origin.
 
@@ -200,7 +201,7 @@ julia> larView(W, CW)
 [...]
 ```
 """
-function circle(radius=1., angle=2*pi)
+function circle(; radius=1., angle=2*pi)
     function circle0(shape=36)
         V, CV = cuboidGrid([shape])
         V = (angle/shape)*V
@@ -213,20 +214,20 @@ end
 
 
 """
-	helix(radius=1., pitch=1., nturns=2)(shape=36*nturns)
+	helix(; radius=1., pitch=1., nturns=2)(shape=36*nturns)
 	
 Compute the approximate elix curve in three-dimensional space, with basis on ``z=0`` plane and centered around the ``z`` axis. The `pitch` of a helix is the height of one complete helix `turn`, measured parallel to the axis of the helix.
 
 # Example
 ```julia
-julia> V, CV = helix(.1, .1, 10)(36*10)
+julia> V, CV = helix(.1, .1, 10)()
 ([0.1 0.0984808 … 0.0984808 0.1; 0.0 0.0173648 … -0.0173648 0.0; 0.0 0.0027778 … 0.997222 1.0], Array{Int64,1}[[1, 2], [2, 3], [3, 4], [4, 5], [5, 6], [6, 7], [7, 8], [8, 9], [9, 10], [10, 11]  …  [351, 352], [352, 353], [353, 354], [354, 355], [355, 356], [356, 357], [357, 358], [358, 359], [359, 360], [360, 361]])
 
 julia> larView(V, CV)
 ...
 ```
 """
-function helix(radius=1., pitch=1., nturns=2)
+function helix(; radius=1., pitch=1., nturns=2)
     function helix0(shape=36*nturns)
         angle = nturns*2*pi
         V, CV = cuboidGrid([shape])
@@ -240,7 +241,7 @@ end
 
 
 """
-	disk(radius=1., angle=2*pi)(shape=[36, 1])
+	disk(; radius=1., angle=2*pi)(shape=[36, 1])
 	
 Compute the cellular complex approximating a circular sector of 2D disk centered on the origin. In geometry, a disk is the region in a plane bounded by a circle. The `shape` array provides the number of approximating 2-cells.
 
@@ -252,7 +253,7 @@ julia> disk()()
   julia> larView(disk()())
 ```
 """
-function disk(radius=1., angle=2*pi)
+function disk(; radius=1., angle=2*pi)
     function disk0(shape=[36, 2])
         V, CV = simplexGrid(shape)
         V = [angle/shape[1] 0;0 radius/shape[2]]*V
@@ -267,7 +268,7 @@ end
 
 
 """
-	helicoid(R=1., r=0.5, pitch=1., nturns=2)(shape=[36*nturns, 2])
+	helicoid(; R=1., r=0.5, pitch=1., nturns=2)(shape=[36*nturns, 2])
 
 Compute an approximation of the helicoid surface in 3D, with basis on ``z=0`` plane and centered around the ``z`` axis.
 
@@ -276,7 +277,7 @@ Compute an approximation of the helicoid surface in 3D, with basis on ``z=0`` pl
   julia> larView(helicoid()())
 ```
 """
-function helicoid(R=1., r=0.5, pitch=1., nturns=2)
+function helicoid(; R=1., r=0.5, pitch=1., nturns=2)
     function helicoid0(shape=[36*nturns, 2])
         angle = nturns*2*pi
         V, CV = simplexGrid(shape)
@@ -292,7 +293,7 @@ end
 
 
 """
-	ring(r=1., R=2., angle=2*pi)(shape=[36, 1])
+	ring(; r=1., R=2., angle=2*pi)(shape=[36, 1])
 
 Compute the cellular 2-complex approximating a (possibly full) sector of a non-contractible disk. `R` and `r` are the external and the internal radiuses, respectively.
 
@@ -301,7 +302,7 @@ Compute the cellular 2-complex approximating a (possibly full) sector of a non-c
   julia> larView(ring()())
 ```
 """
-function ring(r=1., R=2., angle=2*pi)
+function ring(; r=1., R=2., angle=2*pi)
     function ring0(shape=[36, 1])
         V, CV = cuboidGrid(shape)
         V = [angle/shape[1] 0;0 (R-r)/shape[2]]*V
@@ -316,7 +317,7 @@ end
 
 
 """
-	cylinder(radius=.5, height=2., angle=2*pi)(shape=[36, 1])
+	cylinder(; radius=.5, height=2., angle=2*pi)(shape=[36, 1])
 
 Compute a cellular 2-complex, approximation of a right circular cylindrical surface in 3D. The open surface has basis on ``z=0`` plane and is centered around the ``z`` axis.
 
@@ -325,7 +326,7 @@ Compute a cellular 2-complex, approximation of a right circular cylindrical surf
   julia> larView(cylinder()())
 ```
 """
-function cylinder(radius=.5, height=2., angle=2*pi)
+function cylinder(; radius=.5, height=2., angle=2*pi)
     function cylinder0(shape=[36, 1])
         V, CV = cuboidGrid(shape)
         V = [angle/shape[1] 0;0 1./shape[2]]*V
@@ -341,7 +342,7 @@ end
 
 
 """
-	sphere(radius=1., angle1=pi, angle2=2*pi)(shape=[18, 36])
+	sphere(; radius=1., angle1=pi, angle2=2*pi)(shape=[18, 36])
 	
 Compute a cellular 2-complex, approximation of the two-dimensional closed surface, embedded in a three-dimensional Euclidean space. Geographical coordinates are user to compute the 0-cells of the complex.
 
@@ -350,7 +351,7 @@ Compute a cellular 2-complex, approximation of the two-dimensional closed surfac
   julia> larView(sphere()())
 ```
 """
-function sphere(radius=1., angle1=pi, angle2=2*pi)
+function sphere(; radius=1., angle1=pi, angle2=2*pi)
     function sphere0(shape=[18, 36])
         V, CV = simplexGrid(shape)
         V = [angle1/shape[1] 0;0 angle2/shape[2]]*V
@@ -368,7 +369,7 @@ end
 
 
 """
-	toroidal(r=1., R=2., angle1=2*pi, angle2=2*pi)(shape=[24, 36])
+	toroidal(; r=1., R=2., angle1=2*pi, angle2=2*pi)(shape=[24, 36])
 	
 Compute a cellular 2-complex, approximation of the two-dimensional surface, embedded in a three-dimensional Euclidean space. 
 Toroidal is a closed surface having genus one, and therefore possessing a single "hole". 
@@ -379,7 +380,7 @@ It can be constructed from a rectangle by gluing both pairs of opposite edges to
   julia> larView(toroidal()())
 ```
 """
-function toroidal(r=1., R=2., angle1=2*pi, angle2=2*pi)
+function toroidal(; r=1., R=2., angle1=2*pi, angle2=2*pi)
     function toroidal0(shape=[24, 36])
         V, CV = simplexGrid(shape)
         V = [angle1/(shape[1]) 0;0 angle2/(shape[2])]*V
@@ -395,7 +396,7 @@ end
 
 
 """
-	crown(r=1., R=2., angle=2*pi)(shape=[24, 36])
+	crown(; r=1., R=2., angle=2*pi)(shape=[24, 36])
 
 Compute a cellular 2-complex, approximation of a two-dimensional open surface, embedded in a three-dimensional Euclidean space. 
 This open surface is generated as an "half-torus", providing only the external shell. 
@@ -405,7 +406,7 @@ This open surface is generated as an "half-torus", providing only the external s
   julia> larView(crown()())
 ```
 """
-function crown(r=1., R=2., angle=2*pi)
+function crown(; r=1., R=2., angle=2*pi)
     function crown0(shape=[12, 36])
         V, CV = simplexGrid(shape)
         V = [pi/shape[1] 0;0 angle/shape[2]]*V
@@ -422,7 +423,43 @@ end
 
 
 """
-	ball(radius=1, angle1=pi, angle2=2*pi)(shape=[18, 36])
+	cuboid(maxpoint::Array; minpoint::Array=zeros(length(maxpoint)), flag=false)
+	
+Return a ``d``-dimensional cube, where ``d`` is the common length of arrays `minpoint` and
+`maxpoint`. 
+If `flag=true` the cells of all dimensions (between 1 and ``d``) are generated.
+
+```julia
+julia> cuboid([-0.5, -0.5])
+# output
+([0.0 0.0 -0.5 -0.5; 0.0 -0.5 0.0 -0.5], Array{Int64,1}[[1, 2, 3, 4]])
+
+julia> cuboid([-0.5, -0.5, 0], full=true)
+# output
+([0.0 0.0 … -0.5 -0.5; 0.0 0.0 … -0.5 -0.5; 0.0 0.0 … 0.0 0.0],
+Array{Array{Int64,1},1}[Array{Int64,1}[[1], [2], [3], [4], [5], [6], [7], [8]],
+Array{Int64,1}[[1, 2], [3, 4], [5, 6], [7, 8], [1, 3], [2, 4], [5, 7], [6, 8], [1, 5], [2,
+6], [3, 7], [4, 8]], Array{Int64,1}[[1, 2, 3, 4], [5, 6, 7, 8], [1, 2, 5, 6], [3, 4, 7,
+8], [1, 3, 5, 7], [2, 4, 6, 8]], Array{Int64,1}[[1, 2, 3, 4, 5, 6, 7, 8]]])
+
+julia> V, (VV, EV, FV, CV) = cuboid([1,1,1], full=true);
+julia> assemby = Struct([ (V, EV), t(1,0,0), (V, CV) ])
+julia> larView(struct2lar(assemby))
+```
+"""
+function cuboid(maxpoint::Array; minpoint::Array=zeros(length(maxpoint)), full=false)
+	assert( length(minpoint) == length(maxpoint) )
+	dim = length(minpoint)
+	shape = ones(Int, dim)
+	cell = cuboidGrid(shape, full)
+	size = maxpoint - minpoint
+	out = apply(t(minpoint...) * s(size...))(cell)
+end
+
+
+
+"""
+	ball(; radius=1, angle1=pi, angle2=2*pi)(shape=[18, 36])
 
 
 # Example
@@ -430,7 +467,7 @@ end
   julia> larView(ball()())
 ```
 """
-function ball(radius=1, angle1=pi, angle2=2*pi)
+function ball(; radius=1, angle1=pi, angle2=2*pi)
     function ball0(shape=[18, 36, 4])
         V, CV = cuboidGrid(shape)
         V = [angle1/shape[1] 0 0; 0 angle2/shape[2] 0; 0 0 radius/shape[3]]*V
@@ -447,7 +484,7 @@ end
 
 
 """
-	rod(radius=1, height=3, angle=2*pi)rod0(shape=[36, 1])
+	rod(; radius=1, height=3, angle=2*pi)rod0(shape=[36, 1])
 
 Compute a cellular 3-complex with a *single* 3-cell starting from a cyclindrical surface generated with the same parameters.
 
@@ -467,7 +504,7 @@ julia> larView(rod()())
 ...
 ```
 """
-function rod(radius=1, height=3, angle=2*pi)
+function rod(; radius=1, height=3, angle=2*pi)
     function rod0(shape=[36, 1])
         V, CV = cylinder(radius, height, angle)(shape)
         return V, [collect(1:size(V, 2))]
@@ -478,7 +515,7 @@ end
 
 
 """
-	hollowCyl(r=1., R=2., height=6., angle=2*pi)(shape=[36, 1, 1])
+	hollowCyl(; r=1., R=2., height=6., angle=2*pi)(shape=[36, 1, 1])
 
 Compute the cellular 3-complex approximating a solid cylinder with a  
 internal axial hole. The model is meshed with cubical 3-cells.
@@ -488,7 +525,7 @@ internal axial hole. The model is meshed with cubical 3-cells.
   julia> larView(hollowCyl()())
 ```
 """
-function hollowCyl(r=1., R=2., height=6., angle=2*pi)
+function hollowCyl(; r=1., R=2., height=6., angle=2*pi)
     function hollowCyl0(shape=[36, 1, 1])
         V, CV = cuboidGrid(shape)
         V = [angle/shape[1] 0 0;0 (R-r)/shape[2] 0;0 0 height/shape[3]]*V
@@ -504,7 +541,7 @@ end
 
 
 """
-	hollowBall(r=1., R=2., angle1=pi, angle2=2*pi)(shape=[36, 1, 1])
+	hollowBall(; r=1., R=2., angle1=pi, angle2=2*pi)(shape=[36, 1, 1])
 	
 Compute the cellular 3-complex approximating a 3-sphere. The model is meshed with cubical 3-cells, where the mesh has default decomposition size `[24, 36, 8]`.
 
@@ -517,7 +554,7 @@ julia> larView(V, CV)
 ```
 
 """
-function hollowBall(r=1., R=1., angle1=pi, angle2=2*pi)
+function hollowBall(; r=1., R=1., angle1=pi, angle2=2*pi)
     function hollowBall0(shape=[24, 36, 3])
         V, CV = cuboidGrid(shape)
         V = [angle1/shape[1] 0 0; 0 angle2/shape[2] 0; 0 0 (R-r)/shape[3]]*V
@@ -534,32 +571,33 @@ end
 
 
 """
-	torus(r=1., R=2., angle1=2*pi, angle2=2*pi)(shape=[24, 36, 4])
+	hollowTorus(; r=1., R=2., h=.5, angle1=2*pi, angle2=2*pi)(shape=[24, 36, 4])
 
-Compute the cellular 3-complex approximating the solid torus in 3D. The model is meshed with cubical 3-cells, where the mesh has default decomposition size `[24, 36, 4]`. See also: [`toroidal`](@toroidal)
+Compute the cellular 3-complex approximating the solid torus in 3D. The model is meshed with cubical 3-cells, where the mesh has default decomposition size `[24, 36, 4]`. See also: [`toroidal`](@toroidal). `h` is radius of the circular hole inside the solid.
 
 # Example
 ```julia
-  julia> larView(torus()())
+  julia> larView(torus(; r=1., R=2., h=.5, angle1=pi, angle2=pi)())
 ```
 """
-function torus(r=1., R=2., angle1=2*pi, angle2=2*pi)
-    function torus0(shape=[24, 36, 4])
+function hollowTorus(; r=1., R=2., h=.5, angle1=2*pi, angle2=2*pi)
+    function hollowTorus0(shape=[24, 36, 4])
         V, CV = cuboidGrid(shape)
         V = [angle1/shape[1] 0 0;0 angle2/shape[2] 0;0 0 r/shape[3]]*V
+        V = broadcast(+, V, [0, 0, h])
         W = [V[:, k] for k=1:size(V, 2)]
         V = hcat(map(p->let(u, v, z)=p;[(R+z*cos(u))*cos(v);(R+z*cos(u))*sin(v);
         	-z*sin(u)] end, W)...)
         W, CW = simplifyCells(V, CV)
         return W, CW
     end
-    return torus0
+    return hollowTorus0
 end
 
 
 
 """
-	pizza(r=.1, R=1, angle=pi)(shape=[24, 36])
+	pizza(; r=.1, R=1, angle=pi)(shape=[24, 36])
 
 Compute a cellular 3-complex with a single convex 3-cell. 
 
@@ -580,7 +618,7 @@ julia> model[2]
 julia> larView(model)
 ```
 """
-function pizza(r=.1, R=1., angle=pi)
+function pizza(; r=.1, R=1., angle=pi)
     function pizza0(shape=[24, 36])
         V, CV = crown(r, R, angle)(shape)
         W = [Any[V[h, k] for h=1:size(V, 1)] for k=1:size(V, 2)]

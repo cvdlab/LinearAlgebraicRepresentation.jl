@@ -2,34 +2,26 @@
 
 
 """
-
+	approxVal(PRECISION)(value)
+	
+Transform the float `value` to get a `PRECISION` number of significant digits.
 """
-function fixedPrec(PRECISION)
-	function fixedPrec0(value) 
-		out = round.(value,PRECISION)
-		if out==-0.0
-			out=0.0
-		end
-		return string(out)
-	end
-	return fixedPrec0
+function approxVal(PRECISION)
+	PRECISION = 7
+    function approxVal0(value)
+        out = round(value*(10^(PRECISION)))/10^(PRECISION)
+        if out == -0.0
+            out = 0.0
+        end
+        return out 
+    end
+    return approxVal0
 end
 
 
 
 """
-
-"""
-function vcode(PRECISION=4)
-	function vcode0(vect)
-		return fixedPrec(PRECISION)(vect) 
-	end
-	return vcode0
-end
-
-
-
-"""
+	t(args...)
 
 """
 function t(args...)
@@ -44,6 +36,7 @@ end
 
 
 """
+	s(args...)
 
 """
 function s(args...)
@@ -59,6 +52,7 @@ end
 
 
 """
+	r(args...)
 
 """
 
@@ -103,35 +97,20 @@ end
 
 
 
-
 """
+	removeDups(CW)
 
 """
 function removeDups(CW)
 	CW = collect(Set(CW))
 	CWs = collect(map(sort,CW))
-	no_duplicates = Dict()
-	
-	for f in CWs
-		no_duplicates[f] = []
-	end
-	
-	for f in CW
-		no_duplicates[sort(f)]=[f]
-	end
-	
-	CW=[f[1] for f in values(no_duplicates)]
-	return CW
+	return CWs
 end 
 
 
 
-
-
-
-
-
 """
+	Struct
 
 """
 
@@ -213,8 +192,8 @@ end
 
 
 
-
 """
+	struct2lar(structure)
 
 """
 function struct2lar(structure)
@@ -225,55 +204,54 @@ function struct2lar(structure)
 	for model in listOfModels
 		if  length(model)==2
 			V,FV = model
-		elseif lenght(model)==3
+		elseif length(model)==3
 			V,FV,EV = model
 		end
+		
 		for (k,incell) in enumerate(FV)
 			outcell=[]
 			for v in incell
-				key = vcode(4)(V[v])
+				key = map(approxVal(7), V[:,v])
 				if get(vertDict,key,defaultValue)==defaultValue
 					index += 1
                    	vertDict[key]=index
 					append!(outcell,index)
-					append!(W,[eval(parse(key))])                   
+					append!(W,[key])                   
 				else
 					append!(outcell,vertDict[key])
 				end
 			end
 			append!(CW,[outcell])
 		end
+		
 		if length(model)==3
-			for (k,incell) in enumerate(FV)
+		
+			for (k,incell) in enumerate(EV)
 				outcell=[]
 				for v in incell
-					key = vcode(4)(V[v])
+					key = map(approxVal(7), V[:,v])
 					if get(vertDict,key,defaultValue)==defaultValue
-						index =index+1
+						index += 1
 						vertDict[key]=index
 						append!(outcell,[index])
-						append!(W,[eval(parse(key))])                   
+						append!(W,[key])                   
 					else
 						append!(outcell,vertDict[key])
 					end
 				end
 				append!(FW,[outcell])
 			end
+			
 		end
 	end
 	
-	
 	if length(listOfModels[end])==2
-		if length(CW[1])==2
-			CW = map(Tuple,map(sort,CW))
-		else
-			CW = removeDups(CW)
-		end
+		CW = removeDups(CW)
 		return hcat(W...),CW
 	end
 	
 	if length(listOfModels[end])==3
-		FW = map(Tuple,map(sort,FW))
+		FW = removeDups(FW)
 		CW = removeDups(CW)
 		return hcat(W...),CW,FW
 	end
@@ -284,6 +262,7 @@ end
 
 
 """
+	embedTraversal(cloned,obj,n,suffix)
 
 """
 
@@ -301,7 +280,7 @@ function embedTraversal(cloned,obj,n,suffix)
 				newMat[h,d-1+n*1]=mat[h,d-1]
 			end
 			append!(cloned.body,newMat)
-		elseif (isa(obj.body[i],Tuple) ||isa(obj.body[i],Array))&& length(obj.body[i])==3 #potrebbe dare problemi in ndarray
+		elseif (isa(obj.body[i],Tuple) ||isa(obj.body[i],Array))&& length(obj.body[i])==3 
 			V,FV,EV = obj.body[i]
 			dimadd = fill([0.0],n)
 			for k in dimadd
@@ -332,6 +311,7 @@ end
 
 
 """
+	embedStruct(n)
 
 """
 
@@ -354,6 +334,7 @@ end
 
 
 """
+	box(model)
 
 """
 function box(model)
@@ -380,63 +361,55 @@ function box(model)
 
 	elseif (isa(model,Tuple) ||isa(model,Array))&& (length(model)==2 || length(model)==3)
 		V = model[1]
-		theMin=[]
-		theMax=[]
-		for j in range(1,length(V[1]))
-			Min = V[1][j]
-			Max = V[1][j]
-			for i in range(1,length(V))
-				Min = min(Min,V[i][j])
-				Max = max(Max,V[i][j])
-			end
-			push!(theMin,Min)
-			push!(theMax,Max)
-		end
+		theMin = minimum(V, 2)
+		theMax = maximum(V, 2)
 	end
 
-	return Array[theMin,theMax]
+	return [theMin,theMax]
 end
 
  
 
- 
-
-
 
 """
+	apply(affineMatrix)(larmodel)
 
 """
+function apply(affineMatrix)
+	function apply0(larmodel)
+		data = collect(larmodel)
+		V = data[1]
+		
+		m,n = size(V)
+		W = [V; fill(1.0, (1,n))]
+		V = (affineMatrix * W)[1:m,1:n]
 
-function larApply(affineMatrix)
-	function larApply0(model)
-		if length(model)==2
-			V,CV = model
-		elseif length(model)==3
-			V,CV,FV = model
-		end
-
-		W = affineMatrix*[V; fill(1,size(V,2))']
-		V = W[1:size(V,1),1:size(V,2)]	
-
-		if length(model)==2
-			return V,CV
-		elseif length(model)==3
-			return V,CV,FV
-		end
+		data[1] = V	
+		larmodel = Tuple(data)
 	end 
-	return larApply0
+	return apply0
 end
+
+#function apply(affineMatrix)
+#	function apply0(larmodel::Struct)
+#		larmodel = Struct([affineMatrix,larmodel])
+#	end 
+#	return apply0
+#end
+
+
 
 
 """
+	checkStruct(lst)
 
 """
 function checkStruct(lst)
 	obj = lst[1]
 	if isa(obj,Matrix)
 		dim = size(obj)[1]-1
-	elseif(isa(obj,Tuple) || isa(obj,Array))
-		dim = length(obj[1][1][:,1])
+	elseif (isa(obj,Tuple) || isa(obj,Array))
+		dim = length(obj[1][:,1])
 	
 	elseif isa(obj,Struct)
 		dim = length(obj.box[1])
@@ -449,6 +422,7 @@ end
 
 
 """
+	traversal(CTM,stack,obj,scene=[])
 
 """
 
@@ -456,9 +430,8 @@ function traversal(CTM,stack,obj,scene=[])
 	for i in 1:len(obj)
 		if isa(obj.body[i],Matrix)
 			CTM = CTM*obj.body[i]
-		elseif (isa(obj.body[i],Tuple) || isa(obj.body[i],Array)) && 
-		(length(obj.body[i])==2 || length(obj.body[i])==3)
-			l = larApply(CTM)(obj.body[i])
+		elseif (isa(obj.body[i],Tuple) || isa(obj.body[i],Array)) && (length(obj.body[i])==2 || length(obj.body[i])==3)
+			l = apply(CTM)(obj.body[i])
 			push!(scene,l)
 		elseif isa(obj.body[i],Struct)
 			push!(stack,CTM)	
@@ -474,6 +447,7 @@ end
 
 
 """
+	evalStruct(self)
 
 """
 function evalStruct(self)
@@ -482,5 +456,7 @@ function evalStruct(self)
    	scene = traversal(CTM, stack, self, []) 
 return scene
 end
+
+
 
 
