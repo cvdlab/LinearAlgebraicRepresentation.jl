@@ -177,13 +177,8 @@ function spatial_arrangement(V::Verts, EV::Cells, FE::Cells, multiproc::Bool=fal
     end
 
     rV, rEV, rFE = merge_vertices(rV, rEV, rFE)
-
-    
-    
-    
     
     rCF = minimal_3cycles(rV, rEV, rFE)
-    
 
     return rV, rEV, rFE, rCF
 end

@@ -498,20 +498,17 @@ function planar_arrangement(
         end
     end
     
-    # This code is not necessary if the user doesn't want the edge_map
-    if (return_edge_map)
-        edges = sort(union(bicon_comps...))
-        todel = sort(setdiff(collect(1:size(EV,1)), edges))
-        
-        for i in reverse(todel)
-            for row in edge_map
-        
-                filter!(x->x!=i, row)
-        
-                for j in 1:length(row)
-                    if row[j] > i
-                        row[j] -= 1
-                    end
+    edges = sort(union(bicon_comps...))
+    todel = sort(setdiff(collect(1:size(EV,1)), edges))
+    
+    for i in reverse(todel)
+        for row in edge_map
+    
+            filter!(x->x!=i, row)
+    
+            for j in 1:length(row)
+                if row[j] > i
+                    row[j] -= 1
                 end
             end
         end
@@ -550,8 +547,8 @@ function planar_arrangement(
     EV, FE = cell_merging(n, containment_graph, V, EVs, boundaries, shells, shell_bboxes)
     
     if (return_edge_map)
-        V, EV, FE, edge_map
+        return V, EV, FE, edge_map
     else
-        V, EV, FE
+        return V, EV, FE
     end
 end 
