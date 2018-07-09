@@ -15,10 +15,10 @@
 **Bold** is used to point out theory concepts. For example, look at the 
 "**2-skeletons**" word in the docstring of `LARLIB.skel_merge`:
 ```@docs
-LARLIB.skel_merge(V1::LARLIB.Verts, EV1::LARLIB.Cells, V2::LARLIB.Verts, EV2::LARLIB.Cells)
+LARLIB.skel_merge(V1::LARLIB.Points, EV1::LARLIB.Cells, V2::LARLIB.Points, EV2::LARLIB.Cells)
 ```
 `Monospace` is used for everything code related. Look this time at "`container`",
-"`contained`" and "`Verts`" in the docstring of `LARLIB.bbox_contains`:
+"`contained`" and "`Points`" in the docstring of `LARLIB.bbox_contains`:
 ```@docs
 LARLIB.bbox_contains
 ```

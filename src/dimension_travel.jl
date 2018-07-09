@@ -8,7 +8,7 @@ function submanifold_mapping(vs)
     M[1:3, 1:3] = [u1 u2 u3]
     return T*M
 end
-function spatial_index(V::Verts, EV::Cells, FE::Cells)
+function spatial_index(V::Points, EV::Cells, FE::Cells)
     d = 3
     faces_num = size(FE, 1)
     IntervalsType = IntervalValue{Float64, Int64}
@@ -37,10 +37,10 @@ function spatial_index(V::Verts, EV::Cells, FE::Cells)
     
     mapping
 end
-function face_int(V::Verts, EV::Cells, face::Cell)
+function face_int(V::Points, EV::Cells, face::Cell)
 
     vs = buildFV(EV, face)
-    retV = Verts(0, 3)
+    retV = Points(0, 3)
     
     visited_verts = []
     for i in 1:length(vs)
@@ -74,7 +74,7 @@ function face_int(V::Verts, EV::Cells, face::Cell)
 
     if vnum == 1
         vnum = 0
-        retV = Verts(0, 3)
+        retV = Points(0, 3)
     end
     enum = Int(vnum / 2)
     retEV = spzeros(Int8, enum, vnum)
