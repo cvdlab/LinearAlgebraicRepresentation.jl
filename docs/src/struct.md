@@ -10,7 +10,7 @@ Two main advantages can be found in a hierarchical modeling approach. Each compo
 Furthermore, only one copy of each component is stored in memory, and may be instanced
 in different locations and orientations how many times it is needed.
 
-![](./images/struct-ab.pdf)
+![](./images/struct-ab.png)
 > **Figure 1:** Hierarchical assembly of a complex consisting of a single 2-cell (the square): (a) 2-skeleton; (b) 1-skeleton of the resulting complex.
 
 ## Hierarchical graphs
@@ -130,6 +130,6 @@ using LARVIEW
 larView(struct2lar(assembly))
 ```
 
-![](./images/struct-cd.pdf)
-> **Figure 2:** (a) Enlargement of a portion of the exploded complex in Fig.1; (b) an assembly with two cuboidal 2-complexes cuboidal embedded in 3D.
+![](./images/struct-cd.png)
+> **Figure 2:** (a) Enlargement of a portion of the exploded complex in Fig.1; (b) an assembly with two cuboidal 2-complexes (surfaces) embedded in 3D.
 
