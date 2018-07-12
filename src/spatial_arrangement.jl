@@ -45,7 +45,8 @@ function merge_vertices(V::Points, EV::Cells, FE::Cells, err=1e-4)
     edgenum = size(EV, 1)
     facenum = size(FE, 1)
     newverts = zeros(Int, vertsnum)
-    kdtree = KDTree(V')
+    # KDTree constructor needs an explicit array of Float64
+    kdtree = KDTree(Array{Float64,2}(V'))
 
     todelete = []
     

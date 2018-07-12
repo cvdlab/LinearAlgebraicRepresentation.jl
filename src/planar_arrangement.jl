@@ -84,7 +84,8 @@ function merge_vertices!(V::Points, EV::Cells, edge_map, err=1e-4)
     vertsnum = size(V, 1)
     edgenum = size(EV, 1)
     newverts = zeros(Int, vertsnum)
-    kdtree = KDTree(V')
+    # KDTree constructor needs an explicit array of Float64
+    kdtree = KDTree(Array{Float64,2}(V'))
 
     todelete = []
     
@@ -392,7 +393,7 @@ function planar_arrangement(
 
     edgenum = size(EV, 1)
     edge_map = Array{Array{Int, 1}, 1}(edgenum)
-    rV = zeros(0, 2)
+    rV = Points(zeros(0, 2))
     rEV = spzeros(Int8, 0, 0)
     finalcells_num = 0
 

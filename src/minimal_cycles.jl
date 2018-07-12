@@ -51,7 +51,7 @@ function minimal_3cycles(V::Points, EV::Cells, FE::Cells)
             vs = vs*M
             
             triangulated_faces[f] = TRIANGLE.constrained_triangulation(
-                vs, vs_idxs, edges, fill(true, edge_num))
+                Array{Float64,2}(vs), vs_idxs, edges, fill(true, edge_num))
             
         end
     
