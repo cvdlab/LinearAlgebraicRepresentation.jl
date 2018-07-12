@@ -4,7 +4,7 @@ The `mapper.jl` file contains the implementation of several parametric primitive
 
 The constructive approach is common to all methods. It consists in generating a simplicial or cuboidal decomposition of a simple geometrical domain in *u,v* or *u,v,w* parametric space. Then a change of coordinates, e.g. from Cartesian to polar or cylindrical coordinates, is applied to the vertices of the cellular complex decomposing the domain.
 
-![](./images/grids.pdf)
+![](./images/grids.png)
 > **Figure 1:** Cellular 3-complexes, slightly exploded: (a) cuboidal mesh; (b) simplicial mesh.
 
 So, the mapped domain produces a curved manifold in 2D or 3D space. To obtain a closed curved surface, i.e. a manifold-without-boundary, as in the case of a 2-sphere in 3D, or of the toroidal surface in 3D, a suitable identification of oincident mapped points is performed. 
@@ -99,7 +99,7 @@ julia> cuboidGrid([20,20,20])
 465, 466]  …   [8797, 8798, 8818, 8819, 9238, 9239, 9259, 9260], [8798, 8799, 8819, 8820,
 9239, 9240, 9260, 9261]])
 ```
-![](./images/grids-3d.pdf)
+![](./images/grids-3d.png)
 > **Figure 2:** Cellular 3-complexes: (a) cuboidal mesh, with  0-, 1-, 2-, and 3-cells numbered with different colors; (b) exploded simplicial mesh, with 6 tetrahedra (3-cells) per mesh cube.
 
 Similarly, you can generate a multidimensional mesh of $d$-simplexs ($d=1,2,3,\dots$)
@@ -156,7 +156,7 @@ Primitive one-dimensional objects:
 
 ### Surfaces
 
-![](./images/mappings-1.pdf)
+![](./images/mappings-1.png)
 > **Figure 3:** Cellular 1- and 2-complexes: (a) 2D unit circle; (b) spiral curve embedded in 3D; (c) 2D unit disk; (3) spiraloid surface in 3D.
 
 
@@ -170,7 +170,7 @@ Primitive two-dimensional objects:
 * [`toroidal`](toroidal) - Toroidal surface of given radiuses
 * [`crown`](crown) - Half-toroidal surface of given radiuses
 
-![](./images/mappings-2.pdf)
+![](./images/mappings-2.png)
 > **Figure 4:** Cellular 2- and 3-complexes: (a) 2D disk; (b) cylinder surface in 3D; (c) 2-sphere surface in 3D; (3) toroidal surface in 3D.
 
 ### Solids
@@ -185,7 +185,7 @@ Primitive three-dimensional objects:
 * [`torus`](torus) - Solid torus of given radiuses
 * [`pizza`](pizza) - Solid pizza of given radiuses
 
-![](./images/mappings-3.pdf)
+![](./images/mappings-3.png)
 > **Figure 5:** Cellular complexes: (a) 1-skeleton of 3D cube; (b) assembly of cell complexes of mixed dimensions; (c) 3-mesh of portion of hollow solid cylinder; (d) 3-mesh of a portion of hollow solid torus.
 
 ## Implementation

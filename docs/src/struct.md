@@ -10,7 +10,7 @@ Two main advantages can be found in a hierarchical modeling approach. Each compo
 Furthermore, only one copy of each component is stored in memory, and may be instanced
 in different locations and orientations how many times it is needed.
 
-![](./images/struct-ab.pdf)
+![](./images/struct-ab.png)
 > **Figure 1:** Hierarchical assembly of a complex consisting of a single 2-cell (the square): (a) 2-skeleton; (b) 1-skeleton of the resulting complex.
 
 ## Hierarchical graphs
@@ -116,7 +116,8 @@ W,FW,EW = struct2lar(struct02)	# single LAR model
 ```
 Anyway, the `larView` function, which instances a `pyplasm` viewer, can be applied both to an array of models and to a single model. The examples below intend to show either the 2-cells or the 1-cells of the generated cellular complex, respectively.
 
-```julia 
+```julia
+using LARVIEW
 larView(scene)
 larView(W,EW)
 ```
@@ -125,9 +126,10 @@ A different example provides a `sphere`, and a `cylinder` instance suitably tran
 
 ```julia
 assembly = Struct([sphere()(), t(3,0,-1), cylinder()()])
+using LARVIEW
 larView(struct2lar(assembly))
 ```
 
-![](./images/struct-cd.pdf)
-> **Figure 2:** (a) Enlargement of a portion of the exploded complex in Fig.1; (b) an assembly with two cuboidal 2-complexes cuboidal embedded in 3D.
+![](./images/struct-cd.png)
+> **Figure 2:** (a) Enlargement of a portion of the exploded complex in Fig.1; (b) an assembly with two cuboidal 2-complexes (surfaces) embedded in 3D.
 

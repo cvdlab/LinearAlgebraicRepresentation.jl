@@ -1,11 +1,6 @@
 using LARLIB
 using DataStructures
 
-using LARVIEW
-
-using PyCall
-@pyimport larlib as p
-
 cuboidGrid = LARLIB.larCuboids
 
 
@@ -122,6 +117,8 @@ julia> V
  0  0  0  0  0  0  0  0  0  0   0  1  1  1  1     10  10  10  10  10  10  10  10  10  10
  0  0  0  0  0  0  0  0  0  0   0  0  0  0  0      1   1   1   1   1   1   1   1   1   1
 
+julia> using LARVIEW
+
 julia> LARVIEW.viewexploded(V,CV) # exploded visualization of the grid
 [...]
 
@@ -140,51 +137,6 @@ function simplexGrid(shape)
     return V, CV
 end
 
-
-# To move in LARVIEW
-"""
-	larView(model)
-	
-Show a LAR `model` object, i.e. a pair `(V, CV)`, using the `pyplasm` interactive viewer.
-The *LAR* model (geometry, topology) is transformed into an *HPC* (Hierarchical POlyhedral Complex), introduced by the `PLaSM` language.
-
-# Example
-```julia
-julia> typeof(model)
-Tuple{Array{Float64, 2}, Array{Array{Int64, 1}, 1}}
-
-julia> model = hollowBall(1, 2, pi/2, pi/2)([6, 6, 4])
-([0.5 0.625 … 0.875 1.0; -0.5 -0.625 … 0.875 1.0; -0.707107 -0.883883 … 1.23744 1.41421], 
-Array{Int64, 1}[[1, 2, 6, 7, 96, 97, 101, 102], [2, 3, 7, 8, 97, 98, 102, 103], 
-[...]
-
-julia> larView(model)
-[...]
-```
-"""
-function larView(model::Tuple{Array{Float64, 2}, Array{Array{Int64, 1}, 1}})
-	p.VIEW(LARVIEW.lar2hpc(model...))
-end
-function larView(model::Tuple{Array{Array{Float64,N} where N,1},Array{Array{Int64,1},1}})
-	V,CV = model
-	V = hcat(V...)
-	p.VIEW(LARVIEW.lar2hpc(V,CV))
-end
-function larView(model::Array{Any,1})
-	HPC_value_array = [LARVIEW.lar2hpc(item[1],item[2]) for item in model]
-	p.VIEW(p.STRUCT(HPC_value_array))
-end
-function larView(V::Array{Float64, 2}, CV::Array{Array{Int64, 1}, 1})
-	p.VIEW(LARVIEW.lar2hpc(V, CV))
-end
-function larView(V::Array{Int64, 2}, CV::Array{Array{Int64, 1}, 1})
-	W = convert(Array{Float64,2}, V)
-	p.VIEW(LARVIEW.lar2hpc(W, CV))
-end
-
-
-Array{Array{Float64,1},1}
-
 """
 	circle(radius=1.; angle=2*pi)(shape=36)
 	
@@ -196,6 +148,8 @@ With default values, i.e. `circle()()`, return the whole circonference of unit r
 ```julia 
 julia> W,CW = circle()()
 [...]
+
+julia> using LARVIEW
 
 julia> larView(W, CW)
 [...]
@@ -223,8 +177,10 @@ Compute the approximate elix curve in three-dimensional space, with basis on ``z
 julia> V, CV = helix(.1, .1, 10)()
 ([0.1 0.0984808 … 0.0984808 0.1; 0.0 0.0173648 … -0.0173648 0.0; 0.0 0.0027778 … 0.997222 1.0], Array{Int64,1}[[1, 2], [2, 3], [3, 4], [4, 5], [5, 6], [6, 7], [7, 8], [8, 9], [9, 10], [10, 11]  …  [351, 352], [352, 353], [353, 354], [354, 355], [355, 356], [356, 357], [357, 358], [358, 359], [359, 360], [360, 361]])
 
+julia> using LARVIEW
+
 julia> larView(V, CV)
-...
+[...]
 ```
 """
 function helix(; radius=1., pitch=1., nturns=2)
@@ -250,7 +206,9 @@ Compute the cellular complex approximating a circular sector of 2D disk centered
 julia> disk()()
 ([0.0 0.5 … 0.939693 0.984808; 0.0 0.0 … -0.34202 -0.173648], Array{Int64,1}[[1, 2, 3], [1, 3, 4], [1, 4, 5], [1, 5, 6], [1, 6, 7], [1, 7, 8], [1, 8, 9], [1, 9, 10], [1, 10, 11], [1, 11, 12]  …  [33, 34, 69], [34, 69, 70], [34, 35, 70], [35, 70, 71], [35, 36, 71], [36, 71, 72], [36, 37, 72], [37, 72, 73], [37, 2, 73], [2, 73, 38]])
 
-  julia> larView(disk()())
+julia> using LARVIEW
+
+julia> larView(disk()())
 ```
 """
 function disk(; radius=1., angle=2*pi)
@@ -274,7 +232,10 @@ Compute an approximation of the helicoid surface in 3D, with basis on ``z=0`` pl
 
 # Example
 ```julia
-  julia> larView(helicoid()())
+
+julia> using LARVIEW
+
+julia> larView(helicoid()())
 ```
 """
 function helicoid(; R=1., r=0.5, pitch=1., nturns=2)
@@ -299,7 +260,9 @@ Compute the cellular 2-complex approximating a (possibly full) sector of a non-c
 
 # Example
 ```julia
-  julia> larView(ring()())
+julia> using LARVIEW
+
+julia> larView(ring()())
 ```
 """
 function ring(; r=1., R=2., angle=2*pi)
@@ -323,7 +286,9 @@ Compute a cellular 2-complex, approximation of a right circular cylindrical surf
 
 # Example
 ```julia
-  julia> larView(cylinder()())
+julia> using LARVIEW
+
+julia> larView(cylinder()())
 ```
 """
 function cylinder(; radius=.5, height=2., angle=2*pi)
@@ -348,7 +313,9 @@ Compute a cellular 2-complex, approximation of the two-dimensional closed surfac
 
 # Example
 ```julia
-  julia> larView(sphere()())
+julia> using LARVIEW
+
+julia> larView(sphere()())
 ```
 """
 function sphere(; radius=1., angle1=pi, angle2=2*pi)
@@ -377,7 +344,9 @@ It can be constructed from a rectangle by gluing both pairs of opposite edges to
 
 # Example
 ```julia
-  julia> larView(toroidal()())
+julia> using LARVIEW
+
+julia> larView(toroidal()())
 ```
 """
 function toroidal(; r=1., R=2., angle1=2*pi, angle2=2*pi)
@@ -403,7 +372,9 @@ This open surface is generated as an "half-torus", providing only the external s
 
 # Example
 ```julia
-  julia> larView(crown()())
+julia> using LARVIEW
+
+julia> larView(crown()())
 ```
 """
 function crown(; r=1., R=2., angle=2*pi)
@@ -444,6 +415,7 @@ Array{Int64,1}[[1, 2], [3, 4], [5, 6], [7, 8], [1, 3], [2, 4], [5, 7], [6, 8], [
 
 julia> V, (VV, EV, FV, CV) = cuboid([1,1,1], full=true);
 julia> assemby = Struct([ (V, EV), t(1,0,0), (V, CV) ])
+julia> using LARVIEW
 julia> larView(struct2lar(assemby))
 ```
 """
@@ -464,7 +436,8 @@ end
 
 # Example
 ```julia
-  julia> larView(ball()())
+julia> using LARVIEW
+julia> larView(ball()())
 ```
 """
 function ball(; radius=1, angle1=pi, angle2=2*pi)
@@ -500,6 +473,7 @@ julia> rod()()[2]
 1-element Array{Array{Int64, 1}, 1}:
  [0, 1, 2, 3, 4, 5, 6, 7, 8, 9  …  64, 65, 66, 67, 68, 69, 70, 71, 72, 73]
 
+julia> using LARVIEW
 julia> larView(rod()())
 ...
 ```
@@ -522,7 +496,8 @@ internal axial hole. The model is meshed with cubical 3-cells.
 
 # Example
 ```julia
-  julia> larView(hollowCyl()())
+julia> using LARVIEW
+julia> larView(hollowCyl()())
 ```
 """
 function hollowCyl(; r=1., R=2., height=6., angle=2*pi)
@@ -548,7 +523,8 @@ Compute the cellular 3-complex approximating a 3-sphere. The model is meshed wit
 # Example
 ```julia
 julia> V, CV = hollowBall(1, 2, pi/2, pi/2)([6, 12, 4]);
- 
+
+julia> using LARVIEW
 julia> larView(V, CV)
 ...
 ```
@@ -577,7 +553,8 @@ Compute the cellular 3-complex approximating the solid torus in 3D. The model is
 
 # Example
 ```julia
-  julia> larView(torus(; r=1., R=2., h=.5, angle1=pi, angle2=pi)())
+julia> using LARVIEW
+julia> larView(torus(; r=1., R=2., h=.5, angle1=pi, angle2=pi)())
 ```
 """
 function hollowTorus(; r=1., R=2., h=.5, angle1=2*pi, angle2=2*pi)
@@ -614,6 +591,8 @@ julia> model[1]
 julia> model[2]
 1-element Array{Array{Int64,1},1}:
  [1, 2, 3, 4, 5, 6, 7, 8, 9, 10  …  240, 241, 242, 243, 244, 245, 246, 247, 248, 249]
+
+julia> using LARVIEW
 
 julia> larView(model)
 ```
