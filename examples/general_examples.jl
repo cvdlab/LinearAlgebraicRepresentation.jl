@@ -87,12 +87,16 @@ function rubiks_example(ncubes = 3)
         0  0  0  1 -1  0  0  1  0  0  0 -1;
     ])
 
-    cube = [V, EV, FE]
-    cubesRow = (zeros(0,3),spzeros(Int8,0,0),spzeros(Int8,0,0))
+    cube = [LARLIB.Points(V), EV, FE]
+    cubesRow = [LARLIB.Points(zeros(0,3)),spzeros(Int8,0,0),spzeros(Int8,0,0)]
+
+    println(map(typeof, cube))
+    println(map(typeof, cubesRow))
+
 
     for i in 1:ncubes
         cubesRow = LARLIB.skel_merge(cubesRow..., cube...)
-        cube[1] = cube[1] + [zeros(8) zeros(8) ones(8)]
+        cube[1] = LARLIB.Points(cube[1] + [zeros(8) zeros(8) ones(8)])
     end
 
     cubesRow = collect(cubesRow)
@@ -100,7 +104,7 @@ function rubiks_example(ncubes = 3)
     num = size(cubesRow[1], 1)
     for i in 1:ncubes
         cubesPlane = LARLIB.skel_merge(cubesPlane..., cubesRow...)
-        cubesRow[1] = cubesRow[1] + [zeros(num) ones(num) zeros(num)]
+        cubesRow[1] = LARLIB.Points(cubesRow[1] + [zeros(num) ones(num) zeros(num)])
     end
 
     cubesPlane = collect(cubesPlane)
@@ -108,18 +112,18 @@ function rubiks_example(ncubes = 3)
     num = size(cubesPlane[1], 1)
     for i in 1:ncubes
         cubesCube = LARLIB.skel_merge(cubesCube..., cubesPlane...)
-        cubesPlane[1] = cubesPlane[1] + [ones(num) zeros(num) zeros(num)]
+        cubesPlane[1] = LARLIB.Points(cubesPlane[1] + [ones(num) zeros(num) zeros(num)])
     end
 
     println("Arranging a cube of ", ncubes^3," cubes...")
     rubik = LARLIB.spatial_arrangement(cubesCube...)
     println("DONE")
 
-    rubik = rubik[1] - (.5*ncubes), rubik[2:3]...
+    rubik = LARLIB.Points(rubik[1] - (.5*ncubes)), rubik[2:3]...
     c = cos(pi/6); s = sin(pi/6)
     M1 = [1  0 0; 0 c -s; 0 s c]
     M2 = [c -s 0; s c  0; 0 0 1]
-    rot_rubik = rubik[1]*M1*M2, rubik[2:3]...
+    rot_rubik = LARLIB.Points(rubik[1]*M1*M2), rubik[2:3]...
 
     println("Arranging two rubik cubes...")
     two_rubiks = LARLIB.skel_merge(rubik..., rot_rubik...)

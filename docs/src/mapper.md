@@ -31,7 +31,7 @@ julia> V,FV,EV = square
 `V` may be either of type `Array{Float64,2}` or `Array{Int64,2}`
 
 ```julia
-julia> V::Verts
+julia> V::Points
 2×4 Array{Float64,2}:
  0.0  0.0  1.0  1.0
  0.0  1.0  0.0  1.0

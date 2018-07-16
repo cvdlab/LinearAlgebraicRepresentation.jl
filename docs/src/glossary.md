@@ -12,5 +12,5 @@ To do.
 ### `LarCells`
 To do.
 
-### `Verts`
+### `Points`
 To do.

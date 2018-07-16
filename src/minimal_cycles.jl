@@ -1,4 +1,4 @@
-function minimal_2cycles(V::Verts, EV::Cells)
+function minimal_2cycles(V::Points, EV::Cells)
 
     function edge_angle(v::Int, e::Int)
         edge = EV[e, :]
@@ -17,7 +17,7 @@ function minimal_2cycles(V::Verts, EV::Cells)
 
     return EF'
 end
-function minimal_3cycles(V::Verts, EV::Cells, FE::Cells)
+function minimal_3cycles(V::Points, EV::Cells, FE::Cells)
 
     triangulated_faces = Array{Any, 1}(FE.m)
     
@@ -51,7 +51,7 @@ function minimal_3cycles(V::Verts, EV::Cells, FE::Cells)
             vs = vs*M
             
             triangulated_faces[f] = TRIANGLE.constrained_triangulation(
-                vs, vs_idxs, edges, fill(true, edge_num))
+                Array{Float64,2}(vs), vs_idxs, edges, fill(true, edge_num))
             
         end
     
@@ -92,7 +92,7 @@ end
 
 function minimal_cycles(angles_fn::Function, verbose=false)
 
-    function _minimal_cycles(V::Verts, ld_bounds::Cells)
+    function _minimal_cycles(V::Points, ld_bounds::Cells)
         lld_cellsnum, ld_cellsnum = size(ld_bounds)
         count_marks = zeros(Int8, ld_cellsnum)
         dir_marks = zeros(Int8, ld_cellsnum)

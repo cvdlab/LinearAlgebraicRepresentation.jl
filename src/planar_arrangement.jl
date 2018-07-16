@@ -9,7 +9,7 @@ function frag_edge_channel(in_chan, out_chan, V, EV)
         end
     end
 end
-function frag_edge(V::Verts, EV::Cells, edge_idx::Int)
+function frag_edge(V::Points, EV::Cells, edge_idx::Int)
     alphas = Dict{Float64, Int}()
     edge = EV[edge_idx, :]
     verts = V[edge.nzind, :]
@@ -37,12 +37,12 @@ function frag_edge(V::Verts, EV::Cells, edge_idx::Int)
 
     verts, ev
 end
-function intersect_edges(V::Verts, edge1::Cell, edge2::Cell)
+function intersect_edges(V::Points, edge1::Cell, edge2::Cell)
     err = 10e-8
 
     x1, y1, x2, y2 = vcat(map(c->V[c, :], edge1.nzind)...)
     x3, y3, x4, y4 = vcat(map(c->V[c, :], edge2.nzind)...)
-    ret = Array{Tuple{Verts, Float64}, 1}()
+    ret = Array{Tuple{Points, Float64}, 1}()
 
     v1 = [x2-x1, y2-y1];
     v2 = [x4-x3, y4-y3];
@@ -80,11 +80,12 @@ function intersect_edges(V::Verts, edge1::Cell, edge2::Cell)
 
     return ret
 end
-function merge_vertices!(V::Verts, EV::Cells, edge_map, err=1e-4)
+function merge_vertices!(V::Points, EV::Cells, edge_map, err=1e-4)
     vertsnum = size(V, 1)
     edgenum = size(EV, 1)
     newverts = zeros(Int, vertsnum)
-    kdtree = KDTree(V')
+    # KDTree constructor needs an explicit array of Float64
+    kdtree = KDTree(Array{Float64,2}(V'))
 
     todelete = []
     
@@ -230,7 +231,7 @@ function biconnected_components(EV::Cells)
     
     bicon_comps
 end
-function get_external_cycle(V::Verts, EV::Cells, FE::Cells)
+function get_external_cycle(V::Points, EV::Cells, FE::Cells)
     FV = abs.(FE)*EV
     vs = sparsevec(mapslices(sum, abs.(EV), 1)).nzind
     minv_x1 = maxv_x1 = minv_x2 = maxv_x2 = pop!(vs)
@@ -314,7 +315,7 @@ function transitive_reduction!(graph)
     end
 end
 function cell_merging(n, containment_graph, V, EVs, boundaries, shells, shell_bboxes)
-    function bboxes(V::Verts, indexes::Cells)
+    function bboxes(V::Points, indexes::Cells)
         boxes = Array{Tuple{Any, Any}}(indexes.n)
         for i in 1:indexes.n
             v_inds = indexes[:, i].nzind
@@ -370,7 +371,7 @@ end
 
 
 """
-    planar_arrangement(V::Verts, EV::Cells, [sigma::Cell], [return_edge_map::Bool], [multiproc::Bool])
+    planar_arrangement(V::Points, EV::Cells, [sigma::Cell], [return_edge_map::Bool], [multiproc::Bool])
 
 Compute the arrangement on the given cellular complex 1-skeleton in 2D.
 
@@ -385,14 +386,14 @@ returns the full arranged complex `V`, `EV` and `FE`.
 - `multiproc::Bool`: Runs the computation in parallel mode. Defaults to `false`.
 """
 function planar_arrangement(
-        V::Verts, EV::Cells, 
+        V::Points, EV::Cells, 
         sigma::Cell=spzeros(Int8, 0), 
         return_edge_map::Bool=false, 
         multiproc::Bool=false)
 
     edgenum = size(EV, 1)
     edge_map = Array{Array{Int, 1}, 1}(edgenum)
-    rV = zeros(0, 2)
+    rV = Points(zeros(0, 2))
     rEV = spzeros(Int8, 0, 0)
     finalcells_num = 0
 
@@ -498,20 +499,17 @@ function planar_arrangement(
         end
     end
     
-    # This code is not necessary if the user doesn't want the edge_map
-    if (return_edge_map)
-        edges = sort(union(bicon_comps...))
-        todel = sort(setdiff(collect(1:size(EV,1)), edges))
-        
-        for i in reverse(todel)
-            for row in edge_map
-        
-                filter!(x->x!=i, row)
-        
-                for j in 1:length(row)
-                    if row[j] > i
-                        row[j] -= 1
-                    end
+    edges = sort(union(bicon_comps...))
+    todel = sort(setdiff(collect(1:size(EV,1)), edges))
+    
+    for i in reverse(todel)
+        for row in edge_map
+    
+            filter!(x->x!=i, row)
+    
+            for j in 1:length(row)
+                if row[j] > i
+                    row[j] -= 1
                 end
             end
         end
@@ -550,8 +548,8 @@ function planar_arrangement(
     EV, FE = cell_merging(n, containment_graph, V, EVs, boundaries, shells, shell_bboxes)
     
     if (return_edge_map)
-        V, EV, FE, edge_map
+        return V, EV, FE, edge_map
     else
-        V, EV, FE
+        return V, EV, FE
     end
 end 
