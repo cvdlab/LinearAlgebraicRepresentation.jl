@@ -21,8 +21,28 @@ end
 
 
 """
-	t(args...)
+	t(args::Array{Number,1}...)::Array{Number,2}
 
+Return an *affine transformation matrix* in homogeneous coordinates. Such `translation` matrix has ``d+1`` rows and ``d+1`` columns, where ``d`` is the number of translation parameters in the `args` array.
+
+# Examples
+
+```julia
+julia> t(1,2)			# 2D translation
+# return
+3×3 Array{Float64,2}:
+ 1.0  0.0  1.0
+ 0.0  1.0  2.0
+ 0.0  0.0  1.0
+
+julia> t(1.,2,3)		# 3D translation
+# return
+4×4 Array{Float64,2}:
+ 1.0  0.0  0.0  1.0
+ 0.0  1.0  0.0  2.0
+ 0.0  0.0  1.0  3.0
+ 0.0  0.0  0.0  1.0
+```
 """
 function t(args...)
 	d = length(args)
@@ -36,8 +56,29 @@ end
 
 
 """
-	s(args...)
+	s(args::Array{Number,1}...)::Array{Number,2}
 
+
+Return an *affine transformation matrix* in homogeneous coordinates. Such `scaling` matrix has ``d+1`` rows and ``d+1`` columns, where ``d`` is the number of scaling parameters in the `args` array.
+
+# Examples
+
+```julia
+julia> s(2,3)			# 2D scaling
+# return
+3×3 Array{Float64,2}:
+ 2.0  0.0  0.0
+ 0.0  3.0  0.0
+ 0.0  0.0  1.0
+
+julia> s(2.,3.,4.)		# 3D scaling
+# return
+4×4 Array{Float64,2}:
+ 2.0  0.0  0.0  0.0
+ 0.0  3.0  0.0  0.0
+ 0.0  0.0  4.0  0.0
+ 0.0  0.0  0.0  1.0
+```
 """
 function s(args...)
 	d = length(args)
@@ -54,8 +95,37 @@ end
 """
 	r(args...)
 
-"""
+Return an *affine transformation matrix* in homogeneous coordinates. Such `Rotation` matrix has *dimension* either equal to 3 or to 4, for 2D and 3D rotation, respectively.
+The `{Number,1}` of `args` either contain a single `angle` parameter in *radiants*, or a vector with three elements, whose `norm` is the *rotation angle* in 3D and whose `normalized value` gives the direction of the *rotation axis* in 3D.
 
+# Examples
+
+```julia
+julia> r(pi/6)				# 2D rotation of ``π/6`` angle
+# return
+3×3 Array{Float64,2}:
+ 0.866025  -0.5       0.0
+ 0.5        0.866025  0.0
+ 0.0        0.0       1.0
+
+julia> r(0,0,pi/4)
+# return
+4×4 Array{Float64,2}:		# 3D rotation about the ``z`` axis, with ``π/6`` angle
+ 0.707107  -0.707107  0.0  0.0
+ 0.707107   0.707107  0.0  0.0
+ 0.0        0.0       1.0  0.0
+ 0.0        0.0       0.0  1.0
+ 
+julia> r(1,1,1)		# 3D rotation about the ``x=y=z`` axis, with angle ``1.7320508`` angle
+# return
+4×4 Array{Float64,2}:
+  0.226296  -0.183008   0.956712  0.0
+  0.956712   0.226296  -0.183008  0.0
+ -0.183008   0.956712   1.21332   0.0
+  0.0        0.0        0.0       1.0
+
+```
+"""
 function r(args...)
     args = collect(args)
     n = length(args)
@@ -68,40 +138,40 @@ function r(args...)
 
      if n == 3 # rotation in 3D
         mat = eye(4)
-        angle = norm(args); axis = normalize(args)
-        COS = cos(angle); SIN= sin(angle)
-        if axis[2]==axis[3]==0.0    # rotation about x
-            mat[2,2] = COS;    mat[2,3] = -SIN;
-            mat[3,2] = SIN;    mat[3,3] = COS;
-
-        elseif axis[1]==axis[3]==0.0   # rotation about y
-            mat[1,1] = COS;    mat[1,3] = SIN;
-            mat[3,1] = -SIN;    mat[3,3] = COS;
-        elseif axis[1]==axis[2]==0.0    # rotation about z
-            mat[1,1] = SIN;    mat[1,2] = -SIN;
-            mat[2,1] = COS;    mat[2,2] = COS;
-        
-        else
-	    I = eye(3); u = axis
-	    Ux=[0 -u[3] u[2] ; u[3] 0 -u[1] ;  -u[2] u[1] 1]
-	    UU =[u[1]*u[1]    u[1]*u[2]   u[1]*u[3];
-             u[2]*u[1]    u[2]*u[2]   u[2]*u[3];
-             u[3]*u[1]    u[3]*u[2]   u[3]*u[3]]
-	    mat[1:3,1:3]=COS*I+SIN*Ux+(1.0-COS)*UU
+        angle = norm(args); 
+        if norm(args) != 0.0
+			axis = normalize(args)
+			COS = cos(angle); SIN= sin(angle)
+			if axis[2]==axis[3]==0.0    # rotation about x
+				mat[2,2] = COS;    mat[2,3] = -SIN;
+				mat[3,2] = SIN;    mat[3,3] = COS;
+			elseif axis[1]==axis[3]==0.0   # rotation about y
+				mat[1,1] = COS;    mat[1,3] = SIN;
+				mat[3,1] = -SIN;    mat[3,3] = COS;
+			elseif axis[1]==axis[2]==0.0    # rotation about z
+				mat[1,1] = COS;    mat[1,2] = -SIN;
+				mat[2,1] = SIN;    mat[2,2] = COS;
+			else
+				I = eye(3); u = axis
+				Ux=[0 -u[3] u[2] ; u[3] 0 -u[1] ;  -u[2] u[1] 1]
+				UU =[u[1]*u[1]    u[1]*u[2]   u[1]*u[3];
+					 u[2]*u[1]    u[2]*u[2]   u[2]*u[3];
+					 u[3]*u[1]    u[3]*u[2]   u[3]*u[3]]
+				mat[1:3,1:3]=COS*I+SIN*Ux+(1.0-COS)*UU
+			end
 		end
 	end
-
-return mat
-
+	return mat
 end
 
 
 
 """
-	removeDups(CW)
+	removeDups(CW::Cells)::Cells
+
 
 """
-function removeDups(CW)
+function removeDups(CW::Cells)::Cells
 	CW = collect(Set(CW))
 	CWs = collect(map(sort,CW))
 	return CWs
@@ -113,7 +183,6 @@ end
 	Struct
 
 """
-
 type Struct
 	body::Array
 	box
@@ -193,7 +262,7 @@ end
 
 
 """
-	struct2lar(structure)
+	struct2lar(structure::Struct)::Union{LAR,LARmodel}
 
 """
 function struct2lar(structure)
@@ -247,14 +316,14 @@ function struct2lar(structure)
 	
 	if length(listOfModels[end])==2
 		CW = removeDups(CW)
-		return hcat(W...),CW
+		LARmodel = hcat(W...),CW
 	end
-	
 	if length(listOfModels[end])==3
 		FW = removeDups(FW)
 		CW = removeDups(CW)
-		return hcat(W...),CW,FW
+		LARmodel = hcat(W...),CW,FW
 	end
+	return LARmodel
 end
 
 
@@ -262,11 +331,11 @@ end
 
 
 """
-	embedTraversal(cloned,obj,n,suffix)
+	embedTraversal(cloned::Struct,obj::Struct,n::Int,suffix::String)
 
 """
 
-function embedTraversal(cloned,obj,n,suffix)
+function embedTraversal(cloned::Struct,obj::Struct,n::Int,suffix::String)
 
 	for i in range(1,len(obj))
 		if isa(obj.body[i],Matrix)
@@ -311,12 +380,12 @@ end
 
 
 """
-	embedStruct(n)
+	embedStruct(n::Int)(self::Struct,suffix::String="New")
 
 """
 
-function embedStruct(n)
-	function embedStruct0(self,suffix="New")
+function embedStruct(n::Int)
+	function embedStruct0(self::Struct,suffix::String="New")
 		if n==0
 			return self, length(self.box[1])
 		end
@@ -334,10 +403,10 @@ end
 
 
 """
-	box(model)
+	box(model::Union{Matrix,Struct})::Array{Number,1}
 
 """
-function box(model)
+function box(model::Union{Matrix,Struct})::Array{Number,1}
 	if isa(model,Matrix)
 		return nothing
 	elseif isa(model,Struct)
@@ -372,11 +441,11 @@ end
 
 
 """
-	apply(affineMatrix)(larmodel)
+	apply(affineMatrix::Matrix)(larmodel::Union{LAR,LARmodel})
 
 """
-function apply(affineMatrix)
-	function apply0(larmodel)
+function apply(affineMatrix::Matrix)
+	function apply0(larmodel::Union{LAR,LARmodel})
 		data = collect(larmodel)
 		V = data[1]
 		
@@ -417,6 +486,18 @@ function checkStruct(lst)
 	return dim
 end		
 
+#function checkStruct(lst)
+#	obj = lst[1]
+#	if isa(obj,Struct) & isa(obj[1],Matrix)
+#		dim = size(obj)[1]-1
+#	elseif (isa(obj,Tuple) || isa(obj,Array))
+#		dim = length(obj[1][:,1])
+#	elseif isa(obj,Struct)
+#		dim = length(obj.box[1])
+#	end
+#	return dim
+#end		
+
 
 
 
@@ -426,7 +507,7 @@ end
 
 """
 
-function traversal(CTM,stack,obj,scene=[])
+function traversal(CTM::Matrix, stack::Array{Matrix,1}, obj::Union{Matrix,Tuple,Array,Struct}, scene::Array=[])
 	for i in 1:len(obj)
 		if isa(obj.body[i],Matrix)
 			CTM = CTM*obj.body[i]
@@ -450,7 +531,7 @@ end
 	evalStruct(self)
 
 """
-function evalStruct(self)
+function evalStruct(self::Struct)::Union{LAR, LARmodel}
 	dim = checkStruct(self.body)
    	CTM, stack = eye(dim+1), []
    	scene = traversal(CTM, stack, self, []) 
