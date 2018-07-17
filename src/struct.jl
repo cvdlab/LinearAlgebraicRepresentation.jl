@@ -23,7 +23,7 @@ end
 """
 	t(args::Array{Number,1}...)::Array{Number,2}
 
-Return an *affine transformation matrix* in homogeneous coordinates. Such `translation` matrix has ``d+1`` rows and ``d+1`` columns, where ``d`` is the number of translation parameters in the `args` array.
+Return an *affine transformation Array{Number,2}* in homogeneous coordinates. Such `translation` Array{Number,2} has ``d+1`` rows and ``d+1`` columns, where ``d`` is the number of translation parameters in the `args` array.
 
 # Examples
 
@@ -59,7 +59,7 @@ end
 	s(args::Array{Number,1}...)::Array{Number,2}
 
 
-Return an *affine transformation matrix* in homogeneous coordinates. Such `scaling` matrix has ``d+1`` rows and ``d+1`` columns, where ``d`` is the number of scaling parameters in the `args` array.
+Return an *affine transformation Array{Number,2}* in homogeneous coordinates. Such `scaling` Array{Number,2} has ``d+1`` rows and ``d+1`` columns, where ``d`` is the number of scaling parameters in the `args` array.
 
 # Examples
 
@@ -95,7 +95,7 @@ end
 """
 	r(args...)
 
-Return an *affine transformation matrix* in homogeneous coordinates. Such `Rotation` matrix has *dimension* either equal to 3 or to 4, for 2D and 3D rotation, respectively.
+Return an *affine transformation Array{Number,2}* in homogeneous coordinates. Such `Rotation` Array{Number,2} has *dimension* either equal to 3 or to 4, for 2D and 3D rotation, respectively.
 The `{Number,1}` of `args` either contain a single `angle` parameter in *radiants*, or a vector with three elements, whose `norm` is the *rotation angle* in 3D and whose `normalized value` gives the direction of the *rotation axis* in 3D.
 
 # Examples
@@ -169,7 +169,7 @@ end
 """
 	removeDups(CW::Cells)::Cells
 
-
+Remove dublicate `cells` from `Cells` object. Then put `Cells` in *canonical form*, i.e. with *sorted indices* of vertices in each (unique) `Cells` Array element.
 """
 function removeDups(CW::Cells)::Cells
 	CW = collect(Set(CW))
@@ -338,7 +338,7 @@ end
 function embedTraversal(cloned::Struct,obj::Struct,n::Int,suffix::String)
 
 	for i in range(1,len(obj))
-		if isa(obj.body[i],Matrix)
+		if isa(obj.body[i],Array{Number,2})
 			mat = obj.body[i]
 			d,d = size(mat)
 			newMat = eye(d+n*1)
@@ -403,11 +403,11 @@ end
 
 
 """
-	box(model::Union{Matrix,Struct})::Array{Number,1}
+	box(model::Union{Array{Number,2},Struct})::Array{Number,1}
 
 """
-function box(model::Union{Matrix,Struct})::Array{Number,1}
-	if isa(model,Matrix)
+function box(model::Union{Array{Number,2},Struct})::Array{Number,1}
+	if isa(model,Array{Number,2})
 		return nothing
 	elseif isa(model,Struct)
 		listOfModels = evalStruct(model)
@@ -441,10 +441,10 @@ end
 
 
 """
-	apply(affineMatrix::Matrix)(larmodel::Union{LAR,LARmodel})
+	apply(affineMatrix::Array{Number,2})(larmodel::Union{LAR,LARmodel})
 
 """
-function apply(affineMatrix::Matrix)
+function apply(affineMatrix::Array{Float64,2})
 	function apply0(larmodel::Union{LAR,LARmodel})
 		data = collect(larmodel)
 		V = data[1]
@@ -475,7 +475,7 @@ end
 """
 function checkStruct(lst)
 	obj = lst[1]
-	if isa(obj,Matrix)
+	if isa(obj,Array{Number,2})
 		dim = size(obj)[1]-1
 	elseif (isa(obj,Tuple) || isa(obj,Array))
 		dim = length(obj[1][:,1])
@@ -488,7 +488,7 @@ end
 
 #function checkStruct(lst)
 #	obj = lst[1]
-#	if isa(obj,Struct) & isa(obj[1],Matrix)
+#	if isa(obj,Struct) & isa(obj[1],Array{Number,2})
 #		dim = size(obj)[1]-1
 #	elseif (isa(obj,Tuple) || isa(obj,Array))
 #		dim = length(obj[1][:,1])
@@ -507,9 +507,9 @@ end
 
 """
 
-function traversal(CTM::Matrix, stack::Array{Matrix,1}, obj::Union{Matrix,Tuple,Array,Struct}, scene::Array=[])
+function traversal(CTM::Array{Number,2}, stack::Array{Array{Number,2},1}, obj::Union{Array{Number,2},Tuple,Array,Struct}, scene::Array=[])
 	for i in 1:len(obj)
-		if isa(obj.body[i],Matrix)
+		if isa(obj.body[i],Array{Number,2})
 			CTM = CTM*obj.body[i]
 		elseif (isa(obj.body[i],Tuple) || isa(obj.body[i],Array)) && (length(obj.body[i])==2 || length(obj.body[i])==3)
 			l = apply(CTM)(obj.body[i])

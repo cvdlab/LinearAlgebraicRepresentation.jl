@@ -6,10 +6,13 @@ module LARLIB
    using IntervalTrees
    using TRIANGLE
    
-   const Points = Array{Number, 2}
-   const Cells = SparseMatrixCSC{Int8, Int}
-   const Cell = SparseVector{Int8, Int}
-   const LarCells = Array{Array{Int, 1}, 1}
+	const Points = Matrix
+	const Cells = Array{Array{Int,1},1}
+	const Chain = SparseVector{Int8,Int}
+	const ChainOp = SparseMatrixCSC{Int8,Int}
+	const ChainComplex = Array{ChainOp,1}
+	const LARmodel = Tuple{Points,Array{Cells,1}}
+	const LAR = Tuple{Points,Cells}
    
    
    # Characteristic matrix $M_2$, i.e. M(FV)
