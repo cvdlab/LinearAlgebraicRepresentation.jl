@@ -6,7 +6,7 @@ module LARLIB
    using IntervalTrees
    using TRIANGLE
    
-	const Points = Matrix
+	const Points = Array{Number,2}
 	const Cells = Array{Array{Int,1},1}
 	const Chain = SparseVector{Int8,Int}
 	const ChainOp = SparseMatrixCSC{Int8,Int}
@@ -15,7 +15,7 @@ module LARLIB
 	const LAR = Tuple{Points,Cells}
    
    
-   # Characteristic matrix $M_2$, i.e. M(FV)
+   # Characteristic Array{Number,2} $M_2$, i.e. M(FV)
    function characteristicMatrix(FV)
       I,J,V = Int64[],Int64[],Int8[] 
       for f=1:length(FV)
@@ -226,5 +226,6 @@ module LARLIB
    include("./spatial_arrangement.jl")
    include("./largrid.jl")
    include("./mapper.jl")
+   include("./struct.jl")
    
 end
