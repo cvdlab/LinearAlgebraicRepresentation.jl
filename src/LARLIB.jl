@@ -7,7 +7,7 @@ module LARLIB
 	using TRIANGLE
    
 	"""
-		Points = Array{Number,2,1}
+		Points = Array{Number,2}
 	
 	Alias declation of LAR-specific data structure.
 	Dense `Array{Number,2,1}` ``M\times N`` to store the position of *vertices* (0-cells)
