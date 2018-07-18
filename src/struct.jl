@@ -326,12 +326,13 @@ function struct2lar(structure)
 	if length(topology)==2
 		#FW = removeDups(FW)
 		larmodel = hcat(W...),FW
+		return larmodel
 	elseif length(topology)==3
 		#FW = removeDups(FW)
 		#EW = removeDups(EW)
 		larmodel = hcat(W...),FW,EW
+		return larmodel
 	end
-	return larmodel
 end
 
 
