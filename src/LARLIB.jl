@@ -30,6 +30,9 @@ module LARLIB
 	element in `Cells` array.
 	"""
 	const Cells = Array{Array{Int,1},1}
+	
+	
+	const Cell = SparseVector{Int8, Int}
 
 
 	"""
