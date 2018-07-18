@@ -40,12 +40,13 @@ function frag_face(V, EV, FE, sp_idx, sigma)
     nV = [nV zeros(nvsize) ones(nvsize)]*inv(M)[:, 1:3]
     return nV, nEV, nFE
 end
-function merge_vertices(V::Verts, EV::Cells, FE::Cells, err=1e-4)
+function merge_vertices(V::Points, EV::Cells, FE::Cells, err=1e-4)
     vertsnum = size(V, 1)
     edgenum = size(EV, 1)
     facenum = size(FE, 1)
     newverts = zeros(Int, vertsnum)
-    kdtree = KDTree(V')
+    # KDTree constructor needs an explicit array of Float64
+    kdtree = KDTree(Array{Float64,2}(V'))
 
     todelete = []
     
@@ -125,12 +126,23 @@ function merge_vertices(V::Verts, EV::Cells, FE::Cells, err=1e-4)
 end
 
 
+"""
+    spatial_arrangement(V::Points, EV::Cells, FE::Cells; [multiproc::Bool])
 
-function spatial_arrangement(V::Verts, EV::Cells, FE::Cells; multiproc=false)
+Compute the arrangement on the given cellular complex 2-skeleton in 3D.
+
+A cellular complex is arranged when the intersection of every possible pair of cell 
+of the complex is empty and the union of all the cells is the whole Euclidean space.
+The function returns the full arranged complex as a list of vertices V and a chain of borders EV, FE, CF.
+
+## Additional arguments:
+- `multiproc::Bool`: Runs the computation in parallel mode. Defaults to `false`.
+"""
+function spatial_arrangement(V::Points, EV::Cells, FE::Cells, multiproc::Bool=false)
     fs_num = size(FE, 1)
     sp_idx = spatial_index(V, EV, FE)
 
-    rV = Verts(0,3)
+    rV = Points(0,3)
     rEV = spzeros(Int8,0,0)
     rFE = spzeros(Int8,0,0)
 
@@ -166,13 +178,8 @@ function spatial_arrangement(V::Verts, EV::Cells, FE::Cells; multiproc=false)
     end
 
     rV, rEV, rFE = merge_vertices(rV, rEV, rFE)
-
-    
-    
-    
     
     rCF = minimal_3cycles(rV, rEV, rFE)
-    
 
     return rV, rEV, rFE, rCF
 end

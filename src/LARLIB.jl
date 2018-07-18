@@ -6,13 +6,16 @@ module LARLIB
    using IntervalTrees
    using TRIANGLE
    
-   const Verts = Array{Float64, 2}
-   const Cells = SparseMatrixCSC{Int8, Int}
-   const Cell = SparseVector{Int8, Int}
-   const LarCells = Array{Array{Int, 1}, 1}
+	const Points = Array{Number,2}
+	const Cells = Array{Array{Int,1},1}
+	const Chain = SparseVector{Int8,Int}
+	const ChainOp = SparseMatrixCSC{Int8,Int}
+	const ChainComplex = Array{ChainOp,1}
+	const LARmodel = Tuple{Points,Array{Cells,1}}
+	const LAR = Tuple{Points,Cells}
    
    
-   # Characteristic matrix $M_2$, i.e. M(FV)
+   # Characteristic Array{Number,2} $M_2$, i.e. M(FV)
    function characteristicMatrix(FV)
       I,J,V = Int64[],Int64[],Int8[] 
       for f=1:length(FV)
@@ -216,32 +219,13 @@ module LARLIB
       return local3cells
    end
    
-   # Visualize solid cells
-   function viewsolidcells(sx=1.2, sy=1.2, sz=1.2)
-      scaling = [sx; sy; sz]
-      function viewsolidcells0(V,CV,FV,EV,cscCF,cscFE)
-         local3cells = LARLIB.map_3cells_to_localbases(V,CV,FV,EV,cscCF,cscFE)
-         hpcs = Any[]
-         for local3cell in local3cells
-            v,tv = local3cell
-            centroid = sum(v,2)/size(v,2)
-            scaledcentroid = scaling.*centroid
-            translation = scaledcentroid - centroid
-            w = v .+ translation
-            hpc = p.SOLIDIFY(LARVIEW.lar2hpc(w,tv))
-            append!(hpcs, [hpc])
-         end
-         p.VIEW(p.STRUCT(hpcs))
-         return viewsolidcells0
-      end
-   end
-   
-
    include("./utilities.jl")
    include("./minimal_cycles.jl")
    include("./dimension_travel.jl")
    include("./planar_arrangement.jl")
    include("./spatial_arrangement.jl")
    include("./largrid.jl")
+   include("./mapper.jl")
+   include("./struct.jl")
    
 end
