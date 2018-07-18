@@ -36,6 +36,7 @@ end
 end
 
 @testset "3D" begin
+	cube=cuboid([1,1,1])
 	@testset "apply Translation 3D" begin
 		@test typeof(apply(t(-0.5,-0.5,-0.5))(cube))==
 		Tuple{Array{Float64,2},Array{Array{Int64,1},1}}
@@ -83,11 +84,13 @@ end
 
 
 @testset "traversal" begin
-   square=([[0, 0], [0, 1], [1, 0], [1, 1]], [[0, 1, 2, 3]])
-   @everywhere structure=Struct([square])
-   @everywhere dim=checkStruct(structure.body)
-   @test length(traversal(eye(dim+1),[],structure,[]))==length(structure.body)
-   @test typeof(traversal(eye(dim+1),[],structure,[]))==ArrayAny,1
+	square=cuboid([1,1])
+	structure=Struct([square])
+	@test structure.body == Tuple{Array{Float64,2},Array{Array{Int64,1},1}}
+	[([0.0 0.0 1.0 1.0; 0.0 1.0 0.0 1.0], Array{Int64,1}[[1, 2, 3, 4]])]
+
+	@test length(traversal(eye(dim+1),[],structure,[]))==length(structure.body)
+	@test typeof(traversal(eye(dim+1),[],structure,[]))==ArrayAny,1
 end
 
 
