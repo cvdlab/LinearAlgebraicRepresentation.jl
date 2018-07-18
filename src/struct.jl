@@ -1,22 +1,4 @@
 
-"""
-	approxVal(PRECISION)(value)
-	
-Transform the float `value` to get a `PRECISION` number of significant digits.
-"""
-function approxVal(PRECISION)
-	PRECISION = 7
-    function approxVal0(value)
-        out = round(value*(10^(PRECISION)))/10^(PRECISION)
-        if out == -0.0
-            out = 0.0
-        end
-        return out 
-    end
-    return approxVal0
-end
-
-
 
 """
 	t(args::Array{Number,1}...)::Matrix
@@ -291,7 +273,7 @@ function struct2lar(structure)
 			append!(FW,[outcell])
 		end
 	end
-	if length(model)==3
+	if length(listOfModels[1])==3
 		for model in listOfModels
 			V,FV,EV = model
 			for incell in EV
@@ -426,7 +408,6 @@ function box(model)
 				end
 			end
 		end
-		@show theMin,theMax
 		return [theMin,theMax]
 
 	elseif (isa(model,Tuple) ||isa(model,Array))&& (length(model)==2 || length(model)==3)
@@ -458,13 +439,6 @@ function apply(affineMatrix, larmodel)
 	return larmodel
 end
 
-#function apply(affineMatrix)
-#	function apply0(larmodel::Struct)
-#		larmodel = Struct([affineMatrix,larmodel])
-#	end 
-#	return apply0
-#end
-
 
 
 
@@ -484,20 +458,6 @@ function checkStruct(lst)
 	end
 	return dim
 end		
-
-#function checkStruct(lst)
-#	obj = lst[1]
-#	if isa(obj,Struct) & isa(obj[1],Matrix)
-#		dim = size(obj)[1]-1
-#	elseif (isa(obj,Tuple) || isa(obj,Array))
-#		dim = length(obj[1][:,1])
-#	elseif isa(obj,Struct)
-#		dim = length(obj.box[1])
-#	end
-#	return dim
-#end		
-
-
 
 
 

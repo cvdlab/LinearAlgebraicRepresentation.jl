@@ -114,12 +114,12 @@ Conversely, the `struct2lar` function generates a *single* LAR model (cellular c
 scene = evalStruct(struct02)	# array of LAR models
 W,FW,EW = struct2lar(struct02)	# single LAR model
 ```
-Anyway, the `larView` function, which instances a `pyplasm` viewer, can be applied both to an array of models and to a single model. The examples below intend to show either the 2-cells or the 1-cells of the generated cellular complex, respectively.
+Anyway, the `LARVIEW.view` function, which instances a `pyplasm` viewer, can be applied both to an array of models and to a single model. The examples below intend to show either the 2-cells or the 1-cells of the generated cellular complex, respectively.
 
 ```julia
 using LARVIEW
-larView(scene)
-larView(W,EW)
+ (scene)
+LARVIEW.view(W,EW)
 ```
 
 A different example provides a `sphere`, and a `cylinder` instance suitably translated, within the same `Struct` container. Of course, we could define a hierarchical assembly of any size and deep, containing any number of `Struct` nodes.
@@ -127,7 +127,7 @@ A different example provides a `sphere`, and a `cylinder` instance suitably tran
 ```julia
 assembly = Struct([sphere()(), t(3,0,-1), cylinder()()])
 using LARVIEW
-larView(struct2lar(assembly))
+LARVIEW.view(struct2lar(assembly))
 ```
 
 ![](./images/struct-cd.png)
