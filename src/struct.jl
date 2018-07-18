@@ -1,3 +1,10 @@
+	const Points = Matrix
+	const Cells = Array{Array{Int,1},1}
+	const Chain = SparseVector{Int8,Int}
+	const ChainOp = SparseMatrixCSC{Int8,Int}
+	const ChainComplex = Array{ChainOp,1}
+	const LARmodel = Tuple{Points,Array{Cells,1}}
+	const LAR = Tuple{Points,Cells}
 
 
 
@@ -21,9 +28,9 @@ end
 
 
 """
-	t(args::Array{Number,1}...)::Array{Number,2}
+	t(args::Array{Number,1}...)::Matrix
 
-Return an *affine transformation Array{Number,2}* in homogeneous coordinates. Such `translation` Array{Number,2} has ``d+1`` rows and ``d+1`` columns, where ``d`` is the number of translation parameters in the `args` array.
+Return an *affine transformation Matrix* in homogeneous coordinates. Such `translation` Matrix has ``d+1`` rows and ``d+1`` columns, where ``d`` is the number of translation parameters in the `args` array.
 
 # Examples
 
@@ -46,7 +53,7 @@ julia> t(1.,2,3)		# 3D translation
 """
 function t(args...)
 	d = length(args)
-	mat = eye(d+1)
+	mat = convert(Matrix,eye(d+1))
 	for k in range(1,d)
         	mat[k,d+1]=args[k]
 	end
@@ -56,10 +63,10 @@ end
 
 
 """
-	s(args::Array{Number,1}...)::Array{Number,2}
+	s(args::Array{Number,1}...)::Matrix
 
 
-Return an *affine transformation Array{Number,2}* in homogeneous coordinates. Such `scaling` Array{Number,2} has ``d+1`` rows and ``d+1`` columns, where ``d`` is the number of scaling parameters in the `args` array.
+Return an *affine transformation Matrix* in homogeneous coordinates. Such `scaling` Matrix has ``d+1`` rows and ``d+1`` columns, where ``d`` is the number of scaling parameters in the `args` array.
 
 # Examples
 
@@ -95,7 +102,7 @@ end
 """
 	r(args...)
 
-Return an *affine transformation Array{Number,2}* in homogeneous coordinates. Such `Rotation` Array{Number,2} has *dimension* either equal to 3 or to 4, for 2D and 3D rotation, respectively.
+Return an *affine transformation Matrix* in homogeneous coordinates. Such `Rotation` Matrix has *dimension* either equal to 3 or to 4, for 2D and 3D rotation, respectively.
 The `{Number,1}` of `args` either contain a single `angle` parameter in *radiants*, or a vector with three elements, whose `norm` is the *rotation angle* in 3D and whose `normalized value` gives the direction of the *rotation axis* in 3D.
 
 # Examples
@@ -268,7 +275,7 @@ end
 function struct2lar(structure)
 	listOfModels = evalStruct(structure)
 	vertDict= Dict()
-	index,defaultValue,W,CW,FW = 0,0,Array{Float64,1}[],Array{Int64,1}[],Array{Int64,1}[]
+	index,defaultValue,W,FW,EW = 0,0,Array{Float64,1}[],Array{Int64,1}[],Array{Int64,1}[]
 	
 	for model in listOfModels
 		if  length(model)==2
@@ -277,7 +284,7 @@ function struct2lar(structure)
 			V,FV,EV = model
 		end
 		
-		for (k,incell) in enumerate(FV)
+		for incell in FV
 			outcell=[]
 			for v in incell
 				key = map(approxVal(7), V[:,v])
@@ -290,15 +297,16 @@ function struct2lar(structure)
 					append!(outcell,vertDict[key])
 				end
 			end
-			append!(CW,[outcell])
+			append!(FW,[outcell])
 		end
-		
-		if length(model)==3
-		
-			for (k,incell) in enumerate(EV)
+	end
+	if length(model)==3
+		for model in listOfModels
+			V,FV,EV = model
+			for incell in EV
 				outcell=[]
 				for v in incell
-					key = map(approxVal(7), V[:,v])
+					key = map(approxVal(4), V[:,v])
 					if get(vertDict,key,defaultValue)==defaultValue
 						index += 1
 						vertDict[key]=index
@@ -308,22 +316,22 @@ function struct2lar(structure)
 						append!(outcell,vertDict[key])
 					end
 				end
-				append!(FW,[outcell])
+				append!(EW,[outcell])
 			end
 			
 		end
 	end
 	
-	if length(listOfModels[end])==2
-		CW = removeDups(CW)
-		LARmodel = hcat(W...),CW
+	topology = listOfModels[end]
+	if length(topology)==2
+		#FW = removeDups(FW)
+		larmodel = hcat(W...),FW
+	elseif length(topology)==3
+		#FW = removeDups(FW)
+		#EW = removeDups(EW)
+		larmodel = hcat(W...),FW,EW
 	end
-	if length(listOfModels[end])==3
-		FW = removeDups(FW)
-		CW = removeDups(CW)
-		LARmodel = hcat(W...),CW,FW
-	end
-	return LARmodel
+	return larmodel
 end
 
 
@@ -338,7 +346,7 @@ end
 function embedTraversal(cloned::Struct,obj::Struct,n::Int,suffix::String)
 
 	for i in range(1,len(obj))
-		if isa(obj.body[i],Array{Number,2})
+		if isa(obj.body[i],Matrix)
 			mat = obj.body[i]
 			d,d = size(mat)
 			newMat = eye(d+n*1)
@@ -403,11 +411,11 @@ end
 
 
 """
-	box(model::Union{Array{Number,2},Struct})::Array{Number,1}
+	box(model)
 
 """
-function box(model::Union{Array{Number,2},Struct})::Array{Number,1}
-	if isa(model,Array{Number,2})
+function box(model)
+	if isa(model,Matrix)
 		return nothing
 	elseif isa(model,Struct)
 		listOfModels = evalStruct(model)
@@ -426,7 +434,8 @@ function box(model::Union{Array{Number,2},Struct})::Array{Number,1}
 				end
 			end
 		end
-		return Array[theMin,theMax]
+		@show theMin,theMax
+		return [theMin,theMax]
 
 	elseif (isa(model,Tuple) ||isa(model,Array))&& (length(model)==2 || length(model)==3)
 		V = model[1]
@@ -441,22 +450,20 @@ end
 
 
 """
-	apply(affineMatrix::Array{Number,2})(larmodel::Union{LAR,LARmodel})
+	apply(affineMatrix::Array{Float64,2}, larmodel::Union{LAR,LARmodel})
 
 """
-function apply(affineMatrix::Array{Float64,2})
-	function apply0(larmodel::Union{LAR,LARmodel})
-		data = collect(larmodel)
-		V = data[1]
-		
-		m,n = size(V)
-		W = [V; fill(1.0, (1,n))]
-		V = (affineMatrix * W)[1:m,1:n]
+function apply(affineMatrix, larmodel)
+	data = collect(larmodel)
+	V = data[1]
+	
+	m,n = size(V)
+	W = [V; fill(1.0, (1,n))]
+	V = (affineMatrix * W)[1:m,1:n]
 
-		data[1] = V	
-		larmodel = Tuple(data)
-	end 
-	return apply0
+	data[1] = V	
+	larmodel = Tuple(data)
+	return larmodel
 end
 
 #function apply(affineMatrix)
@@ -475,7 +482,7 @@ end
 """
 function checkStruct(lst)
 	obj = lst[1]
-	if isa(obj,Array{Number,2})
+	if isa(obj,Matrix)
 		dim = size(obj)[1]-1
 	elseif (isa(obj,Tuple) || isa(obj,Array))
 		dim = length(obj[1][:,1])
@@ -488,7 +495,7 @@ end
 
 #function checkStruct(lst)
 #	obj = lst[1]
-#	if isa(obj,Struct) & isa(obj[1],Array{Number,2})
+#	if isa(obj,Struct) & isa(obj[1],Matrix)
 #		dim = size(obj)[1]-1
 #	elseif (isa(obj,Tuple) || isa(obj,Array))
 #		dim = length(obj[1][:,1])
@@ -507,12 +514,13 @@ end
 
 """
 
-function traversal(CTM::Array{Number,2}, stack::Array{Array{Number,2},1}, obj::Union{Array{Number,2},Tuple,Array,Struct}, scene::Array=[])
-	for i in 1:len(obj)
-		if isa(obj.body[i],Array{Number,2})
+function traversal(CTM::Matrix, stack, obj, scene=[])
+	for i = 1:len(obj)
+		if isa(obj.body[i],Matrix)
 			CTM = CTM*obj.body[i]
-		elseif (isa(obj.body[i],Tuple) || isa(obj.body[i],Array)) && (length(obj.body[i])==2 || length(obj.body[i])==3)
-			l = apply(CTM)(obj.body[i])
+		elseif (isa(obj.body[i],Tuple) || isa(obj.body[i],Array)) && 
+			(length(obj.body[i])==2 || length(obj.body[i])==3)
+			l = apply(CTM, obj.body[i])
 			push!(scene,l)
 		elseif isa(obj.body[i],Struct)
 			push!(stack,CTM)	
@@ -531,7 +539,7 @@ end
 	evalStruct(self)
 
 """
-function evalStruct(self::Struct)::Union{LAR, LARmodel}
+function evalStruct(self::Struct)
 	dim = checkStruct(self.body)
    	CTM, stack = eye(dim+1), []
    	scene = traversal(CTM, stack, self, []) 

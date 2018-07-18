@@ -434,7 +434,7 @@ function cuboid(maxpoint::Array; minpoint::Array=zeros(length(maxpoint)), full=f
 	shape = ones(Int, dim)
 	cell = cuboidGrid(shape, full)
 	size = maxpoint - minpoint
-	out = apply(t(minpoint...) * s(size...))(cell)
+	out = apply(t(minpoint...) * s(size...), cell)
 end
 
 
