@@ -7,6 +7,7 @@ module LARLIB
    using TRIANGLE
    
 	const Points = Array{Number,2}
+	const Cell = SparseVector{Int8, Int}
 	const Cells = Array{Array{Int,1},1}
 	const Chain = SparseVector{Int8,Int}
 	const ChainOp = SparseMatrixCSC{Int8,Int}
