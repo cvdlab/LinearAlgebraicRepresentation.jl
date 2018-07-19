@@ -315,45 +315,42 @@ end
 """
 	embedTraversal(cloned::Struct,obj::Struct,n::Int,suffix::String)
 
+# TODO:  debug embedTraversal
 """
 
 function embedTraversal(cloned::Struct,obj::Struct,n::Int,suffix::String)
 
-	for i in range(1,len(obj))
+	for i=1:length(obj.body)
 		if isa(obj.body[i],Matrix)
 			mat = obj.body[i]
 			d,d = size(mat)
-			newMat = eye(d+n*1)
-			for h in range(1,d-1)
-				for k in range(1,d-1)
+			newMat = eye(d+n)
+			for h in range(1,d)
+				for k in range(1,d)
 					newMat[h,k]=mat[h,k]
 				end
-				newMat[h,d-1+n*1]=mat[h,d-1]
 			end
-			append!(cloned.body,newMat)
+			push!(cloned.body,[newMat])
 		elseif (isa(obj.body[i],Tuple) ||isa(obj.body[i],Array))&& length(obj.body[i])==3 
-			V,FV,EV = obj.body[i]
-			dimadd = fill([0.0],n)
-			for k in dimadd
-				for v in V
-					append!(v,k)
-				end
-			end
-			append!(cloned.body,[(V,FV,EV)])
+			V,FV,EV = deepcopy(obj.body[i])
+			dimadd = n
+			ncols = size(V,2)
+			nmat = zeros(dimadd,ncols)
+			V = [V;zeros(dimadd,ncols)]
+			push!(cloned.body,[(V,FV,EV)])
 		elseif  (isa(obj.body[i],Tuple) ||isa(obj.body[i],Array))&& length(obj.body[i])==2 
 			V,EV = deepcopy(obj.body[i])
-			dimadd = fill([0.0],n)
-			for k in dimadd
-				for v in V
-					append!(v,k)
-				end
-			end
-			append!(cloned.body,[(V,EV)])
+			dimadd = n
+			ncols = size(V,2)
+			nmat = zeros(dimadd,ncols)
+			V = [V;zeros(dimadd,ncols)]
+			push!(cloned.body,[(V,EV)])
 		elseif isa(obj.body[i],Struct)
 			newObj = Struct()
-			newObj.box = hcat((obj.body[i].box,[fill([0],n),fill([0],n)]))
-			newObj.category = obj.body[i].category
-			append!(cloned.body,embedTraversal(newObj,obj.body[i],n,suffix))
+			newObj.box = [ [obj.body[i].box[1];zeros(dimadd)],
+							[obj.body[i].box[2];zeros(dimadd)] ]
+			newObj.category = (obj.body[i]).category
+			push!(cloned.body,[embedTraversal(newObj,obj.body[i],obj.dim+n,suffix)])
 		end
 	end
 	return cloned
@@ -364,6 +361,7 @@ end
 """
 	embedStruct(n::Int)(self::Struct,suffix::String="New")
 
+# TODO:  debug embedStruct
 """
 
 function embedStruct(n::Int)
@@ -372,8 +370,9 @@ function embedStruct(n::Int)
 			return self, length(self.box[1])
 		end
 		cloned = Struct()
-		cloned.box = hcat((self.box,[fill([0],n),fill([0],n)]))	
-		cloned.name = string(object_id(cloned))
+		cloned.box = [ [self.body[i].box[1];zeros(dimadd)],
+						[self.body[i].box[2];zeros(dimadd)] ]
+		cloned.name = self.name*suffix
 		cloned.category = self.category
 		cloned.dim = self.dim+n
 		cloned = embedTraversal(cloned,self,n,suffix)
