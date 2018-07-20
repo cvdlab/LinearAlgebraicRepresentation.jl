@@ -323,7 +323,8 @@ julia> using LARVIEW
 julia> LARVIEW.view(sphere()())
 ```
 """
-function sphere(radius=1., angle1=pi, angle2=2*pi)
+@enum surface triangled=1 single=2
+function sphere(radius=1., angle1=pi, angle2=2*pi, surface=triangled)
     function sphere0(shape=[18, 36])
         V, CV = simplexGrid(shape)
         V = [angle1/shape[1] 0;0 angle2/shape[2]]*V
@@ -333,7 +334,11 @@ function sphere(radius=1., angle1=pi, angle2=2*pi)
         	radius*cos(u)*sin(v);radius*sin(u)]end, W)...) 
         W, CW = simplifyCells(V, CV)
         CW = [triangle for triangle in CW if length(triangle)==3]
-        return W, CW
+        if Int(surface)==1
+        	return W, CW
+        elseif Int(surface)==2
+        	return W,[collect(1:size(W, 2))]
+        end
     end
     return sphere0    
 end
