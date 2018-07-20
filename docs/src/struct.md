@@ -6,12 +6,15 @@ relocated by affine transformations of coordinates.  This operation may be repea
 hierarchically, with subassemblies defined by aggregation of simpler parts, and so
 on, until to obtain a set of LAR models, which are not further decomposed.
 
+![](./images/refectory.png)
+> **Figure 1:** Hierarchical assembly of cellular 3-complexes.
+
 Two main advantages can be found in a hierarchical modeling approach. Each component complex  and each assembly, at every hierarchical level, are defined independently from each other, using a local coordinate frame, suitably chosen to make its definition easier.
 Furthermore, only one copy of each component is stored in memory, and may be instanced
 in different locations and orientations how many times it is needed.
 
 ![](./images/struct-ab.png)
-> **Figure 1:** Hierarchical assembly of a complex consisting of a single 2-cell (the square): (a) 2-skeleton; (b) 1-skeleton of the resulting complex.
+> **Figure 2:** Hierarchical assembly of a 2-complex consisting of a single 2-cell (the square): (a) 2-skeleton; (b) 1-skeleton of the resulting complex.
 
 ## Hierarchical graphs
 
@@ -65,6 +68,19 @@ arc that connects the new container to the current node.
 
 ##  Examples
 
+### Containers of geometric objects
+
+```julia  
+type Struct
+	body::Array
+	box
+	name::AbstractString
+	dim
+	category::AbstractString
+end
+```
+where `body::Array` is the *actual container*, which may contain geometric models, affine transformations, and other structure values; `box` is a representation of the *containment box*; `name` is an identifier, initialized to the `id` of the empty object created by the constructor `Struct()`; `dim` is the dimension of the embedding space, i.e. the number of coordinates; `category` is a property of the created value, initializated to "feature".
+
 A typical LAR geometrical model is a `Tuple` (triple or pair), where the first element is the *matrix of coordinates* of vertices, and the remaining arrays of array of integers provide the *vertex indices* of each *cell*. 
 
 ```julia  
@@ -79,10 +95,18 @@ the array of contained objects.  The value returned from the application is a va
 *Struct* type.  The coordinate system of this value is the one associated with the first object of the `Struct` parameters.  Also,
 the resulting geometrical value is often associated with a variable name.
 
-An affine $3\times 3$ transformation matrix, generated in homogeneous normalized coordinates by the function `t(-0.5,-0.5)`, can be *applied* to a LAR object `obj` both *explicitly*, by using the higher function `apply`$\to$`Matrix`$\to$`obj`, or *implicitly* by creating a `Struct` hierarchical object, as shown by the following examples:
+### Affine transformations and containers
+
+Affine transformations or tensor matrices, of type `Arra{Float64, 2}`, are created by functions
+
+	t(args...)	# for translation
+	s(args...)	# for scaling
+	r(args...)	# for rotation
+
+An affine $3\times 3$ transformation matrix, generated in homogeneous normalized coordinates by the function call `t(-0.5,-0.5)`, can be *applied* to a LAR object `obj` both *explicitly* by using the function `apply(Matrix, obj)` or *implicitly* by creating a `Struct` hierarchical object, as shown by the following examples:
 
 ```julia  
-julia> table = apply( t(-0.5,-0.5) )( square )
+julia> table = apply( t(-0.5,-0.5), square )
 # output
 ([-0.5 -0.5 0.5 0.5; -0.5 0.5 -0.5 0.5], Array{Int64,1}[[1, 2, 3, 4]],
 Array{Int64,1}[[1, 2], [1, 3], [2, 4], [3, 4]])
@@ -98,15 +122,12 @@ The generation of container nodes may continue hierarchically by suitably applyi
 ```julia 
 chair = Struct([ t(0.75,0), s(0.35,0.35), table ])
 ```
-The object `struct0` below contains a table and 4 chairs, `struct01` is a row of 10 suitably translated instances of `struct0`, and `struct02` is another assembly of suitably translated `struct01` instances. 
 
-```julia 
-struct0 = Struct([ t(2,1),table, repeat([r(pi/2), chair ], outer = 4)... ])
-struct01 = Struct( repeat([ struct0, t(0,2.5) ], outer = 10) )
-struct02 = Struct( repeat([ struct01, t(3,0) ], outer = 10) )
-```
 
-The function `evalStruct` generates an `Array` of LAR models, each one originally defined  in a *local coordinate* system, transforming all of them in the same *world coordinate*, equal to the ones of the *first* object in the `Struct` parameter sequence.
+
+### Container evaluation
+
+The function `evalStruct`, when applied to a `Struct` value, generates an `Array` of LAR models, each one originally defined  in a *local coordinate* system, transforming all of them in the same *world coordinate*, equal to the ones of the *first* object in the `Struct` parameter sequence.
 
 Conversely, the `struct2lar` function generates a *single* LAR model (cellular complex), whose components are here assigned respectively to variables `W` (coordinates of vertices), `FW` faces (2-cells), and `EW` edges (1-cells). Notice that the whole model is *embedded in 2D*, since the `W` array (coordinates by columns) has *two rows*
 
@@ -114,12 +135,23 @@ Conversely, the `struct2lar` function generates a *single* LAR model (cellular c
 scene = evalStruct(struct02)	# array of LAR models
 W,FW,EW = struct2lar(struct02)	# single LAR model
 ```
-Anyway, the `LARVIEW.view` function, which instances a `pyplasm` viewer, can be applied both to an array of models and to a single model. The examples below intend to show either the 2-cells or the 1-cells of the generated cellular complex, respectively.
+
+
+### Simple assembly examples
+
+The object `struct0` below contains a table and 4 chairs, `struct01` is a row of 10 suitably translated instances of `struct0`, and `struct02` is another assembly of suitably translated `struct01` instances. 
+
+```julia 
+struct0 = Struct([ t(2,1),table, repeat([r(pi/2), chair ], outer = 4)... ])
+struct01 = Struct( repeat([ struct0, t(0,2.5) ], outer = 10) )
+scene = Struct( repeat([ struct01, t(3,0) ], outer = 10) )
+```
+
+To see the generated 2D scene you need the `LARVIEW` module.
 
 ```julia
 using LARVIEW
- (scene)
-LARVIEW.view(W,EW)
+LARVIEW.view(scene)
 ```
 
 A different example provides a `sphere`, and a `cylinder` instance suitably translated, within the same `Struct` container. Of course, we could define a hierarchical assembly of any size and deep, containing any number of `Struct` nodes.
@@ -131,5 +163,77 @@ LARVIEW.view(struct2lar(assembly))
 ```
 
 ![](./images/struct-cd.png)
-> **Figure 2:** (a) Enlargement of a portion of the exploded complex in Fig.1; (b) an assembly with two cuboidal 2-complexes (surfaces) embedded in 3D.
+> **Figure 3:** (a) Enlargement of a portion of the exploded complex in Fig.1; (b) an assembly with two cuboidal 2-complexes (surfaces) embedded in 3D.
+
+
+### Coding of 3D `refectory` assembly
+
+The `refectory` model shown in Figure 1 is stepwise developed here. Of course, in order to display the various *geometric models*, the `LARVIEW` package is needed.
+
+```julia
+using LARLIB
+L = LARLIB
+
+using LARVIEW
+View = LARVIEW.view
+```
+![](./images/parts.png)
+> **Figure 4:** The generation process of the `refectory` assembly shown in Figure 1.
+
+First develop the `table` model, starting from a single `cube` object, of type `LAR = Tuple{Points,Cells}`, suitably translated to get the base center at the origin, then create containers for `tableTop`, `tablelegs`, and `table`. Finally *check the assembly* correctness, and convert to a `LAR` value.  The `View` primitive may be applied both to 
+`Struct` and `LAR` values, as well to other types.
+
+```julia
+cube = L.apply( L.t(-.5,-.5,0), L.cuboid([1,1,1]))
+tableTop = L.Struct([ L.t(0,0,.85), L.s(1,1,.05), cube ])
+tableLeg = L.Struct([ L.t(-.475,-.475,0), L.s(.1,.1,.89), cube ])
+tablelegs = L.Struct( repeat([ tableLeg, L.r(0,0,pi/2) ],outer=4) )
+table = L.Struct([ tableTop, tablelegs ])
+View(table)
+table = L.struct2lar(table)
+View(table)
+```
+
+
+Then build the `chair` model as above. The polyhedral `cylndr` is defined with 8 lateral faces, and 16 vertices. 
+
+```julia
+cylndr = L.rod(.06, .5, 2*pi)([8,1])
+chairTop = L.Struct([ L.t(0,0,0.5), L.s(0.5,0.5,0.04), cube ])
+chairLeg = L.Struct([ L.t(-.22,-.22,0), L.s(.5,.5,1), L.r(0,0,pi/8), cylndr ])
+chairlegs = L.Struct( repeat([ chairLeg, L.r(0,0,pi/2) ],outer=4) );
+chair = L.Struct([ chairTop, chairlegs ]);
+chair = L.struct2lar(chair)
+View(chair)
+```
+Just notice that, in expanding the `chair` data structure, *72 vertices* and *five 3-cells* are obtained. If a model made of quads or triangles is needed, just generate `cube` and `cylndr` using different `primitives` in `mapper.jl` file.
+
+```julia
+julia> chair[1]
+3×72 Array{Float64,2}:
+ -0.25  -0.25  -0.25  -0.25   0.25   0.25  0.25  0.25  …  -0.247716  -0.231481  -0.231481
+ -0.25  -0.25   0.25   0.25  -0.25  -0.25  0.25  0.25      0.208519   0.192284   0.192284
+  0.5    0.54   0.5    0.54   0.5    0.54  0.5   0.54      0.5        0.0        0.5     
+julia> chair[2]
+5-element Array{Array{Int64,1},1}:
+ [1, 2, 3, 4, 5, 6, 7, 8]                                        
+ [9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24] 
+ [25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40]
+ [41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56]
+ [57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72]
+```
+
+Finally assemble the `refectory` model, by looping twice on a single coordinate. 
+Then a single `LAR` value is create, as well an `Array{Any,1}` *collection* of simplest `LAR` values, all given in *Wold Coordinates*.
+
+```julia
+theChair = L.Struct([ L.t(-.8,0,0), chair ])
+fourChairs = L.Struct( repeat([L.r(0,0,pi/2), theChair],outer=4) );
+fourSit = L.Struct([fourChairs,table]);
+View(fourSit)
+singleRow=L.Struct(repeat([fourSit,L.t(0,2.5,0)],outer=10));
+View(singleRow)
+refectory=L.Struct(repeat([singleRow,L.t(3,0,0)],outer=10));
+View(refectory)
+```
 

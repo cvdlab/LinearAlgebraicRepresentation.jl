@@ -161,6 +161,45 @@ end
 
 """
 	Struct
+	
+A *container* of geometrical objects is defined by applying the function `Struct` to
+the array of contained objects. Each value is defined in local coordinates and may be transformed by affine transformation tensors.
+
+The value returned from the application of `Struct` to an `Array{Any, 1}` of `LAR` values, `matrices`, and `Struct` values is a value of 
+`Struct type`.  The coordinate system of this value is the one associated with the first object of the `Struct` arguments.  Also,
+the resulting geometrical value is often associated with a variable name.
+
+The generation of containers may continue hierarchically by suitably applying `Struct`. Notice that each LAR object in a `Struct` container is transformed by each matrix before it *within the container*, going from right to left. The action of a transformation (tensor) extends to each object on its right within its own container. Whereas,  the action of a tensor does not extend outside its container, according to the semantics of *PHIGS* structures.
+
+# Example
+
+```julia
+julia> assembly = L.Struct([L.sphere()(), L.t(3,0,-1), L.cylinder()()])
+# return
+LARLIB.Struct(Any[([0.0 -0.173648 … -0.336824 -0.17101; 0.0 0.0 … 0.0593912 0.0301537;
+-1.0 -0.984808 … 0.939693 0.984808], Array{Int64,1}[[2, 3, 1], [4, 2, 3], [4, 3, 5], [4,
+5, 6], [7, 5, 6], [7, 8, 6], [7, 9, 8], … , [1.0 0.0 0.0 3.0; 0.0 1.0 0.0 0.0; 0.0 0.0 1.0
+-1.0; 0.0 0.0 0.0 1.0], ([0.5 0.5 … 0.492404 0.492404; 0.0 0.0 … -0.0868241 -0.0868241;
+0.0 2.0 … 0.0 2.0], Array{Int64,1}[[4, 2, 3, 1], [4, 3, 5, 6], [7, 5, 8, 6], [7, 9, 10,
+8], [9, 10, 11, 12], [13, 14, 11, 12], … , [68, 66, 67, 65], [68, 69, 67, 70], [71, 69,
+72, 70], [71, 2, 72, 1]])], Array{Float64,2}[[-1.0; -1.0; -1.0], [3.5; 1.0; 1.0]],
+"14417445522513259426", 3, "feature")
+
+julia> assembly.name = "simple example"
+# return
+"simple example"
+
+julia> assembly
+# return
+LARLIB.Struct(Any[([0.0 -0.173648 … -0.336824 -0.17101; 0.0 0.0 … 0.0593912 0.0301537;
+-1.0 -0.984808 … 0.939693 0.984808], Array{Int64,1}[[2, 3, 1], [4, 2, 3], [4, 3, 5], [4,
+5, 6], [7, 5, 6], [7, 8, 6], … , [71, 2, 72, 1]])], Array{Float64,2}[[-1.0; -1.0; -1.0],
+[3.5; 1.0; 1.0]], "simple example", 3, "feature")
+
+julia> using LARVIEW
+
+julia> LARVIEW.view(assembly)
+```
 
 """
 type Struct
@@ -466,7 +505,7 @@ end
 """
 
 function traversal(CTM::Matrix, stack, obj, scene=[])
-	for i = 1:len(obj)
+	for i = 1:length(obj.body)
 		if isa(obj.body[i],Matrix)
 			CTM = CTM*obj.body[i]
 		elseif (isa(obj.body[i],Tuple) || isa(obj.body[i],Array)) && 
@@ -477,7 +516,6 @@ function traversal(CTM::Matrix, stack, obj, scene=[])
 			push!(stack,CTM)	
 			traversal(CTM,stack,obj.body[i],scene)
 			CTM = pop!(stack)
-			
 		end
 	end
 	return scene
