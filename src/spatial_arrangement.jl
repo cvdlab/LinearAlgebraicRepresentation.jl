@@ -40,7 +40,8 @@ function frag_face(V, EV, FE, sp_idx, sigma)
     nV = [nV zeros(nvsize) ones(nvsize)]*inv(M)[:, 1:3]
     return nV, nEV, nFE
 end
-function merge_vertices(V::Points, EV::Cells, FE::Cells, err=1e-4)
+
+function merge_vertices(V::Points, EV::ChainOp, FE::ChainOp, err=1e-4)
     vertsnum = size(V, 1)
     edgenum = size(EV, 1)
     facenum = size(FE, 1)
@@ -127,7 +128,7 @@ end
 
 
 """
-    spatial_arrangement(V::Points, EV::Cells, FE::Cells; [multiproc::Bool])
+    spatial_arrangement(V::Points, EV::Cells, FE::ChainOp; [multiproc::Bool])
 
 Compute the arrangement on the given cellular complex 2-skeleton in 3D.
 
@@ -138,7 +139,9 @@ The function returns the full arranged complex as a list of vertices V and a cha
 ## Additional arguments:
 - `multiproc::Bool`: Runs the computation in parallel mode. Defaults to `false`.
 """
-function spatial_arrangement(V::Points, EV::Cells, FE::Cells, multiproc::Bool=false)
+function spatial_arrangement(V::Points, EV::Cells, FE::ChainOp, multiproc::Bool=false)
+
+    EV = buildEV(EV)
     fs_num = size(FE, 1)
     sp_idx = spatial_index(V, EV, FE)
 
@@ -170,7 +173,7 @@ function spatial_arrangement(V::Points, EV::Cells, FE::Cells, multiproc::Bool=fa
         
     else
         for sigma in 1:fs_num
-            print(sigma, "/", fs_num, "\r")
+            # print(sigma, "/", fs_num, "\r")
             nV, nEV, nFE = frag_face(V, EV, FE, sp_idx, sigma)
             rV, rEV, rFE = skel_merge(rV, rEV, rFE, nV, nEV, nFE)
         end
