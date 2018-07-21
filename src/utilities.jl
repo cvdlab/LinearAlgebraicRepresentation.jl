@@ -30,6 +30,10 @@ end
 The area of `face` given a geometry `V` and an edge topology `EV`.
 """
 function face_area(V::Points, EV::Cells, face::Cell)
+    return face_area(V, buildEV(EV), face)
+end
+
+function face_area(V::Points, EV::ChainOp, face::Cell)
     function triangle_area(triangle_points::Points)
         ret = ones(3,3)
         ret[:, 1:2] = triangle_points
@@ -67,6 +71,14 @@ function skel_merge(V1::Points, EV1::Cells, V2::Points, EV2::Cells)
     V, EV
 end
 
+function skel_merge(V1::Points, EV1::ChainOp, V2::Points, EV2::ChainOp)
+    V = [V1; V2]
+    EV = spzeros(Int8, EV1.m + EV2.m, EV1.n + EV2.n)
+    EV[1:EV1.m, 1:EV1.n] = EV1
+    EV[EV1.m+1:end, EV1.n+1:end] = EV2
+    V, EV
+end
+
 """
     skel_merge(V1::Points, EV1::Cells, FE1::Cells, V2::Points, EV2::Cells, FE2::Cells)
 
@@ -88,7 +100,12 @@ Delete edges and remove unused vertices from a **2-skeleton**.
 Loop over the `todel` edge index list and remove the marked edges from `EV`.
 The vertices in `V` which remained unconnected after the edge deletion are deleted too.
 """
+
 function delete_edges(todel, V::Points, EV::Cells)
+    return delete_edges(todel, V, buildEV(EV))
+end
+
+function delete_edges(todel, V::Points, EV::ChainOp)
     tokeep = setdiff(collect(1:EV.m), todel)
     EV = EV[tokeep, :]
     
@@ -107,8 +124,11 @@ function delete_edges(todel, V::Points, EV::Cells)
     return V, EV
 end
 
-
 function buildFV(EV::Cells, face::Cell)
+    return buildFV(buildEV(EV), face)
+end
+
+function buildFV(EV::ChainOp, face::Cell)
     startv = -1
     nextv = 0
     edge = 0
@@ -130,6 +150,36 @@ function buildFV(EV::Cells, face::Cell)
 
     return vs[1:end-1]
 end
+
+function buildFV(EV::ChainOp, face)
+    startv = face[1]
+    nextv = startv
+
+    vs = []
+    visited_edges = []
+
+    while true
+        curv = nextv
+        push!(vs, curv)
+
+        edge = 0
+        for edge in EV[:, curv].nzind
+            nextv = setdiff(EV[edge, :].nzind, curv)[1]
+            if nextv in face && (nextv == startv || !(nextv in vs)) && !(edge in visited_edges)
+                break
+            end
+        end
+
+        push!(visited_edges, edge)
+
+        if nextv == startv
+            break
+        end
+    end
+
+    return vs
+end
+
 function buildFE(FV, edges)
     faces = []
 
@@ -176,34 +226,7 @@ function buildEV(edges, signed=true)
 end
 
 
-function buildFV(EV::Cells, face)
-    startv = face[1]
-    nextv = startv
 
-    vs = []
-    visited_edges = []
-
-    while true
-        curv = nextv
-        push!(vs, curv)
-
-        edge = 0
-        for edge in EV[:, curv].nzind
-            nextv = setdiff(EV[edge, :].nzind, curv)[1]
-            if nextv in face && (nextv == startv || !(nextv in vs)) && !(edge in visited_edges)
-                break
-            end
-        end
-
-        push!(visited_edges, edge)
-
-        if nextv == startv
-            break
-        end
-    end
-
-    return vs
-end
 
 
 function build_bounds(edges, faces)
