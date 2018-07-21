@@ -1,6 +1,10 @@
 using IterTools
 using DataStructures
 
+function vertexDomain(n)
+    return hcat([k for k in 0:n-1]...)
+end
+
 """
 	grid_0(n::Int)::Array{Int64,2}
 

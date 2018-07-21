@@ -59,18 +59,10 @@ function face_area(V::Points, EV::ChainOp, face::Cell)
 end
 
 """
-    skel_merge(V1::Points, EV1::Cells, V2::VePointsrts, EV2::Cells)
+    skel_merge(V1::Points, EV1::ChainOp, V2::VePointsrts, EV2::ChainOp)
 
 Merge two **1-skeletons**
 """
-function skel_merge(V1::Points, EV1::Cells, V2::Points, EV2::Cells)
-    V = [V1; V2]
-    EV = spzeros(Int8, EV1.m + EV2.m, EV1.n + EV2.n)
-    EV[1:EV1.m, 1:EV1.n] = EV1
-    EV[EV1.m+1:end, EV1.n+1:end] = EV2
-    V, EV
-end
-
 function skel_merge(V1::Points, EV1::ChainOp, V2::Points, EV2::ChainOp)
     V = [V1; V2]
     EV = spzeros(Int8, EV1.m + EV2.m, EV1.n + EV2.n)
@@ -80,11 +72,11 @@ function skel_merge(V1::Points, EV1::ChainOp, V2::Points, EV2::ChainOp)
 end
 
 """
-    skel_merge(V1::Points, EV1::Cells, FE1::Cells, V2::Points, EV2::Cells, FE2::Cells)
+    skel_merge(V1::Points, EV1::ChainOp, FE1::ChainOp, V2::Points, EV2::ChainOp, FE2::ChainOp)
 
 Merge two **2-skeletons**
 """
-function skel_merge(V1::Points, EV1::Cells, FE1::Cells, V2::Points, EV2::Cells, FE2::Cells)
+function skel_merge(V1::Points, EV1::ChainOp, FE1::ChainOp, V2::Points, EV2::ChainOp, FE2::ChainOp)
     FE = spzeros(Int8, FE1.m + FE2.m, FE1.n + FE2.n)
     FE[1:FE1.m, 1:FE1.n] = FE1
     FE[FE1.m+1:end, FE1.n+1:end] = FE2
@@ -93,17 +85,13 @@ function skel_merge(V1::Points, EV1::Cells, FE1::Cells, V2::Points, EV2::Cells, 
 end
 
 """
-    delete_edges(todel, V::Points, EV::Cells)
+    delete_edges(todel, V::Points, EV::ChainOp)
 
 Delete edges and remove unused vertices from a **2-skeleton**.
 
 Loop over the `todel` edge index list and remove the marked edges from `EV`.
 The vertices in `V` which remained unconnected after the edge deletion are deleted too.
 """
-
-function delete_edges(todel, V::Points, EV::Cells)
-    return delete_edges(todel, V, buildEV(EV))
-end
 
 function delete_edges(todel, V::Points, EV::ChainOp)
     tokeep = setdiff(collect(1:EV.m), todel)
@@ -236,6 +224,7 @@ function build_bounds(edges, faces)
 
     return EV, FE
 end
+
 function vin(vertex, vertices_set)
     for v in vertices_set
         if vequals(vertex, v)
@@ -249,7 +238,8 @@ function vequals(v1, v2)
     err = 10e-8
     return length(v1) == length(v2) && all(map((x1, x2)->-err < x1-x2 < err, v1, v2))
 end
-function triangulate(V::Points, EV::Cells, FE::Cells)
+
+function triangulate(V::Points, EV::ChainOp, FE::ChainOp)
 
     triangulated_faces = Array{Any, 1}(FE.m)
 
@@ -300,73 +290,9 @@ function triangulate(V::Points, EV::Cells, FE::Cells)
 
     return triangulated_faces
 end
-function lar2obj(V::Points, EV::Cells, FE::Cells, CF::Cells)
-    obj = ""
-    for v in 1:size(V, 1)
-        obj = string(obj, "v ", round(V[v, 1], 6), " ", round(V[v, 2], 6), " ", round(V[v, 3], 6), "\n")
-    end
 
-    print("Triangulating")
-    triangulated_faces = triangulate(V, EV, FE)
-    println("DONE")
 
-    for c in 1:CF.m
-    obj = string(obj, "\ng cell", c, "\n")
-    for f in CF[c, :].nzind
-        triangles = triangulated_faces[f]
-        for tri in triangles
-            t = CF[c, f] > 0 ? tri : tri[end:-1:1]
-            obj = string(obj, "f ", t[1], " ", t[2], " ", t[3], "\n")
-        end
-    end
-end
-
-    return obj
-end
-function obj2lar(path)
-    fd = open(path, "r")
-    vs = Array{Float64, 2}(0, 3)
-    edges = Array{Array{Int, 1}, 1}()
-    faces = Array{Array{Int, 1}, 1}()
-
-    while (line = readline(fd)) != ""
-        elems = split(line)
-        if length(elems) > 0
-            if elems[1] == "v"
-
-                x = parse(Float64, elems[2])
-                y = parse(Float64, elems[3])
-                z = parse(Float64, elems[4])
-                vs = [vs; x y z]
-
-            elseif elems[1] == "f"
-                v1 = parse(Int, elems[2])
-                v2 = parse(Int, elems[3])
-                v3 = parse(Int, elems[4])
-
-                e1 = sort([v1, v2])
-                e2 = sort([v2, v3])
-                e3 = sort([v1, v3])
-
-                if !(e1 in edges)
-                    push!(edges, e1)
-                end
-                if !(e2 in edges)
-                    push!(edges, e2)
-                end
-                if !(e3 in edges)
-                    push!(edges, e3)
-                end
-
-                push!(faces, sort([v1, v2, v3]))
-            end
-        end
-    end
-
-    close(fd)
-    vs, build_bounds(edges, faces)...
-end  
-function point_in_face(origin, V::Points, ev::Cells)
+function point_in_face(origin, V::Points, ev::ChainOp)
 
     function pointInPolygonClassification(V,EV)
 
@@ -465,3 +391,73 @@ function point_in_face(origin, V::Points, ev::Cells)
     return pointInPolygonClassification(V, ev)(origin) == "p_in"
 end
 
+################
+### Tri Output
+################
+
+function lar2obj(V::Points, EV::ChainOp, FE::ChainOp, CF::ChainOp)
+    obj = ""
+    for v in 1:size(V, 1)
+        obj = string(obj, "v ", round(V[v, 1], 6), " ", round(V[v, 2], 6), " ", round(V[v, 3], 6), "\n")
+    end
+
+    print("Triangulating")
+    triangulated_faces = triangulate(V, EV, FE)
+    println("DONE")
+
+    for c in 1:CF.m
+    obj = string(obj, "\ng cell", c, "\n")
+    for f in CF[c, :].nzind
+        triangles = triangulated_faces[f]
+        for tri in triangles
+            t = CF[c, f] > 0 ? tri : tri[end:-1:1]
+            obj = string(obj, "f ", t[1], " ", t[2], " ", t[3], "\n")
+        end
+    end
+end
+
+    return obj
+end
+function obj2lar(path)
+    fd = open(path, "r")
+    vs = Array{Float64, 2}(0, 3)
+    edges = Array{Array{Int, 1}, 1}()
+    faces = Array{Array{Int, 1}, 1}()
+
+    while (line = readline(fd)) != ""
+        elems = split(line)
+        if length(elems) > 0
+            if elems[1] == "v"
+
+                x = parse(Float64, elems[2])
+                y = parse(Float64, elems[3])
+                z = parse(Float64, elems[4])
+                vs = [vs; x y z]
+
+            elseif elems[1] == "f"
+                v1 = parse(Int, elems[2])
+                v2 = parse(Int, elems[3])
+                v3 = parse(Int, elems[4])
+
+                e1 = sort([v1, v2])
+                e2 = sort([v2, v3])
+                e3 = sort([v1, v3])
+
+                if !(e1 in edges)
+                    push!(edges, e1)
+                end
+                if !(e2 in edges)
+                    push!(edges, e2)
+                end
+                if !(e3 in edges)
+                    push!(edges, e3)
+                end
+
+                push!(faces, sort([v1, v2, v3]))
+            end
+        end
+    end
+
+    close(fd)
+    vs, build_bounds(edges, faces)...
+end

@@ -10,10 +10,6 @@ function frag_edge_channel(in_chan, out_chan, V, EV)
     end
 end
 
-function frag_edge(V::Points, EV::Cells, edge_idx::Int)
-    return frag_edge(V, buildEV(EV, false), edge_idx)
-end
-
 function frag_edge(V::Points, EV::ChainOp, edge_idx::Int)
     alphas = Dict{Float64, Int}()
     edge = EV[edge_idx, :]
@@ -87,10 +83,6 @@ function intersect_edges(V::Points, edge1::Cell, edge2::Cell)
     return ret
 end
 
-function merge_vertices!(V::Points, EV::Cells, edge_map, err=1e-4)
-    return merge_vertices!(V, buildEV(EV, false), edge_map, err)
-end
-
 function merge_vertices!(V::Points, EV::ChainOp, edge_map, err=1e-4)
     vertsnum = size(V, 1)
     edgenum = size(EV, 1)
@@ -149,10 +141,6 @@ function merge_vertices!(V::Points, EV::ChainOp, edge_map, err=1e-4)
     
 
     return nV, nEV
-end
-
-function biconnected_components(EV::Cells)
-    return biconnected_components(buildEV(EV, false))
 end
 
 function biconnected_components(EV::ChainOp)
@@ -248,10 +236,6 @@ function biconnected_components(EV::ChainOp)
     bicon_comps
 end
 
-function get_external_cycle(V::Points, EV::Cells, FE::ChainOp)
-    return get_external_cycle(V, buildEV(EV), FE)
-end
-
 function get_external_cycle(V::Points, EV::ChainOp, FE::ChainOp)
     FV = abs.(FE)*EV
     vs = sparsevec(mapslices(sum, abs.(EV), 1)).nzind
@@ -336,7 +320,7 @@ function transitive_reduction!(graph)
     end
 end
 function cell_merging(n, containment_graph, V, EVs, boundaries, shells, shell_bboxes)
-    function bboxes(V::Points, indexes::Cells)
+    function bboxes(V::Points, indexes::ChainOp)
         boxes = Array{Tuple{Any, Any}}(indexes.n)
         for i in 1:indexes.n
             v_inds = indexes[:, i].nzind
@@ -412,6 +396,9 @@ function planar_arrangement(
         return_edge_map::Bool=false, 
         multiproc::Bool=false)
 
+    # Change to ChainOP
+    EV = buildEV(EV, false) 
+    
     edgenum = size(EV, 1)
     edge_map = Array{Array{Int, 1}, 1}(edgenum)
     rV = Points(zeros(0, 2))
@@ -434,7 +421,7 @@ function planar_arrangement(
         end
         
         for p in workers()
-            @async Base.remote_do(frag_edge_channel, p, in_chan, out_chan, V, EV)
+            @async Base.remote_do(frag_edge_channel, p, in_chan, out_chan, V, copEV)
         end
         
         for i in 1:edgenum
@@ -456,7 +443,7 @@ function planar_arrangement(
         
     else
         for i in 1:edgenum
-            v, ev = frag_edge(V, EV, i)
+            v, ev = frag_edge(V, copEV, i)
         
             newedges_nums = map(x->x+finalcells_num, collect(1:size(ev, 1)))
             
