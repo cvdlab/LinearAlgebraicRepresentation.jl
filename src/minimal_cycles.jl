@@ -1,4 +1,4 @@
-function minimal_2cycles(V::Points, EV::Cells)
+function minimal_2cycles(V::Points, EV::ChainOp)
 
     function edge_angle(v::Int, e::Int)
         edge = EV[e, :]
@@ -17,7 +17,8 @@ function minimal_2cycles(V::Points, EV::Cells)
 
     return EF'
 end
-function minimal_3cycles(V::Points, EV::Cells, FE::Cells)
+
+function minimal_3cycles(V::Points, EV::ChainOp, FE::ChainOp)
 
     triangulated_faces = Array{Any, 1}(FE.m)
     

@@ -1,11 +1,9 @@
-"""
-Functions for grid generation and Cartesian product.
-
-Here we develop an efficient implementation of *multidimensional grid generation* of cuboidal and simplicial *cell complexes*, and a fast implementation of the more general *Cartesian product* of cellular complexes. Both kind of operators, depending on the dimension of their input, may generate either full-dimensional (i.e. solid) output complexes or cellular complexes of dimension ``d`` embedded in Euclidean space of dimension ``n``, with ``d\leq n``. 
-"""
-
 using IterTools
 using DataStructures
+
+function vertexDomain(n)
+    return hcat([k for k in 0:n-1]...)
+end
 
 """
 	grid_0(n::Int)::Array{Int64,2}

@@ -8,7 +8,8 @@ function submanifold_mapping(vs)
     M[1:3, 1:3] = [u1 u2 u3]
     return T*M
 end
-function spatial_index(V::Points, EV::Cells, FE::Cells)
+
+function spatial_index(V::Points, EV::ChainOp, FE::ChainOp)
     d = 3
     faces_num = size(FE, 1)
     IntervalsType = IntervalValue{Float64, Int64}
@@ -37,7 +38,8 @@ function spatial_index(V::Points, EV::Cells, FE::Cells)
     
     mapping
 end
-function face_int(V::Points, EV::Cells, face::Cell)
+
+function face_int(V::Points, EV::ChainOp, face::Cell)
 
     vs = buildFV(EV, face)
     retV = Points(0, 3)
