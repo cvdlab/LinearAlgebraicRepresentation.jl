@@ -158,13 +158,18 @@ function buildFE(FV, edges)
     return FE
 end
 
-function buildEV(edges)
+function buildEV(edges, signed=true)
+    setValue = [-1, 1]
+    if signed == false
+        setValue = [1, 1]
+    end
+
     maxv = max(map(x->max(x...), edges)...)
     EV = spzeros(Int8, length(edges), maxv)
 
     for (i,e) in enumerate(edges)
         e = sort(collect(e))
-        EV[i, e] = [-1, 1]
+        EV[i, e] = setValue
     end
 
     return EV

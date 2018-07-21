@@ -9,7 +9,12 @@ function frag_edge_channel(in_chan, out_chan, V, EV)
         end
     end
 end
+
 function frag_edge(V::Points, EV::Cells, edge_idx::Int)
+    return frag_edge(V, buildEV(EV, false), edge_idx)
+end
+
+function frag_edge(V::Points, EV::ChainOp, edge_idx::Int)
     alphas = Dict{Float64, Int}()
     edge = EV[edge_idx, :]
     verts = V[edge.nzind, :]
@@ -37,6 +42,7 @@ function frag_edge(V::Points, EV::Cells, edge_idx::Int)
 
     verts, ev
 end
+
 function intersect_edges(V::Points, edge1::Cell, edge2::Cell)
     err = 10e-8
 
@@ -80,7 +86,12 @@ function intersect_edges(V::Points, edge1::Cell, edge2::Cell)
 
     return ret
 end
+
 function merge_vertices!(V::Points, EV::Cells, edge_map, err=1e-4)
+    return merge_vertices!(V, buildEV(EV, false), edge_map, err)
+end
+
+function merge_vertices!(V::Points, EV::ChainOp, edge_map, err=1e-4)
     vertsnum = size(V, 1)
     edgenum = size(EV, 1)
     newverts = zeros(Int, vertsnum)
@@ -139,7 +150,12 @@ function merge_vertices!(V::Points, EV::Cells, edge_map, err=1e-4)
 
     return nV, nEV
 end
+
 function biconnected_components(EV::Cells)
+    return biconnected_components(buildEV(EV, false))
+end
+
+function biconnected_components(EV::ChainOp)
     ps = Array{Tuple{Int, Int, Int}, 1}()
     es = Array{Tuple{Int, Int}, 1}()
     todel = Array{Int, 1}()
@@ -231,7 +247,12 @@ function biconnected_components(EV::Cells)
     
     bicon_comps
 end
-function get_external_cycle(V::Points, EV::Cells, FE::Cells)
+
+function get_external_cycle(V::Points, EV::Cells, FE::ChainOp)
+    return get_external_cycle(V, buildEV(EV), FE)
+end
+
+function get_external_cycle(V::Points, EV::ChainOp, FE::ChainOp)
     FV = abs.(FE)*EV
     vs = sparsevec(mapslices(sum, abs.(EV), 1)).nzind
     minv_x1 = maxv_x1 = minv_x2 = maxv_x2 = pop!(vs)
