@@ -26,9 +26,10 @@ using Base.Test
 end;
 
 @testset "LarVertProd Tests" begin
-   @testset "LarVertProd 1D" begin
+	vertexDomain(n) = hcat([k for k in 0:n-1]...)
+	@testset "LarVertProd 1D" begin
       shape = [3]
-      vertLists = [LARLIB.vertexDomain(k+1) for k in shape]
+	vertLists = [vertexDomain(k+1) for k in shape]
       @test typeof(LARLIB.larVertProd(vertLists))==Array{Int64,2}
       @test size(LARLIB.larVertProd(vertLists))==(1, 4)
       @test LARLIB.larVertProd(vertLists)[:,1]==[0]
@@ -37,7 +38,7 @@ end;
 
    @testset "LarVertProd 2D" begin
       shape = [3,2]
-      vertLists = [LARLIB.vertexDomain(k+1) for k in shape]
+	vertLists = [vertexDomain(k+1) for k in shape]
       @test typeof(LARLIB.larVertProd(vertLists))==Array{Int64,2}
       @test size(LARLIB.larVertProd(vertLists))==(2, 12)
       @test LARLIB.larVertProd(vertLists)[:,1]==[0;0]
@@ -46,7 +47,7 @@ end;
 
    @testset "LarVertProd 3D" begin
       shape = [3,2,1]
-      vertLists = [LARLIB.vertexDomain(k+1) for k in shape]
+	vertLists = [vertexDomain(k+1) for k in shape]
       @test typeof(LARLIB.larVertProd(vertLists))==Array{Int64,2}
       @test size(LARLIB.larVertProd(vertLists))==(3, 24)
       @test LARLIB.larVertProd(vertLists)[:,1]==[0;0;0]
@@ -68,10 +69,9 @@ end
       dd = "Tuple{Int64,Int64}[(0,0),(0,1),(1,0),(1,1),(2,0),(2,1)]"
       ee = "Tuple{Int64,Int64}[(0, 0), (0, 1), (1, 0), (1, 1), (2, 0), (2, 1)]"
       ff = repr( LARLIB.cart([collect(0:2),collect(0:1)]) )
-      @test [ LARLIB.index2addr([3,2])(index) for index in aa ]==collect(1:6)
-      @test [ LARLIB.index2addr([10,2])(index) for index in bb ] == collect(1:20)
-      @test [ LARLIB.index2addr([3,3])(index) for index in cc] == collect(1:9)
-      @test (ff==dd) | (ff==ee)
+      @test [ LARLIB.index2addr([3,2])(collect(index)) for index in aa ]==collect(1:6)
+      @test [ LARLIB.index2addr([10,2])(collect(index)) for index in bb ] == collect(1:20)
+      @test [ LARLIB.index2addr([3,3])(collect(index)) for index in cc] == collect(1:9)
    end
 
    @testset "Shape 3d Tests" begin
@@ -79,16 +79,20 @@ end
       bbb = LARLIB.cart([[0;1;2],[0;1],[0;1]])
       ccc = LARLIB.cart([[0;1],[0;1],[0;1;2]])
       @test LARLIB.index2addr([3,2,1])([0,0,0]) == 1
-      @test [ LARLIB.index2addr([4,3,2])(index) for index in aaa ] == collect(1:24)
-      @test [LARLIB.index2addr([3,2,2])(index) for index in bbb ] == collect(1:12)
-      @test [LARLIB.index2addr([2,2,3])(index) for index in ccc ] == collect(1:12)
+      @test [LARLIB.index2addr([4,3,2])(collect(index)) 
+      	for index in aaa ] == collect(1:24)
+      @test [LARLIB.index2addr([3,2,2])(collect(index)) 
+      	for index in bbb ] == collect(1:12)
+      @test [LARLIB.index2addr([2,2,3])(collect(index))
+      	for index in ccc ] == collect(1:12)
    end
 end
 
 @testset "BinaryRange Tests" begin
-   @test LARLIB.binaryRange(1)==["0";"1"]
-   @test LARLIB.binaryRange(2)==["00","01","10","11"]
-   @test LARLIB.binaryRange(3)==["000","001","010","011","100","101","110","111"]
+	binaryRange(n) = bin.(range(0,2^n),n)
+   @test binaryRange(1)==["0";"1"]
+   @test binaryRange(2)==["00","01","10","11"]
+   @test binaryRange(3)==["000","001","010","011","100","101","110","111"]
 end
 
 @testset "LarCellProd Tests" begin
@@ -100,13 +104,14 @@ end
 end
 
 @testset "FilterByOrder Tests" begin
+	binaryRange(n) = bin.(range(0,2^n),n)
    term = "000"
    bit = '0'
    theTerm = convert(Array{Char,1},term)
    @test typeof(theTerm) == Array{Char,1}
    @test parse(Int8,bit) == 0
    @test [parse(Int8,bit) for bit in theTerm] == zeros(3)
-   out = hcat([[parse(Int8,bit) for bit in term] for term in LARLIB.binaryRange(3)]...)
+   out = hcat([[parse(Int8,bit) for bit in term] for term in binaryRange(3)]...)
    @test typeof(out) == Array{Int8,2}
    @test size(out) == (3,8)
    @test repr(out) == "Int8[0 0 0 0 1 1 1 1; 0 0 1 1 0 0 1 1; 0 1 0 1 0 1 0 1]"
@@ -125,7 +130,7 @@ end
    @test size(LARLIB.larImageVerts(shape)) == (length(shape),prod(shape + 1))
 end
 @testset "LarCuboids Tests" begin
-    shape = (3,2,1)
+    shape = [3,2,1]
     cubes = LARLIB.larCuboids(shape,true)
     verts, cells = cubes
     @test typeof(verts) == Array{Float64,2}
@@ -139,17 +144,21 @@ end
    @test size(LARLIB.larImageVerts(shape)) == (length(shape),prod(shape + 1))
 end
 
+
+
+
 @testset "LarCuboids Tests" begin
    @testset "LarCuboids Tests" "$shape" for shape in [[3,2,1],[1,1,1],[3,3,10]]
+      cubes = LARLIB.larCuboids(shape,true);
+      verts, cells = cubes;
+      VV,EV,FV,CV = cells;
       @test size(LARLIB.larCuboids(shape)[1],2) == prod(collect(shape) + 1)
       @test length(LARLIB.larCuboids(shape)[2]) == prod(shape)
-      cubes = LARLIB.larCuboids(shape,true)
-      verts, cells = cubes
       @test typeof(verts) == Array{Float64,2}
-      VV,EV,FV,CV = cells
-      @testset "$basis" for basis in [VV,EV,FV,CV]
-        @test typeof(basis) == Array{Array{Int64,1},1}
-      end
+	  @test typeof(VV) == Array{Array{Int64,1},1}
+	  @test typeof(EV) == Array{Array{Int64,1},1}
+	  @test typeof(FV) == Array{Array{Int64,1},1}
+	  @test typeof(FV) == Array{Array{Int64,1},1}
    end
 
    @testset "LarCuboids Tests" "$shape" for shape in [[3,2],[1,1],[3,10]]
@@ -159,9 +168,9 @@ end
       verts, cells = cubes
       @test typeof(verts) == Array{Float64,2}
       VV,EV,FV = cells
-      @testset "$basis" for basis in [VV,EV,FV]
-        @test typeof(basis) == Array{Array{Int64,1},1}
-      end
+	  @test typeof(VV) == Array{Array{Int64,1},1}
+	  @test typeof(EV) == Array{Array{Int64,1},1}
+	  @test typeof(FV) == Array{Array{Int64,1},1}
    end
 
    @testset "LarCuboids Tests" "$shape" for shape in [[3],[1],[10]]
@@ -171,9 +180,8 @@ end
       verts, cells = cubes
       @test typeof(verts) == Array{Float64,2}
       VV,EV = cells
-      @testset "$basis" for basis in [VV,EV]
-        @test typeof(basis) == Array{Array{Int64,1},1}
-      end
+	  @test typeof(VV) == Array{Array{Int64,1},1}
+	  @test typeof(EV) == Array{Array{Int64,1},1}
    end
 end
 
