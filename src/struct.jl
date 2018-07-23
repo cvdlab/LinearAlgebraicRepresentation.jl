@@ -200,7 +200,6 @@ julia> using LARVIEW
 
 julia> LARVIEW.view(assembly)
 ```
-
 """
 type Struct
 	body::Array

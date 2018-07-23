@@ -11,6 +11,7 @@ makedocs(
 		"Arrangement" => "arrangement.md",
 		"Mapper" => "mapper.md",
 		"Assemblies" => "struct.md",
+		"Grids" => "largrid.md",
 		"Glossary" => "glossary.md"
 	]
 )
