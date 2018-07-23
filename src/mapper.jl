@@ -1,7 +1,6 @@
-using LARLIB
 using DataStructures
 
-cuboidGrid = LARLIB.larCuboids
+cuboidGrid = larCuboids
 
 
 """
