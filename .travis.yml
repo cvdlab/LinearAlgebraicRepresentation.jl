@@ -15,3 +15,13 @@ notifications:
 
 after_success:
   - julia -e 'cd(Pkg.dir("LARLIB")); Pkg.add("Coverage"); using Coverage; Coveralls.submit(process_folder())'
+  - cd $TRAVIS_BUILD_DIR && julia -e 'Pkg.add("Documenter"); include(joinpath("docs", "make.jl"))'  
+
+deploy:
+  provider: pages
+  skip_cleanup: true
+  github-token: $GITHUB_TOKEN
+  keep-history: true
+  local-dir: docs/build
+  on:
+    branch: master
