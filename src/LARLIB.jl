@@ -93,8 +93,49 @@ module LARLIB
 	const LAR = Tuple{Points,Cells}
    
    
-   # Characteristic Array{Number,2} $M_2$, i.e. M(FV)
-   function characteristicMatrix(FV)
+	"""
+		characteristicMatrix( FV::Cells )::ChainOp
+	
+	Binary matrix representing by rows the `p`-cells of a cellular complex.
+	The input parameter must be of `Cells` type. Return a sparse binary matrix, 
+	providing the basis of a ``Chain`` space of given dimension. Notice that the 
+	number of columns is equal to the number of vertices (0-cells). for a g
+	
+	# Example
+	
+	```julia
+	V,(VV,EV,FV,CV) = LARLIB.cuboid([1.,1.,1.], true); 
+	
+	julia> full(LARLIB.characteristicMatrix(FV))
+	6×8 Array{Int8,2}:
+	 1  1  1  1  0  0  0  0
+	 0  0  0  0  1  1  1  1
+	 1  1  0  0  1  1  0  0
+	 0  0  1  1  0  0  1  1
+	 1  0  1  0  1  0  1  0
+	 0  1  0  1  0  1  0  1
+
+	julia> full(LARLIB.characteristicMatrix(CV))
+	1×8 Array{Int8,2}:
+	 1  1  1  1  1  1  1  1
+
+	julia> full(LARLIB.characteristicMatrix(EV))
+	12×8 Array{Int8,2}:
+	 1  1  0  0  0  0  0  0
+	 0  0  1  1  0  0  0  0
+	 0  0  0  0  1  1  0  0
+	 0  0  0  0  0  0  1  1
+	 1  0  1  0  0  0  0  0
+	 0  1  0  1  0  0  0  0
+	 0  0  0  0  1  0  1  0
+	 0  0  0  0  0  1  0  1
+	 1  0  0  0  1  0  0  0
+	 0  1  0  0  0  1  0  0
+	 0  0  1  0  0  0  1  0
+	 0  0  0  1  0  0  0  1
+	```
+	"""
+   function characteristicMatrix( FV::Cells )::ChainOp
       I,J,V = Int64[],Int64[],Int8[] 
       for f=1:length(FV)
          for k in FV[f]
@@ -108,20 +149,94 @@ module LARLIB
    end
    
    
-   # Computation of sparse boundary $C_1 \to C_0$
-   function boundary1(EV)
-      spboundary1 = LARLIB.characteristicMatrix(EV)'
+	"""
+		boundary_1( EV::Cells )::ChainOp
+	
+	Computation of sparse signed boundary operator ``C_1 -> C_0``.
+	
+	# Example
+	```
+	julia> V,(VV,EV,FV,CV) = cuboid([1.,1.,1.], true);
+
+	julia> EV
+	12-element Array{Array{Int64,1},1}:
+	 [1, 2]
+	 [3, 4]
+	   ...
+	 [2, 6]
+	 [3, 7]
+	 [4, 8]
+
+	julia> boundary_1( EV::Cells )
+	8×12 SparseMatrixCSC{Int8,Int64} with 24 stored entries:
+	  [1 ,  1]  =  -1
+	  [2 ,  1]  =  1
+	  [3 ,  2]  =  -1
+		...       ...
+	  [7 , 11]  =  1
+	  [4 , 12]  =  -1
+	  [8 , 12]  =  1
+
+	julia> full(boundary_1(EV::LCells))
+	8×12 Array{Int8,2}:
+	 -1   0   0   0  -1   0   0   0  -1   0   0   0
+	  1   0   0   0   0  -1   0   0   0  -1   0   0
+	  0  -1   0   0   1   0   0   0   0   0  -1   0
+	  0   1   0   0   0   1   0   0   0   0   0  -1
+	  0   0  -1   0   0   0  -1   0   1   0   0   0
+	  0   0   1   0   0   0   0  -1   0   1   0   0
+	  0   0   0  -1   0   0   1   0   0   0   1   0
+	  0   0   0   1   0   0   0   1   0   0   0   1
+	```
+	"""
+   function boundary_1( EV::Cells )::ChainOp
+      sp_boundary_1 = characteristicMatrix(EV)'
       for e = 1:length(EV)
-         spboundary1[EV[e][1],e] = -1
+         sp_boundary_1[EV[e][1],e] = -1
       end
-      return spboundary1
+      return sp_boundary_1
    end
    
    
-   # Computation of sparse uboundary2
-   function uboundary2(FV,EV)
-      cscFV = characteristicMatrix(FV)
-      cscEV = characteristicMatrix(EV)
+	"""
+		u_coboundary_2( FV::Cells, EV::::Cells)::ChainOp
+	
+	Compute the sparse *unsigned* coboundary_2 operator ``C_1 -> C_2``.
+	Notice that the output matrix is `m x n`, where `m` is the number of faces, and `n` 
+	is the number of edges.
+	
+	# Example
+	
+	```julia
+	julia> V,(VV,EV,FV,CV) = cuboid([1.,1.,1.], true);
+	
+	julia> LARLIB.u_coboundary_2(FV,EV)
+	6×12 SparseMatrixCSC{Int8,Int64} with 24 stored entries:
+	  [1 ,  1]  =  1
+	  [3 ,  1]  =  1
+	  [1 ,  2]  =  1
+	  [4 ,  2]  =  1
+		...		...
+	  [4 , 11]  =  1
+	  [5 , 11]  =  1
+	  [4 , 12]  =  1
+	  [6 , 12]  =  1
+
+	julia> full(LARLIB.u_coboundary_2(FV,EV))
+	6×12 Array{Int8,2}:
+	 1  1  0  0  1  1  0  0  0  0  0  0
+	 0  0  1  1  0  0  1  1  0  0  0  0
+	 1  0  1  0  0  0  0  0  1  1  0  0
+	 0  1  0  1  0  0  0  0  0  0  1  1
+	 0  0  0  0  1  0  1  0  1  0  1  0
+	 0  0  0  0  0  1  0  1  0  1  0  1
+	 
+	julia> u_boundary_2(FV,EV) = u_coboundary_2(FV,EV)';
+	```
+	"""
+   function u_coboundary_2( FV::LARLIB.Cells, EV::LARLIB.Cells)::LARLIB.ChainOp
+      cscFV = LARLIB.characteristicMatrix(FV)
+      cscEV = LARLIB.characteristicMatrix(EV)
       temp = cscFV * cscEV'
       I,J,V = Int64[],Int64[],Int8[]
       for j=1:size(temp,2)
@@ -133,13 +248,34 @@ module LARLIB
             end
          end
       end
-      sp_uboundary2 = sparse(I,J,V)
-      return sp_uboundary2
+      sp_u_coboundary_2 = sparse(I,J,V)
+      return sp_u_coboundary_2
+   end
+   
+   function u_boundary_2( FV::LARLIB.Cells, EV::LARLIB.Cells)::LARLIB.ChainOp
+      cscFV = LARLIB.characteristicMatrix(FV)
+      cscEV = LARLIB.characteristicMatrix(EV)
+      temp = cscFV * cscEV'
+      I,J,V = Int64[],Int64[],Int8[]
+      for j=1:size(temp,2)
+         for i=1:size(temp,1)
+            if temp[i,j] == 2
+               push!(I,j)
+               push!(J,i)
+               push!(V,1)
+            end
+         end
+      end
+      sp_u_coboundary_2 = sparse(I,J,V)
+      return sp_u_coboundary_2
    end
    
    
    
    # Local storage
+	"""
+
+	"""
    function columninfo(infos,EV,next,col)
        infos[1,col] = 1
        infos[2,col] = next
@@ -150,11 +286,51 @@ module LARLIB
    
    
    # Initialization
-   function boundary2(FV,EV)
-       sp_u_boundary2 = LARLIB.uboundary2(FV,EV)
+	"""
+		coboundary_2( FV::LARLIB.Cells, EV::LARLIB.Cells)::LARLIB.ChainOp
+
+	Compute the sparse *signed* coboundary_2 operator ``C_1 -> C_2``.
+	The sparse matrix generated by `coboundary_2` contains by row a representation 
+	of faces as oriented cycles of edges. The orientation of cycles is arbitrary
+	```	
+	julia> coboundary_2( FV,EV )
+	6×12 SparseMatrixCSC{Int8,Int64} with 24 stored entries:
+	  [1 ,  1]  =  -1
+	  [3 ,  1]  =  -1
+	  [1 ,  2]  =  1
+	  [4 ,  2]  =  -1
+		...		  ...	
+	  [4 , 11]  =  1
+	  [5 , 11]  =  -1
+	  [4 , 12]  =  -1
+	  [6 , 12]  =  -1
+
+	julia> full(coboundary_2( FV,EV ))
+	6×12 Array{Int8,2}:
+	 -1   1   0  0   1  -1  0   0  0   0   0   0
+	  0   0  -1  1   0   0  1  -1  0   0   0   0
+	 -1   0   1  0   0   0  0   0  1  -1   0   0
+	  0  -1   0  1   0   0  0   0  0   0   1  -1
+	  0   0   0  0  -1   0  1   0  1   0  -1   0
+	  0   0   0  0   0  -1  0   1  0   1   0  -1
+	  
+	  	 
+	julia> boundary_2(FV,EV)) = coboundary_2(FV,EV)'
+	12×6 Array{Int8,2}:
+	 -1   0  -1   0   0   0
+	  1   0   0  -1   0   0
+	  0  -1   1   0   0   0
+		...			...
+	  0   0  -1   0   0   1
+	  0   0   0   1  -1   0
+	  0   0   0  -1   0  -1
+	```	
+	"""
+   function coboundary_2( FV::LARLIB.Cells, EV::LARLIB.Cells)::LARLIB.ChainOp
+       sp_u_coboundary_2 = u_coboundary_2(FV,EV)
        larEV = LARLIB.characteristicMatrix(EV)
        # unsigned incidence relation
-       FE = [findn(sp_u_boundary2[f,:]) for f=1:size(sp_u_boundary2,1) ]
+       FE = [findn(sp_u_coboundary_2[f,:]) for f=1:size(sp_u_coboundary_2,1) ]
        I,J,V = Int64[],Int64[],Int8[]
        vedges = [findn(larEV[:,v]) for v=1:size(larEV,2)]
    
@@ -185,11 +361,16 @@ module LARLIB
            end
        end
        
-       spboundary2 = sparse(I,J,V)
-       return spboundary2
+       sp_coboundary_2 = sparse(I,J,V)
+       return sp_coboundary_2
    end
    
+
+   
    # Chain 3-complex construction
+	"""
+
+	"""
    function chaincomplex(W,FW,EW)
        V = convert(Array{Float64,2},W')
        EV = characteristicMatrix(EW)
@@ -229,6 +410,9 @@ module LARLIB
    end
    
    # Triangulation of a single facet
+	"""
+
+	"""
    function facetriangulation(V,FV,EV,cscFE,cscCF)
       function facetrias(f)
          vs = [V[:,v] for v in FV[f]]
@@ -267,6 +451,9 @@ module LARLIB
    end
    
    # Triangulation of the 2-skeleton
+	"""
+
+	"""
    function triangulate(cf,V,FV,EV,cscFE,cscCF)
       mktriangles = LARLIB.facetriangulation(V,FV,EV,cscFE,cscCF)
       TV = Array{Int64,1}[]
@@ -282,6 +469,9 @@ module LARLIB
    end
    
    # Map 3-cells to local bases
+	"""
+
+	"""
    function map_3cells_to_localbases(V,CV,FV,EV,cscCF,cscFE)
       local3cells = []
       for c=1:length(CV)

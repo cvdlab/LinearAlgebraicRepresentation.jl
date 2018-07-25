@@ -403,7 +403,7 @@ end
 
 
 """
-	cuboid(maxpoint::Array; minpoint::Array=zeros(length(maxpoint)), flag=false)
+	cuboid(maxpoint::Array{Number,1}, full=false, minpoint::Array=zeros(length(maxpoint)))
 	
 Return a ``d``-dimensional cube, where ``d`` is the common length of arrays `minpoint` and
 `maxpoint`. 
@@ -431,7 +431,8 @@ julia> using LARVIEW
 julia> LARVIEW.view(struct2lar(assemby))
 ```
 """
-function cuboid(maxpoint::Array; minpoint::Array=zeros(length(maxpoint)), full=false)
+function cuboid(maxpoint::Array{Number,1}, full=false, 	
+				minpoint::Array=zeros(length(maxpoint)))
 	assert( length(minpoint) == length(maxpoint) )
 	dim = length(minpoint)
 	shape = ones(Int, dim)
@@ -445,7 +446,8 @@ end
 """
 	ball(radius=1, angle1=pi, angle2=2*pi)(shape=[18, 36,4])
 
-
+Generate a cell decomposition of a *solid 3-sphere* in ``R^3``.
+The variable `shape` provides the domain decomposition. Empty cells are removed after the *Cartesian -> Polar* coordinate mapping.
 # Example
 ```julia
 julia> using LARVIEW

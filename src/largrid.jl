@@ -105,7 +105,7 @@ end
 
 
 """
-	larVertProd(vertLists::Array{Array{Int64,2},1})::Array{Int64,2}
+	larVertProd(vertLists::Array{Points,1})::Array{Int64,2}
 
 Generate the integer *coordinates of vertices* (0-cells) of a *multidimensional grid*.
 *Grid n-vertices* are produced by the `larVertProd` function, via Cartesian product of vertices of ``n`` 0-dimensional arguments (vertex arrays in `vertLists`), orderly corresponding to ``x_1, x_2, ..., x_n`` coordinates in the output points ``(x_1, x_2,\ldots,x_n)`` in ``R^n``.
