@@ -403,7 +403,7 @@ end
 
 
 """
-	cuboid(maxpoint::Array{Number,1}, full=false, minpoint::Array=zeros(length(maxpoint)))
+	cuboid(maxpoint::Array, full=false, minpoint::Array=zeros(length(maxpoint)))
 	
 Return a ``d``-dimensional cube, where ``d`` is the common length of arrays `minpoint` and
 `maxpoint`. 
@@ -431,7 +431,7 @@ julia> using LARVIEW
 julia> LARVIEW.view(struct2lar(assemby))
 ```
 """
-function cuboid(maxpoint::Array{Number,1}, full=false, 	
+function cuboid(maxpoint::Array, full=false, 	
 				minpoint::Array=zeros(length(maxpoint)))
 	assert( length(minpoint) == length(maxpoint) )
 	dim = length(minpoint)
