@@ -149,7 +149,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Arrangement",
     "title": "LARLIB.spatial_arrangement",
     "category": "function",
-    "text": "spatial_arrangement(V::Points, EV::Cells, FE::ChainOp; [multiproc::Bool])\n\nCompute the arrangement on the given cellular complex 2-skeleton in 3D.\n\nA cellular complex is arranged when the intersection of every possible pair of cell  of the complex is empty and the union of all the cells is the whole Euclidean space. The function returns the full arranged complex as a list of vertices V and a chain of borders EV, FE, CF.\n\nAdditional arguments:\n\nmultiproc::Bool: Runs the computation in parallel mode. Defaults to false.\n\n\n\n"
+    "text": "spatial_arrangement(V::Points, EV::ChainOp, FE::ChainOp; [multiproc::Bool])\n\nCompute the arrangement on the given cellular complex 2-skeleton in 3D.\n\nA cellular complex is arranged when the intersection of every possible pair of cell  of the complex is empty and the union of all the cells is the whole Euclidean space. The function returns the full arranged complex as a list of vertices V and a chain of borders EV, FE, CF.\n\nAdditional arguments:\n\nmultiproc::Bool: Runs the computation in parallel mode. Defaults to false.\n\n\n\n"
 },
 
 {
@@ -157,7 +157,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Arrangement",
     "title": "LARLIB.planar_arrangement",
     "category": "function",
-    "text": "planar_arrangement(V::Points, EV::Cells, [sigma::Cell], [return_edge_map::Bool], [multiproc::Bool])\n\nCompute the arrangement on the given cellular complex 1-skeleton in 2D.\n\nA cellular complex is arranged when the intersection of every possible pair of cell  of the complex is empty and the union of all the cells is the whole Euclidean space. The basic method of the function without the sigma, return_edge_map and multiproc arguments  returns the full arranged complex V, EV and FE.\n\nAdditional arguments:\n\nsigma::Cell: if specified, planar_arrangement will delete from the output every edge and face outside this cell. Defaults to an empty cell.\nreturn_edge_map::Bool: makes the function return also an edge_map which maps the edges of the imput to the one of the output. Defaults to false.\nmultiproc::Bool: Runs the computation in parallel mode. Defaults to false.\n\n\n\n"
+    "text": "planar_arrangement(V::Points, EV::ChainOp, [sigma::Chain], [return_edge_map::Bool], [multiproc::Bool])\n\nCompute the arrangement on the given cellular complex 1-skeleton in 2D.\n\nA cellular complex is arranged when the intersection of every possible pair of cell  of the complex is empty and the union of all the cells is the whole Euclidean space. The basic method of the function without the sigma, return_edge_map and multiproc arguments  returns the full arranged complex V, EV and FE.\n\nAdditional arguments:\n\nsigma::Chain: if specified, planar_arrangement will delete from the output every edge and face outside this cell. Defaults to an empty cell.\nreturn_edge_map::Bool: makes the function return also an edge_map which maps the edges of the imput to the one of the output. Defaults to false.\nmultiproc::Bool: Runs the computation in parallel mode. Defaults to false.\n\n\n\n"
 },
 
 {
