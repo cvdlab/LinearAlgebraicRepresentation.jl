@@ -47,7 +47,8 @@ function merge_vertices(V::Points, EV::ChainOp, FE::ChainOp, err=1e-4)
     facenum = size(FE, 1)
     newverts = zeros(Int, vertsnum)
     # KDTree constructor needs an explicit array of Float64
-    kdtree = KDTree(Array{Float64,2}(V'))
+    V = Array{Float64,2}(V)
+    kdtree = KDTree(V')
 
     todelete = []
     
@@ -123,12 +124,12 @@ function merge_vertices(V::Points, EV::ChainOp, FE::ChainOp, err=1e-4)
     end
     
 
-    return nV, nEV, nFE
+    return Points(nV), nEV, nFE
 end
 
 
 """
-    spatial_arrangement(V::Points, EV::Cells, FE::ChainOp; [multiproc::Bool])
+    spatial_arrangement(V::Points, EV::ChainOp, FE::ChainOp; [multiproc::Bool])
 
 Compute the arrangement on the given cellular complex 2-skeleton in 3D.
 
@@ -139,9 +140,8 @@ The function returns the full arranged complex as a list of vertices V and a cha
 ## Additional arguments:
 - `multiproc::Bool`: Runs the computation in parallel mode. Defaults to `false`.
 """
-function spatial_arrangement(V::Points, EV::Cells, FE::ChainOp, multiproc::Bool=false)
+function spatial_arrangement(V::Points, EV::ChainOp, FE::ChainOp, multiproc::Bool=false)
 
-    EV = buildEV(EV)
     fs_num = size(FE, 1)
     sp_idx = spatial_index(V, EV, FE)
 
