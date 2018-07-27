@@ -93,7 +93,7 @@ end
 
 function minimal_cycles(angles_fn::Function, verbose=false)
 
-    function _minimal_cycles(V::Points, ld_bounds::Cells)
+    function _minimal_cycles(V::Points, ld_bounds::ChainOp)
         lld_cellsnum, ld_cellsnum = size(ld_bounds)
         count_marks = zeros(Int8, ld_cellsnum)
         dir_marks = zeros(Int8, ld_cellsnum)
