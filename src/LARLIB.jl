@@ -251,30 +251,11 @@ module LARLIB
       sp_u_coboundary_2 = sparse(I,J,V)
       return sp_u_coboundary_2
    end
+      
+      
    
-   function u_boundary_2( FV::Cells, EV::Cells)::ChainOp
-      cscFV = characteristicMatrix(FV)
-      cscEV = characteristicMatrix(EV)
-      temp = cscFV * cscEV'
-      I,J,V = Int64[],Int64[],Int8[]
-      for j=1:size(temp,2)
-         for i=1:size(temp,1)
-            if temp[i,j] == 2
-               push!(I,j)
-               push!(J,i)
-               push!(V,1)
-            end
-         end
-      end
-      sp_u_coboundary_2 = sparse(I,J,V)
-      return sp_u_coboundary_2
-   end
-   
-   
-   
-   # Local storage
 	"""
-
+	Local utility function. Storage of information need to build face cycles.
 	"""
    function columninfo(infos,EV,next,col)
        infos[1,col] = 1
@@ -315,7 +296,7 @@ module LARLIB
 	  0   0   0  0   0  -1  0   1  0   1   0  -1
 	  
 	  	 
-	julia> boundary_2 = coboundary_2(FV,EV)'
+	julia> boundary_2(FV,EV) = coboundary_2(FV,EV)'
 	12×6 Array{Int8,2}:
 	 -1   0  -1   0   0   0
 	  1   0   0  -1   0   0
@@ -373,9 +354,9 @@ module LARLIB
 	"""
    function chaincomplex(W,FW,EW)
        V = convert(Array{Float64,2},W')
-       EV = characteristicMatrix(EW)
-       FE = boundary2(FW,EW)
-       V,cscEV,cscFE,cscCF = spatial_arrangement(V,EV,FE)
+       EV = LARLIB.characteristicMatrix(EW)
+       FE = LARLIB.coboundary_2(FW,EW)
+       V,cscEV,cscFE,cscCF = LARLIB.spatial_arrangement(V,EW,FE)
        ne,nv = size(cscEV)
        nf = size(cscFE,1)
        nc = size(cscCF,1)
