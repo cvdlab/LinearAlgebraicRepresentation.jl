@@ -395,10 +395,74 @@ end
 ### Tri Output
 ################
 
+"""
+
+# Example
+
+```julia
+	julia> cube_1 = ([0 0 0 0 1 1 1 1; 0 0 1 1 0 0 1 1; 0 1 0 1 0 1 0 1], 
+	[[1,2,3,4],[5,6,7,8],[1,2,5,6],[3,4,7,8],[1,3,5,7],[2,4,6,8]], 
+	[[1,2],[3,4],[5,6],[7,8],[1,3],[2,4],[5,7],[6,8],[1,5],[2,6],[3,7],[4,8]] )
+	
+	julia> cube_2 = LARLIB.Struct([LARLIB.t(0,0,0.5), LARLIB.r(0,0,pi/3), cube_1])
+	
+	julia> V,FV,EV = LARLIB.struct2lar(LARLIB.Struct([ cube_1, cube_2 ]))
+	
+	julia> V,bases,coboundaries = LARLIB.chaincomplex(V,FV,EV)
+	
+	julia> (EV, FV, CV), (cscEV, cscFE, cscCF) = bases,coboundaries
+
+	julia> FV # bases[2]
+	18-element Array{Array{Int64,1},1}:
+	 [1, 3, 4, 6]            
+	 [2, 3, 5, 6]            
+	 [7, 8, 9, 10]           
+	 [1, 2, 3, 7, 8]         
+	 [4, 6, 9, 10, 11, 12]   
+	 [5, 6, 11, 12]          
+	 [1, 4, 7, 9]            
+	 [2, 5, 11, 13]          
+	 [2, 8, 10, 11, 13]      
+	 [2, 3, 14, 15, 16]      
+	 [11, 12, 13, 17]        
+	 [11, 12, 13, 18, 19, 20]
+	 [2, 3, 13, 17]          
+	 [2, 13, 14, 18]         
+	 [15, 16, 19, 20]        
+	 [3, 6, 12, 15, 19]      
+	 [3, 6, 12, 17]          
+	 [14, 16, 18, 20]        
+
+	julia> CV # bases[3]
+	3-element Array{Array{Int64,1},1}:
+	 [2, 3, 5, 6, 11, 12, 13, 14, 15, 16, 18, 19, 20]
+	 [2, 3, 5, 6, 11, 12, 13, 17]                    
+	 [1, 2, 3, 4, 6, 7, 8, 9, 10, 11, 12, 13, 17]    
+	 
+	julia> cscEV # coboundaries[1]
+	34×20 SparseMatrixCSC{Int8,Int64} with 68 stored entries: ...
+
+	julia> cscFE # coboundaries[2]
+	18×34 SparseMatrixCSC{Int8,Int64} with 80 stored entries: ...
+	
+	julia> cscCF # coboundaries[3]
+	4×18 SparseMatrixCSC{Int8,Int64} with 36 stored entries: ...
+	
+	objs = LARLIB.lar2obj(V'::LARLIB.Points, cscEV::LARLIB.ChainOp, 
+			cscFE::LARLIB.ChainOp, cscCF::LARLIB.ChainOp)
+			
+	open("./two_cubes.obj", "w") do f
+    	write(f, objs)
+	end
+
+
+```
+"""
 function lar2obj(V::Points, EV::ChainOp, FE::ChainOp, CF::ChainOp)
     obj = ""
     for v in 1:size(V, 1)
-        obj = string(obj, "v ", round(V[v, 1], 6), " ", round(V[v, 2], 6), " ", round(V[v, 3], 6), "\n")
+        obj = string(obj, "v ", round(V[v, 1], 6), " ", round(V[v, 2], 6), " ", 
+        	round(V[v, 3], 6), "\n")
     end
 
     print("Triangulating")
