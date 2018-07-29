@@ -58,96 +58,72 @@ end;
 end
 
 
-#
-#@testset "unsigned_coboundary_1 Tests" begin
-#	V,(VV,EV,FV,CV) = LARLIB.cuboid([1.,1.,1.], true);
-#	unsigned_coboundary_1 = u_coboundary_1(FV,EV)
-#	
-#	@test size(unsigned_coboundary_1)==(6,12)
-#	@test nnz(unsigned_coboundary_1)==24
-#	@test typeof(unsigned_coboundary_1)==SparseMatrixCSC{Int8,Int64}
-#
-#	@test full(unsigned_coboundary_1)==[
-#	 1  1  0  0  1  1  0  0  0  0  0  0;
-#	 0  0  1  1  0  0  1  1  0  0  0  0;
-#	 1  0  1  0  0  0  0  0  1  1  0  0;
-#	 0  1  0  1  0  0  0  0  0  0  1  1;
-#	 0  0  0  0  1  0  1  0  1  0  1  0;
-#	 0  0  0  0  0  1  0  1  0  1  0  1]
-#	 
-#	@test u_boundary_2(FV,EV) == u_coboundary_1(FV,EV)';
-#end
-#
-#
-#   
-#
-#
-#@testset "signed_coboundary_1 Tests" begin
-#
-#	@test coboundary_1( FV,EV )
-#	6×12 SparseMatrixCSC{Int8,Int64} with 24 stored entries:
-#	  [1 ,  1]  =  -1
-#	  [3 ,  1]  =  -1
-#	  [1 ,  2]  =  1
-#	  [4 ,  2]  =  -1
-#		...		  ...	
-#	  [4 , 11]  =  1
-#	  [5 , 11]  =  -1
-#	  [4 , 12]  =  -1
-#	  [6 , 12]  =  -1
-#
-#	@test full(coboundary_1( FV,EV ))
-#	6×12 Array{Int8,2}:
-#	 -1   1   0  0   1  -1  0   0  0   0   0   0
-#	  0   0  -1  1   0   0  1  -1  0   0   0   0
-#	 -1   0   1  0   0   0  0   0  1  -1   0   0
-#	  0  -1   0  1   0   0  0   0  0   0   1  -1
-#	  0   0   0  0  -1   0  1   0  1   0  -1   0
-#	  0   0   0  0   0  -1  0   1  0   1   0  -1
-#	  
-#	  	 
-#	@test boundary_2(FV,EV) = coboundary_1(FV,EV)'
-#	12×6 Array{Int8,2}:
-#	 -1   0  -1   0   0   0
-#	  1   0   0  -1   0   0
-#	  0  -1   1   0   0   0
-#		...			...
-#	  0   0  -1   0   0   1
-#	  0   0   0   1  -1   0
-#	  0   0   0  -1   0  -1
-#
-#
-#
-#
-#	
-#	# Example
-#	```julia
-#	@test W = 
-#	 [0.0  0.0  0.0  0.0  1.0  1.0  1.0  1.0  2.0  2.0  2.0  2.0  3.0  3.0  3.0  3.0
+
+@testset "unsigned_coboundary_1 Tests" begin
+	V,(VV,EV,FV,CV) = LARLIB.cuboid([1.,1.,1.], true);
+	unsigned_coboundary_1 = LARLIB.u_coboundary_1(FV,EV)
+
+	@test size(unsigned_coboundary_1)==(6,12)
+	@test nnz(unsigned_coboundary_1)==24
+	@test typeof(unsigned_coboundary_1)==SparseMatrixCSC{Int8,Int64}
+
+	@test full(unsigned_coboundary_1)==[
+	 1  1  0  0  1  1  0  0  0  0  0  0;
+	 0  0  1  1  0  0  1  1  0  0  0  0;
+	 1  0  1  0  0  0  0  0  1  1  0  0;
+	 0  1  0  1  0  0  0  0  0  0  1  1;
+	 0  0  0  0  1  0  1  0  1  0  1  0;
+	 0  0  0  0  0  1  0  1  0  1  0  1]
+ end
+
+
+  
+
+
+@testset "signed_coboundary_1 Tests" begin
+	signed_coboundary_1 = LARLIB.coboundary_1( FV,EV );
+
+	@test size(signed_coboundary_1)==(6,12)
+	@test typeof(signed_coboundary_1)==SparseMatrixCSC{Int8,Int64}
+	@test nnz(signed_coboundary_1)==24
+	@test signed_coboundary_1[1,1]==-1
+	@test signed_coboundary_1[6,12]==-1
+	@test full(signed_coboundary_1)==
+	[-1   1   0  0   1  -1  0   0  0   0   0   0;
+	  0   0  -1  1   0   0  1  -1  0   0   0   0;
+	 -1   0   1  0   0   0  0   0  1  -1   0   0;
+	  0  -1   0  1   0   0  0   0  0   0   1  -1;
+	  0   0   0  0  -1   0  1   0  1   0  -1   0;
+	  0   0   0  0   0  -1  0   1  0   1   0  -1]
+end
+
+
+
+
+#@testset "chaincomplex 2D Tests" begin
+#	W = 
+#	 [0.0  0.0  0.0  0.0  1.0  1.0  1.0  1.0  2.0  2.0  2.0  2.0  3.0  3.0  3.0  3.0;
 #	  0.0  1.0  2.0  3.0  0.0  1.0  2.0  3.0  0.0  1.0  2.0  3.0  0.0  1.0  2.0  3.0]
-#	# output  
-#	 2×16 Array{Float64,2}: ...
-#
-#	@test EW = 
+#	EW = 
 #	[[1, 2],[2, 3],[3, 4],[5, 6],[6, 7],[7, 8],[9, 10],[10, 11],[11, 12],[13, 14],
 #	 [14, 15],[15, 16],[1, 5],[2, 6],[3, 7],[4, 8],[5, 9],[6, 10],[7, 11],[8, 12],
 #	 [9, 13],[10, 14],[11, 15],[12, 16]]
-#	# output  
-#	24-element Array{Array{Int64,1},1}: ...
+#	V,bases,coboundaries = LARLIB.chaincomplex(W,EW)
 #
-#	@test V,bases,coboundaries = chaincomplex(W,EW)
+#	@test length(bases[1])==24	# edges
+#	@test typeof(bases[1])==Array{Array{Int64,1},1}	# edges
 #
-#	@test bases[1]	# edges
-#	24-element Array{Array{Int64,1},1}: ...
-#	
-#	@test bases[2] # faces -- previously unknown !!
-#	9-element Array{Array{Int64,1},1}: ...
+#	@test length(bases[2])==9 # faces -- previously unknown !!
+#	@test typeof(bases[2])==Array{Array{Int64,1},1} # faces 
 #
-#	@test coboundaries[1] # coboundary_1 
-#	24×16 SparseMatrixCSC{Int8,Int64} with 48 stored entries: ...
-#	
-#	@test full(coboundaries[2]) # coboundary_1: faces as oriented 1-cycles of edges
-#	9×24 Array{Int8,2}:
+#	@test size(coboundaries[1])==(24,16) # coboundary_1 
+#	@test typeof(coboundaries[1])==SparseMatrixCSC{Int8,Int64} # coboundary_1 
+#	@test nnz(coboundaries[1])==48 # coboundary_1 
+#
+#	@test size(coboundaries[2])==(9,24) # coboundary_2: oriented 2-cycles of faces
+#	@test typeof(coboundaries[2])==SparseMatrixCSC{Int8,Int64} 
+#	@test nnz(coboundaries[2]) # coboundary_2: oriented 2-cycles of faces
+#	@test full(coboundaries[2]) ==
 #	 -1  0  0  1  0  0  0  0  0  0  0  0  1 -1  0  0  0  0  0  0  0  0  0  0
 #	  0 -1  0  0  1  0  0  0  0  0  0  0  0  1 -1  0  0  0  0  0  0  0  0  0
 #	  0  0 -1  0  0  1  0  0  0  0  0  0  0  0  1 -1  0  0  0  0  0  0  0  0
@@ -157,8 +133,8 @@ end
 #	  0  0  0  0  0  0  0 -1  0  0  1  0  0  0  0  0  0  0  0  0  0  1 -1  0
 #	  0  0  0  0  0  0 -1  0  0  1  0  0  0  0  0  0  0  0  0  0  1 -1  0  0
 #	  0  0  0  0  0  0  0  0 -1  0  0  1  0  0  0  0  0  0  0  0  0  0  1 -1
-#
-#
+#end
+
 #
 #
 #	

@@ -326,8 +326,8 @@
 	  0  0  0  0  0  0  0  0 -1  0  0  1  0  0  0  0  0  0  0  0  0  0  1 -1
 	```
 	"""
-   function chaincomplex( W::Points, EW::Cells )::Tuple{Array{Cells,1},Array{ChainOp,1}}
-       V = convert(Array{Float64,2},W')
+   function chaincomplex( W::Points, EW::Cells)::Tuple{Array{Cells,1},Array{ChainOp,1}}
+       V = W'
        EV = boundary_1(EW)'
        V,cscEV,cscFE = planar_arrangement(V,EV)
        ne,nv = size(cscEV)
