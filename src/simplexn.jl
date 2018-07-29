@@ -1,10 +1,12 @@
 """Module for facet extraction, extrusion and simplicial grids"""
 
 """
-	extrudeSimplicial(model, pattern)
+	extrudeSimplicial(model::LAR, pattern)
 	
-Algorithm for multimensional extrusion of a simplicial complex. A full documentation 
-may be found in the ``Simple_X^n`` module, coded as `simplexn`. `model` is a LAR model, i.e. a pair (vertices,cells) to be extruded, whereas pattern is an array of `Int64`, to be used as lateral measures of the *extruded* model. pattern elements are assumed as either *solid* or *empty* measures, according to (+/-) sign.
+Algorithm for multimensional extrusion of a simplicial complex. 
+
+A full documentation  may be found in the ``Simple_X^n`` module, coded as `simplexn`. 
+A `model` is a LAR model, i.e. a pair (vertices,cells) to be extruded, whereas pattern is an array of `Int64`, to be used as lateral measures of the *extruded* model. pattern elements are assumed as either *solid* or *empty* measures, according to their (+/-) sign.
 
 # Example
 ```julia
@@ -28,7 +30,7 @@ function extrudeSimplicial(model, pattern)
         end
     end
     outVertices = [vcat(v, [z]) for z in coords for v in V]
-    cellGroups = convert(Array{Array{Int64, 1}, 1}, cellGroups)  ## aggiunta mia
+    cellGroups = convert(Array{Array{Int, 1}, 1}, cellGroups)  ## aggiunta mia
     outModel = outVertices, cellGroups
 end
 
@@ -86,8 +88,10 @@ function simplexGrid(shape)
 end
 
 
-VOID = V0,CV0 = [[]],[[0]]    # the empty simplicial model
 
+"""
+
+"""
 function cumsum(iterable)
     # cumulative addition list(cumsum(range(4))) => [0, 1, 3, 6]
     iterable = iter(iterable)
@@ -99,32 +103,11 @@ function cumsum(iterable)
     end
 end
 
-function larExtrude1(model,pattern)
-    V, FV = model
-    d, m = len(FV[0]), len(pattern)
-    coords = list(cumsum([0]+(AA(ABS)(pattern))))
-    offset, outcells, rangelimit = len(V), [], d*m
-    for cell in FV
-        tube = [v + k*offset for k in range(m+1) for v in cell]  
-        cellTube = [tube[kk+d+1] for k in range(rangelimit)]
-        outcells += [reshape(cellTube, newshape=(m,d,d+1)).tolist()]      
-    end
-        
-    outcells = AA(CAT)(TRANS(outcells))
-    cellGroups = [group for k,group in enumerate(outcells) if pattern[k]>0 ]
-    outVertices = [v+[z] for z in coords for v in V]
-    outModel = outVertices, CAT(cellGroups)
-    return outModel
-end
 
-function larSimplexGrid1(shape)
-    model = VOID
-    for item in shape
-        model = larExtrude1(model,item*[1])
-    end
-    return model
-end
 
+"""
+
+"""
 function larSimplexFacets(simplices)
     out = []
     d = len(simplices[0])
@@ -135,7 +118,12 @@ function larSimplexFacets(simplices)
     return  sorted(out)
 end
 
+
+
 """ Transformation to triangles by sorting circularly the vertices of faces """
+"""
+
+"""
 function quads2tria(model)
    V,FV = model
    out = []
@@ -163,38 +151,3 @@ function quads2tria(model)
       out += triangles
    return V,out
 end
-
-if __name__ == "__main__"
-   # example 1
-   V = [[0,0],[1,0],[2,0],[0,1],[1,1],[2,1],[0,2],[1,2],[2,2]]
-   FV = [[0,1,3],[1,2,4],[2,4,5],[3,4,6],[4,6,7],[5,7,8]]
-   model = larExtrude1((V,FV),4*[1,2,-3])
-   VIEW(EXPLODE(1,1,1.2)(MKPOLS(model)))
-   
-   # example 2
-   model = larExtrude1( VOID, 10*[1] )
-   VIEW(EXPLODE(1.5,1.5,1.5)(MKPOLS(model)))
-   model = larExtrude1( model, 10*[1] )
-   VIEW(EXPLODE(1.5,1.5,1.5)(MKPOLS(model)))
-   model = larExtrude1( model, 10*[1] )
-   VIEW(EXPLODE(1.5,1.5,1.5)(MKPOLS(model)))
-   
-   # example 3
-   model = larExtrude1( VOID, 10*[1,-1] )
-   VIEW(EXPLODE(1.5,1.5,1.5)(MKPOLS(model)))
-   model = larExtrude1( model, 10*[1] )
-   VIEW(EXPLODE(1.5,1.5,1.5)(MKPOLS(model)))
-   
-   grid_2d = larSimplexGrid1([3,3])
-   VIEW(EXPLODE(1.5,1.5,1.5)(MKPOLS(grid_2d)))
-   
-   grid_3d = larSimplexGrid1([2,3,4])
-   VIEW(EXPLODE(1.5,1.5,1.5)(MKPOLS(grid_3d)))
-   
-   V,CV = larSimplexGrid1([1,1,1])
-   VIEW(EXPLODE(1.5,1.5,1.5)(MKPOLS((V,CV))))
-   SK2 = (V,larSimplexFacets(CV))
-   VIEW(EXPLODE(1.5,1.5,1.5)(MKPOLS(SK2)))
-   SK1 = (V,larSimplexFacets(SK2[1]))
-   VIEW(EXPLODE(1.5,1.5,1.5)(MKPOLS(SK1)))
-   

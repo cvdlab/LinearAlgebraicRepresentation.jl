@@ -348,15 +348,144 @@ module LARLIB
    
 
    
-   # Chain 3-complex construction
+   	
 	"""
+		chaincomplex( W::Points, EW::Cells )::Tuple{Array{Cells,1},Array{ChainOp,1}}
+	
+	Chain 2-complex construction from basis of 1-cells. 
+	
+	From the minimal input, construct the whole
+	two-dimensional chain complex, i.e. the bases for linear spaces C_1 and 
+	C_2 of 1-chains and  2-chains, and the signed coboundary operators from 
+	C_0 to C_1 and from C_1 to C_2.
+	
+	# Example
+	```julia
+	julia> W = 
+	 [0.0  0.0  0.0  0.0  1.0  1.0  1.0  1.0  2.0  2.0  2.0  2.0  3.0  3.0  3.0  3.0
+	  0.0  1.0  2.0  3.0  0.0  1.0  2.0  3.0  0.0  1.0  2.0  3.0  0.0  1.0  2.0  3.0]
+	# output  
+	 2×16 Array{Float64,2}: ...
 
+	julia> EW = 
+	[[1, 2],[2, 3],[3, 4],[5, 6],[6, 7],[7, 8],[9, 10],[10, 11],[11, 12],[13, 14],
+	 [14, 15],[15, 16],[1, 5],[2, 6],[3, 7],[4, 8],[5, 9],[6, 10],[7, 11],[8, 12],
+	 [9, 13],[10, 14],[11, 15],[12, 16]]
+	# output  
+	24-element Array{Array{Int64,1},1}: ...
+
+	julia> V,bases,coboundaries = chaincomplex(W,EW)
+
+	julia> bases[1]	# edges
+	24-element Array{Array{Int64,1},1}: ...
+	
+	julia> bases[2] # faces -- previously unknown !!
+	9-element Array{Array{Int64,1},1}: ...
+
+	julia> coboundaries[1] # coboundary_1 
+	24×16 SparseMatrixCSC{Int8,Int64} with 48 stored entries: ...
+	
+	julia> full(coboundaries[2]) # coboundary_1: faces as oriented 1-cycles of edges
+	9×24 Array{Int8,2}:
+	 -1  0  0  1  0  0  0  0  0  0  0  0  1 -1  0  0  0  0  0  0  0  0  0  0
+	  0 -1  0  0  1  0  0  0  0  0  0  0  0  1 -1  0  0  0  0  0  0  0  0  0
+	  0  0 -1  0  0  1  0  0  0  0  0  0  0  0  1 -1  0  0  0  0  0  0  0  0
+	  0  0  0 -1  0  0  1  0  0  0  0  0  0  0  0  0  1 -1  0  0  0  0  0  0
+	  0  0  0  0 -1  0  0  1  0  0  0  0  0  0  0  0  0  1 -1  0  0  0  0  0
+	  0  0  0  0  0 -1  0  0  1  0  0  0  0  0  0  0  0  0  1 -1  0  0  0  0
+	  0  0  0  0  0  0  0 -1  0  0  1  0  0  0  0  0  0  0  0  0  0  1 -1  0
+	  0  0  0  0  0  0 -1  0  0  1  0  0  0  0  0  0  0  0  0  0  1 -1  0  0
+	  0  0  0  0  0  0  0  0 -1  0  0  1  0  0  0  0  0  0  0  0  0  0  1 -1
+	```
+	"""
+   function chaincomplex( W::Points, EW::Cells )::Tuple{Array{Cells,1},Array{ChainOp,1}}
+       V = convert(Array{Float64,2},W')
+       EV = boundary_1(EW)'
+       V,cscEV,cscFE = planar_arrangement(V,EV)
+       ne,nv = size(cscEV)
+       nf = size(cscFE,1)
+       EV = [findn(cscEV[e,:]) for e=1:ne]
+       FV = [collect(Set(vcat([EV[e] for e in findn(cscFE[f,:])]...)))  for f=1:nf]
+       function ord(cells)
+           return [sort(cell) for cell in cells]
+       end
+       temp = copy(cscEV')
+       for k=1:size(temp,2)
+           h = findn(temp[:,k])[1]
+           temp[h,k] = -1
+       end    
+       cscEV = temp'
+       bases, coboundaries = (ord(EV),ord(FV)), (cscEV,cscFE)
+       return V',bases,coboundaries
+   end
+
+	"""
+		chaincomplex( W::Points, FW::Cells, EW::Cells )
+			::Tuple{ Array{Cells,1}, Array{ChainOp,1} }
+	
+	Chain 3-complex construction from bases of 2- and 1-cells. 
+	
+	From the minimal input, construct the whole
+	two-dimensional chain complex, i.e. the bases for linear spaces C_1 and 
+	C_2 of 1-chains and  2-chains, and the signed coboundary operators from 
+	C_0 to C_1  and from C_1 to C_2.
+	
+	# Example
+	```julia
+	
+	julia> cube_1 = ([0. 0. 0. 0. 1. 1. 1. 1.; 0. 0. 1. 1. 0. 0. 1. 1.; 
+	0. 1. 0. 1. 0. 1. 0. 1.], 
+	[[1,2,3,4],[5,6,7,8],[1,2,5,6],[3,4,7,8],[1,3,5,7],[2,4,6,8]], 
+	[[1,2],[3,4],[5,6],[7,8],[1,3],[2,4],[5,7],[6,8],[1,5],[2,6],[3,7],[4,8]] )
+	
+	julia> cube_2 = LARLIB.Struct([LARLIB.t(0,0,0.5), LARLIB.r(0,0,pi/3), cube_1])
+	
+	julia> V,FV,EV = struct2lar(LARLIB.Struct([ cube_1, cube_2 ]))
+	
+	julia> V,bases,coboundaries = chaincomplex(V,FV,EV)
+
+	julia> bases[2]
+	18-element Array{Array{Int64,1},1}:
+	 [1, 3, 4, 6]            
+	 [2, 3, 5, 6]            
+	 [7, 8, 9, 10]           
+	 [1, 2, 3, 7, 8]         
+	 [4, 6, 9, 10, 11, 12]   
+	 [5, 6, 11, 12]          
+	 [1, 4, 7, 9]            
+	 [2, 5, 11, 13]          
+	 [2, 8, 10, 11, 13]      
+	 [2, 3, 14, 15, 16]      
+	 [11, 12, 13, 17]        
+	 [11, 12, 13, 18, 19, 20]
+	 [2, 3, 13, 17]          
+	 [2, 13, 14, 18]         
+	 [15, 16, 19, 20]        
+	 [3, 6, 12, 15, 19]      
+	 [3, 6, 12, 17]          
+	 [14, 16, 18, 20]        
+
+	julia> bases[3]
+	3-element Array{Array{Int64,1},1}:
+	 [2, 3, 5, 6, 11, 12, 13, 14, 15, 16, 18, 19, 20]
+	 [2, 3, 5, 6, 11, 12, 13, 17]                    
+	 [1, 2, 3, 4, 6, 7, 8, 9, 10, 11, 12, 13, 17]    
+	 
+	julia> coboundaries[1]
+	34×20 SparseMatrixCSC{Int8,Int64} with 68 stored entries: ...
+
+	julia> coboundaries[2]
+	18×34 SparseMatrixCSC{Int8,Int64} with 80 stored entries: ...
+	
+	julia> coboundaries[3]
+	4×18 SparseMatrixCSC{Int8,Int64} with 36 stored entries: ...
+	```	
 	"""
    function chaincomplex(W,FW,EW)
        V = convert(Array{Float64,2},W')
-       EV = LARLIB.characteristicMatrix(EW)
-       FE = LARLIB.coboundary_2(FW,EW)
-       V,cscEV,cscFE,cscCF = LARLIB.spatial_arrangement(V,EW,FE)
+       EV = buildEV(EW)
+       FE = coboundary_2(FW,EW)
+       V,cscEV,cscFE,cscCF = spatial_arrangement(V,EV,FE)
        ne,nv = size(cscEV)
        nf = size(cscFE,1)
        nc = size(cscCF,1)
@@ -375,6 +504,7 @@ module LARLIB
        bases, coboundaries = (ord(EV),ord(FV),ord(CV)), (cscEV,cscFE,cscCF)
        return V',bases,coboundaries
    end
+
    
    # Collect LAR models in a single LAR model
    function collection2model(collection)
@@ -390,9 +520,26 @@ module LARLIB
       return W,FW,EW
    end
    
-   # Triangulation of a single facet
+   
+   
 	"""
+		facetriangulation(V::Points, FV::Cells, EV::Cells, cscFE::ChainOp, cscCF::ChainOp)
 
+	Triangulation of a single facet of a 3-complex.
+	
+	# Example
+	```julia
+	julia> cube_1 = ([0. 0. 0. 0. 1. 1. 1. 1.; 0. 0. 1. 1. 0. 0. 1. 1.; 
+	0. 1. 0. 1. 0. 1. 0. 1.], 
+	[[1,2,3,4],[5,6,7,8],[1,2,5,6],[3,4,7,8],[1,3,5,7],[2,4,6,8]], 
+	[[1,2],[3,4],[5,6],[7,8],[1,3],[2,4],[5,7],[6,8],[1,5],[2,6],[3,7],[4,8]] )
+	
+	julia> cube_2 = LARLIB.Struct([LARLIB.t(0,0,0.5), LARLIB.r(0,0,pi/3), cube_1])
+	
+	julia> W,FW,EW = LARLIB.struct2lar(LARLIB.Struct([ cube_1, cube_2 ]))
+
+	julia> V,(EV,FV,EV),(cscEV,cscFE,cscCF) = LARLIB.chaincomplex(W,FW,EW)
+	```	
 	"""
    function facetriangulation(V,FV,EV,cscFE,cscCF)
       function facetrias(f)

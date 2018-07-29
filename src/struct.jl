@@ -284,7 +284,7 @@ end
 
 """
 function struct2lar(structure)
-	listOfModels = evalStruct(structure)
+	listOfModels = LARLIB.evalStruct(structure)
 	vertDict= Dict()
 	index,defaultValue,W,FW,EW = 0,0,Array{Float64,1}[],Array{Int64,1}[],Array{Int64,1}[]
 	
@@ -298,7 +298,7 @@ function struct2lar(structure)
 		for incell in FV
 			outcell=[]
 			for v in incell
-				key = map(approxVal(7), V[:,v])
+				key = map(LARLIB.approxVal(7), V[:,v])
 				if get(vertDict,key,defaultValue)==defaultValue
 					index += 1
                    	vertDict[key]=index
@@ -317,7 +317,7 @@ function struct2lar(structure)
 			for incell in EV
 				outcell=[]
 				for v in incell
-					key = map(approxVal(4), V[:,v])
+					key = map(LARLIB.approxVal(7), V[:,v])
 					if get(vertDict,key,defaultValue)==defaultValue
 						index += 1
 						vertDict[key]=index
