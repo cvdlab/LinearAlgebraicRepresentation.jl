@@ -326,10 +326,10 @@
 	  0  0  0  0  0  0  0  0 -1  0  0  1  0  0  0  0  0  0  0  0  0  0  1 -1
 	```
 	"""
-   function chaincomplex( W::Points, EW::Cells )::Tuple{Array{Cells,1},Array{ChainOp,1}}
-       V = convert(Array{Float64,2},W')
-       EV = boundary_1(EW)'
-       V,cscEV,cscFE = planar_arrangement(V,EV)
+   function chaincomplex( W, EW )
+       V = W'
+       EV = LARLIB.boundary_1(EW)'
+       V,cscEV,cscFE = LARLIB.planar_arrangement(V,EV)
        ne,nv = size(cscEV)
        nf = size(cscFE,1)
        EV = [findn(cscEV[e,:]) for e=1:ne]
@@ -410,10 +410,10 @@
 	```	
 	"""
    function chaincomplex(W,FW,EW)
-       V = convert(Array{Float64,2},W')
-       EV = buildEV(EW)
-       FE = coboundary_2(FW,EW)
-       V,cscEV,cscFE,cscCF = spatial_arrangement(V,EV,FE)
+       V = W'
+       EV = LARLIB.buildEV(EW)
+       FE = LARLIB.coboundary_1(FW,EW)
+       V,cscEV,cscFE,cscCF = LARLIB.spatial_arrangement(V,EV,FE)
        ne,nv = size(cscEV)
        nf = size(cscFE,1)
        nc = size(cscCF,1)
