@@ -8,6 +8,7 @@ makedocs(
 	pages = [
 		"Home" => "index.md",
 		"LAR" => "lar.md",
+		"Interface" => "interface.md",
 		"Arrangement" => "arrangement.md",
 		"Mapper" => "mapper.md",
 		"Assemblies" => "struct.md",
