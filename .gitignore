@@ -62,3 +62,4 @@ Temporary Items
 
 # Documenter.jl compliled files shouldn't be commited
 docs/build
+*.obj
