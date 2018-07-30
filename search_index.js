@@ -113,6 +113,118 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
+    "location": "interface.html#",
+    "page": "Interface",
+    "title": "Interface",
+    "category": "page",
+    "text": ""
+},
+
+{
+    "location": "interface.html#Interface-to-cell-and-chain-complexes-1",
+    "page": "Interface",
+    "title": "Interface to cell and chain complexes",
+    "category": "section",
+    "text": "Most part of text in this page is derived from  and from ."
+},
+
+{
+    "location": "interface.html#Introduction-1",
+    "page": "Interface",
+    "title": "Introduction",
+    "category": "section",
+    "text": "With increased complexity of geometric data, topological models play an increasingly important role beyond boundary representations, assemblies, finite elements, image processing, and other traditional modeling applications. While many graph- and index- based data structures have been proposed, no standard representation has emerged as of now. Furthermore, such representations typically do not deal with representations of mappings and functions and do not scale to support parallel processing, open source, and client-based architectures. A proper mathematical model for all topological structures is a (co)chain complex: a sequence of linear (co)chain spaces and linear (co)boundary mappings. This in turn implies all topological structures may be represented by a collection of sparse matrices. We propose a Linear Algebraic Representation (LAR) scheme for mod 2 (co)chain complexes using CSC sparse matrices and show that it supports variety of topological computations using standard matrix algebra, without any overhead in space or running time. With the LAR scheme, only the characteristic functions (see below) of d-cells as vertex subsets are necessary for representing polytopal complexes. Examples include simplicial, cubical, and Voronoi complexes."
+},
+
+{
+    "location": "interface.html#Data-structures-1",
+    "page": "Interface",
+    "title": "Data structures",
+    "category": "section",
+    "text": "All types of cell complexes and functions over cell complexes are properly represented by a (co)chain complex, that captures all combinatorial relationships of interest in solid and physical modeling formally and unambiguously. According to classical results from algebraic topology techniques, a (co)chain complex and all associated combinatorial operations are readily represented using standard techniques from linear algebra, giving rise to a Linear Algebraic Represention (LAR) scheme.In this package, we provide LAR data structures and algorithms using compressed sparse column (CSC) matrices, that introduce no computational overhead and are asymptotically as efficient as (and usually better than) many other popular topological data structures. Our aim is to provide a representation that supports all topological constructions and queries that arise in typical cellular decomposition of space (mesh, image, boundary, etc).An arrangement is the decomposition of d-dimensional space into connected and relatively open cells of lower dimensions, induced by an intersection of a finite collection of geometric objects. A planar collection S may include line segments, open or closed polygonal lines, polygons, two-dimensional meshes, and discrete images in 2D. A space collection may include 3D polygons, polygonal meshes, B-reps of solid models—either manifold or non-manifold, three-dimensional CAE meshes, and volumetric images in 3D.In this package, we have implemented the computation of the arrangement produced by a  set of cellular complexes in either 2D or 3D. Our goal is to provide a complete description of the plane or space decomposition induced by the input, into cells of dimensions 0, 1, 2 or 3."
+},
+
+{
+    "location": "interface.html#Characteristic-matrices-1",
+    "page": "Interface",
+    "title": "Characteristic matrices",
+    "category": "section",
+    "text": "A precise mathematical definition of a cellular complex is not trivial; we may rely on the intuitive idea of constructing a space by gluing together a number of building blocks of different dimensions, called cells.The characteristic function chi_A  S to 0 1 is a function defined on a set S = s_j, that indicates membership of an element s_j in a subset A subseteq S, having the value 1 for all elements of A and the value 0 for all elements of S not in A. We call characteristic matrix M of a collection of subsets A_i subseteq S  (i=1n) the binary matrix M=(m_ij), with m_ij = chi_A_i(s_j)."
+},
+
+{
+    "location": "interface.html#Examples-1",
+    "page": "Interface",
+    "title": "Examples",
+    "category": "section",
+    "text": "Binary matrix representing by rows the p-cells of a cellular complex. The input parameter must be of Cells type. Return a sparse binary matrix,  providing the basis of a Chain space of given dimension. Notice that the  number of columns is equal to the number of vertices (0-cells). First the cellular complex describing the 0-, 1-, 2-, anf 3-faces of a single unit cube is generated. V,(VV,EV,FV,CV) = cuboid([1.,1.,1.], true); Then, we may see the characteristic matrix of 1-cells (edges), with two ones per row:julia> full(characteristicMatrix(EV))\n12×8 Array{Int8,2}:\n 1  1  0  0  0  0  0  0\n 0  0  1  1  0  0  0  0\n 0  0  0  0  1  1  0  0\n 0  0  0  0  0  0  1  1\n 1  0  1  0  0  0  0  0\n 0  1  0  1  0  0  0  0\n 0  0  0  0  1  0  1  0\n 0  0  0  0  0  1  0  1\n 1  0  0  0  1  0  0  0\n 0  1  0  0  0  1  0  0\n 0  0  1  0  0  0  1  0\n 0  0  0  1  0  0  0  1and of 2-cells (faces):julia> full(characteristicMatrix(FV))\n6×8 Array{Int8,2}:\n 1  1  1  1  0  0  0  0\n 0  0  0  0  1  1  1  1\n 1  1  0  0  1  1  0  0\n 0  0  1  1  0  0  1  1\n 1  0  1  0  1  0  1  0\n 0  1  0  1  0  1  0  1Finally, the boundary of the single 3-cell contains all the 0-cells (vertices). Of course, the 3D cube has 12 edges in EV, 6 faces in FV, and one 3-cell in CV:julia> full(characteristicMatrix(CV))\n1×8 Array{Int8,2}:\n 1  1  1  1  1  1  1  1"
+},
+
+{
+    "location": "interface.html#Chain-bases-1",
+    "page": "Interface",
+    "title": "Chain bases",
+    "category": "section",
+    "text": "In algebraic topology, a k-chain is a formal linear combination of the k-cells in a cell complex. In simplicial complexes (respectively, cubical complexes), k-chains are combinations of k-simplices (respectively, k-cubes).Let sigma be an oriented cell in X and mu in G. The elementary chain whose value is mu on sigma, -mu on -sigma and 0 on any other cell in X is denoted musigma . Each chain can then be written in a unique way as a sum of elementary chains. With abuse of notation, we do NOT distinguish between cells and singleton chains (i.e., the elementary chains whose value is 1sigma for some cell sigma), used as elements of the standard bases of chain groups.Chains are often thought of as attaching orientation and multiplicity to cells: if coefficients are extracted from the group G = (1 0 1 +)  (mathboldZ_3 +), then cells can only be discarded or selected, possibly inverting their orientation.  A p-cycle is a closed p-chain, i.e. a p-chain without boundary.  It is useful to select a conventional choice to orient the singleton chains (single cells) automatically. 0-cells are considered all positive. The p-cells, for 1  p  d-1, can be given an internal orientation according to the orientation of the first (p  1)-cell in their canonical representation, i.e. sorted on indices of their (p  1)-cycle. Finally, a d-cell may be oriented as the sign of its oriented volume."
+},
+
+{
+    "location": "interface.html#Examples-2",
+    "page": "Interface",
+    "title": "Examples",
+    "category": "section",
+    "text": "A compact representation of bases of p-cells is provided by Cells type, defined as Array{Array{Int,1}}, where each element codifies a cell as the array of indices to vertices on the boundary of the cell:julia> V,(VV,EV,FV,CV) = LARLIB.cuboid([1.,1.,1.], true);\n\njulia> FV\n6-element Array{Array{Int64,1},1}:\n [1, 2, 3, 4]\n [5, 6, 7, 8]\n [1, 2, 5, 6]\n [3, 4, 7, 8]\n [1, 3, 5, 7]\n [2, 4, 6, 8]A simplicial decomposition of the unit cube with six 3-cells (tetrahedra), and a simplicial decomposition of the domain 05 times 01 with ten 2-cells (triangles) follows:julia> V,CV = LARLIB.simplexGrid([1,1,1]);\n\njulia> V\n3×8 Array{Float64,2}:\n 0.0  1.0  0.0  1.0  0.0  1.0  0.0  1.0\n 0.0  0.0  1.0  1.0  0.0  0.0  1.0  1.0\n 0.0  0.0  0.0  0.0  1.0  1.0  1.0  1.0\n\njulia> CV   # bases of tetrahedra\n6-element Array{Array{Int64,1},1}:\n [1, 2, 3, 5]\n [2, 3, 5, 6]\n [3, 5, 6, 7]\n [2, 3, 4, 6]\n [3, 4, 6, 7]\n [4, 6, 7, 8]\n\njulia> W,FW = LARLIB.simplexGrid([5,1]);\n\njulia> W\n2×12 Array{Float64,2}:\n 0.0  1.0  2.0  3.0  4.0  5.0  0.0  1.0  2.0  3.0  4.0  5.0\n 0.0  0.0  0.0  0.0  0.0  0.0  1.0  1.0  1.0  1.0  1.0  1.0\n\njulia> FW   # bases of triangles\n10-element Array{Array{Int64,1},1}:\n [1, 2, 7]  \n [2, 7, 8]  \n [2, 3, 8]  \n [3, 8, 9]  \n [3, 4, 9]  \n [4, 9, 10] \n [4, 5, 10] \n [5, 10, 11]\n [5, 6, 11] \n [6, 11, 12]It is worthwhile to note that the above examples provide p-bases of suitable dimensions, equal to the number of p-cells,  for the corresponding chain complexes.   "
+},
+
+{
+    "location": "interface.html#(Co)boundary-operators-1",
+    "page": "Interface",
+    "title": "(Co)boundary operators",
+    "category": "section",
+    "text": "Boundary operators are maps partial_p  C_p to C_p1 between chain spaces, i.e. between spaces of subsets of cells with different dimension, with 1 leq p leq d, hence for a cellular 2-complex we have two operators, denoted as partial_2  C_2 to C_1 and partial_1  C_1 to C_0, respectively. Since they are linear maps between linear spaces, may be represented by matrices of coefficients partial_2 and partial_1 from the corresponding groups. We use the groups 0 1and -1 0 1 for unsigned and signed coefficients, respectively.The concept of cochain  in a group C^p of linear maps from chains C_p to Re allows for the association of numbers not only to single cells, as done by chains, but also to assemblies of cells. A cochain is hence the association of every discretized subdomain (chain) of a cell complex with a numeric quantity, usually resulting from a discrete integration over a chain.Coboundary operators are maps delta^p  C^p to C^p+1, with each linear space  C^p of p-cochains isomorphic to the space C_p of p-chain. Therefore in this package only Chain spaces are used. Notice that partial_p = delta^p^t. This property is often utilized in our algorithms."
+},
+
+{
+    "location": "interface.html#Examples-3",
+    "page": "Interface",
+    "title": "Examples",
+    "category": "section",
+    "text": "julia> V,(VV,EV,FV,CV) = cuboid([1.,1.,1.], true);\n\njulia> EV\n12-element Array{Array{Int64,1},1}:\n [1, 2]\n [3, 4]\n   ...\n [3, 7]\n [4, 8]\n\njulia> boundary_1( EV::Cells )\n8×12 SparseMatrixCSC{Int8,Int64} with 24 stored entries:\n  [1 ,  1]  =  -1\n  [2 ,  1]  =  1\n  [3 ,  2]  =  -1\n	...       ...\n  [7 , 11]  =  1\n  [4 , 12]  =  -1\n  [8 , 12]  =  1\n\njulia> full(boundary_1(EV::Cells))\n8×12 Array{Int8,2}:\n -1   0   0   0  -1   0   0   0  -1   0   0   0\n  1   0   0   0   0  -1   0   0   0  -1   0   0\n  0  -1   0   0   1   0   0   0   0   0  -1   0\n  0   1   0   0   0   1   0   0   0   0   0  -1\n  0   0  -1   0   0   0  -1   0   1   0   0   0\n  0   0   1   0   0   0   0  -1   0   1   0   0\n  0   0   0  -1   0   0   1   0   0   0   1   0\n  0   0   0   1   0   0   0   1   0   0   0   1Notice that the matrix partial_1,  generated by the function boundary_1 applied to the 1-cell basis EV, contains two non-zero elements per column, where the associated edge (1-cell) is oriented from the vertex (row) of lesser index, towards the vertex of greater index, according to our numbering convention."
+},
+
+{
+    "location": "interface.html#Chain-complexes-1",
+    "page": "Interface",
+    "title": "Chain complexes",
+    "category": "section",
+    "text": "A chain complex, for our purposes, is an algebraic structure that consists of a sequence of linear spaces  and a sequence of linear maps between consecutive linear spaces,  such that the image of each map (subspace of boundaries of p-chains) is included in the kernel (subspace of cycles of (p-1)-chains) of the next. The set of all k-chains forms a group and the sequence of these groups is called a chain complex. In computing the arrangement A(S) induced by S, we actually compute the whole chain complex Cbullet generated by the cell complex X = A(S). For example, in 3D we compute all objects and arrows (morphisms) in the diagram below, and hence we obtain a computational knowledge of space subdivision homology, including the Euler number. "
+},
+
+{
+    "location": "interface.html#Examples-4",
+    "page": "Interface",
+    "title": "Examples",
+    "category": "section",
+    "text": "From the minimal possible input, construct the whole two-dimensional chain complex, i.e. the bases for linear spaces C_1 and  C_2, of 1-chains and  2-chains, and the signed coboundary operators from  C_0 to C_1 and from C_1 to C_2."
+},
+
+{
+    "location": "interface.html#D-Chain-complex-1",
+    "page": "Interface",
+    "title": "2D Chain complex",
+    "category": "section",
+    "text": "Start with the 1-skeleton (set of 1-cells) of a 2D small cuboidal grid (made of squares); in other words, suppose we only know the edges of the grid:julia> W = \n [0.0  0.0  0.0  0.0  1.0  1.0  1.0  1.0  2.0  2.0  2.0  2.0  3.0  3.0  3.0  3.0\n  0.0  1.0  2.0  3.0  0.0  1.0  2.0  3.0  0.0  1.0  2.0  3.0  0.0  1.0  2.0  3.0]\n# output  \n 2×16 Array{Float64,2}: ...\n\njulia> EW = \n[[1, 2],[2, 3],[3, 4],[5, 6],[6, 7],[7, 8],[9, 10],[10, 11],[11, 12],[13, 14],\n [14, 15],[15, 16],[1, 5],[2, 6],[3, 7],[4, 8],[5, 9],[6, 10],[7, 11],[8, 12],\n [9, 13],[10, 14],[11, 15],[12, 16]]\n# output  \n24-element Array{Array{Int64,1},1}: ...We go to compute the arrangement of the 2D space induced by the above, i.e. the full chain complex generated by (W,EW). This one is returned by the evaluation of the expression chaincomplex(W,EW). The output variable bases  will contain the meaningful cell bases, i.e. those of dimension 1 and 2, since dimension 0 – isolated 0-cells – is not so.julia> V,bases,coboundaries = chaincomplex(W,EW)\n\njulia> bases[1]	# edges\n24-element Array{Array{Int64,1},1}: ...\n\njulia> bases[2] # faces -- previously unknown !!\n9-element Array{Array{Int64,1},1}: ...Analogously, the coboundaries variable will contain the delta_1 and delta_2 matrices, of type SparseMatrixCSC{Int8,Int64}julia> coboundaries[1] # coboundary_1 \n24×16 SparseMatrixCSC{Int8,Int64} with 48 stored entries: ...\n\njulia> full(coboundaries[2]) # coboundary_1: faces as oriented 1-cycles of edges\n9×24 Array{Int8,2}:\n -1  0  0  1  0  0  0  0  0  0  0  0  1 -1  0  0  0  0  0  0  0  0  0  0\n  0 -1  0  0  1  0  0  0  0  0  0  0  0  1 -1  0  0  0  0  0  0  0  0  0\n  0  0 -1  0  0  1  0  0  0  0  0  0  0  0  1 -1  0  0  0  0  0  0  0  0\n  0  0  0 -1  0  0  1  0  0  0  0  0  0  0  0  0  1 -1  0  0  0  0  0  0\n  0  0  0  0 -1  0  0  1  0  0  0  0  0  0  0  0  0  1 -1  0  0  0  0  0\n  0  0  0  0  0 -1  0  0  1  0  0  0  0  0  0  0  0  0  1 -1  0  0  0  0\n  0  0  0  0  0  0  0 -1  0  0  1  0  0  0  0  0  0  0  0  0  0  1 -1  0\n  0  0  0  0  0  0 -1  0  0  1  0  0  0  0  0  0  0  0  0  0  1 -1  0  0\n  0  0  0  0  0  0  0  0 -1  0  0  1  0  0  0  0  0  0  0  0  0  0  1 -1Note that the last matrix contains by rows the 2-cycles corresponding to the (previously) unknown 2-basis FV that can now be easily computed. Notice also that columns corresponding to interior edges (1-cells) contain two non-zeros of opposite sign. Hence the computed 2-complex is coherently oriented by the matrix rows, actually by construction. The 2-boundary operator matrix, i.e. transpose(coboundaries[2]), can be used to compute the boundary of every possible 2-chain, by matrix multiplication times the coordinate (binary) representation of the 2-chain, implemented by the type Chain, defined as SparseVector{Int8, Int}."
+},
+
+{
+    "location": "interface.html#D-Chain-complex-2",
+    "page": "Interface",
+    "title": "3D Chain complex",
+    "category": "section",
+    "text": "The example discussed here concerns two unit cubes in 3D, where the second is partially rotated and translated, up to intersect only partially the firat cube. First we prepare our data, using a very simple hierarchical aggregation via a Struct object, to get a representation of faces and edges of both cubes in two Cells arrays FV and EV.julia> cube_1 = ([0 0 0 0 1 1 1 1; 0 0 1 1 0 0 1 1; 0 1 0 1 0 1 0 1], \n[[1,2,3,4],[5,6,7,8],[1,2,5,6],[3,4,7,8],[1,3,5,7],[2,4,6,8]], \n[[1,2],[3,4],[5,6],[7,8],[1,3],[2,4],[5,7],[6,8],[1,5],[2,6],[3,7],[4,8]] )\n\njulia> cube_2 = LARLIB.Struct([LARLIB.t(0,0,0.5), LARLIB.r(0,0,pi/3), cube_1])\n\njulia> V,FV,EV = LARLIB.struct2lar(LARLIB.Struct([ cube_1, cube_2 ]))Then we compute the 3D space arrangement induced by FV, providing the auxiliary information in EV, and getting back V,bases,coboundaries. Both bases and coboundaries are then disassembled into their component data structures. The actual discoveries computed by the arrangement algorithms, called by the chaincomplex function, are the NEW EV, FV, CV basis and the cscEV, cscFE, cscCF operators, which stands  for delta_0,delta_1, anddelta_2, i.e. the computations of the solid 3D cells generated by the arrangement of space, including their full topology.julia> V,bases,coboundaries = LARLIB.chaincomplex(V,FV,EV)\n\njulia> (EV, FV, CV), (cscEV, cscFE, cscCF) = bases,coboundaries\n\njulia> FV # bases[2]\n18-element Array{Array{Int64,1},1}:\n [1, 3, 4, 6]            \n [2, 3, 5, 6]            \n [7, 8, 9, 10]           \n [1, 2, 3, 7, 8]         \n [4, 6, 9, 10, 11, 12]   \n [5, 6, 11, 12]          \n [1, 4, 7, 9]            \n [2, 5, 11, 13]          \n [2, 8, 10, 11, 13]      \n [2, 3, 14, 15, 16]      \n [11, 12, 13, 17]        \n [11, 12, 13, 18, 19, 20]\n [2, 3, 13, 17]          \n [2, 13, 14, 18]         \n [15, 16, 19, 20]        \n [3, 6, 12, 15, 19]      \n [3, 6, 12, 17]          \n [14, 16, 18, 20]        \n\njulia> CV # bases[3]\n3-element Array{Array{Int64,1},1}:\n [2, 3, 5, 6, 11, 12, 13, 14, 15, 16, 18, 19, 20]\n [2, 3, 5, 6, 11, 12, 13, 17]                    \n [1, 2, 3, 4, 6, 7, 8, 9, 10, 11, 12, 13, 17]    Let note that the LAR of FV includes faces with 5 and 6 vertices, even non convex.  Also, the CV variable contains the LAR of the three solid parts the two cubes are split into. julia> cscEV # coboundaries[1]\n34×20 SparseMatrixCSC{Int8,Int64} with 68 stored entries: ...\n\njulia> cscFE # coboundaries[2]\n18×34 SparseMatrixCSC{Int8,Int64} with 80 stored entries: ...\n\njulia> cscCF # coboundaries[3]\n4×18 SparseMatrixCSC{Int8,Int64} with 36 stored entries: ..."
+},
+
+{
     "location": "arrangement.html#",
     "page": "Arrangement",
     "title": "Arrangement",
