@@ -1,5 +1,4 @@
 using LARLIB
-
 using Base.Test
 
 function BoxCalculation(Vertices)
@@ -19,9 +18,6 @@ function BoxCalculation(Vertices)
 	return Box
 end
 
-
-
-
 @testset "circle" begin
 	@test BoxCalculation(LARLIB.circle()()[1])==4
 	@test BoxCalculation(LARLIB.circle(2., 2*pi)()[1])==16
@@ -30,8 +26,6 @@ end
 	@test size(LARLIB.circle(3,2*pi)(60)[1],2)==60
 	@test length(LARLIB.circle(3,2*pi)(60)[2])==60
 end
-
-
 
 @testset "helix" begin
 	@test BoxCalculation(LARLIB.helix()()[1])==8
@@ -46,8 +40,6 @@ end
 	@test length(LARLIB.helix(5, 7, 9)()[2])==324
 end
 
-
-
 @testset "disk" begin
 	@test BoxCalculation(LARLIB.disk(1., 2*pi)([36, 1])[1])==4
 	@test BoxCalculation(LARLIB.disk(2., 2*pi)()[1])==16
@@ -56,8 +48,6 @@ end
 	@test size(LARLIB.disk(10, pi/7)()[1],2)==75
 	@test length(LARLIB.disk(10, pi/7)()[2])==108
 end
-
-
 
 @testset "helicoid" begin
 	@test BoxCalculation(LARLIB.helicoid()()[1])==8
@@ -72,7 +62,6 @@ end
 	@test length(LARLIB.helicoid(1.3,.7,1,3)()[2])==432
 end
 
-
 @testset "ring" begin
 	@test BoxCalculation(LARLIB.ring(1.,3.,2*pi)()[1])==36
 	@test BoxCalculation(LARLIB.ring(1.,2,pi)()[1])==8
@@ -81,8 +70,6 @@ end
 	@test size(LARLIB.ring(1,5,pi/2)()[1],2)==74
 	@test length(LARLIB.ring(5,10,pi/6)()[2])==36
 end
-
-
 
 @testset "cylinder" begin
 	@test BoxCalculation(LARLIB.cylinder(1,5,2*pi)()[1])==20
@@ -93,8 +80,6 @@ end
 	@test length(LARLIB.cylinder(3.4,20,pi/7)()[2])==36
 end
 
-
-
 @testset "sphere" begin
 	@test BoxCalculation(LARLIB.sphere(2,pi,2*pi)()[1])==64
 	@test BoxCalculation(LARLIB.sphere(6,pi,pi)()[1])==864
@@ -103,8 +88,6 @@ end
 	@test length(LARLIB.sphere(2.5,pi/3,pi/5)()[2])==1296
 end
 
-
-
 @testset "toroidal" begin
 	@test BoxCalculation(LARLIB.toroidal(1,3,2*pi,2*pi)()[1])==128
 	@test BoxCalculation(LARLIB.toroidal(2,3,2*pi,2*pi)()[1])==400
@@ -112,8 +95,6 @@ end
 	@test size(LARLIB.toroidal(1.3,4.6,pi/4,pi/7)()[1],2)==925
 	@test length(LARLIB.toroidal(1.3,4.6,pi/4,pi/7)()[2])==1728
 end
-
-
 
 @testset "crown" begin
 	@test BoxCalculation(LARLIB.crown(1., 3., 2*pi)()[1])==128
@@ -133,8 +114,6 @@ end
 	@test size(LARLIB.ball(2.6, pi/5, pi/9)()[1],2)==2813
 	@test length(LARLIB.ball(2.6, pi/5, pi/9)()[2])==2592
 end
-
-
 
 @testset "rod" begin
 	@test BoxCalculation(LARLIB.rod(1,5,2*pi)()[1])==20
@@ -156,8 +135,6 @@ end
 	@test length(LARLIB.hollowCyl(3,4.,7.8,pi/5)()[2])==36
 end
 
-
-
 @testset "hollowBall" begin
 	@test BoxCalculation(LARLIB.hollowBall(1,2,pi,2*pi)([36,36,1])[1]) ==64
 	@test BoxCalculation(LARLIB.hollowBall(1,6,pi,pi)([36,36,1])[1])== 864
@@ -167,8 +144,6 @@ end
 	@test length(LARLIB.hollowBall(1.5,6.7,pi/3,2*pi/3)()[2])==2592
 end
 
-
-
 @testset "torus" begin
 	@test BoxCalculation(LARLIB.torus(1.,2.,.5,2*pi,2*pi)()[1])==147
 	@test BoxCalculation(LARLIB.torus(2,3,.5,2*pi,2*pi)()[1])==605.0
@@ -176,10 +151,3 @@ end
 	@test size(LARLIB.torus(5.2,7,.5,pi/3,pi/4)()[1],2)==4625
 	@test length(LARLIB.torus(5.2,7,.5,pi/3,pi/4)()[2])==3456
 end
-
-
-
-
-
-
-

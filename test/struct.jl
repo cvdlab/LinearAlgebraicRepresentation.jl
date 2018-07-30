@@ -1,5 +1,4 @@
 using LARLIB
-
 using Base.Test
 
 @testset "checkStruct" begin
@@ -8,8 +7,6 @@ using Base.Test
 	@test LARLIB.checkStruct(square)==length(square[1][1][:,1])
 	@test LARLIB.checkStruct(square)==2
 end
-
-
 
 @testset "apply Tests" begin
 	square = ([[0; 0] [0; 1] [1; 0] [1; 1]], [[1, 2, 3,
@@ -38,8 +35,6 @@ end
 	end
 end
 
-
-
 @testset "3D" begin
 	cube=LARLIB.cuboid([1,1,1])
 	@testset "apply Translation 3D" begin
@@ -67,9 +62,6 @@ end
 	end
 end
 
-
-
-
 @testset "cuboid Tests" begin
 	square=LARLIB.cuboid([1,1])
 	cube=LARLIB.cuboid([1,1,1])
@@ -85,9 +77,6 @@ end
 	end
 end
 
-
-
-
 @testset "traversal" begin
 	square=LARLIB.cuboid([1,1])
 	dim = 2
@@ -98,16 +87,12 @@ end
 	@test typeof(LARLIB.traversal(eye(dim+1),[],structure,[]))==Array{Any,1}
 end
 
-
-
 @testset "Struct Tests" begin
 	square=LARLIB.cuboid([1,1])
 	@test LARLIB.Struct([square]).body==[square]
 	@test LARLIB.Struct([square]).dim==size(square[1],1)
 	@test LARLIB.Struct([square]).body[1]==square
 end
-
-
 
 # to test
 #@testset "embedTraversal Tests" begin
@@ -122,9 +107,6 @@ end
 #	@test typeof(embedTraversal(deepcopy(x),deepcopy(x),1,"New"))==Struct		
 #end
 
-
-
-
 #@testset "embedStruct Tests" begin
 #	square = LARLIB.cuboid([1,1])
 #	x = LARLIB.Struct([square])	
@@ -134,10 +116,6 @@ end
 #	@test length(LARLIB.embedStruct(3)(x).body[1][1][1])==length(x.body[1][1][1])+3
 #	@test typeof(LARLIB.embedStruct(1)(x))==Struct		
 #end
-
-
-
-
 
 @testset "removeDups Tests" begin
 	CW1=[[0,1,2,3],[4,5,6,7],[0,1,4,5],[2,3,6,7],[0,2,4,6],[1,3,5,7],
@@ -152,8 +130,6 @@ end
 		@test typeof(LARLIB.removeDups(CW2))==Array{Array{Int64,1},1}
 	end
 end
-
-
 
 @testset "struct2lar" begin
    @testset "struct2lar 2D" begin
@@ -175,5 +151,3 @@ end
       @test size(LARLIB.struct2lar(structure)[1],1)==3
     end
 end
-
-

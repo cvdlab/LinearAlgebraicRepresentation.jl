@@ -88,7 +88,8 @@ function merge_vertices!(V::Points, EV::ChainOp, edge_map, err=1e-4)
     edgenum = size(EV, 1)
     newverts = zeros(Int, vertsnum)
     # KDTree constructor needs an explicit array of Float64
-    kdtree = KDTree(Array{Float64,2}(V'))
+    V = Array{Float64,2}(V)
+    kdtree = KDTree(V')
 
     todelete = []
     
@@ -140,7 +141,7 @@ function merge_vertices!(V::Points, EV::ChainOp, edge_map, err=1e-4)
     end
     
 
-    return nV, nEV
+    return Points(nV), nEV
 end
 
 function biconnected_components(EV::ChainOp)
@@ -376,7 +377,7 @@ end
 
 
 """
-    planar_arrangement(V::Points, EV::Cells, [sigma::Cell], [return_edge_map::Bool], [multiproc::Bool])
+    planar_arrangement(V::Points, EV::ChainOp, [sigma::Chain], [return_edge_map::Bool], [multiproc::Bool])
 
 Compute the arrangement on the given cellular complex 1-skeleton in 2D.
 
@@ -386,20 +387,17 @@ The basic method of the function without the `sigma`, `return_edge_map` and `mul
 returns the full arranged complex `V`, `EV` and `FE`.
 
 ## Additional arguments:
-- `sigma::Cell`: if specified, `planar_arrangement` will delete from the output every edge and face outside this cell. Defaults to an empty cell.
+- `sigma::Chain`: if specified, `planar_arrangement` will delete from the output every edge and face outside this cell. Defaults to an empty cell.
 - `return_edge_map::Bool`: makes the function return also an `edge_map` which maps the edges of the imput to the one of the output. Defaults to `false`.
 - `multiproc::Bool`: Runs the computation in parallel mode. Defaults to `false`.
 """
 function planar_arrangement(
-        V::Points, EV::Cells, 
-        sigma::Cell=spzeros(Int8, 0), 
+        V::Points, copEV::ChainOp, 
+        sigma::Chain=spzeros(Int8, 0), 
         return_edge_map::Bool=false, 
         multiproc::Bool=false)
-
-    # Change to ChainOP
-    EV = buildEV(EV, false) 
     
-    edgenum = size(EV, 1)
+    edgenum = size(copEV, 1)
     edge_map = Array{Array{Int, 1}, 1}(edgenum)
     rV = Points(zeros(0, 2))
     rEV = spzeros(Int8, 0, 0)
@@ -455,9 +453,9 @@ function planar_arrangement(
         
     end
     
-    V, EV = rV, rEV
+    V, copEV = rV, rEV
 
-    V, EV = merge_vertices!(V, EV, edge_map)
+    V, copEV = merge_vertices!(V, copEV, edge_map)
     
     # Deletes edges outside sigma area
     if sigma.n > 0
@@ -465,12 +463,12 @@ function planar_arrangement(
         
         new_edges = []
         map(i->new_edges=union(new_edges, edge_map[i]), sigma.nzind)
-        ev = EV[new_edges, :]
+        ev = copEV[new_edges, :]
     
-        for e in 1:EV.m
+        for e in 1:copEV.m
             if !(e in new_edges)
     
-                vidxs = EV[e, :].nzind
+                vidxs = copEV[e, :].nzind
                 v1, v2 = map(i->V[vidxs[i], :], [1,2])
                 centroid = .5*(v1 + v2)
                 
@@ -493,10 +491,10 @@ function planar_arrangement(
             end
         end
     
-        V, EV = delete_edges(todel, V, EV)
+        V, copEV = delete_edges(todel, V, copEV)
     end
     
-    bicon_comps = biconnected_components(EV)
+    bicon_comps = biconnected_components(copEV)
     
     if isempty(bicon_comps)
         println("No biconnected components found.")
@@ -508,7 +506,7 @@ function planar_arrangement(
     end
     
     edges = sort(union(bicon_comps...))
-    todel = sort(setdiff(collect(1:size(EV,1)), edges))
+    todel = sort(setdiff(collect(1:size(copEV,1)), edges))
     
     for i in reverse(todel)
         for row in edge_map
@@ -523,16 +521,16 @@ function planar_arrangement(
         end
     end
     
-    V, EV = delete_edges(todel, V, EV)
+    V, copEV = delete_edges(todel, V, copEV)
     
-    bicon_comps = biconnected_components(EV)
+    bicon_comps = biconnected_components(copEV)
     
     n = size(bicon_comps, 1)
-    shells = Array{Cell, 1}(n)
-    boundaries = Array{Cells, 1}(n)
-    EVs = Array{Cells, 1}(n)
+    shells = Array{Chain, 1}(n)
+    boundaries = Array{ChainOp, 1}(n)
+    EVs = Array{ChainOp, 1}(n)
     for p in 1:n
-        ev = EV[sort(bicon_comps[p]), :]
+        ev = copEV[sort(bicon_comps[p]), :]
         fe = minimal_2cycles(V, ev)
         shell_num = get_external_cycle(V, ev, fe)
     
@@ -553,11 +551,11 @@ function planar_arrangement(
     
     transitive_reduction!(containment_graph) 
     
-    EV, FE = cell_merging(n, containment_graph, V, EVs, boundaries, shells, shell_bboxes)
+    copEV, FE = cell_merging(n, containment_graph, V, EVs, boundaries, shells, shell_bboxes)
     
     if (return_edge_map)
-        return V, EV, FE, edge_map
+        return V, copEV, FE, edge_map
     else
-        return V, EV, FE
+        return V, copEV, FE
     end
 end 
