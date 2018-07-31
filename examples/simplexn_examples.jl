@@ -2,7 +2,7 @@ using LARLIB
 
 using LARVIEW
 
-const VOID = [[]], [[1]]
+VOID = [[]], [[1]]
 
 
 # example 1
@@ -45,6 +45,6 @@ LARVIEW.view(V,CV)
 
 SK2 = LARLIB.simplexFacets(CV)
 LARVIEW.view(V, SK2)
-SK1 = LARLIB.simplexFacets(SK2[2])
+SK1 = LARLIB.simplexFacets(SK2)
 LARVIEW.view(V, SK1)
 
