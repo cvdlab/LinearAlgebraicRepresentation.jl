@@ -99,6 +99,7 @@ module LARLIB
    include("./dimension_travel.jl")
    include("./planar_arrangement.jl")
    include("./spatial_arrangement.jl")
+   include("./simplexn.jl")
    include("./largrid.jl")
    include("./mapper.jl")
    include("./struct.jl")
