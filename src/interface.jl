@@ -5,7 +5,7 @@
 	Binary matrix representing by rows the `p`-cells of a cellular complex.
 	The input parameter must be of `Cells` type. Return a sparse binary matrix, 
 	providing the basis of a ``Chain`` space of given dimension. Notice that the 
-	number of columns is equal to the number of vertices (0-cells). for a g
+	number of columns is equal to the number of vertices (0-cells). 
 	
 	# Example
 	
@@ -61,7 +61,7 @@
 	Computation of sparse signed boundary operator ``C_1 -> C_0``.
 	
 	# Example
-	```
+	```julia
 	julia> V,(VV,EV,FV,CV) = cuboid([1.,1.,1.], true);
 
 	julia> EV
