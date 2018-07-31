@@ -1,20 +1,32 @@
-"""Module for facet extraction, extrusion and simplicial grids"""
+
 
 """
-	extrudeSimplicial(model::LAR, pattern)
+	extrudeSimplicial(model::LAR, pattern::Array)::LAR
 	
 Algorithm for multimensional extrusion of a simplicial complex. 
+Can be applied to 0-, 1-, 2-, ... simplicial models, to get a 1-, 2-, 3-, .... model.
+The pattern `Array` is used to specify how to decompose the added dimension.
 
-A full documentation  may be found in the ``Simple_X^n`` module, coded as `simplexn`. 
-A `model` is a LAR model, i.e. a pair (vertices,cells) to be extruded, whereas pattern is an array of `Int64`, to be used as lateral measures of the *extruded* model. pattern elements are assumed as either *solid* or *empty* measures, according to their (+/-) sign.
+A `model` is a LAR model, i.e. a pair (vertices,cells) to be extruded, whereas pattern is an array of `Int64`, to be used as lateral measures of the *extruded* model. `pattern` elements are assumed as either *solid* or *empty* measures, according to their (+/-) sign.
 
 # Example
 ```julia
+julia> V = [[0,0] [1,0] [2,0] [0,1] [1,1] [2,1] [0,2] [1,2] [2,2]];
 
+julia> FV = [[1,2,4],[2,3,5],[3,5,6],[4,5,7],[5,7,8],[6,8,9]];
+
+julia> pattern = repeat([1,2,-3],outer=4);
+
+julia> model = (V,FV);
+
+julia> W,FW = extrudeSimplicial(model, pattern);
+
+julia> LARVIEW.view(W,FW)
 ```
 """
-function extrudeSimplicial(model, pattern)
-    V, FV = model
+function extrudeSimplicial(model::LARLIB.LAR, pattern)
+	V = [model[1][:,k] for k=1:size(model[1],2)]
+    FV = model[2]
     d, m = length(FV[1]), length(pattern)
     coords = collect(cumsum(append!([0], abs.(pattern))))
     offset, outcells, rangelimit = length(V), [], d*m
@@ -30,18 +42,41 @@ function extrudeSimplicial(model, pattern)
         end
     end
     outVertices = [vcat(v, [z]) for z in coords for v in V]
-    cellGroups = convert(Array{Array{Int, 1}, 1}, cellGroups)  ## aggiunta mia
+    cellGroups = convert(Array{Array{Int, 1}, 1}, cellGroups) 
     outModel = outVertices, cellGroups
+    hcat(outVertices...), cellGroups
+end
+function extrudeSimplicial(model::Union{Any,LARLIB.Cells}, pattern)
+	V,FV = model
+    d, m = length(FV[1]), length(pattern)
+    coords = collect(cumsum(append!([0], abs.(pattern))))
+    offset, outcells, rangelimit = length(V), [], d*m
+    for cell in FV  
+        tube = [v+k*offset for k in range(0, m+1) for v in cell]
+        cellTube = [tube[k:k+d] for k in range(1, rangelimit)]
+        outcells = vcat(outcells, reshape(cellTube, d, m))
+    end
+    cellGroups = []
+    for i in 1:size(outcells, 2)
+        if pattern[i]>0
+            cellGroups = vcat(cellGroups, outcells[:, i])
+        end
+    end
+    outVertices = [vcat(v, [z]) for z in coords for v in V]
+    cellGroups = convert(Array{Array{Int, 1}, 1}, cellGroups) 
+    outModel = outVertices, cellGroups
+    hcat(outVertices...), cellGroups
 end
 
+
+
 """
-	simplexGrid(shape)
+	simplexGrid(shape::Array)::LAR
 	
 Generate a simplicial complex decomposition of a cubical grid of ``d``-cuboids, where ``d`` is the length of `shape` array. Vertices (0-cells) of the grid have `Int64` coordinates.
 
 # Examples
 ```julia
-
 julia> simplexGrid([0]) # 0-dimensional complex
 # output
 ([0], Array{Int64,1}[])
@@ -69,7 +104,7 @@ julia> using LARVIEW
 
 julia> hpc = LARVIEW.lar2exploded_hpc(V,CV) # exploded visualization of the grid
 
-julia> view(hpc)
+julia> LARVIEW.view(hpc)
 
 julia> V,HV = simplexGrid([1,1,1,1]) # 4-dim cellular complex from the 4D simplex
 # output
@@ -82,72 +117,55 @@ function simplexGrid(shape)
         model = extrudeSimplicial(model, fill(1, item))
     end
     V, CV = model
-    V = hcat(V...)
     V = convert(Array{Float64,2}, V)
     return V, CV
 end
 
 
 
-"""
-
-"""
-function cumsum(iterable)
-    # cumulative addition list(cumsum(range(4))) => [0, 1, 3, 6]
-    iterable = iter(iterable)
-    s = iterable.next()
-    yield s
-    for c in iterable
-        s = s + c
-        yield s
-    end
-end
-
 
 
 """
+	simplexFacets(simplices::Cells)::Cells
 
+Compute the `(d-1)`-skeleton (set of `facets`) of a simplicial `d`-complex.
+
+# Examples
+```julia
+julia> V,FV = simplexGrid([1,1]) # 2-dimensional complex
+# output
+([0 1 0 1; 0 0 1 1], Array{Int64,1}[[1, 2, 3], [2, 3, 4]])
+
+julia> LARVIEW.view(V,FV)
+
+julia> W,CW = extrudeSimplicial((V,FV), [1])
+([0.0 1.0 … 0.0 1.0; 0.0 0.0 … 1.0 1.0; 0.0 0.0 … 1.0 1.0], 
+Array{Int64,1}[[1,2,3,5],[2,3,5,6],[3,5,6,7],[2,3,4,6],[3,4,6,7],[4,6,7,8]])
+
+julia> FW = simplexFacets(CW)
+18-element Array{Any,1}:
+[[1,3,5],[5,6,7],[3,5,7],[3,6,7],[4,6,7],[4,7,8],[4,6,8],
+[6,7,8],[3,5,6],[2,3,5],[2,3,4],[3,4,7],[1,2,3],[2,4,6],[2,5,6],
+[1,2,5],[2,3,6],[3,4,6]]
+
+julia> LARVIEW.view(W,FW)
+```
 """
-function larSimplexFacets(simplices)
+function simplexFacets(simplices)
     out = []
-    d = len(simplices[0])
+    d = length(simplices[1])
     for simplex in simplices
-        out += AA(sorted)([simplex[0k]+simplex[k+1d] for k in range(d)])
+    	non_oriented_facets = [ append!(simplex[1:k-1],simplex[k+1:d]) for k=1:d ]
+    	if (-1)^d == 1
+    		oriented_facets = non_oriented_facets
+    	else
+    		oriented_facets = [ length(f)==2 ? [f[2],f[1]] : [f[2],f[1],f[3:end]]  
+    			for f in non_oriented_facets ]
+    	end
+        append!(out, oriented_facets)
     end
-    out = set(AA(tuple)(out))
-    return  sorted(out)
+    out = collect(Set(out))
+    return convert(LARLIB.Cells, out)
 end
 
 
-
-""" Transformation to triangles by sorting circularly the vertices of faces """
-"""
-
-"""
-function quads2tria(model)
-   V,FV = model
-   out = []
-   nverts = len(V)-1
-   for face in FV
-      centroid = CCOMB([V[v] for v in face])
-      V += [centroid] 
-      nverts += 1
-      
-      v1, v2 = DIFF([V[face[0]],centroid]), DIFF([V[face[1]],centroid])
-      v3 = VECTPROD([v1,v2])
-      if ABS(VECTNORM(v3)) < 10**3
-         v1, v2 = DIFF([V[face[0]],centroid]), DIFF([V[face[2]],centroid])
-         v3 = VECTPROD([v1,v2])
-      transf = mat(INV([v1,v2,v3]))
-      verts = [(V[v]*transf).tolist()[0][-1]  for v in face]
-
-      tcentroid = CCOMB(verts)
-      tverts = [DIFF([v,tcentroid]) for v in verts]   
-      rverts = sorted([[ATAN2(vert),v] for vert,v in zip(tverts,face)])
-      ord = [pair[1] for pair in rverts]
-      ord = ord + [ord[0]]
-      edges = [[n,ord[k+1]] for k,n in enumerate(ord[-1])]
-      triangles = [[nverts] + edge for edge in edges]
-      out += triangles
-   return V,out
-end

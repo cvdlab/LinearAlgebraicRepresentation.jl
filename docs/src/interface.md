@@ -270,7 +270,7 @@ The 2-boundary operator matrix, i.e. `transpose(coboundaries[2])`, can be used t
 
 ##### 3D Chain complex
 
-The example discussed here concerns two unit cubes in 3D, where the second is partially rotated and translated, up to intersect only partially the firat cube. First we prepare our data, using a very simple hierarchical aggregation via a `Struct` object, to get a representation of faces and edges of both cubes in two `Cells` arrays `FV` and `EV`.
+The example discussed here concerns two unit cubes in 3D, where the second is rotated and translated, up to intersect only partially the firat cube. First we prepare our data, using a very simple hierarchical aggregation via a `Struct` object, to get a representation of faces and edges of both cubes in two `Cells` arrays `FV` and `EV`.
 
 ```julia
 julia> cube_1 = ([0 0 0 0 1 1 1 1; 0 0 1 1 0 0 1 1; 0 1 0 1 0 1 0 1], 
