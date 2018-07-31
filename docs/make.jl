@@ -12,7 +12,8 @@ makedocs(
 		"Arrangement" => "arrangement.md",
 		"Mapper" => "mapper.md",
 		"Assemblies" => "struct.md",
-		"Grids" => "largrid.md",
+		"Cuboidal grids" => "largrid.md",
+		"Simplicial grids" => "simplexn.md",
 		"Glossary" => "glossary.md"
 	]
 )
