@@ -1,33 +1,48 @@
+
+
+const VOID = [[]], [[1]]
+
+
 # example 1
-V = [[0,0],[1,0],[2,0],[0,1],[1,1],[2,1],[0,2],[1,2],[2,2]]
-FV = [[0,1,3],[1,2,4],[2,4,5],[3,4,6],[4,6,7],[5,7,8]]
-model = larExtrude1((V,FV),4*[1,2,-3])
-VIEW(EXPLODE(1,1,1.2)(MKPOLS(model)))
+
+V = [[0,0] [1,0] [2,0] [0,1] [1,1] [2,1] [0,2] [1,2] [2,2]];
+FV = [[1,2,4],[2,3,5],[3,5,6],[4,5,7],[5,7,8],[6,8,9]];
+pattern = repeat([1,2,-3],outer=4);
+model = (V,FV);
+W,FW = extrudeSimplicial(model, pattern);
+LARVIEW.view(W,FW)
 
 # example 2
-model = larExtrude1( VOID, 10*[1] )
-VIEW(EXPLODE(1.5,1.5,1.5)(MKPOLS(model)))
-model = larExtrude1( model, 10*[1] )
-VIEW(EXPLODE(1.5,1.5,1.5)(MKPOLS(model)))
-model = larExtrude1( model, 10*[1] )
-VIEW(EXPLODE(1.5,1.5,1.5)(MKPOLS(model)))
+
+model = extrudeSimplicial( VOID, ones(10) )
+LARVIEW.view(model)
+model = extrudeSimplicial( model, ones(10) )
+LARVIEW.view(model)
+model = extrudeSimplicial( model, ones(10) )
+LARVIEW.view(model)
+
 
 # example 3
-model = larExtrude1( VOID, 10*[1,-1] )
-VIEW(EXPLODE(1.5,1.5,1.5)(MKPOLS(model)))
-model = larExtrude1( model, 10*[1] )
-VIEW(EXPLODE(1.5,1.5,1.5)(MKPOLS(model)))
 
-grid_2d = larSimplexGrid1([3,3])
-VIEW(EXPLODE(1.5,1.5,1.5)(MKPOLS(grid_2d)))
+model = extrudeSimplicial( VOID, repeat([1,-1],outer=10) )
+LARVIEW.view(model)
+model = extrudeSimplicial( model, repeat([1,-1],outer=10) )
+LARVIEW.view(model)
 
-grid_3d = larSimplexGrid1([2,3,4])
-VIEW(EXPLODE(1.5,1.5,1.5)(MKPOLS(grid_3d)))
 
-V,CV = larSimplexGrid1([1,1,1])
-VIEW(EXPLODE(1.5,1.5,1.5)(MKPOLS((V,CV))))
-SK2 = (V,larSimplexFacets(CV))
-VIEW(EXPLODE(1.5,1.5,1.5)(MKPOLS(SK2)))
-SK1 = (V,larSimplexFacets(SK2[1]))
-VIEW(EXPLODE(1.5,1.5,1.5)(MKPOLS(SK1)))
+# example 4
+
+grid_2d = simplexGrid([3,3])
+LARVIEW.view(grid_2d)
+grid_3d = simplexGrid([2,3,4])
+LARVIEW.view(grid_3d)
+V,CV = simplexGrid([1,1,1])
+LARVIEW.view(V,CV)
+
+# example 5
+
+SK2 = (simplexFacets(CV))
+LARVIEW.view(V, SK2)
+SK1 = simplexFacets(SK2[2])
+LARVIEW.view(V, SK1)
 
