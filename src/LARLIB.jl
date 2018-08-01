@@ -103,5 +103,6 @@ module LARLIB
    include("./largrid.jl")
    include("./mapper.jl")
    include("./struct.jl")
+   include("./integr.jl")
    
 end
