@@ -14,6 +14,7 @@ makedocs(
 		"Assemblies" => "struct.md",
 		"Cuboidal grids" => "largrid.md",
 		"Simplicial grids" => "simplexn.md",
+		"Domain integration" => "integr.md",
 		"Glossary" => "glossary.md"
 	]
 )
