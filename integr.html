@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Domain integration · LARLIB.jl</title><link href="https://cdnjs.cloudflare.com/ajax/libs/normalize/4.2.0/normalize.min.css" rel="stylesheet" type="text/css"/><link href="https://fonts.googleapis.com/css?family=Lato|Roboto+Mono" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL="."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.2.0/require.min.js" data-main="assets/documenter.js"></script><script src="siteinfo.js"></script><script src="../versions.js"></script><link href="assets/documenter.css" rel="stylesheet" type="text/css"/></head><body><nav class="toc"><a href="index.html"><img class="logo" src="assets/logo.png" alt="LARLIB.jl logo"/></a><h1>LARLIB.jl</h1><select id="version-selector" onChange="window.location.href=this.value" style="visibility: hidden"></select><form class="search" id="search-form" action="search.html"><input id="search-query" name="q" type="text" placeholder="Search docs"/></form><ul><li><a class="toctext" href="index.html">Home</a></li><li><a class="toctext" href="lar.html">LAR</a></li><li><a class="toctext" href="interface.html">Interface</a></li><li><a class="toctext" href="arrangement.html">Arrangement</a></li><li><a class="toctext" href="mapper.html">Mapper</a></li><li><a class="toctext" href="struct.html">Assemblies</a></li><li><a class="toctext" href="largrid.html">Cuboidal grids</a></li><li><a class="toctext" href="simplexn.html">Simplicial grids</a></li><li class="current"><a class="toctext" href="integr.html">Domain integration</a><ul class="internal"><li><a class="toctext" href="#Integration-Algorithms-1">Integration Algorithms</a></li><li><a class="toctext" href="#Examples-1">Examples</a></li><li class="toplevel"><a class="toctext" href="#Example-unit-3D-triangle-1">Example  unit 3D triangle</a></li><li><a class="toctext" href="#Main-Interface-1">Main Interface</a></li></ul></li><li><a class="toctext" href="glossary.html">Glossary</a></li></ul></nav><article id="docs"><header><nav><ul><li><a href="integr.html">Domain integration</a></li></ul><a class="edit-page" href="https://github.com/cvdlab/LARLIB.jl/blob/master/docs/src/integr.md"><span class="fa"></span> Edit on GitHub</a></nav><hr/><div id="topbar"><span>Domain integration</span><a class="fa fa-bars" href="#"></a></div></header><h1><a class="nav-anchor" id="Finite-integration-of-polynomials-1" href="#Finite-integration-of-polynomials-1">Finite integration of polynomials</a></h1><p>A finite integration method, from &quot;<a href="https://www.sciencedirect.com/science/article/pii/001044859090007Y">Boundary integration over linear polyhedra</a>&quot;, is developed here, to compute various-order monomial integrals over polyhedral solids and surfaces in 3D space. The integration method can be used for the exact evaluation of domain integrals of trivariate polynomial forms.</p><h2><a class="nav-anchor" id="Integration-Algorithms-1" href="#Integration-Algorithms-1">Integration Algorithms</a></h2><p>Here we implement a finite solution to both surface and volume integration of polynomials, by using a triangulation of the domain boundary.   The evaluation of surface and volume integrals is achieved by transformation into line integrals over the boundary of every 2-simplex of a domain triangulation.  A different approach to finite integration, using a decomposition into volume elements induced by a boundary triangulation is given in &quot;<a href="https://ieeexplore.ieee.org/document/6429334/">A symbolic method for calculating the integral properties of arbitrary nonconvex polyhedra</a>&quot; where a closed formula for volume integration over polyhedral volumes, by decomposing the solid into a set of solid tetrahedra, but such a method cannot be used for surface integrations.</p><p>Surface integrals are computed as a summation of integrals over a  triangulation of the surface.  Any triangle is mapped into the unit  triangle in the 2-space of parameters, where integrals  of monomials become particularly  simple.  Then formulae for integrals over polyhedral volumes are  given.  They are easily derived by transforming volume integrals in  surface integrals using the Divergence Theorem.   It is possible to show that such integrals are  computable in polynomial time, and that inertia moments are computable  in <span>$O(E)$</span> time, <span>$E$</span> being the number of edges of the solid model of  the integration domain.</p><p>An important feature of the integration formulae presented here is that they can also be used with a partial model of a polyhedron, consisting of the collection of its boundary&#39;s 2-cell cycles (loops).   Loops are oriented counter-clockwise if external, clockwise if internal to another loop.  Such a  model, without explicit storage of face adjacencies, is very frequently adopted in Computer Graphics. In this case it is sufficient to consider any <span>$(n+1)$</span>-sided face (also unconnected or multiply connected)  as topological sum of <span>$n-1$</span> oriented triangles <span>$t_i$</span>, with vertices <span>$\langle v_0, v_i, v_{i+1}\rangle$</span>, where <span>$1\le i\le n-1$</span> .  In applying formulae (\ref{19}) or (\ref{27}) to such a set of triangles, any edge that does not belong to the original polygon will be computed twice, in the two opposite directions.  These contributions to the whole integral will mutually cancel each other, as they correspond to pairs of line integrals evaluated along opposite paths</p><h2><a class="nav-anchor" id="Examples-1" href="#Examples-1">Examples</a></h2><h3><a class="nav-anchor" id="D-integration-1" href="#D-integration-1">2D integration</a></h3><p>First some examples are given of the basic integration functions on 2D plane. The <code>II</code> integral, with parameters <code>alpha,beta,gamma = 0,0,0</code> returns the area of the domain <code>P</code>. It is important to notice that all domains (both 2D and 3D) are embedded in 3-space.</p><h1><a class="nav-anchor" id="Example-unit-3D-triangle-1" href="#Example-unit-3D-triangle-1">Example  unit 3D triangle</a></h1><pre><code class="language-julia">julia&gt; V = [0.0 1.0 0.0; 0.0 0.0 1.0; 0.0 0.0 0.0]
+3×3 Array{Float64,2}:
+ 0.0  1.0  0.0
+ 0.0  0.0  1.0
+ 0.0  0.0  0.0
+
+julia&gt; FV = [[1,2,3]]
+1-element Array{Array{Int64,1},1}:
+ [1, 2, 3]
+
+julia&gt; P = V,FV
+([0.0 1.0 0.0; 0.0 0.0 1.0; 0.0 0.0 0.0], Array{Int64,1}[[1, 2, 3]])
+
+julia&gt; LARLIB.II(P, 0,0,0)
+0.5</code></pre><p>Then, more interesting examples are given. First, the surface of the affinely transformed (rotated and translated) unit square:</p><pre><code class="language-julia">julia&gt; V,FV = LARLIB.simplexGrid([1,1])
+([0.0 1.0 0.0 1.0; 0.0 0.0 1.0 1.0], Array{Int64,1}[[1, 2, 3], [2, 3, 4]])
+
+julia&gt; P = [V;[0 0 0 0]], FV
+([0.0 1.0 0.0 1.0; 0.0 0.0 1.0 1.0; 0.0 0.0 0.0 0.0], 
+Array{Int64,1}[[1, 2, 3], [2, 3, 4]])
+
+julia&gt; surface(P)
+1.0
+
+julia&gt; p = LARLIB.Struct([LARLIB.t(0.5,0.5,0), LARLIB.r(0,0,pi/4), P]);
+
+julia&gt; q = LARLIB.struct2lar(p);
+
+julia&gt; surface(q)
+1.0000000532124802</code></pre><p>Then, the surface and the barycenter  of the simplicial grid <code>3 x 4</code> of unit 2-cells on the <span>$z=0$</span> plane is computed. Notice that the  <code>centroid</code> function cannot be used, since <code>P</code> is two-dimensional (flat) and embedded in 3-space. So, we use directly the centroid definition as first surface moments divided by area. Remember that the grid domain is <span>$3 x 4$</span>.</p><pre><code class="language-julia">julia&gt; V,FV = LARLIB.simplexGrid([3,4]);
+
+julia&gt; P = [V; zeros(size(V,2))&#39;], FV;
+
+julia&gt; surface(P)
+12.0
+
+julia&gt; LARLIB.II(P,1,0,0)/II(P,0,0,0)
+1.5
+
+julia&gt; LARLIB.II(P,0,1,0)/II(P,0,0,0)
+2.0
+
+julia&gt; LARLIB.II(P,0,0,1)/II(P,0,0,0)
+0.0</code></pre><h3><a class="nav-anchor" id="D-integration-2" href="#D-integration-2">3D integration</a></h3><p>The simplest example of volume integration is <code>volume</code> integral on the unit 3D tetrahedron <code>P</code>.</p><pre><code class="language-julia">julia&gt; V = [0.0 1.0 0.0 0.0; 0.0 0.0 1.0 0.0; 0.0 0.0 0.0 1.0]
+3×4 Array{Float64,2}:
+ 0.0  1.0  0.0  0.0
+ 0.0  0.0  1.0  0.0
+ 0.0  0.0  0.0  1.0
+
+julia&gt; FV = [[1, 2, 4], [1, 3, 2], [4, 3, 1], [2, 3, 4]]
+4-element Array{Array{Int64,1},1}:
+ [1, 2, 4]
+ [1, 3, 2]
+ [4, 3, 1]
+ [2, 3, 4]
+
+julia&gt; P = V,FV
+([0.0 1.0 0.0 0.0; 0.0 0.0 1.0 0.0; 0.0 0.0 0.0 1.0], 
+Array{Int64,1}[[1, 2, 4], [1, 3, 2], [4, 3, 1], [2, 3, 4]])
+
+julia&gt; LARLIB.volume(P)
+0.16666666666666674</code></pre><p>For more general polyhedrons, we must extract the boundary sourface, get a triangulation and apply the 3D integration functions on the LAR of such models.</p><h2><a class="nav-anchor" id="Main-Interface-1" href="#Main-Interface-1">Main Interface</a></h2><pre><code class="language-none">LARLIB.simplexn</code></pre><footer><hr/><a class="previous" href="simplexn.html"><span class="direction">Previous</span><span class="title">Simplicial grids</span></a><a class="next" href="glossary.html"><span class="direction">Next</span><span class="title">Glossary</span></a></footer></article></body></html>
