@@ -142,7 +142,6 @@ end
 `surface` integral on polyhedron `P`.
 
 # Example # unit 3D tetrahedron
-
 ```julia
 julia> V = [0.0 1.0 0.0 0.0; 0.0 0.0 1.0 0.0; 0.0 0.0 0.0 1.0]
 3×4 Array{Float64,2}:
@@ -161,8 +160,8 @@ julia> P = V,FV
 ([0.0 1.0 0.0 0.0; 0.0 0.0 1.0 0.0; 0.0 0.0 0.0 1.0], 
 Array{Int64,1}[[1, 2, 4], [1, 3, 2], [4, 3, 1], [2, 3, 4]])
 
-julia> surface(P)
-2.3660254037844384
+julia> volume(P)
+0.16666666666666674
 ```
 """
 function surface(P::LARLIB.LAR, signedInt=false)::Float64
@@ -253,7 +252,7 @@ end
 
 
 """ 
-	FirstMoment(P::LARLIB.LAR)::Array{Float64,1}
+	firstMoment(P::LARLIB.LAR)::Array{Float64,1}
 
 First moments as terms of the Euler tensor. Remember that the integration algorithm is a boundary integration. Hence the model must be a boundary model. In this case, a 2-complex of triangles. 
 
@@ -265,14 +264,14 @@ julia> FV = [[1, 2, 4], [1, 3, 2], [4, 3, 1], [2, 3, 4]];
 
 julia> P = V,FV;
 
-julia> FirstMoment(P)
+julia> firstMoment(P)
 3-element Array{Float64,1}:
  0.0416667
  0.0416667
  0.0416667
 ```
 """
-function FirstMoment(P::LARLIB.LAR)::Array{Float64,1}
+function firstMoment(P::LARLIB.LAR)::Array{Float64,1}
     out = zeros(3)
     out[1] = III(P, 1, 0, 0)
     out[2] = III(P, 0, 1, 0)
@@ -283,7 +282,7 @@ end
 
 
 """ 
-	SecondMoment(P::LARLIB.LAR)::Array{Float64,1}
+	secondMoment(P::LARLIB.LAR)::Array{Float64,1}
 
 Second moments as terms of the Euler tensor.
 
@@ -295,14 +294,14 @@ julia> FV = [[1, 2, 4], [1, 3, 2], [4, 3, 1], [2, 3, 4]];
 
 julia> P = V,FV;
 
-julia> SecondMoment(P)
+julia> secondMoment(P)
 3-element Array{Float64,1}:
  0.0166667
  0.0166667
  0.0166667
 ```
 """
-function SecondMoment(P::LARLIB.LAR)::Array{Float64,1}
+function secondMoment(P::LARLIB.LAR)::Array{Float64,1}
     out = zeros(3)
     out[1] = III(P, 2, 0, 0)
     out[2] = III(P, 0, 2, 0)
@@ -313,7 +312,7 @@ end
 
 
 """ 
-	InertiaProduct(P::LARLIB.LAR)::Array{Float64,1}
+	inertiaProduct(P::LARLIB.LAR)::Array{Float64,1}
 
 Inertia products as terms of the Euler tensor.
 
@@ -325,14 +324,14 @@ julia> FV = [[1, 2, 4], [1, 3, 2], [4, 3, 1], [2, 3, 4]];
 
 julia> P = V,FV;
 
-julia> InertiaProduct(P)
+julia> inertiaProduct(P)
 3-element Array{Float64,1}:
  0.00833333
  0.00833333
  0.00833333
 ```
 """
-function InertiaProduct(P::LARLIB.LAR)::Array{Float64,1}
+function inertiaProduct(P::LARLIB.LAR)::Array{Float64,1}
     out = zeros(3)
     out[1] = III(P, 0, 1, 1)
     out[2] = III(P, 1, 0, 1)
@@ -342,11 +341,10 @@ end
 
 
 
-""" Vectors and covectors of mechanical interest """
 """ 
-	Centroid(P::LARLIB.LAR)::Array{Float64,1}
+	centroid(P::LARLIB.LAR)::Array{Float64,1}
 
-Barycenter (`Centroid`) of polyhedron `P`.
+Barycenter or `centroid` of polyhedron `P`.
 
 # Example # unit 3D tetrahedron
 ```julia
@@ -356,27 +354,21 @@ julia> FV = [[1, 2, 4], [1, 3, 2], [4, 3, 1], [2, 3, 4]];
 
 julia> P = V,FV;
 
-julia> Centroid(P)
+julia> centroid(P)
 3-element Array{Float64,1}:
  0.25
  0.25
  0.25
 ```
 """
-function Centroid(P::LARLIB.LAR)::Array{Float64,1}
-    out = zeros(3)
-    firstMoment = FirstMoment(P)
-    volume = Volume(P)
-    out[1] = firstMoment[1]/volume
-    out[2] = firstMoment[2]/volume
-    out[3] = firstMoment[3]/volume
-    return out
+function centroid(P::LARLIB.LAR)::Array{Float64,1}
+	return firstMoment(P)./volume(P)
 end
 
 
 
 """ 
-	InertiaMoment(P::LARLIB.LAR)::Array{Float64,1}
+	inertiaMoment(P::LARLIB.LAR)::Array{Float64,1}
 
 Inertia moments  of polyhedron `P`.
 
@@ -388,16 +380,16 @@ julia> FV = [[1, 2, 4], [1, 3, 2], [4, 3, 1], [2, 3, 4]];
 
 julia> P = V,FV;
 
-julia> InertiaMoment(P)
+julia> inertiaMoment(P)
 3-element Array{Float64,1}:
  0.0333333
  0.0333333
  0.0333333
 ```
 """
-function InertiaMoment(P::LARLIB.LAR)::Array{Float64,1}
+function inertiaMoment(P::LARLIB.LAR)::Array{Float64,1}
     out = zeros(3)
-    secondMoment = SecondMoment(P)
+    secondMoment = secondMoment(P)
     out[1] = secondMoment[2] + secondMoment[3]
     out[2] = secondMoment[3] + secondMoment[1]
     out[3] = secondMoment[1] + secondMoment[2]
