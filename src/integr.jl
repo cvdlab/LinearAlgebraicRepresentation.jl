@@ -63,7 +63,7 @@ julia> FV = [[1,2,3]]
 julia> P = V,FV
 ([0.0 1.0 0.0; 0.0 0.0 1.0; 0.0 0.0 0.0], Array{Int64,1}[[1, 2, 3]])
 
-julia> II(P, 0,0,0)
+julia> LARLIB.II(P, 0,0,0)
 0.5
 ```
 """
@@ -115,7 +115,7 @@ julia> P = V,FV
 ([0.0 1.0 0.0 0.0; 0.0 0.0 1.0 0.0; 0.0 0.0 0.0 1.0], 
 Array{Int64,1}[[1, 2, 4], [1, 3, 2], [4, 3, 1], [2, 3, 4]])
 
-julia> III(P, 0,0,0)
+julia> LARLIB.III(P, 0,0,0)
 0.16666666666666674
 ```
 """
@@ -160,7 +160,7 @@ julia> P = V,FV
 ([0.0 1.0 0.0 0.0; 0.0 0.0 1.0 0.0; 0.0 0.0 0.0 1.0], 
 Array{Int64,1}[[1, 2, 4], [1, 3, 2], [4, 3, 1], [2, 3, 4]])
 
-julia> volume(P)
+julia> LARLIB.volume(P)
 0.16666666666666674
 ```
 """
@@ -194,7 +194,7 @@ julia> P = V,FV
 ([0.0 1.0 0.0 0.0; 0.0 0.0 1.0 0.0; 0.0 0.0 0.0 1.0], 
 Array{Int64,1}[[1, 2, 4], [1, 3, 2], [4, 3, 1], [2, 3, 4]])
 
-julia> volume(P)
+julia> LARLIB.volume(P)
 0.16666666666666674
 ```
 """
@@ -264,7 +264,7 @@ julia> FV = [[1, 2, 4], [1, 3, 2], [4, 3, 1], [2, 3, 4]];
 
 julia> P = V,FV;
 
-julia> firstMoment(P)
+julia> LARLIB.firstMoment(P)
 3-element Array{Float64,1}:
  0.0416667
  0.0416667
@@ -294,7 +294,7 @@ julia> FV = [[1, 2, 4], [1, 3, 2], [4, 3, 1], [2, 3, 4]];
 
 julia> P = V,FV;
 
-julia> secondMoment(P)
+julia> LARLIB.secondMoment(P)
 3-element Array{Float64,1}:
  0.0166667
  0.0166667
@@ -324,7 +324,7 @@ julia> FV = [[1, 2, 4], [1, 3, 2], [4, 3, 1], [2, 3, 4]];
 
 julia> P = V,FV;
 
-julia> inertiaProduct(P)
+julia> LARLIB.inertiaProduct(P)
 3-element Array{Float64,1}:
  0.00833333
  0.00833333
@@ -354,7 +354,7 @@ julia> FV = [[1, 2, 4], [1, 3, 2], [4, 3, 1], [2, 3, 4]];
 
 julia> P = V,FV;
 
-julia> centroid(P)
+julia> LARLIB.centroid(P)
 3-element Array{Float64,1}:
  0.25
  0.25
@@ -380,7 +380,7 @@ julia> FV = [[1, 2, 4], [1, 3, 2], [4, 3, 1], [2, 3, 4]];
 
 julia> P = V,FV;
 
-julia> inertiaMoment(P)
+julia> LARLIB.inertiaMoment(P)
 3-element Array{Float64,1}:
  0.0333333
  0.0333333
