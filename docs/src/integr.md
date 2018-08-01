@@ -1,6 +1,6 @@
 # Finite integration of polynomials
 
-A finite integration method, from [Boundary integration over linear polyhedra](https://www.sciencedirect.com/science/article/pii/001044859090007Y), is developed here, to compute various-order monomial integrals over polyhedral solids and surfaces in 3D space. The integration method can be used for the exact evaluation of domain integrals of trivariate polynomial forms.
+A finite integration method, from "[Boundary integration over linear polyhedra](https://www.sciencedirect.com/science/article/pii/001044859090007Y)", is developed here, to compute various-order monomial integrals over polyhedral solids and surfaces in 3D space. The integration method can be used for the exact evaluation of domain integrals of trivariate polynomial forms.
 
 ## Integration Algorithms
 
@@ -11,7 +11,7 @@ surface and volume integrals is achieved by transformation into line
 integrals over the boundary of every 2-simplex of a domain
 triangulation.  A different approach to finite integration, using a
 decomposition into volume elements induced by a boundary triangulation
-is given in [A symbolic method for calculating the integral properties of arbitrary nonconvex polyhedra](https://ieeexplore.ieee.org/document/6429334/) where a closed formula for volume
+is given in "[A symbolic method for calculating the integral properties of arbitrary nonconvex polyhedra](https://ieeexplore.ieee.org/document/6429334/)" where a closed formula for volume
 integration over polyhedral volumes, by decomposing the solid into a set
 of solid tetrahedra, but such a method cannot be used for surface
 integrations.
