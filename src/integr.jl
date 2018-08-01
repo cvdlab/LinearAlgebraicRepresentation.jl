@@ -389,14 +389,12 @@ julia> inertiaMoment(P)
 """
 function inertiaMoment(P::LARLIB.LAR)::Array{Float64,1}
     out = zeros(3)
-    secondMoment = secondMoment(P)
-    out[1] = secondMoment[2] + secondMoment[3]
-    out[2] = secondMoment[3] + secondMoment[1]
-    out[3] = secondMoment[1] + secondMoment[2]
+    result = secondMoment(P)
+    out[1] = result[2] + result[3]
+    out[2] = result[3] + result[1]
+    out[3] = result[1] + result[2]
     return out
 end
-
-
 
 
 
