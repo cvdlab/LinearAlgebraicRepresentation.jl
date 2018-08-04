@@ -2,7 +2,6 @@ module LARLIB
 
 	using NearestNeighbors
 	using DataStructures
-	using NearestNeighbors
 	using IntervalTrees
 	using TRIANGLE
    
@@ -95,14 +94,13 @@ module LARLIB
    
    include("./interface.jl")
    include("./utilities.jl")
-   include("./minimal_cycles.jl")
-   include("./dimension_travel.jl")
-   include("./planar_arrangement.jl")
-   include("./spatial_arrangement.jl")
    include("./simplexn.jl")
    include("./largrid.jl")
    include("./mapper.jl")
    include("./struct.jl")
    include("./integr.jl")
    
+   include("./arrangement/arrangement.jl")
+   planar_arrangement = Arrangement.planar_arrangement
+   spatial_arrangement = Arrangement.spatial_arrangement
 end
