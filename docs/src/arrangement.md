@@ -12,6 +12,8 @@ This operation can be seen as a boolean union of two cellular complexes. Here an
 ## API
 
 Every function strictly relative to the arrangement has been collected in the `LARLIB.Arrangement` sub-module but the two main functions are accessible directly from the `LARLIB` namespace.
+!!! warning
+    `LARLIB.Arrangement` is the only place in `LARLIB` where `Point` matrices store points per row and not per column as described in the documentation of `LARLIB.Points`
 
 ```@docs
 LARLIB.spatial_arrangement
