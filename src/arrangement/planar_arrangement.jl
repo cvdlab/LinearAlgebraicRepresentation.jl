@@ -10,7 +10,7 @@ function frag_edge_channel(in_chan, out_chan, V, EV)
     end
 end
 
-function frag_edge(V::Points, EV::ChainOp, edge_idx::Int)
+function frag_edge(V::LARLIB.Points, EV::LARLIB.ChainOp, edge_idx::Int)
     alphas = Dict{Float64, Int}()
     edge = EV[edge_idx, :]
     verts = V[edge.nzind, :]
@@ -39,12 +39,12 @@ function frag_edge(V::Points, EV::ChainOp, edge_idx::Int)
     verts, ev
 end
 
-function intersect_edges(V::Points, edge1::Cell, edge2::Cell)
+function intersect_edges(V::LARLIB.Points, edge1::LARLIB.Cell, edge2::LARLIB.Cell)
     err = 10e-8
 
     x1, y1, x2, y2 = vcat(map(c->V[c, :], edge1.nzind)...)
     x3, y3, x4, y4 = vcat(map(c->V[c, :], edge2.nzind)...)
-    ret = Array{Tuple{Points, Float64}, 1}()
+    ret = Array{Tuple{LARLIB.Points, Float64}, 1}()
 
     v1 = [x2-x1, y2-y1];
     v2 = [x4-x3, y4-y3];
@@ -83,7 +83,7 @@ function intersect_edges(V::Points, edge1::Cell, edge2::Cell)
     return ret
 end
 
-function merge_vertices!(V::Points, EV::ChainOp, edge_map, err=1e-4)
+function merge_vertices!(V::LARLIB.Points, EV::LARLIB.ChainOp, edge_map, err=1e-4)
     vertsnum = size(V, 1)
     edgenum = size(EV, 1)
     newverts = zeros(Int, vertsnum)
@@ -96,7 +96,7 @@ function merge_vertices!(V::Points, EV::ChainOp, edge_map, err=1e-4)
     i = 1
     for vi in 1:vertsnum
         if !(vi in todelete)
-            nearvs = inrange(kdtree, V[vi, :], err)
+            nearvs = LARLIB.inrange(kdtree, V[vi, :], err)
     
             newverts[nearvs] = i
     
@@ -141,10 +141,10 @@ function merge_vertices!(V::Points, EV::ChainOp, edge_map, err=1e-4)
     end
     
 
-    return Points(nV), nEV
+    return LARLIB.Points(nV), nEV
 end
 
-function biconnected_components(EV::ChainOp)
+function biconnected_components(EV::LARLIB.ChainOp)
     ps = Array{Tuple{Int, Int, Int}, 1}()
     es = Array{Tuple{Int, Int}, 1}()
     todel = Array{Int, 1}()
@@ -237,7 +237,7 @@ function biconnected_components(EV::ChainOp)
     bicon_comps
 end
 
-function get_external_cycle(V::Points, EV::ChainOp, FE::ChainOp)
+function get_external_cycle(V::LARLIB.Points, EV::LARLIB.ChainOp, FE::LARLIB.ChainOp)
     FV = abs.(FE)*EV
     vs = sparsevec(mapslices(sum, abs.(EV), 1)).nzind
     minv_x1 = maxv_x1 = minv_x2 = maxv_x2 = pop!(vs)
@@ -263,7 +263,7 @@ function get_external_cycle(V::Points, EV::ChainOp, FE::ChainOp)
         return cells[1]
     else
         for c in cells
-            if face_area(V, EV, FE[c, :]) < 0
+            if LARLIB.face_area(V, EV, FE[c, :]) < 0
                 return c
             end
         end
@@ -275,7 +275,7 @@ function pre_containment_test(bboxes)
 
     for i in 1:n
         for j in 1:n
-            if i != j && bbox_contains(bboxes[j], bboxes[i])
+            if i != j && LARLIB.bbox_contains(bboxes[j], bboxes[i])
                 containment_graph[i, j] = 1
             end
         end
@@ -296,7 +296,7 @@ function prune_containment_graph(n, V, EVs, shells, graph)
                     shell_edge_indexes = shells[j].nzind
                     ev = EVs[j][shell_edge_indexes, :]
 
-                    if !point_in_face(origin, V, ev)
+                    if !LARLIB.point_in_face(origin, V, ev)
                         graph[i, j] = 0
                     end
                 end
@@ -321,11 +321,11 @@ function transitive_reduction!(graph)
     end
 end
 function cell_merging(n, containment_graph, V, EVs, boundaries, shells, shell_bboxes)
-    function bboxes(V::Points, indexes::ChainOp)
+    function bboxes(V::LARLIB.Points, indexes::LARLIB.ChainOp)
         boxes = Array{Tuple{Any, Any}}(indexes.n)
         for i in 1:indexes.n
             v_inds = indexes[:, i].nzind
-            boxes[i] = bbox(V[v_inds, :])
+            boxes[i] = LARLIB.bbox(V[v_inds, :])
         end
         boxes
     end
@@ -340,7 +340,7 @@ function cell_merging(n, containment_graph, V, EVs, boundaries, shells, shell_bb
                 if containment_graph[child, father] > 0
                     child_bbox = shell_bboxes[child]
                     for b in 1:length(father_bboxes)
-                        if bbox_contains(father_bboxes[b], child_bbox)
+                        if LARLIB.bbox_contains(father_bboxes[b], child_bbox)
                             push!(sums, (father, b, child))
                             break
                         end
@@ -392,14 +392,14 @@ returns the full arranged complex `V`, `EV` and `FE`.
 - `multiproc::Bool`: Runs the computation in parallel mode. Defaults to `false`.
 """
 function planar_arrangement(
-        V::Points, copEV::ChainOp, 
-        sigma::Chain=spzeros(Int8, 0), 
+        V::LARLIB.Points, copEV::LARLIB.ChainOp, 
+        sigma::LARLIB.Chain=spzeros(Int8, 0), 
         return_edge_map::Bool=false, 
         multiproc::Bool=false)
     
     edgenum = size(copEV, 1)
     edge_map = Array{Array{Int, 1}, 1}(edgenum)
-    rV = Points(zeros(0, 2))
+    rV = LARLIB.Points(zeros(0, 2))
     rEV = spzeros(Int8, 0, 0)
     finalcells_num = 0
 
@@ -436,7 +436,7 @@ function planar_arrangement(
             
             finalcells_num += size(ev, 1)
             
-            rV, rEV = skel_merge(rV, rEV, v, ev)
+            rV, rEV = LARLIB.skel_merge(rV, rEV, v, ev)
         end
         
     else
@@ -448,7 +448,7 @@ function planar_arrangement(
             edge_map[i] = newedges_nums
         
             finalcells_num += size(ev, 1)
-            rV, rEV = skel_merge(rV, rEV, v, ev)
+            rV, rEV = LARLIB.skel_merge(rV, rEV, v, ev)
         end
         
     end
@@ -472,7 +472,7 @@ function planar_arrangement(
                 v1, v2 = map(i->V[vidxs[i], :], [1,2])
                 centroid = .5*(v1 + v2)
                 
-                if !point_in_face(centroid, V, ev) 
+                if !LARLIB.point_in_face(centroid, V, ev) 
                     push!(todel, e)
                 end
             end
@@ -491,7 +491,7 @@ function planar_arrangement(
             end
         end
     
-        V, copEV = delete_edges(todel, V, copEV)
+        V, copEV = LARLIB.delete_edges(todel, V, copEV)
     end
     
     bicon_comps = biconnected_components(copEV)
@@ -521,14 +521,14 @@ function planar_arrangement(
         end
     end
     
-    V, copEV = delete_edges(todel, V, copEV)
+    V, copEV = LARLIB.delete_edges(todel, V, copEV)
     
     bicon_comps = biconnected_components(copEV)
     
     n = size(bicon_comps, 1)
-    shells = Array{Chain, 1}(n)
-    boundaries = Array{ChainOp, 1}(n)
-    EVs = Array{ChainOp, 1}(n)
+    shells = Array{LARLIB.Chain, 1}(n)
+    boundaries = Array{LARLIB.ChainOp, 1}(n)
+    EVs = Array{LARLIB.ChainOp, 1}(n)
     for p in 1:n
         ev = copEV[sort(bicon_comps[p]), :]
         fe = minimal_2cycles(V, ev)
@@ -543,7 +543,7 @@ function planar_arrangement(
     shell_bboxes = []
     for i in 1:n
         vs_indexes = (abs.(EVs[i]')*abs.(shells[i])).nzind
-        push!(shell_bboxes, bbox(V[vs_indexes, :]))
+        push!(shell_bboxes, LARLIB.bbox(V[vs_indexes, :]))
     end
     
     containment_graph = pre_containment_test(shell_bboxes)
