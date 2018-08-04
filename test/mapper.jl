@@ -124,8 +124,6 @@ end
 	@test length(LARLIB.rod(3.7,8.9,pi/9)()[2])==1
 end
 
-
-
 @testset "hollowCyl" begin
 	@test BoxCalculation(LARLIB.hollowCyl(0,1.,5,2*pi)()[1])==20
 	@test BoxCalculation(LARLIB.hollowCyl(1,2.,4,pi)()[1])==32
