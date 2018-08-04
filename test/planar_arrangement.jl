@@ -12,16 +12,16 @@ using LARLIB
     ]))
 
     @testset "intersect_edges" begin
-        inters1 = LARLIB.intersect_edges(V, EV[5, :], EV[1, :])
-        inters2 = LARLIB.intersect_edges(V, EV[1, :], EV[4, :])
-        inters3 = LARLIB.intersect_edges(V, EV[1, :], EV[2, :])
+        inters1 = LARLIB.Arrangement.intersect_edges(V, EV[5, :], EV[1, :])
+        inters2 = LARLIB.Arrangement.intersect_edges(V, EV[1, :], EV[4, :])
+        inters3 = LARLIB.Arrangement.intersect_edges(V, EV[1, :], EV[2, :])
         @test inters1 == [([2. 2.], 1/4),([4. 2.], 3/4)]
         @test inters2 == []
         @test inters3 == [([4. 2.], 1)]
     end
 
     @testset "frag_edge" begin
-        rV, rEV = LARLIB.frag_edge(V, EV, 5)
+        rV, rEV = LARLIB.Arrangement.frag_edge(V, EV, 5)
         @test rV == [1.0 2.0; 5.0 2.0; 2.0 2.0; 4.0 2.0; 4.0 2.0; 2.0 2.0]
         @test full(rEV) == [1 0 0 0 0 1;
                              0 0 0 0 1 1; 
@@ -53,7 +53,7 @@ end
               0 0 1 0 0 0 0 0 0 0 0 0 0 0 1 0;
               0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 1]
     EV = sparse(EV)
-    V, EV = LARLIB.merge_vertices!(V, EV, [])
+    V, EV = LARLIB.Arrangement.merge_vertices!(V, EV, [])
 
     @test V == [n0 n0; n0 n1u; n1u n1u; n1u n0]
     @test full(EV) == [1 1 0 0;
@@ -77,7 +77,7 @@ end
               0 0 0 0 1 0 0 0 1 0 0 0] #13
     EV = sparse(EV)
 
-    bc = LARLIB.biconnected_components(EV)
+    bc = LARLIB.Arrangement.biconnected_components(EV)
     bc = Set(map(Set, bc))
 
     @test bc == Set([Set([1,5,9]), Set([2,6,10]), Set([3,7,11])])
@@ -105,7 +105,7 @@ end
                   -1  0  0  0 -1 -1 -1 -1  1 -1]
         FE = sparse(FE)
     
-        @test LARLIB.get_external_cycle(V, EV, FE) == 3
+        @test LARLIB.Arrangement.get_external_cycle(V, EV, FE) == 3
     end
     @testset "Containment test" begin
         V = [  0   0;    4   0;    4   2;   2   4;  0 4;
@@ -147,15 +147,15 @@ end
             push!(shell_bboxes, LARLIB.bbox(V[vs_indexes, :]))
         end
     
-        graph = LARLIB.pre_containment_test(shell_bboxes)
+        graph = LARLIB.Arrangement.pre_containment_test(shell_bboxes)
         @test graph == [0 0 1 1 0; 0 0 1 1 0; 0 0 0 1 0; 0 0 0 0 0; 0 0 0 1 0]
     
-        graph = LARLIB.prune_containment_graph(n, V, EVs, shells, graph)
+        graph = LARLIB.Arrangement.prune_containment_graph(n, V, EVs, shells, graph)
         @test graph == [0 0 1 1 0; 0 0 1 1 0; 0 0 0 1 0; 0 0 0 0 0; 0 0 0 0 0]
     end
     @testset "Transitive reduction" begin
         graph = [0 0 1 1 0; 0 0 1 1 0; 0 0 0 1 0; 0 0 0 0 0; 0 0 0 0 0]
-        LARLIB.transitive_reduction!(graph)
+        LARLIB.Arrangement.transitive_reduction!(graph)
         @test graph == [0 0 1 0 0; 0 0 1 0 0; 0 0 0 1 0; 0 0 0 0 0; 0 0 0 0 0]
     end
     @testset "Cell merging" begin
@@ -189,7 +189,7 @@ end
             push!(shell_bboxes, LARLIB.bbox(V[vs_indexes, :]))
         end
     
-        EV, FE = LARLIB.cell_merging(2, graph, V, EVs, boundaries, shells, shell_bboxes)
+        EV, FE = LARLIB.Arrangement.cell_merging(2, graph, V, EVs, boundaries, shells, shell_bboxes)
     
         selector = sparse(ones(Int8, 1, 3))
     
