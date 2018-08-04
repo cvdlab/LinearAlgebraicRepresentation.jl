@@ -7,7 +7,7 @@ The constructive approach is common to all methods. It consists in generating a 
 ![](./images/grids.png)
 > **Figure 1:** Cellular 3-complexes, slightly exploded: (a) cuboidal mesh; (b) simplicial mesh.
 
-So, the mapped domain produces a curved manifold in 2D or 3D space. To obtain a closed curved surface, i.e. a manifold-without-boundary, as in the case of a 2-sphere in 3D, or of the toroidal surface in 3D, a suitable identification of oincident mapped points is performed. 
+So, the mapped domain produces a curved manifold in 2D or 3D space. To obtain a closed curved surface, i.e. a manifold-without-boundary, as in the case of a 2-sphere in 3D, or of the toroidal surface in 3D, a suitable identification of coincident mapped points is performed. 
 
 ### Basics of LAR models
 
@@ -20,7 +20,7 @@ julia> square=([[0.; 0] [0; 1] [1; 0] [1; 1]], [[1,2,3,4]], [[1,2], [1,3], [2,4]
 
 ```
 
-Convensional names for the arrays of vertice, faces and edges:
+Conventional names for the arrays of vertices, faces and edges:
 
 ```julia
 julia> V,FV,EV = square
