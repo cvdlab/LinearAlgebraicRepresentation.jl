@@ -23,7 +23,7 @@ In this package, we have implemented the *computation of the arrangement* produc
 
 A precise mathematical definition of a cellular complex is not trivial; we may rely on the intuitive idea of constructing a space *by gluing together* a number of *building blocks* of different dimensions, called **cells**.
 
-The **characteristic function** ``\chi_A : S \to \{0, \1}`` is a function defined on a set ``S = \{s_j\}``, that indicates membership of an element ``s_j`` in a subset ``A \subseteq S``, having the value 1 for all elements of ``A`` and the value 0 for all elements of ``S`` not in ``A``.
+The **characteristic function** ``\chi _A : S \to \{ 0, 1 \}`` is a function defined on a set ``S = \{s_j\}``, that indicates membership of an element ``s_j`` in a subset ``A \subseteq S``, having the value 1 for all elements of ``A`` and the value 0 for all elements of ``S`` not in ``A``.
 We call **characteristic matrix** ``M`` of a collection of subsets ``A_i \subseteq S``  ``(i=1,...,n)`` the binary matrix ``M=(m_{ij})``, with ``m_{ij} = \chi_{A_i}(s_j)``.
 
 #### Examples
@@ -87,7 +87,7 @@ In algebraic topology, a ``k``-chain is a *formal linear combination* of the ``k
 
 Let ``\sigma`` be an oriented cell in ``X`` and ``\mu \in G``. The elementary chain whose value is ``\mu`` on ``\sigma``, ``-\mu`` on ``-\sigma`` and ``0`` on any other cell in ``X`` is denoted ``\mu\sigma`` . Each chain can then be written in a *unique way* as a *sum of elementary chains*. With abuse of notation, we do NOT distinguish between *cells* and *singleton chains* (i.e., the elementary chains whose value is ``1\sigma`` for some cell ``\sigma``), used as elements of the **standard bases** of chain groups.
 
-Chains are often thought of as *attaching orientation* and *multiplicity* to cells: if coefficients are extracted from the group ``G = (\{−1, 0, \1}, +) ≃ (\mathbold{Z}_3, +)``, then cells can only be discarded or selected, possibly inverting their orientation. 
+Chains are often thought of as *attaching orientation* and *multiplicity* to cells: if coefficients are extracted from the group ``G = (\{ −1, 0, 1 \}, +) ≃ (\mathbf{Z}_3, +)``, then cells can only be discarded or selected, possibly inverting their orientation. 
 A *``p``-cycle* is a *closed ``p``-chain*, i.e. a ``p``-chain *without boundary*. 
 It is useful to select a conventional choice to orient the singleton chains (*single cells*) automatically. 0-cells are considered all positive. The ``p``-cells, for ``1 ≤ p ≤ d-1``, can be given an *internal orientation* according to the orientation of the first (``p − 1``)-cell in their *canonical representation*, i.e. sorted on indices of their (``p − 1``)-cycle. Finally, a ``d``-cell may be oriented as the sign of its ``oriented volume``.
 
@@ -154,7 +154,7 @@ It is worthwhile to note that the above examples provide ``p``-bases of suitable
 
 ### (Co)boundary operators
 
-**Boundary operators** are maps ``\partial_p : C_p \to C_{p−1}`` between chain spaces, i.e. between spaces of subsets of cells with different dimension, with ``1 \leq p \leq d``, hence for a *cellular 2-complex* we have two operators, denoted as ``\partial_2 : C_2 \to C_1`` and ``\partial_1 : C_1 \to C_0``, respectively. Since they are linear maps between linear spaces, may be represented by matrices of coefficients ``[\partial_2]`` and ``[\partial_1]`` from the corresponding groups. We use the groups ``\{0, 1\}``and ``\{-1, 0, 1\}`` for *unsigned* and *signed* coefficients, respectively.
+**Boundary operators** are maps ``\partial_p : C_p \to C_{p−1}`` between chain spaces, i.e. between spaces of subsets of cells with different dimension, with ``1 \leq p \leq d``, hence for a *cellular 2-complex* we have two operators, denoted as ``\partial_2 : C_2 \to C_1`` and ``\partial_1 : C_1 \to C_0``, respectively. Since they are linear maps between linear spaces, may be represented by matrices of coefficients ``[\partial_2]`` and ``[\partial_1]`` from the corresponding groups. We use the groups ``\{0, 1\}`` and ``\{-1, 0, 1\}`` for *unsigned* and *signed* coefficients, respectively.
 
 The concept of *cochain*  in a group ``C^p`` of linear maps from chains ``C_p \to \Re`` allows for the *association of numbers* not only to *single cells*, as done by chains, but also to *assemblies of cells*. A cochain is hence the association of every discretized subdomain (chain) of a cell complex with a numeric quantity, usually resulting from a *discrete integration* over a chain.
 
