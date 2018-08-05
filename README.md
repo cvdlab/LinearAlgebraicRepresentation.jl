@@ -15,17 +15,11 @@ Master is always the latest version you can get, check it in the file [VERSION](
 
 Just run `Pkg.clone("https://github.com/cvdlab/LARLIB.jl")` within a Julia console, and then run `Pkg.build("LARLIB.jl")`.
 
-## API
+## Documentation
 
-Include the module (`using LARLIB`).
-
-Read the included [document](https://github.com/cvdlab/LARLIB.jl/blob/master/doc/book.pdf) for the API interface and the theory about the library.
+Go to [the documentation page](https://cvdlab.github.io/LARLIB.jl/)
 
 ## Authors
 * [Giulio Martella](https://github.com/giuliom95)
 * [Francesco Furiani](https://github.com/furio)
 * [Alberto Paoluzzi](https://github.com/apaoluzzi)
-
-## How to contribute
-
-Follow the instructions on [the development repo](https://github.com/cvdlab/larlib-literate).

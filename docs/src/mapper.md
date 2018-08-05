@@ -7,7 +7,7 @@ The constructive approach is common to all methods. It consists in generating a 
 ![](./images/grids.png)
 > **Figure 1:** Cellular 3-complexes, slightly exploded: (a) cuboidal mesh; (b) simplicial mesh.
 
-So, the mapped domain produces a curved manifold in 2D or 3D space. To obtain a closed curved surface, i.e. a manifold-without-boundary, as in the case of a 2-sphere in 3D, or of the toroidal surface in 3D, a suitable identification of oincident mapped points is performed. 
+So, the mapped domain produces a curved manifold in 2D or 3D space. To obtain a closed curved surface, i.e. a manifold-without-boundary, as in the case of a 2-sphere in 3D, or of the toroidal surface in 3D, a suitable identification of coincident mapped points is performed. 
 
 ### Basics of LAR models
 
@@ -20,7 +20,7 @@ julia> square=([[0.; 0] [0; 1] [1; 0] [1; 1]], [[1,2,3,4]], [[1,2], [1,3], [2,4]
 
 ```
 
-Convensional names for the arrays of vertice, faces and edges:
+Conventional names for the arrays of vertices, faces and edges:
 
 ```julia
 julia> V,FV,EV = square
@@ -102,7 +102,7 @@ julia> cuboidGrid([20,20,20])
 ![](./images/grids-3d.png)
 > **Figure 2:** Cellular 3-complexes: (a) cuboidal mesh, with  0-, 1-, 2-, and 3-cells numbered with different colors; (b) exploded simplicial mesh, with 6 tetrahedra (3-cells) per mesh cube.
 
-Similarly, you can generate a multidimensional mesh of $d$-simplexs ($d=1,2,3,\dots$)
+Similarly, you can generate a multidimensional mesh of $d$-simplexes ($d=1,2,3,\dots$)
 with the `simplexGrid` function, having as single parameter the (cuboidal) `shape` of the
 mesh.
 
@@ -145,14 +145,14 @@ julia> simplexGrid([20,20,20])
 ## List of currently available primitives
 
 The mapper module aims to provide the tools needed to apply both dimension-independent affine transformations and general simplicial maps to geometric objects and assemblies developed within the LAR scheme.
-A large number of surfaces and primitives solids are definable using the map function and the local parametrizations.
+A large number of surfaces and primitives solids are definable using the map function and the local parametrization.
 
 ### Curves
 
 Primitive one-dimensional objects:
 
-* [`circle`](circle) - Circle centered in the origin
-* [`helix`](helix) - Helix curve about the z axis 
+* `circle` - Circle centered in the origin
+* `helix` - Helix curve about the z axis 
 
 ### Surfaces
 
@@ -162,13 +162,13 @@ Primitive one-dimensional objects:
 
 Primitive two-dimensional objects:
 
-* [`disk`](disk) - Disk centered in the origin
-* [`helicoid`](helicoid) - Helicoid about the z axis
-* [`ring`](ring) - Ring centered in the origin
-* [`cylinder`](cylinder) - Cylinder surface with z axis
-* [`sphere`](sphere) - Spherical surface of given radius
-* [`toroidal`](toroidal) - Toroidal surface of given radiuses
-* [`crown`](crown) - Half-toroidal surface of given radiuses
+* `disk` - Disk centered in the origin
+* `helicoid` - Helicoid about the z axis
+* `ring` - Ring centered in the origin
+* `cylinder` - Cylinder surface with z axis
+* `sphere` - Spherical surface of given radius
+* `toroidal` - Toroidal surface of given radiuses
+* `crown` - Half-toroidal surface of given radiuses
 
 ![](./images/mappings-2.png)
 > **Figure 4:** Cellular 2- and 3-complexes: (a) 2D disk; (b) cylinder surface in 3D; (c) 2-sphere surface in 3D; (3) toroidal surface in 3D.
@@ -177,13 +177,13 @@ Primitive two-dimensional objects:
 
 Primitive three-dimensional objects:
 
-* [`cuboid`](cuboid) - Solid cuboid of given extreme vectors
-* [`ball`](ball) - Solid Sphere of given radius
-* [`rod`](rod) - Solid cylinder of given radius and height
-* [`hollowCyl`](hollowCyl) - Hollow cylinder of given radiuses and height 
-* [`hollowBall`](hollowBall) - Hollow sphere of given radiuses
-* [`torus`](torus) - Solid torus of given radiuses
-* [`pizza`](pizza) - Solid pizza of given radiuses
+* `cuboid` - Solid cuboid of given extreme vectors
+* `ball` - Solid Sphere of given radius
+* `rod` - Solid cylinder of given radius and height
+* `hollowCyl` - Hollow cylinder of given radiuses and height 
+* `hollowBall` - Hollow sphere of given radiuses
+* `torus` - Solid torus of given radiuses
+* `pizza` - Solid pizza of given radiuses
 
 ![](./images/mappings-3.png)
 > **Figure 5:** Cellular complexes: (a) 1-skeleton of 3D cube; (b) assembly of cell complexes of mixed dimensions; (c) 3-mesh of portion of hollow solid cylinder; (d) 3-mesh of a portion of hollow solid torus.

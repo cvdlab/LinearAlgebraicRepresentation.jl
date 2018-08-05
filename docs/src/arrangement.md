@@ -1,7 +1,27 @@
-# The arrangement algorithm
+# Arrangement of cellular complexes
+
+The **arrangement** is an algorithm which gets two general ``d``-dimensional cellular complexes and arranges them in a singular ``d``-dimensional cellular complex of which the cells respect the conditions:
+*  ``\sigma_1 \cap \sigma_2 = \emptyset,\quad \forall`` couple of cells ``(\sigma_1, \sigma_2)``
+*  ``\bigcup_i\sigma_i = \mathbb{E}^d``
+
+This operation can be seen as a boolean union of two cellular complexes. Here an exploded visualization of the final result of the arrangement algorithm ran on 2 cubes made by ``10\times10\times10`` smaller cubes.
 
 ![10 x 10 Cube](./images/cube10x10.jpg)
 > **Figure 1:** Arrangement of ``2000=2\times10\times10\times10`` cubes
+
+## API
+
+Every function strictly relative to the arrangement has been collected in the `LARLIB.Arrangement` sub-module but the two main functions are accessible directly from the `LARLIB` namespace.
+!!! warning
+    `LARLIB.Arrangement` is the only place in `LARLIB` where `Point` matrices store points per row and not per column as described in the documentation of `LARLIB.Points`
+
+```@docs
+LARLIB.spatial_arrangement
+LARLIB.planar_arrangement
+```
+
+!!! note
+    Even if the arrangement algorithm is theoretically dimension independent, we implemented "only" the ``d=2`` and ``d=3`` version of it.
 
 ## Theoretical basis
 
@@ -78,10 +98,3 @@ cell 2 has cell 1 as an hole].
     A 2-cell with a non-intersecting shell can be trivially defined
     as a "face with holes"; the correct definition is that it cannot 
     be shrunk to the dimension of a point.
-
-## Main Interface
-
-```@docs
-LARLIB.spatial_arrangement
-LARLIB.planar_arrangement
-```
