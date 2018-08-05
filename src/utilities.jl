@@ -30,7 +30,7 @@ end
 The area of `face` given a geometry `V` and an edge topology `EV`.
 """
 function face_area(V::Points, EV::Cells, face::Cell)
-    return face_area(V, buildEV(EV), face)
+    return face_area(V, build_copEV(EV), face)
 end
 
 function face_area(V::Points, EV::ChainOp, face::Cell)
@@ -92,7 +92,6 @@ Delete edges and remove unused vertices from a **2-skeleton**.
 Loop over the `todel` edge index list and remove the marked edges from `EV`.
 The vertices in `V` which remained unconnected after the edge deletion are deleted too.
 """
-
 function delete_edges(todel, V::Points, EV::ChainOp)
     tokeep = setdiff(collect(1:EV.m), todel)
     EV = EV[tokeep, :]
@@ -112,11 +111,31 @@ function delete_edges(todel, V::Points, EV::ChainOp)
     return V, EV
 end
 
+"""
+    buildFV(EV::Cells, face::Cell)
+
+The list of vertex indices that expresses the given `face`.
+
+The returned list is made of the vertex indices ordered following the traversal order to keep a coherent face orientation. 
+The edges are need to understand the topology of the face.
+
+In this method the input face must be expressed as a `Cell`(=`SparseVector{Int8, Int}`) and the edges as `Cells`.
+"""
 function buildFV(EV::Cells, face::Cell)
-    return buildFV(buildEV(EV), face)
+    return buildFV(build_copEV(EV), face)
 end
 
-function buildFV(EV::ChainOp, face::Cell)
+"""
+    buildFV(copEV::ChainOp, face::Cell)
+
+The list of vertex indices that expresses the given `face`.
+
+The returned list is made of the vertex indices ordered following the traversal order to keep a coherent face orientation. 
+The edges are need to understand the topology of the face.
+
+In this method the input face must be expressed as a `Cell`(=`SparseVector{Int8, Int}`) and the edges as `ChainOp`.
+"""
+function buildFV(copEV::ChainOp, face::Cell)
     startv = -1
     nextv = 0
     edge = 0
@@ -126,20 +145,30 @@ function buildFV(EV::ChainOp, face::Cell)
     while startv != nextv
         if startv < 0
             edge = face.nzind[1]
-            startv = EV[edge,:].nzind[face[edge] < 0 ? 2 : 1]
+            startv = copEV[edge,:].nzind[face[edge] < 0 ? 2 : 1]
             push!(vs, startv)
         else
-            edge = setdiff(intersect(face.nzind, EV[:, nextv].nzind), edge)[1]
+            edge = setdiff(intersect(face.nzind, copEV[:, nextv].nzind), edge)[1]
         end
-        nextv = EV[edge,:].nzind[face[edge] < 0 ? 1 : 2]
+        nextv = copEV[edge,:].nzind[face[edge] < 0 ? 1 : 2]
         push!(vs, nextv)
 
     end
 
-    return vs[1:end-1]
+    return Cells(vs[1:end-1])
 end
 
-function buildFV(EV::ChainOp, face)
+"""
+    buildFV(copEV::ChainOp, face::Array{Int, 1})
+
+The list of vertex indices that expresses the given `face`.
+
+The returned list is made of the vertex indices ordered following the traversal order to keep a coherent face orientation. 
+The edges are need to understand the topology of the face.
+
+In this method the input face must be expressed as a list of vertex indices and the edges as `ChainOp`.
+"""
+function buildFV(copEV::ChainOp, face::Array{Int, 1})
     startv = face[1]
     nextv = startv
 
@@ -151,8 +180,8 @@ function buildFV(EV::ChainOp, face)
         push!(vs, curv)
 
         edge = 0
-        for edge in EV[:, curv].nzind
-            nextv = setdiff(EV[edge, :].nzind, curv)[1]
+        for edge in copEV[:, curv].nzind
+            nextv = setdiff(copEV[edge, :].nzind, curv)[1]
             if nextv in face && (nextv == startv || !(nextv in vs)) && !(edge in visited_edges)
                 break
             end
@@ -165,10 +194,16 @@ function buildFV(EV::ChainOp, face)
         end
     end
 
-    return vs
+    return Cells(vs)
 end
 
-function buildFE(FV, edges)
+
+"""
+    build_copFE(FV::Cells, EV::Cells)
+
+The signed `ChainOp` from 1-cells (edges) to 2-cells (faces)
+"""
+function build_copFE(FV::Cells, EV::Cells)
     faces = []
 
     for face in FV
@@ -177,7 +212,7 @@ function buildFE(FV, edges)
             edge = [v, face[i==length(face)?1:i+1]]
             ord_edge = sort(edge)
 
-            edge_idx = findfirst(e->e==ord_edge, edges)
+            edge_idx = findfirst(e->e==ord_edge, EV)
 
             push!(f, (edge_idx, sign(edge[2]-edge[1])))
         end
@@ -185,7 +220,7 @@ function buildFE(FV, edges)
         push!(faces, f)
     end
 
-    FE = spzeros(Int8, length(faces), length(edges))
+    FE = spzeros(Int8, length(faces), length(EV))
 
     for (i,f) in enumerate(faces)
         for e in f
@@ -196,35 +231,47 @@ function buildFE(FV, edges)
     return FE
 end
 
-function buildEV(edges, signed=true)
+"""
+    build_copEV(EV::Cells, signed=true)
+
+The signed (or not) `ChainOp` from 0-cells (vertices) to 1-cells (edges)
+"""
+function build_copEV(EV::Cells, signed=true)
     setValue = [-1, 1]
     if signed == false
         setValue = [1, 1]
     end
 
-    maxv = max(map(x->max(x...), edges)...)
-    EV = spzeros(Int8, length(edges), maxv)
+    maxv = max(map(x->max(x...), EV)...)
+    copEV = spzeros(Int8, length(EV), maxv)
 
-    for (i,e) in enumerate(edges)
+    for (i,e) in enumerate(EV)
         e = sort(collect(e))
-        EV[i, e] = setValue
+        copEV[i, e] = setValue
     end
 
-    return EV
+    return copEV
 end
 
+"""
+    build_cops(edges::Cells, faces::Cells)
 
+The vertices-edges and edges-faces chain operators (`copEV::ChainOp`, `copFE::ChainOp`)
+"""
+function build_cops(edges::Cells, faces::Cells)
+    copEV = build_copEV(edges)
+    FV = map(x->buildFV(copEV,x), faces)
+    return FV
+    copFE = build_copFE(FV, edges)
 
-
-
-function build_bounds(edges, faces)
-    EV = buildEV(edges)
-    FV = map(x->buildFV(EV,x), faces)
-    FE = buildFE(FV, edges)
-
-    return EV, FE
+    return [copEV, copFE]
 end
 
+"""
+    vin(vertex, vertices_set)
+
+Checks if `vertex` is one of the vertices inside `vertices_set`
+"""
 function vin(vertex, vertices_set)
     for v in vertices_set
         if vequals(vertex, v)
@@ -234,26 +281,48 @@ function vin(vertex, vertices_set)
     return false
 end
 
+"""
+    vequals(v1, v2)
+
+Check the equality between vertex `v1` and vertex `v2`
+"""
 function vequals(v1, v2)
     err = 10e-8
     return length(v1) == length(v2) && all(map((x1, x2)->-err < x1-x2 < err, v1, v2))
 end
 
-function triangulate(V::Points, EV::ChainOp, FE::ChainOp)
+"""
+    triangulate(model::LARmodel)
 
-    triangulated_faces = Array{Any, 1}(FE.m)
+Full constrained Delaunnay triangulation of the given 3-dimensional `LARmodel`
+"""
+function triangulate(model::LARmodel)
+    V, topology = model
+    cc = build_cops(topology...)
+    return triangulate(V, cc)
+end
 
-    for f in 1:FE.m
+"""
+    triangulate(V::Points, cc::ChainComplex)
+
+Full constrained Delaunnay triangulation of the given 3-dimensional model (given with topology as a `ChainComplex`)
+"""
+function triangulate(V::Points, cc::ChainComplex)
+    copEV, copFE = cc
+
+    triangulated_faces = Array{Any, 1}(copFE.m)
+
+    for f in 1:copFE.m
         if f % 10 == 0
             print(".")
         end
         
-        edges_idxs = FE[f, :].nzind
+        edges_idxs = copFE[f, :].nzind
         edge_num = length(edges_idxs)
         edges = zeros(Int64, edge_num, 2)
 
         
-        fv = buildFV(EV, FE[f, :])
+        fv = buildFV(copEV, copFE[f, :])
 
         vs = V[fv, :]
 
@@ -280,7 +349,7 @@ function triangulate(V::Points, EV::ChainOp, FE::ChainOp)
 
         tV = (V*M)[:, 1:2]
         
-        area = face_area(tV, EV, FE[f, :])
+        area = face_area(tV, copEV, copFE[f, :])
         if area < 0 
             for i in 1:length(triangulated_faces[f])
                 triangulated_faces[f][i] = triangulated_faces[f][i][end:-1:1]
@@ -291,8 +360,12 @@ function triangulate(V::Points, EV::ChainOp, FE::ChainOp)
     return triangulated_faces
 end
 
+"""
+    point_in_face(point, V::Points, copEV::ChainOp)
 
-function point_in_face(origin, V::Points, ev::ChainOp)
+Check if `point` is inside the area of the face bounded by the edges in `copEV`
+"""
+function point_in_face(point, V::Points, copEV::ChainOp)
 
     function pointInPolygonClassification(V,EV)
 
@@ -388,7 +461,7 @@ function point_in_face(origin, V::Points, ev::ChainOp)
         return pointInPolygonClassification0
     end
     
-    return pointInPolygonClassification(V, ev)(origin) == "p_in"
+    return pointInPolygonClassification(V, copEV)(point) == "p_in"
 end
 
 ################
@@ -396,6 +469,11 @@ end
 ################
 
 """
+    lar2obj(V::Points, cc::ChainComplex)
+
+Triangulated OBJ string representation of the model passed as input.
+
+Use this function to export LAR models into OBJ
 
 # Example
 
@@ -406,11 +484,11 @@ end
 	
 	julia> cube_2 = LARLIB.Struct([LARLIB.t(0,0,0.5), LARLIB.r(0,0,pi/3), cube_1])
 	
-	julia> V,FV,EV = LARLIB.struct2lar(LARLIB.Struct([ cube_1, cube_2 ]))
+	julia> V, FV, EV = LARLIB.struct2lar(LARLIB.Struct([ cube_1, cube_2 ]))
 	
-	julia> V,bases,coboundaries = LARLIB.chaincomplex(V,FV,EV)
+	julia> V, bases, coboundaries = LARLIB.chaincomplex(V,FV,EV)
 	
-	julia> (EV, FV, CV), (cscEV, cscFE, cscCF) = bases,coboundaries
+	julia> (EV, FV, CV), (copEV, copFE, copCF) = bases, coboundaries
 
 	julia> FV # bases[2]
 	18-element Array{Array{Int64,1},1}:
@@ -439,17 +517,16 @@ end
 	 [2, 3, 5, 6, 11, 12, 13, 17]                    
 	 [1, 2, 3, 4, 6, 7, 8, 9, 10, 11, 12, 13, 17]    
 	 
-	julia> cscEV # coboundaries[1]
+	julia> copEV # coboundaries[1]
 	34×20 SparseMatrixCSC{Int8,Int64} with 68 stored entries: ...
 
-	julia> cscFE # coboundaries[2]
+	julia> copFE # coboundaries[2]
 	18×34 SparseMatrixCSC{Int8,Int64} with 80 stored entries: ...
 	
-	julia> cscCF # coboundaries[3]
+	julia> copCF # coboundaries[3]
 	4×18 SparseMatrixCSC{Int8,Int64} with 36 stored entries: ...
 	
-	objs = LARLIB.lar2obj(V'::LARLIB.Points, cscEV::LARLIB.ChainOp, 
-			cscFE::LARLIB.ChainOp, cscCF::LARLIB.ChainOp)
+	objs = LARLIB.lar2obj(V'::LARLIB.Points, [coboundaries...])
 			
 	open("./two_cubes.obj", "w") do f
     	write(f, objs)
@@ -458,7 +535,9 @@ end
 
 ```
 """
-function lar2obj(V::Points, EV::ChainOp, FE::ChainOp, CF::ChainOp)
+function lar2obj(V::Points, cc::ChainComplex)
+    copEV, copFE, copCF = cc
+
     obj = ""
     for v in 1:size(V, 1)
         obj = string(obj, "v ", round(V[v, 1], 6), " ", round(V[v, 2], 6), " ", 
@@ -466,15 +545,15 @@ function lar2obj(V::Points, EV::ChainOp, FE::ChainOp, CF::ChainOp)
     end
 
     print("Triangulating")
-    triangulated_faces = triangulate(V, EV, FE)
+    triangulated_faces = triangulate(V, cc[1:2])
     println("DONE")
 
-    for c in 1:CF.m
+    for c in 1:copCF.m
     obj = string(obj, "\ng cell", c, "\n")
-    for f in CF[c, :].nzind
+    for f in copCF[c, :].nzind
         triangles = triangulated_faces[f]
         for tri in triangles
-            t = CF[c, f] > 0 ? tri : tri[end:-1:1]
+            t = copCF[c, f] > 0 ? tri : tri[end:-1:1]
             obj = string(obj, "f ", t[1], " ", t[2], " ", t[3], "\n")
         end
     end
@@ -482,46 +561,54 @@ end
 
     return obj
 end
+
+
+"""
+    obj2lar(path)
+
+Read OBJ file at `path` and create a LAR model as `()` from it
+"""
 function obj2lar(path)
-    fd = open(path, "r")
     vs = Array{Float64, 2}(0, 3)
     edges = Array{Array{Int, 1}, 1}()
     faces = Array{Array{Int, 1}, 1}()
 
-    while (line = readline(fd)) != ""
-        elems = split(line)
-        if length(elems) > 0
-            if elems[1] == "v"
+    open(path, "r") do fd
+        for line in eachline(fd)
+            elems = split(line)
+            if length(elems) > 0
+                if elems[1] == "v"
 
-                x = parse(Float64, elems[2])
-                y = parse(Float64, elems[3])
-                z = parse(Float64, elems[4])
-                vs = [vs; x y z]
+                    x = parse(Float64, elems[2])
+                    y = parse(Float64, elems[3])
+                    z = parse(Float64, elems[4])
+                    vs = [vs; x y z]
 
-            elseif elems[1] == "f"
-                v1 = parse(Int, elems[2])
-                v2 = parse(Int, elems[3])
-                v3 = parse(Int, elems[4])
+                elseif elems[1] == "f"
+                    println(elems)
+                    v1 = parse(Int, elems[2])
+                    v2 = parse(Int, elems[3])
+                    v3 = parse(Int, elems[4])
 
-                e1 = sort([v1, v2])
-                e2 = sort([v2, v3])
-                e3 = sort([v1, v3])
+                    e1 = sort([v1, v2])
+                    e2 = sort([v2, v3])
+                    e3 = sort([v1, v3])
 
-                if !(e1 in edges)
-                    push!(edges, e1)
+                    if !(e1 in edges)
+                        push!(edges, e1)
+                    end
+                    if !(e2 in edges)
+                        push!(edges, e2)
+                    end
+                    if !(e3 in edges)
+                        push!(edges, e3)
+                    end
+
+                    push!(faces, sort([v1, v2, v3]))
                 end
-                if !(e2 in edges)
-                    push!(edges, e2)
-                end
-                if !(e3 in edges)
-                    push!(edges, e3)
-                end
-
-                push!(faces, sort([v1, v2, v3]))
             end
         end
     end
-
-    close(fd)
-    vs, build_bounds(edges, faces)...
+    
+    return vs, build_cops(edges, faces)
 end
