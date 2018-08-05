@@ -155,7 +155,7 @@ function buildFV(copEV::ChainOp, face::Cell)
 
     end
 
-    return Cells(vs[1:end-1])
+    return vs[1:end-1]
 end
 
 """
@@ -194,7 +194,7 @@ function buildFV(copEV::ChainOp, face::Array{Int, 1})
         end
     end
 
-    return Cells(vs)
+    return vs
 end
 
 
@@ -260,8 +260,7 @@ The vertices-edges and edges-faces chain operators (`copEV::ChainOp`, `copFE::Ch
 """
 function build_cops(edges::Cells, faces::Cells)
     copEV = build_copEV(edges)
-    FV = map(x->buildFV(copEV,x), faces)
-    return FV
+    FV = Cells(map(x->buildFV(copEV,x), faces))
     copFE = build_copFE(FV, edges)
 
     return [copEV, copFE]
@@ -464,10 +463,6 @@ function point_in_face(point, V::Points, copEV::ChainOp)
     return pointInPolygonClassification(V, copEV)(point) == "p_in"
 end
 
-################
-### Tri Output
-################
-
 """
     lar2obj(V::Points, cc::ChainComplex)
 
@@ -549,15 +544,15 @@ function lar2obj(V::Points, cc::ChainComplex)
     println("DONE")
 
     for c in 1:copCF.m
-    obj = string(obj, "\ng cell", c, "\n")
-    for f in copCF[c, :].nzind
-        triangles = triangulated_faces[f]
-        for tri in triangles
-            t = copCF[c, f] > 0 ? tri : tri[end:-1:1]
-            obj = string(obj, "f ", t[1], " ", t[2], " ", t[3], "\n")
+        obj = string(obj, "\ng cell", c, "\n")
+        for f in copCF[c, :].nzind
+            triangles = triangulated_faces[f]
+            for tri in triangles
+                t = copCF[c, f] > 0 ? tri : tri[end:-1:1]
+                obj = string(obj, "f ", t[1], " ", t[2], " ", t[3], "\n")
+            end
         end
     end
-end
 
     return obj
 end
@@ -566,7 +561,9 @@ end
 """
     obj2lar(path)
 
-Read OBJ file at `path` and create a LAR model as `()` from it
+Read OBJ file at `path` and create a 2-skeleton as `Tuple{Points, ChainComplex}` from it.
+
+This function does not care about eventual internal grouping inside the OBJ file.
 """
 function obj2lar(path)
     vs = Array{Float64, 2}(0, 3)
@@ -585,10 +582,10 @@ function obj2lar(path)
                     vs = [vs; x y z]
 
                 elseif elems[1] == "f"
-                    println(elems)
-                    v1 = parse(Int, elems[2])
-                    v2 = parse(Int, elems[3])
-                    v3 = parse(Int, elems[4])
+                    # Ignore the vertex tangents and normals
+                    v1 = parse(Int, split(elems[2], "/")[1])
+                    v2 = parse(Int, split(elems[3], "/")[1])
+                    v3 = parse(Int, split(elems[4], "/")[1])
 
                     e1 = sort([v1, v2])
                     e2 = sort([v2, v3])
@@ -609,6 +606,6 @@ function obj2lar(path)
             end
         end
     end
-    
+
     return vs, build_cops(edges, faces)
 end
