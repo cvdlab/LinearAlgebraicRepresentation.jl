@@ -29,7 +29,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Home",
     "title": "LARLIB.skel_merge",
     "category": "method",
-    "text": "skel_merge(V1::Points, EV1::ChainOp, V2::VePointsrts, EV2::ChainOp)\n\nMerge two 1-skeletons\n\n\n\n"
+    "text": "skel_merge(V1::Points, EV1::ChainOp, V2::Points, EV2::ChainOp)\n\nMerge two 1-skeletons\n\n\n\n"
 },
 
 {
