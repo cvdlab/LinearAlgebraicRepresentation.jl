@@ -59,7 +59,7 @@ function face_area(V::Points, EV::ChainOp, face::Cell)
 end
 
 """
-    skel_merge(V1::Points, EV1::ChainOp, V2::VePointsrts, EV2::ChainOp)
+    skel_merge(V1::Points, EV1::ChainOp, V2::Points, EV2::ChainOp)
 
 Merge two **1-skeletons**
 """
