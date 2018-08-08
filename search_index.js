@@ -21,7 +21,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Home",
     "title": "Dependencies",
     "category": "section",
-    "text": "LARLIB.jl has several Julia dependencies:NearestNeighbors\nDataStructures\nIntervalTrees\nTRIANGLE"
+    "text": "LARLIB.jl has several Julia dependencies:NearestNeighbors\nDataStructures\nIntervalTrees\nTriangle"
 },
 
 {
