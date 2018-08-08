@@ -1,6 +1,6 @@
 try
-   Pkg.installed("TRIANGLE")
+   Pkg.installed("Triangle")
 catch
-   Pkg.clone("https://github.com/cvdlab/TRIANGLE.jl.git")
-   Pkg.build("TRIANGLE")
+   Pkg.clone("https://github.com/cvdlab/Triangle.jl.git")
+   Pkg.build("Triangle")
 end

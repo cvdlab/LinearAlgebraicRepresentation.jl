@@ -2,7 +2,7 @@ module Arrangement
     using LARLIB
     using IntervalTrees
     using NearestNeighbors
-    using TRIANGLE
+    using Triangle
 
     include("./minimal_cycles.jl")
     include("./dimension_travel.jl")
