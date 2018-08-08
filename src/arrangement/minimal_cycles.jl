@@ -51,7 +51,7 @@ function minimal_3cycles(V::LARLIB.Points, EV::LARLIB.ChainOp, FE::LARLIB.ChainO
             
             vs = vs*M
             
-            triangulated_faces[f] = TRIANGLE.constrained_triangulation(
+            triangulated_faces[f] = Triangle.constrained_triangulation(
                 Array{Float64,2}(vs), vs_idxs, edges, fill(true, edge_num))
             
         end
