@@ -53,7 +53,7 @@ module LARLIB
 	representation of an operator between linear spaces of `P-chains`. 
 	Operators ``P-Boundary : P-Chain -> (P-1)-Chain``
 	and ``P-Coboundary : P-Chain -> (P+1)-Chain`` are typically stored as 
-	`ChainOp` with elements in ``\{-1,0,1\}`` or in ``\{0,1\}``, for 
+	`ChainOp` with elements in ``\\{-1,0,1\\}`` or in ``\\{0,1\\}``, for 
 	*signed* and *unsigned* operators, respectively.
 	"""
 	const ChainOp = SparseMatrixCSC{Int8,Int}
