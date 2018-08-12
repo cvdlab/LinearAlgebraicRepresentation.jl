@@ -98,7 +98,7 @@ function merge_vertices!(V::LARLIB.Points, EV::LARLIB.ChainOp, edge_map, err=1e-
         if !(vi in todelete)
             nearvs = LARLIB.inrange(kdtree, V[vi, :], err)
     
-            newverts[nearvs] = i
+            newverts[nearvs] .= i
     
             nearvs = setdiff(nearvs, vi)
             todelete = union(todelete, nearvs)
@@ -128,7 +128,7 @@ function merge_vertices!(V::LARLIB.Points, EV::LARLIB.ChainOp, edge_map, err=1e-
     etuple2idx = Dict{Tuple{Int, Int}, Int}()
     
     for ei in 1:nedgenum
-        nEV[ei, collect(nedges[ei])] = 1
+        nEV[ei, collect(nedges[ei])] .= 1
         etuple2idx[nedges[ei]] = ei
     end
     
