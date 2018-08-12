@@ -325,7 +325,7 @@ function transitive_reduction!(graph)
 end
 function cell_merging(n, containment_graph, V, EVs, boundaries, shells, shell_bboxes)
     function bboxes(V::LARLIB.Points, indexes::LARLIB.ChainOp)
-        boxes = Array{Tuple{Any, Any}}(indexes.n)
+        boxes = Array{Tuple{Any, Any}}(undef, indexes.n)
         for i in 1:indexes.n
             v_inds = indexes[:, i].nzind
             boxes[i] = LARLIB.bbox(V[v_inds, :])
@@ -334,7 +334,7 @@ function cell_merging(n, containment_graph, V, EVs, boundaries, shells, shell_bb
     end
     
 
-    sums = Array{Tuple{Int, Int, Int}}(0);
+    sums = Array{Tuple{Int, Int, Int}}(undef, 0);
 
     for father in 1:n
         if sum(containment_graph[:, father]) > 0

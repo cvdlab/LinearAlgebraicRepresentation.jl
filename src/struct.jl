@@ -24,7 +24,7 @@ julia> t(1.,2,3)		# 3D translation
 """
 function t(args...)
 	d = length(args)
-	mat = convert(Matrix,eye(d+1))
+	mat = Matrix{Float64}(I, d+1, d+1)
 	for k in range(1,d)
         	mat[k,d+1]=args[k]
 	end
@@ -58,7 +58,7 @@ julia> s(2.,3.,4.)		# 3D scaling
 """
 function s(args...)
 	d = length(args)
-	mat = eye(d+1)
+	mat = Matrix{Float64}(I, d+1, d+1)
 	for k in range(1,d)
 		mat[k,k]=args[k]
 	end
@@ -104,13 +104,13 @@ function r(args...)
     n = length(args)
     if n == 1 # rotation in 2D
         angle = args[1]; COS = cos(angle); SIN = sin(angle)
-        mat = eye(3)
+        mat = Matrix{Float64}(I, 3, 3)
         mat[1,1] = COS;    mat[1,2] = -SIN;
         mat[2,1] = SIN;    mat[2,2] = COS;
     end
 
      if n == 3 # rotation in 3D
-        mat = eye(4)
+        mat = Matrix{Float64}(I, 4, 4)
         angle = norm(args); 
         if norm(args) != 0.0
 			axis = normalize(args)
@@ -125,7 +125,7 @@ function r(args...)
 				mat[1,1] = COS;    mat[1,2] = -SIN;
 				mat[2,1] = SIN;    mat[2,2] = COS;
 			else
-				I = eye(3); u = axis
+				I = Matrix{Float64}(I, 3, 3); u = axis
 				Ux=[0 -u[3] u[2] ; u[3] 0 -u[1] ;  -u[2] u[1] 1]
 				UU =[u[1]*u[1]    u[1]*u[2]   u[1]*u[3];
 					 u[2]*u[1]    u[2]*u[2]   u[2]*u[3];
@@ -343,7 +343,7 @@ function embedTraversal(cloned::Struct,obj::Struct,n::Int,suffix::String)
 		if isa(obj.body[i],Matrix)
 			mat = obj.body[i]
 			d,d = size(mat)
-			newMat = eye(d+n)
+			newMat = Matrix{Float64}(I, d+n, d+n)
 			for h in range(1,d)
 				for k in range(1,d)
 					newMat[h,k]=mat[h,k]
@@ -493,7 +493,7 @@ end
 """
 function evalStruct(self::Struct)
 	dim = checkStruct(self.body)
-   	CTM, stack = eye(dim+1), []
+   	CTM, stack = Matrix{Float64}(I, dim+1, dim+1), []
    	scene = traversal(CTM, stack, self, []) 
 	return scene
 end
