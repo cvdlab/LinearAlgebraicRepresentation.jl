@@ -66,7 +66,7 @@ module LARLIB
 	1-dimensional `Array` of `ChainOp` that provides storage for either the 
 	*chain of boundaries* (from `D` to `0`) or the transposed *chain of coboundaries* 
 	(from `0` to `D`), with `D` the dimension of the embedding space, which may be either 
-	``\R^2`` or ``\R^3``.
+	``\\R^2`` or ``\\R^3``.
 	"""
 	const ChainComplex = Array{ChainOp,1}
 
