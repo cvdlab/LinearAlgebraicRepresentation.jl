@@ -121,7 +121,7 @@ julia> larVertProd([ larGrid(3)(0), larGrid(4)(0) ])
 """
 function larVertProd(vertLists::Array{Array{Int64,2},1})::Array{Int64,2}
    coords = [[x[1] for x in v] for v in cart(vertLists)]
-   return sortcols(hcat(coords...))
+   return sortslices(hcat(coords...), dims=2)
 end
 
 
@@ -152,7 +152,7 @@ julia> index2addr([3,6])([2,5])
 function index2addr( shape::Array{Int64,2} )
     n = length(shape)
     theShape = append!(shape[2:end],1)
-    weights = [prod(theShape[k:end]) for k in range(1,n)]
+    weights = [prod(theShape[k:end]) for k in range(1, length=n)]
     
     function index2addr0( multiIndex::Array{Int,1} )::Int
         return dot(collect(multiIndex), weights) + 1
