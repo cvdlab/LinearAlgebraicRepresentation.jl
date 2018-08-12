@@ -344,7 +344,7 @@ function triangulate(V::Points, cc::ChainComplex)
             edges[i, 2] = i == length(fv) ? fv[1] : fv[i+1]
         end
         
-        triangulated_faces[f] = TRIANGLE.constrained_triangulation(vs, fv, edges, fill(true, edge_num))
+        triangulated_faces[f] = Triangle.constrained_triangulation(vs, fv, edges, fill(true, edge_num))
 
         tV = (V*M)[:, 1:2]
         
