@@ -25,7 +25,7 @@ using LinearAlgebra
     @testset "frag_edge" begin
         rV, rEV = LARLIB.Arrangement.frag_edge(V, EV, 5)
         @test rV == [1.0 2.0; 5.0 2.0; 2.0 2.0; 4.0 2.0; 4.0 2.0; 2.0 2.0]
-        @test full(rEV) == [1 0 0 0 0 1;
+        @test Matrix(rEV) == [1 0 0 0 0 1;
                              0 0 0 0 1 1; 
                              0 1 0 0 1 0]
     end
@@ -59,7 +59,7 @@ end
     V, EV = LARLIB.Arrangement.merge_vertices!(V, EV, [])
 
     @test V == [n0 n0; n0 n1u; n1u n1u; n1u n0]
-    @test full(EV) == [1 1 0 0;
+    @test Matrix(EV) == [1 1 0 0;
                        0 1 1 0;
                        0 0 1 1;
                        1 0 0 1]

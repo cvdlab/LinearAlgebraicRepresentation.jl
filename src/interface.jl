@@ -12,7 +12,7 @@ number of columns is equal to the number of vertices (0-cells).
 ```julia
 V,(VV,EV,FV,CV) = cuboid([1.,1.,1.], true); 
 
-julia> full(characteristicMatrix(FV))
+julia> Matrix(characteristicMatrix(FV))
 6×8 Array{Int8,2}:
 	1  1  1  1  0  0  0  0
 	0  0  0  0  1  1  1  1
@@ -21,11 +21,11 @@ julia> full(characteristicMatrix(FV))
 	1  0  1  0  1  0  1  0
 	0  1  0  1  0  1  0  1
 
-julia> full(characteristicMatrix(CV))
+julia> Matrix(characteristicMatrix(CV))
 1×8 Array{Int8,2}:
 	1  1  1  1  1  1  1  1
 
-julia> full(characteristicMatrix(EV))
+julia> Matrix(characteristicMatrix(EV))
 12×8 Array{Int8,2}:
 	1  1  0  0  0  0  0  0
 	0  0  1  1  0  0  0  0
@@ -83,7 +83,7 @@ julia> boundary_1( EV::Cells )
 	[4 , 12]  =  -1
 	[8 , 12]  =  1
 
-julia> full(boundary_1(EV::Cells))
+julia> Matrix(boundary_1(EV::Cells))
 8×12 Array{Int8,2}:
 	-1   0   0   0  -1   0   0   0  -1   0   0   0
 	1   0   0   0   0  -1   0   0   0  -1   0   0
@@ -139,7 +139,7 @@ julia> u_coboundary_1(FV,EV)
 	[4 , 12]  =  1
 	[6 , 12]  =  1
 
-julia> full(u_coboundary_1(FV,EV))
+julia> Matrix(u_coboundary_1(FV,EV))
 6×12 Array{Int8,2}:
 	1  1  0  0  1  1  0  0  0  0  0  0
 	0  0  1  1  0  0  1  1  0  0  0  0
@@ -214,7 +214,7 @@ julia> coboundary_2( FV,EV )
 	[4 , 12]  =  -1
 	[6 , 12]  =  -1
 
-julia> full(coboundary_2( FV,EV ))
+julia> Matrix(coboundary_2( FV,EV ))
 6×12 Array{Int8,2}:
 	-1   1   0  0   1  -1  0   0  0   0   0   0
 	0   0  -1  1   0   0  1  -1  0   0   0   0
@@ -313,7 +313,7 @@ julia> bases[2] # faces -- previously unknown !!
 julia> coboundaries[1] # coboundary_1 
 24×16 SparseMatrixCSC{Int8,Int64} with 48 stored entries: ...
 
-julia> full(coboundaries[2]) # coboundary_1: faces as oriented 1-cycles of edges
+julia> Matrix(coboundaries[2]) # coboundary_1: faces as oriented 1-cycles of edges
 9×24 Array{Int8,2}:
 	-1  0  0  1  0  0  0  0  0  0  0  0  1 -1  0  0  0  0  0  0  0  0  0  0
 	0 -1  0  0  1  0  0  0  0  0  0  0  0  1 -1  0  0  0  0  0  0  0  0  0

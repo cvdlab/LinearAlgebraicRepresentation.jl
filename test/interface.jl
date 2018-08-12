@@ -4,7 +4,7 @@ using Test
 @testset "interface.jl file Tests" begin
 	@testset "characteristicMatrix Tests" begin
 		V,(VV,EV,FV,CV) = LARLIB.cuboid([1.,1.,1.], true); 
-		@test full(LARLIB.characteristicMatrix(FV)) == [
+		@test Matrix(LARLIB.characteristicMatrix(FV)) == [
 		 1  1  1  1  0  0  0  0;
 		 0  0  0  0  1  1  1  1;
 		 1  1  0  0  1  1  0  0;
@@ -13,7 +13,7 @@ using Test
 		 0  1  0  1  0  1  0  1]
 		@test size(LARLIB.characteristicMatrix(CV))==(1,8)
 		@test typeof(LARLIB.characteristicMatrix(CV))==SparseMatrixCSC{Int8,Int64}
-		@test full(LARLIB.characteristicMatrix(EV)) == [
+		@test Matrix(LARLIB.characteristicMatrix(EV)) == [
 		 1  1  0  0  0  0  0  0;
 		 0  0  1  1  0  0  0  0;
 		 0  0  0  0  1  1  0  0;
@@ -42,7 +42,7 @@ using Test
 		@test typeof(signed_boundary_1)==SparseMatrixCSC{Int8,Int64}
 		@test nnz(signed_boundary_1)==24
 
-		@test full(LARLIB.boundary_1(EV::LARLIB.Cells))==[
+		@test Matrix(LARLIB.boundary_1(EV::LARLIB.Cells))==[
 		 -1   0   0   0  -1   0   0   0  -1   0   0   0;
 		  1   0   0   0   0  -1   0   0   0  -1   0   0;
 		  0  -1   0   0   1   0   0   0   0   0  -1   0;
@@ -61,7 +61,7 @@ using Test
 		@test nnz(unsigned_coboundary_1)==24
 		@test typeof(unsigned_coboundary_1)==SparseMatrixCSC{Int8,Int64}
 
-		@test full(unsigned_coboundary_1)==[
+		@test Matrix(unsigned_coboundary_1)==[
 		 1  1  0  0  1  1  0  0  0  0  0  0;
 		 0  0  1  1  0  0  1  1  0  0  0  0;
 		 1  0  1  0  0  0  0  0  1  1  0  0;
@@ -79,7 +79,7 @@ using Test
 		@test nnz(signed_coboundary_1)==24
 		@test signed_coboundary_1[1,1]==-1
 		@test signed_coboundary_1[6,12]==-1
-		@test full(signed_coboundary_1)==
+		@test Matrix(signed_coboundary_1)==
 		[-1   1   0  0   1  -1  0   0  0   0   0   0;
 		  0   0  -1  1   0   0  1  -1  0   0   0   0;
 		 -1   0   1  0   0   0  0   0  1  -1   0   0;
@@ -111,7 +111,7 @@ using Test
 		@test size(coboundaries[2])==(9,24) # coboundary_2: oriented 2-cycles of faces
 		@test typeof(coboundaries[2])==SparseMatrixCSC{Int8,Int64} 
 		@test nnz(coboundaries[2])==36 # coboundary_2: oriented 2-cycles of faces
-		@test full(coboundaries[2]) ==
+		@test Matrix(coboundaries[2]) ==
 		[-1  0  0  1  0  0  0  0  0  0  0  0  1 -1  0  0  0  0  0  0  0  0  0  0;
 		  0 -1  0  0  1  0  0  0  0  0  0  0  0  1 -1  0  0  0  0  0  0  0  0  0;
 		  0  0 -1  0  0  1  0  0  0  0  0  0  0  0  1 -1  0  0  0  0  0  0  0  0;
