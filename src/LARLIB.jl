@@ -4,6 +4,7 @@ module LARLIB
 	using DataStructures
 	using IntervalTrees
 	using Triangle
+	using SparseArrays
    
 	"""
 		Points = Array{Number,2}
