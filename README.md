@@ -9,9 +9,6 @@
 
 Official Julia implementation of [LAR](http://dx.doi.org/10.1016/j.cad.2013.08.044), the Linear Algebraic Representation for Solid Modeling.
 
-### Version
-Master is always the latest version you can get, check it in the file [VERSION](https://github.com/cvdlab/LARLIB.jl/blob/master/VERSION). Older version are tagged.
-
 ## Installing
 
 Just run `Pkg.clone("https://github.com/cvdlab/LARLIB.jl")` within a Julia console, and then run `Pkg.build("LARLIB.jl")`.
