@@ -88,14 +88,6 @@ end
    end
 end
 
-@testset "BinaryRange Tests" begin
-      binaryRange(n) = string.(range(0, length=2^n), base=2, pad=n)
-      
-      @test binaryRange(1)==["0";"1"]
-      @test binaryRange(2)==["00","01","10","11"]
-      @test binaryRange(3)==["000","001","010","011","100","101","110","111"]
-end
-
 @testset "LarCellProd Tests" begin
    @testset "$shape" for shape in [[3,2,1],[3,2],[3],[1,1,1]]
       @testset "$d" for d in 0:length(shape)
@@ -105,14 +97,13 @@ end
 end
 
 @testset "FilterByOrder Tests" begin
-      binaryRange(n) = string.(range(0, length=2^n), base=2, pad=n)
       term = "000"
       bit = '0'
       theTerm = convert(Array{Char,1},term)
       @test typeof(theTerm) == Array{Char,1}
       @test parse(Int8,bit) == 0
       @test [parse(Int8,bit) for bit in theTerm] == zeros(3)
-      out = hcat([[parse(Int8,bit) for bit in term] for term in binaryRange(3)]...)
+      out = hcat([[parse(Int8,bit) for bit in term] for term in LARLIB.binaryRange(3)]...)
       @test typeof(out) == Array{Int8,2}
       @test size(out) == (3,8)
       @test repr(out) == "Int8[0 0 0 0 1 1 1 1; 0 0 1 1 0 0 1 1; 0 1 0 1 0 1 0 1]"
@@ -192,30 +183,42 @@ end
       model_2 = LARLIB.larModelProduct(model_0, model_1)
       model_3 = LARLIB.larModelProduct(model_2, model_1)
 
-      @test size(model_2[1],2) == size(model_0[1],2) * size(model_1[1],2)
-      @test length(model_2[2]) == length(model_0[2]) * length(model_1[2])
-      @test size(model_3[1],2) == size(model_2[1],2) * size(model_1[1],2)
-      @test length(model_3[2]) == length(model_2[2]) * length(model_1[2])
-      
-      V,EV = model_0
-      @test typeof(V) == Array{Float64,2}
-      @test typeof(EV) == Array{Array{Int64,1},1}
-      
-      V,EV = model_1
-      @test typeof(V) == Array{Float64,2}
-      @test typeof(EV) == Array{Array{Int64,1},1}
-      
-      V,FV = model_2
-      @test typeof(V) ==  Array{Float64,2}
-      @test typeof(FV) == Array{Array{Int64,1},1}
-      
-      V,CV = model_3
-      @test typeof(V) ==  Array{Float64,2}
-      @test typeof(CV) == Array{Array{Int64,1},1}
+      @testset "Result size" begin
+            @test size(model_2[1],2) == size(model_0[1],2) * size(model_1[1],2)
+            @test length(model_2[2]) == length(model_0[2]) * length(model_1[2])
+            @test size(model_3[1],2) == size(model_2[1],2) * size(model_1[1],2)
+            @test length(model_3[2]) == length(model_2[2]) * length(model_1[2])
+      end
 
-      modelOne = ([0 0 1 1; 0 1 0 1], Array{Int64,1}[[1, 2, 3, 4]])
-      modelTwo = ([0 1], Array{Int64,1}[[1, 2]])
-      @test LARLIB.larModelProduct(modelOne, modelTwo) == LARLIB.larModelProduct(modelTwo, modelOne)
-      @test LARLIB.larModelProduct(modelTwo, modelTwo)[1] == [0  0  1  1; 0  1  0  1]
-      @test LARLIB.larModelProduct(modelOne,modelOne)[2][1] == Any[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16]
+      @testset "Model 0 type" begin
+            V,EV = model_0
+            @test typeof(V) == Array{Float64,2}
+            @test typeof(EV) == Array{Array{Int64,1},1}
+      end
+      
+      @testset "Model 1 type" begin
+            V,EV = model_1
+            @test typeof(V) == Array{Float64,2}
+            @test typeof(EV) == Array{Array{Int64,1},1}
+      end
+      
+      @testset "Model 2 type" begin
+            V,FV = model_2
+            @test typeof(V) ==  Array{Float64,2}
+            @test typeof(FV) == Array{Array{Int64,1},1}
+      end
+      
+      @testset "Model 3 type" begin
+            V,CV = model_3
+            @test typeof(V) ==  Array{Float64,2}
+            @test typeof(CV) == Array{Array{Int64,1},1}
+      end
+
+      @testset "Simple product" begin
+            modelOne = ([0 0 1 1; 0 1 0 1], Array{Int64,1}[[1, 2, 3, 4]])
+            modelTwo = ([0 1], Array{Int64,1}[[1, 2]])
+            @test LARLIB.larModelProduct(modelOne, modelTwo) == LARLIB.larModelProduct(modelTwo, modelOne)
+            @test LARLIB.larModelProduct(modelTwo, modelTwo)[1] == [0  0  1  1; 0  1  0  1]
+            @test LARLIB.larModelProduct(modelOne,modelOne)[2][1] == Any[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16]
+      end
 end

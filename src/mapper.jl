@@ -348,7 +348,7 @@ julia> LARVIEW.view(struct2lar(assemby))
 """
 function cuboid(maxpoint::Array, full=false, 	
 				minpoint::Array=zeros(length(maxpoint)))
-	assert( length(minpoint) == length(maxpoint) )
+	@assert( length(minpoint) == length(maxpoint) )
 	dim = length(minpoint)
 	shape = ones(Int, dim)
 	cell = cuboidGrid(shape, full)

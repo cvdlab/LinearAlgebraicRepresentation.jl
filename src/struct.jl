@@ -25,7 +25,7 @@ julia> t(1.,2,3)		# 3D translation
 function t(args...)
 	d = length(args)
 	mat = Matrix{Float64}(I, d+1, d+1)
-	for k in range(1,d)
+	for k in range(1, length=d)
         	mat[k,d+1]=args[k]
 	end
 	return mat
@@ -59,7 +59,7 @@ julia> s(2.,3.,4.)		# 3D scaling
 function s(args...)
 	d = length(args)
 	mat = Matrix{Float64}(I, d+1, d+1)
-	for k in range(1,d)
+	for k in range(1, length=d)
 		mat[k,k]=args[k]
 	end
 	return mat
@@ -344,8 +344,8 @@ function embedTraversal(cloned::Struct,obj::Struct,n::Int,suffix::String)
 			mat = obj.body[i]
 			d,d = size(mat)
 			newMat = Matrix{Float64}(I, d+n, d+n)
-			for h in range(1,d)
-				for k in range(1,d)
+			for h in range(1, length=d)
+				for k in range(1, length=d)
 					newMat[h,k]=mat[h,k]
 				end
 			end

@@ -230,7 +230,7 @@ julia> LARVIEW.view(grid3D)
 """
 function larCellProd(cellLists::Array{Cells,1})::Cells
    shapes = [length(item) for item in cellLists]
-   subscripts = cart([collect(range(0,shape)) for shape in shapes])
+   subscripts = cart([collect(range(0, length=shape)) for shape in shapes])
    indices = [collect(tuple) for tuple in subscripts]
    jointCells = [cart([cells[k] for (k,cells) in zip(index,cellLists)]) 
    				for index in indices+1]
@@ -258,8 +258,7 @@ julia> filterByOrder(3)
  Array{Int8,1}[Int8[1, 1, 1]]                              
 ```"""
 function filterByOrder(n::Int)Array{Array{Array{Int8,1},1},1}
-   binaryRange(n) = bin.(range(0,2^n),n)
-   terms = [[parse(Int8,bit) for bit in collect(term)] for term in binaryRange(n)]
+   terms = [[parse(Int8,bit) for bit in collect(term)] for term in LARLIB.binaryRange(n)]
    return [[term for term in terms if sum(term) == k] for k in 0:n]
 end
 
