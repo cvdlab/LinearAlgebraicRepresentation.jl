@@ -10,7 +10,7 @@ This library is developed and maintained by the [Computational Visual Design Lab
 - [NearestNeighbors](https://github.com/KristofferC/NearestNeighbors.jl)
 - DataStructures
 - [IntervalTrees](https://github.com/BioJulia/IntervalTrees.jl)
-- [TRIANGLE](https://github.com/furio/TRIANGLE.jl)
+- [Triangle](https://github.com/cvdlab/Triangle.jl)
 
 
 ## Docstrings conventions

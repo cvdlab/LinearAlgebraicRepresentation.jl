@@ -3,7 +3,7 @@ module LARLIB
 	using NearestNeighbors
 	using DataStructures
 	using IntervalTrees
-	using TRIANGLE
+	using Triangle
    
 	"""
 		Points = Array{Number,2}

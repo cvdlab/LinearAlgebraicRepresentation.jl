@@ -494,7 +494,7 @@ end
 #          pointdict = Dict([(vs_2D[k,:],k) for k=1:size(vs_2D,1)])
 #          edges = hcat([[dictv[v] for v in EV[e]]  for e in es]...)'
       
-#          trias = TRIANGLE.constrained_triangulation_vertices(
+#          trias = Triangle.constrained_triangulation_vertices(
 #             vs_2D, collect(1:length(vs)), edges)
    
 #          triangles = [[pointdict[t[1,:]],pointdict[t[2,:]],pointdict[t[3,:]]] 
