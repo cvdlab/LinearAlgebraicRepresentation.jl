@@ -84,8 +84,8 @@ end
 	structure=LARLIB.Struct([square])
 	@test typeof(structure.body) ==
 	Array{Tuple{Array{Float64,2},Array{Array{Int64,1},1}},1}
-	@test length(LARLIB.traversal(Matrix{Float64}(I, dim+1, dim+1),[],structure,[]))==length(structure.body)
-	@test typeof(LARLIB.traversal(Matrix{Float64}(I, dim+1, dim+1),[],structure,[]))==Array{Any,1}
+	@test length(LARLIB.traversal(Matrix{Float64}(LinearAlgebra.I, dim+1, dim+1),[],structure,[]))==length(structure.body)
+	@test typeof(LARLIB.traversal(Matrix{Float64}(LinearAlgebra.I, dim+1, dim+1),[],structure,[]))==Array{Any,1}
 end
 
 @testset "Struct Tests" begin
