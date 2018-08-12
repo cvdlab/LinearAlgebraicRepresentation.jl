@@ -1,4 +1,3 @@
-using IterTools
 using DataStructures
 
 
@@ -17,7 +16,7 @@ julia> grid_0(10)
 ```
 """
 function grid_0(n::Int)::Array{Int64,2}
-    return hcat([[i] for i in range(0,n+1)]...)
+    return hcat([[i] for i in range(0, length=n+1)]...)
 end
 
 
@@ -37,7 +36,7 @@ julia> grid_1(10)
 ```
 """
 function grid_1(n)
-    return hcat([[i,i+1] for i in range(0,n)]...)
+    return hcat([[i,i+1] for i in range(0, length=n)]...)
 end
 
 
@@ -100,7 +99,7 @@ julia> cart([[1,2,3],["a","b"],[11,12]])
 ```
 """
 function cart(args)::Array{Tuple,1}
-   return sort(collect(IterTools.product(args...)))
+   return sort(vcat(collect(Iterators.product(args...))...))
 end
 
 
