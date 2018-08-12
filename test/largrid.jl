@@ -99,7 +99,7 @@ end
 @testset "FilterByOrder Tests" begin
       term = "000"
       bit = '0'
-      theTerm = convert(Array{Char,1},term)
+      theTerm = Vector{Char}(term)
       @test typeof(theTerm) == Array{Char,1}
       @test parse(Int8,bit) == 0
       @test [parse(Int8,bit) for bit in theTerm] == zeros(3)
