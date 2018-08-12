@@ -191,27 +191,27 @@ end
       end
 
       @testset "Model 0 type" begin
-            V,EV = model_0
-            @test typeof(V) == Array{Float64,2}
-            @test typeof(EV) == Array{Array{Int64,1},1}
+            m0_V,m0_EV = model_0
+            @test typeof(m0_V) == Array{Float64,2}
+            @test typeof(m0_V) == Array{Array{Int64,1},1}
       end
       
       @testset "Model 1 type" begin
-            V,EV = model_1
-            @test typeof(V) == Array{Float64,2}
-            @test typeof(EV) == Array{Array{Int64,1},1}
+            m1_V,m1_EV = model_1
+            @test typeof(m1_V) == Array{Float64,2}
+            @test typeof(m1_V) == Array{Array{Int64,1},1}
       end
       
       @testset "Model 2 type" begin
-            V,FV = model_2
-            @test typeof(V) ==  Array{Float64,2}
-            @test typeof(FV) == Array{Array{Int64,1},1}
+            m2_V,m2_EV = model_2
+            @test typeof(m2_V) == Array{Float64,2}
+            @test typeof(m2_V) == Array{Array{Int64,1},1}
       end
       
       @testset "Model 3 type" begin
-            V,CV = model_3
-            @test typeof(V) ==  Array{Float64,2}
-            @test typeof(CV) == Array{Array{Int64,1},1}
+            m3_V,m3_EV = model_3
+            @test typeof(m3_V) == Array{Float64,2}
+            @test typeof(m3_V) == Array{Array{Int64,1},1}
       end
 
       @testset "Simple product" begin

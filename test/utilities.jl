@@ -1,4 +1,5 @@
 using Test
+using SparseArrays
 using LARLIB
 
 @testset "Bounding boxes building test" begin

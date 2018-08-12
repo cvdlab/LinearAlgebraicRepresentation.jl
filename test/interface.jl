@@ -28,7 +28,7 @@ using Test
 		 0  0  0  1  0  0  0  1]
 		@test size(LARLIB.characteristicMatrix(EV))==(12,8)
 		@test typeof(LARLIB.characteristicMatrix(EV))==SparseMatrixCSC{Int8,Int64}
-	end;
+	end
 
 	@testset "signed_boundary_1 Tests" begin
 		V,(VV,EV,FV,CV) = LARLIB.cuboid([1.,1.,1.], true);
