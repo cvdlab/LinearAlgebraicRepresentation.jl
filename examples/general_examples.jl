@@ -40,7 +40,7 @@ end
 
 function generate_random_lines(n, points_range, alphas_range)
     origins = points_range[1] + (points_range[2]-points_range[1])*rand(n, 2)
-    directions = mapslices(normalize, rand(n, 2) - .5*ones(n, 2), 2)
+    directions = mapslices(normalize, rand(n, 2) - .5*ones(n, 2), dims=2)
     alphas = alphas_range[1] + (alphas_range[2]-alphas_range[1])*rand(n)
     new_points = Array{Float64, 2}(n, 2)
     for i in 1:n

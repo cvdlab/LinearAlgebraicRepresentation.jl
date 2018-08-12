@@ -6,8 +6,8 @@ The axis aligned bounding box of the provided set of n-dim `vertices`.
 The box is returned as the couple of `Points` of the two opposite corners of the box.
 """
 function bbox(vertices::Points)
-    minimum = mapslices(x->min(x...), vertices, 1)
-    maximum = mapslices(x->max(x...), vertices, 1)
+    minimum = mapslices(x->min(x...), vertices, dims=1)
+    maximum = mapslices(x->max(x...), vertices, dims=1)
     minimum, maximum
 end
 

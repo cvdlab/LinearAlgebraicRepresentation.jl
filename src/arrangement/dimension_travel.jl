@@ -19,7 +19,7 @@ function spatial_index(V::LARLIB.Points, EV::LARLIB.ChainOp, FE::LARLIB.ChainOp)
         intervals = map((l,u)->IntervalsType(l,u,fi), LARLIB.bbox(V[vidxs, :])...)
         boxes1D = vcat(boxes1D, intervals)
     end
-    trees = mapslices(IntervalTree{Float64, IntervalsType}, sort(boxes1D, 1), 1)
+    trees = mapslices(IntervalTree{Float64, IntervalsType}, sort(boxes1D, 1), dims=1)
     
     function intersect_intervals(intervals)
         cells = Array{Int64,1}[]

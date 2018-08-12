@@ -170,7 +170,6 @@ function biconnected_components(EV::LARLIB.ChainOp)
         if typeof(i) == Nothing
             return false
         elseif i == 0
-            print("v_to_vi - we should never be in here")
             return false
         else
             return ps[i][2]
@@ -243,7 +242,7 @@ end
 
 function get_external_cycle(V::LARLIB.Points, EV::LARLIB.ChainOp, FE::LARLIB.ChainOp)
     FV = abs.(FE)*EV
-    vs = sparsevec(mapslices(sum, abs.(EV), 1)).nzind
+    vs = sparsevec(mapslices(sum, abs.(EV), dims=1)).nzind
     minv_x1 = maxv_x1 = minv_x2 = maxv_x2 = pop!(vs)
     for i in vs
         if V[i, 1] > V[maxv_x1, 1]
