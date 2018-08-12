@@ -1,6 +1,5 @@
-
 using LARLIB
-using Base.Test
+using Test
 
 @testset "LarGrid-0-1 Tests" begin
    @testset "grid_0" begin
@@ -143,9 +142,6 @@ end
 @testset "LarImageVerts Tests" "$shape" for shape in [[3,2,1],[3,2],[10,10,10]]
    @test size(LARLIB.larImageVerts(shape)) == (length(shape),prod(shape + 1))
 end
-
-
-
 
 @testset "LarCuboids Tests" begin
    @testset "LarCuboids Tests" "$shape" for shape in [[3,2,1],[1,1,1],[3,3,10]]

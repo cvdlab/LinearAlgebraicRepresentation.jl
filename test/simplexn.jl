@@ -1,10 +1,7 @@
 using LARLIB
-using Base.Test
+using Test
 
 @testset "simplexn" begin
-
-	
-	
 	@testset "extrudeSimplicial" begin
 		V = [[0,0] [1,0] [2,0] [0,1] [1,1] [2,1] [0,2] [1,2] [2,2]];
 		FV = [[1,2,4],[2,3,5],[3,5,6],[4,5,7],[5,7,8],[6,8,9]];

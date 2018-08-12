@@ -213,7 +213,7 @@ julia> LARVIEW.view(cylinder()())
 function cylinder(radius=.5, height=2., angle=2*pi)
     function cylinder0(shape=[36, 1])
         V, CV = cuboidGrid(shape)
-        V = [angle/shape[1] 0;0 1./shape[2]]*V
+        V = [angle/shape[1] 0;0 1. / shape[2]]*V
         W = [V[:, k] for k=1:size(V, 2)]
         V = hcat(map(p->let(u, v)=p;[radius*cos(u);radius*sin(u);
         	height*v] end, W)...)

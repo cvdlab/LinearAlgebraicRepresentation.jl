@@ -1,5 +1,3 @@
-
-
 """
 	t(args::Array{Number,1}...)::Matrix
 
@@ -32,8 +30,6 @@ function t(args...)
 	end
 	return mat
 end
-
-
 
 """
 	s(args::Array{Number,1}...)::Matrix
@@ -68,9 +64,6 @@ function s(args...)
 	end
 	return mat
 end
-
-
-
 
 """
 	r(args...)
@@ -144,8 +137,6 @@ function r(args...)
 	return mat
 end
 
-
-
 """
 	removeDups(CW::Cells)::Cells
 
@@ -155,9 +146,7 @@ function removeDups(CW::Cells)::Cells
 	CW = collect(Set(CW))
 	CWs = collect(map(sort,CW))
 	return CWs
-end 
-
-
+end
 
 """
 	Struct
@@ -201,7 +190,7 @@ julia> using LARVIEW
 julia> LARVIEW.view(assembly)
 ```
 """
-type Struct
+mutable struct Struct
 	body::Array
 	box
 	name::AbstractString
@@ -277,8 +266,6 @@ end
 		self.category = string(category)
 	end
 
-
-
 """
 	struct2lar(structure::Struct)::Union{LAR,LARmodel}
 
@@ -346,18 +333,12 @@ function struct2lar(structure)
 	end
 end
 
-
-
-
-
 """
 	embedTraversal(cloned::Struct,obj::Struct,n::Int,suffix::String)
 
 # TODO:  debug embedTraversal
 """
-
 function embedTraversal(cloned::Struct,obj::Struct,n::Int,suffix::String)
-
 	for i=1:length(obj.body)
 		if isa(obj.body[i],Matrix)
 			mat = obj.body[i]
@@ -394,14 +375,11 @@ function embedTraversal(cloned::Struct,obj::Struct,n::Int,suffix::String)
 	return cloned
 end
 
-
-
 """
 	embedStruct(n::Int)(self::Struct,suffix::String="New")
 
 # TODO:  debug embedStruct
 """
-
 function embedStruct(n::Int)
 	function embedStruct0(self::Struct,suffix::String="New")
 		if n==0
@@ -418,8 +396,6 @@ function embedStruct(n::Int)
 	end
 	return embedStruct0
 end
-
-
 
 """
 	box(model)
@@ -456,9 +432,6 @@ function box(model)
 	return [theMin,theMax]
 end
 
- 
-
-
 """
 	apply(affineMatrix::Array{Float64,2}, larmodel::Union{LAR,LARmodel})
 
@@ -476,9 +449,6 @@ function apply(affineMatrix, larmodel)
 	return larmodel
 end
 
-
-
-
 """
 	checkStruct(lst)
 
@@ -494,15 +464,12 @@ function checkStruct(lst)
 		dim = length(obj.box[1])
 	end
 	return dim
-end		
-
-
+end
 
 """
 	traversal(CTM,stack,obj,scene=[])
 
 """
-
 function traversal(CTM::Matrix, stack, obj, scene=[])
 	for i = 1:length(obj.body)
 		if isa(obj.body[i],Matrix)
@@ -520,9 +487,6 @@ function traversal(CTM::Matrix, stack, obj, scene=[])
 	return scene
 end
 
-
-
-
 """
 	evalStruct(self)
 
@@ -531,9 +495,5 @@ function evalStruct(self::Struct)
 	dim = checkStruct(self.body)
    	CTM, stack = eye(dim+1), []
    	scene = traversal(CTM, stack, self, []) 
-return scene
+	return scene
 end
-
-
-
-

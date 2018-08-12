@@ -1,4 +1,4 @@
-using Base.Test
+using Test
 using LARLIB
 
 @testset "Edge fragmentation tests" begin
@@ -28,6 +28,7 @@ using LARLIB
                              0 1 0 0 1 0]
     end
 end
+
 @testset "merge_vertices test set" begin
     n0 = 1e-12
     n1l = 1-1e-12
@@ -61,6 +62,7 @@ end
                        0 0 1 1;
                        1 0 0 1]
 end
+
 @testset "biconnected_components test set" begin
     EV = Int8[0 0 0 1 0 0 0 0 0 0 1 0; #1
               0 0 1 0 0 1 0 0 0 0 0 0; #2
@@ -82,6 +84,7 @@ end
 
     @test bc == Set([Set([1,5,9]), Set([2,6,10]), Set([3,7,11])])
 end
+
 @testset "Face creation" begin
     @testset "External cell individuation" begin
         V = [ .5 .5;  1.5   1;  1.5  2; 
@@ -107,6 +110,7 @@ end
     
         @test LARLIB.Arrangement.get_external_cycle(V, EV, FE) == 3
     end
+
     @testset "Containment test" begin
         V = [  0   0;    4   0;    4   2;   2   4;  0 4;
               .5  .5;  2.5  .5;  2.5 2.5;  .5 2.5;
@@ -153,11 +157,13 @@ end
         graph = LARLIB.Arrangement.prune_containment_graph(n, V, EVs, shells, graph)
         @test graph == [0 0 1 1 0; 0 0 1 1 0; 0 0 0 1 0; 0 0 0 0 0; 0 0 0 0 0]
     end
+
     @testset "Transitive reduction" begin
         graph = [0 0 1 1 0; 0 0 1 1 0; 0 0 0 1 0; 0 0 0 0 0; 0 0 0 0 0]
         LARLIB.Arrangement.transitive_reduction!(graph)
         @test graph == [0 0 1 0 0; 0 0 1 0 0; 0 0 0 1 0; 0 0 0 0 0; 0 0 0 0 0]
     end
+
     @testset "Cell merging" begin
         graph = [0 1; 0 0]
         V = [.25 .25; .75 .25; .75 .75; .25 .75;
@@ -195,6 +201,4 @@ end
     
         @test selector*FE == [0  0  0  0  0  1  1  1 -1]
     end
-    
 end
-

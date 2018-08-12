@@ -1,4 +1,4 @@
-using Base.Test
+using Test
 include("../src/LARLIB.jl")
 
 function generate_perpendicular_lines(steps::Int, minlen, maxlen)

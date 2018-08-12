@@ -1,7 +1,5 @@
-
 using LARLIB
-using Base.Test
-
+using Test
 
 @testset "interface.jl file Tests" begin
 	@testset "characteristicMatrix Tests" begin
@@ -31,8 +29,6 @@ using Base.Test
 		@test size(LARLIB.characteristicMatrix(EV))==(12,8)
 		@test typeof(LARLIB.characteristicMatrix(EV))==SparseMatrixCSC{Int8,Int64}
 	end;
-   
-
 
 	@testset "signed_boundary_1 Tests" begin
 		V,(VV,EV,FV,CV) = LARLIB.cuboid([1.,1.,1.], true);
@@ -57,8 +53,6 @@ using Base.Test
 		  0   0   0   1   0   0   0   1   0   0   0   1]
 	end
 
-
-
 	@testset "unsigned_coboundary_1 Tests" begin
 		V,(VV,EV,FV,CV) = LARLIB.cuboid([1.,1.,1.], true);
 		unsigned_coboundary_1 = LARLIB.u_coboundary_1(FV,EV)
@@ -75,10 +69,6 @@ using Base.Test
 		 0  0  0  0  1  0  1  0  1  0  1  0;
 		 0  0  0  0  0  1  0  1  0  1  0  1]
 	 end
-
-
-  
-
 
 	@testset "signed_coboundary_1 Tests" begin
 		V,(VV,EV,FV,CV) = LARLIB.cuboid([1.,1.,1.], true);
@@ -97,9 +87,6 @@ using Base.Test
 		  0   0   0  0  -1   0  1   0  1   0  -1   0;
 		  0   0   0  0   0  -1  0   1  0   1   0  -1]
 	end
-
-
-
 
 	@testset "chaincomplex 2D Tests" begin
 		W = 
@@ -135,8 +122,6 @@ using Base.Test
 		  0  0  0  0  0  0 -1  0  0  1  0  0  0  0  0  0  0  0  0  0  1 -1  0  0;
 		  0  0  0  0  0  0  0  0 -1  0  0  1  0  0  0  0  0  0  0  0  0  0  1 -1]
 	end
-
-
 
 	@testset "chaincomplex 3D Tests" begin
 		cube_1 = ([0 0 0 0 1 1 1 1; 0 0 1 1 0 0 1 1; 0 1 0 1 0 1 0 1], 

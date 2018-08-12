@@ -1,10 +1,7 @@
-
 using LARLIB
-using Base.Test
-
+using Test
 
 @testset "Integration Tests" begin
-
 	@testset "M" begin
 		@test LARLIB.M(0,0)==0.5
 		@test LARLIB.M(1,0)==0.16666666666666666

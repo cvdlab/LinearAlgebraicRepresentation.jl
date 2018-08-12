@@ -1,5 +1,5 @@
 using LARLIB
-using Base.Test
+using Test
 
 @testset "checkStruct" begin
 	square=[([[0.575;-0.175] [0.575;0.175] [0.925;-0.175] [0.925;0.175]],

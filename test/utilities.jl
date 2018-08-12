@@ -1,4 +1,4 @@
-using Base.Test
+using Test
 using LARLIB
 
 @testset "Bounding boxes building test" begin
