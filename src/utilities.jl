@@ -180,9 +180,11 @@ function buildFV(copEV::ChainOp, face::Array{Int, 1})
         push!(vs, curv)
 
         edge = 0
-        for edge in copEV[:, curv].nzind
-            nextv = setdiff(copEV[edge, :].nzind, curv)[1]
-            if nextv in face && (nextv == startv || !(nextv in vs)) && !(edge in visited_edges)
+
+        for edgeEx in copEV[:, curv].nzind
+            nextv = setdiff(copEV[edgeEx, :].nzind, curv)[1]
+            if nextv in face && (nextv == startv || !(nextv in vs)) && !(edgeEx in visited_edges)
+                edge = edgeEx
                 break
             end
         end
@@ -209,7 +211,7 @@ function build_copFE(FV::Cells, EV::Cells)
     for face in FV
         f = []
         for (i,v) in enumerate(face)
-            edge = [v, face[i==length(face)?1:i+1]]
+            edge = [v, face[(i==length(face)) ? 1 : i+1]]
             ord_edge = sort(edge)
 
             edge_idx = findfirst(e->e==ord_edge, EV)
