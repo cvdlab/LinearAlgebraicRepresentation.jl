@@ -109,8 +109,8 @@ function merge_vertices!(V::LARLIB.Points, EV::LARLIB.ChainOp, edge_map, err=1e-
     
     nV = V[setdiff(collect(1:vertsnum), todelete), :]
     
-    edges = Array{Tuple{Int, Int}, 1}(edgenum)
-    oedges = Array{Tuple{Int, Int}, 1}(edgenum)
+    edges = Array{Tuple{Int, Int}, 1}(undef, edgenum)
+    oedges = Array{Tuple{Int, Int}, 1}(undef, edgenum)
     
     for ei in 1:edgenum
         v1, v2 = EV[ei, :].nzind
