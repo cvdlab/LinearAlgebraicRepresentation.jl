@@ -242,7 +242,7 @@ end
 
 function get_external_cycle(V::LARLIB.Points, EV::LARLIB.ChainOp, FE::LARLIB.ChainOp)
     FV = abs.(FE)*EV
-    vs = mapslices(sum, abs.(EV), dims=1).nzind
+    vs = sparsevec(mapslices(sum, abs.(EV), dims=1)').nzind
     minv_x1 = maxv_x1 = minv_x2 = maxv_x2 = pop!(vs)
     for i in vs
         if V[i, 1] > V[maxv_x1, 1]
