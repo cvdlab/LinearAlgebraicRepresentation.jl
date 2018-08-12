@@ -153,7 +153,7 @@ function spatial_arrangement(V::LARLIB.Points, EV::LARLIB.ChainOp, FE::LARLIB.Ch
         in_chan = RemoteChannel(()->Channel{Int64}(0))
         out_chan = RemoteChannel(()->Channel{Tuple}(0))
         
-        @schedule begin
+        @async begin
             for sigma in 1:fs_num
                 put!(in_chan, sigma)
             end
