@@ -1,5 +1,7 @@
 using Test
 using LARLIB
+using SparseArrays
+using LinearAlgebra
 
 @testset "Edge fragmentation tests" begin
     V = [2 2; 4 2; 3 3.5; 1 3; 5 3; 1 2; 5 2]

@@ -5,6 +5,7 @@ module LARLIB
 	using IntervalTrees
 	using Triangle
 	using SparseArrays
+	using LinearAlgebra
    
 	"""
 		Points = Array{Number,2}

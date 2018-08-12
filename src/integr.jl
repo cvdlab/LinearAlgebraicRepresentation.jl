@@ -1,5 +1,4 @@
-"""Module for integration of polynomials over 3D volumes and surfaces"""
-
+""" Module for integration of polynomials over 3D volumes and surfaces """
 function M(alpha, beta)
     a = 0
     for l=0:(alpha + 1)
