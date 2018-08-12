@@ -166,6 +166,7 @@ function biconnected_components(EV::LARLIB.ChainOp)
     
     function v_to_vi(v)
         i = findfirst(t->t[1]==v, ps)
+        print i
         if i == 0
             return false
         else
