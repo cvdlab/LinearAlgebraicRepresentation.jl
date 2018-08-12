@@ -1,5 +1,3 @@
-using LinearAlgebra
-
 """
 	t(args::Array{Number,1}...)::Matrix
 
