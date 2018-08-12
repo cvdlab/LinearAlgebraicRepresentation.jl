@@ -166,7 +166,11 @@ function biconnected_components(EV::LARLIB.ChainOp)
     
     function v_to_vi(v)
         i = findfirst(t->t[1]==v, ps)
-        if (i == Nothing) || (i == 0)
+        # seems findfirst changed from 0 to Nothing
+        if typeof(i) == Nothing
+            return false
+        else if i == 0
+            print("v_to_vi - we should never be in here")
             return false
         else
             return ps[i][2]
