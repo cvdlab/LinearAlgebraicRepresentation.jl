@@ -89,7 +89,7 @@ function merge_vertices!(V::LARLIB.Points, EV::LARLIB.ChainOp, edge_map, err=1e-
     newverts = zeros(Int, vertsnum)
     # KDTree constructor needs an explicit array of Float64
     V = Array{Float64,2}(V)
-    kdtree = KDTree(V')
+    kdtree = KDTree(permutedims(V))
 
     todelete = []
     
@@ -409,7 +409,7 @@ function planar_arrangement(
         
         ordered_dict = SortedDict{Int64,Tuple}()
         
-        @schedule begin
+        @async begin
             for i in 1:edgenum
                 put!(in_chan,i)
             end
