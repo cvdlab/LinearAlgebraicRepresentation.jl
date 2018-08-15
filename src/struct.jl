@@ -486,7 +486,7 @@ end
 function checkStruct(lst)
 	obj = lst[1]
 	if isa(obj,Matrix)
-		dim = size(obj)[1]-1
+		dim = size(obj,1)-1
 	elseif (isa(obj,Tuple) || isa(obj,Array))
 		dim = length(obj[1][:,1])
 	
