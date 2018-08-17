@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Interface · LARLIB.jl</title><link href="https://cdnjs.cloudflare.com/ajax/libs/normalize/4.2.0/normalize.min.css" rel="stylesheet" type="text/css"/><link href="https://fonts.googleapis.com/css?family=Lato|Roboto+Mono" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL="."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.2.0/require.min.js" data-main="assets/documenter.js"></script><script src="siteinfo.js"></script><script src="../versions.js"></script><link href="assets/documenter.css" rel="stylesheet" type="text/css"/></head><body><nav class="toc"><a href="index.html"><img class="logo" src="assets/logo.png" alt="LARLIB.jl logo"/></a><h1>LARLIB.jl</h1><select id="version-selector" onChange="window.location.href=this.value" style="visibility: hidden"></select><form class="search" id="search-form" action="search.html"><input id="search-query" name="q" type="text" placeholder="Search docs"/></form><ul><li><a class="toctext" href="index.html">Home</a></li><li><a class="toctext" href="lar.html">LAR</a></li><li class="current"><a class="toctext" href="interface.html">Interface</a><ul class="internal"><li><a class="toctext" href="#Introduction-1">Introduction</a></li><li><a class="toctext" href="#Data-structures-1">Data structures</a></li></ul></li><li><a class="toctext" href="arrangement.html">Arrangement</a></li><li><a class="toctext" href="mapper.html">Mapper</a></li><li><a class="toctext" href="struct.html">Assemblies</a></li><li><a class="toctext" href="largrid.html">Cuboidal grids</a></li><li><a class="toctext" href="simplexn.html">Simplicial grids</a></li><li><a class="toctext" href="integr.html">Domain integration</a></li></ul></nav><article id="docs"><header><nav><ul><li><a href="interface.html">Interface</a></li></ul><a class="edit-page" href="https://github.com/cvdlab/LARLIB.jl/blob/master/docs/src/interface.md"><span class="fa"></span> Edit on GitHub</a></nav><hr/><div id="topbar"><span>Interface</span><a class="fa fa-bars" href="#"></a></div></header><h1><a class="nav-anchor" id="Interface-to-cell-and-chain-complexes-1" href="#Interface-to-cell-and-chain-complexes-1">Interface to cell and chain complexes</a></h1><p>Most part of text in this page is derived from <a href="."></a> and from <a href="."></a>.</p><h2><a class="nav-anchor" id="Introduction-1" href="#Introduction-1">Introduction</a></h2><p>With increased complexity of geometric data, <strong>topological models</strong> play an increasingly important role beyond <em>boundary representations</em>, <em>assemblies</em>, <em>finite elements</em>, <em>image processing</em>, and other traditional modeling applications. While many graph- and index- based data structures have been proposed, no standard representation has emerged as of now. Furthermore, such representations typically do not deal with representations of mappings and functions and do not scale to support parallel processing, open source, and client-based architectures. </p><p>A proper mathematical model for all topological structures is a <strong>(co)chain complex</strong>: a sequence of linear <strong>(co)chain spaces</strong> and linear <strong>(co)boundary mappings</strong>. This in turn implies all topological structures may be represented by <strong>a collection of sparse matrices</strong>. We propose a <strong>Linear Algebraic Representation (LAR)</strong> scheme for <span>$mod 2$</span> (co)chain complexes using CSC sparse matrices and show that it supports variety of topological computations using standard matrix algebra, without any overhead in space or running time. With the LAR scheme, only the <em>characteristic functions</em> (see below) of <span>$d$</span>-cells as vertex subsets are necessary for representing <em>polytopal complexes</em>. Examples include simplicial, cubical, and Voronoi complexes.</p><h2><a class="nav-anchor" id="Data-structures-1" href="#Data-structures-1">Data structures</a></h2><p>All types of cell complexes and functions over cell complexes are properly represented by a (co)chain complex, that captures all combinatorial relationships of interest in solid and physical modeling formally and unambiguously. According to classical results from algebraic topology techniques, a (co)chain complex and all associated combinatorial operations are readily represented using <em>standard techniques</em> from linear algebra, giving rise to a <em>Linear Algebraic Represention</em> (LAR) scheme.</p><p>In this package, we provide LAR data structures and algorithms using <em>compressed sparse column (CSC) matrices</em>, that introduce no computational overhead and are asymptotically as efficient as (and usually better than) many other popular topological data structures. Our aim is to provide a representation that supports all topological constructions and queries that arise in typical <em>cellular decomposition</em> of space (mesh, image, boundary, etc).</p><p>An <strong>arrangement</strong> is the <em>decomposition of d-dimensional space</em> into connected and <em>relatively open cells</em> of lower dimensions, induced by an intersection of a finite collection of geometric objects. A <em>planar collection</em> S may include line segments, open or closed polygonal lines, polygons, two-dimensional meshes, and discrete images in 2D. A <em>space collection</em> may include 3D polygons, polygonal meshes, B-reps of solid models—either manifold or non-manifold, three-dimensional CAE meshes, and volumetric images in 3D.</p><p>In this package, we have implemented the <em>computation of the arrangement</em> produced by a  <em>set of cellular complexes</em> in either 2D or 3D. Our goal is to provide a complete description of the plane or space decomposition induced by the input, into cells of dimensions 0, 1, 2 or 3.</p><h3><a class="nav-anchor" id="Characteristic-matrices-1" href="#Characteristic-matrices-1">Characteristic matrices</a></h3><p>A precise mathematical definition of a cellular complex is not trivial; we may rely on the intuitive idea of constructing a space <em>by gluing together</em> a number of <em>building blocks</em> of different dimensions, called <strong>cells</strong>.</p><p>The <strong>characteristic function</strong> <span>$\chi _A : S \to \{ 0, 1 \}$</span> is a function defined on a set <span>$S = \{s_j\}$</span>, that indicates membership of an element <span>$s_j$</span> in a subset <span>$A \subseteq S$</span>, having the value 1 for all elements of <span>$A$</span> and the value 0 for all elements of <span>$S$</span> not in <span>$A$</span>. We call <strong>characteristic matrix</strong> <span>$M$</span> of a collection of subsets <span>$A_i \subseteq S$</span>  <span>$(i=1,...,n)$</span> the binary matrix <span>$M=(m_{ij})$</span>, with <span>$m_{ij} = \chi_{A_i}(s_j)$</span>.</p><h4><a class="nav-anchor" id="Examples-1" href="#Examples-1">Examples</a></h4><p>Binary matrix representing by rows the <code>p</code>-cells of a cellular complex. The input parameter must be of <code>Cells</code> type. Return a sparse binary matrix,  providing the basis of a <span>$Chain$</span> space of given dimension. Notice that the  number of columns is equal to the number of vertices (0-cells). </p><p>First the cellular complex describing the 0-, 1-, 2-, anf 3-faces of a single unit cube is generated. </p><pre><code class="language-julia">V,(VV,EV,FV,CV) = cuboid([1.,1.,1.], true); </code></pre><p>Then, we may see the characteristic matrix of 1-cells (edges), with two ones per row:</p><pre><code class="language-julia">julia&gt; full(characteristicMatrix(EV))
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Interface · LARLIB.jl</title><link href="https://cdnjs.cloudflare.com/ajax/libs/normalize/4.2.0/normalize.min.css" rel="stylesheet" type="text/css"/><link href="https://fonts.googleapis.com/css?family=Lato|Roboto+Mono" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL="."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.2.0/require.min.js" data-main="assets/documenter.js"></script><script src="siteinfo.js"></script><script src="../versions.js"></script><link href="assets/documenter.css" rel="stylesheet" type="text/css"/></head><body><nav class="toc"><a href="index.html"><img class="logo" src="assets/logo.png" alt="LARLIB.jl logo"/></a><h1>LARLIB.jl</h1><select id="version-selector" onChange="window.location.href=this.value" style="visibility: hidden"></select><form class="search" id="search-form" action="search.html"><input id="search-query" name="q" type="text" placeholder="Search docs"/></form><ul><li><a class="toctext" href="index.html">Home</a></li><li><a class="toctext" href="lar.html">LAR</a></li><li class="current"><a class="toctext" href="interface.html">Interface</a><ul class="internal"><li><a class="toctext" href="#Introduction-1">Introduction</a></li><li><a class="toctext" href="#Data-structures-1">Data structures</a></li><li><a class="toctext" href="#Main-Interface-1">Main Interface</a></li></ul></li><li><a class="toctext" href="arrangement.html">Arrangement</a></li><li><a class="toctext" href="mapper.html">Mapper</a></li><li><a class="toctext" href="struct.html">Assemblies</a></li><li><a class="toctext" href="largrid.html">Cuboidal grids</a></li><li><a class="toctext" href="simplexn.html">Simplicial grids</a></li><li><a class="toctext" href="integr.html">Domain integration</a></li></ul></nav><article id="docs"><header><nav><ul><li><a href="interface.html">Interface</a></li></ul><a class="edit-page" href="https://github.com/cvdlab/LARLIB.jl/blob/master/docs/src/interface.md"><span class="fa"></span> Edit on GitHub</a></nav><hr/><div id="topbar"><span>Interface</span><a class="fa fa-bars" href="#"></a></div></header><h1><a class="nav-anchor" id="Interface-to-cell-and-chain-complexes-1" href="#Interface-to-cell-and-chain-complexes-1">Interface to cell and chain complexes</a></h1><p>Most part of text in this page is derived from <a href="."></a> and from <a href="."></a>.</p><h2><a class="nav-anchor" id="Introduction-1" href="#Introduction-1">Introduction</a></h2><p>With increased complexity of geometric data, <strong>topological models</strong> play an increasingly important role beyond <em>boundary representations</em>, <em>assemblies</em>, <em>finite elements</em>, <em>image processing</em>, and other traditional modeling applications. While many graph- and index- based data structures have been proposed, no standard representation has emerged as of now. Furthermore, such representations typically do not deal with representations of mappings and functions and do not scale to support parallel processing, open source, and client-based architectures. </p><p>A proper mathematical model for all topological structures is a <strong>(co)chain complex</strong>: a sequence of linear <strong>(co)chain spaces</strong> and linear <strong>(co)boundary mappings</strong>. This in turn implies all topological structures may be represented by <strong>a collection of sparse matrices</strong>. We propose a <strong>Linear Algebraic Representation (LAR)</strong> scheme for <span>$mod 2$</span> (co)chain complexes using CSC sparse matrices and show that it supports variety of topological computations using standard matrix algebra, without any overhead in space or running time. With the LAR scheme, only the <em>characteristic functions</em> (see below) of <span>$d$</span>-cells as vertex subsets are necessary for representing <em>polytopal complexes</em>. Examples include simplicial, cubical, and Voronoi complexes.</p><h2><a class="nav-anchor" id="Data-structures-1" href="#Data-structures-1">Data structures</a></h2><p>All types of cell complexes and functions over cell complexes are properly represented by a (co)chain complex, that captures all combinatorial relationships of interest in solid and physical modeling formally and unambiguously. According to classical results from algebraic topology techniques, a (co)chain complex and all associated combinatorial operations are readily represented using <em>standard techniques</em> from linear algebra, giving rise to a <em>Linear Algebraic Represention</em> (LAR) scheme.</p><p>In this package, we provide LAR data structures and algorithms using <em>compressed sparse column (CSC) matrices</em>, that introduce no computational overhead and are asymptotically as efficient as (and usually better than) many other popular topological data structures. Our aim is to provide a representation that supports all topological constructions and queries that arise in typical <em>cellular decomposition</em> of space (mesh, image, boundary, etc).</p><p>An <strong>arrangement</strong> is the <em>decomposition of d-dimensional space</em> into connected and <em>relatively open cells</em> of lower dimensions, induced by an intersection of a finite collection of geometric objects. A <em>planar collection</em> S may include line segments, open or closed polygonal lines, polygons, two-dimensional meshes, and discrete images in 2D. A <em>space collection</em> may include 3D polygons, polygonal meshes, B-reps of solid models—either manifold or non-manifold, three-dimensional CAE meshes, and volumetric images in 3D.</p><p>In this package, we have implemented the <em>computation of the arrangement</em> produced by a  <em>set of cellular complexes</em> in either 2D or 3D. Our goal is to provide a complete description of the plane or space decomposition induced by the input, into cells of dimensions 0, 1, 2 or 3.</p><h3><a class="nav-anchor" id="Characteristic-matrices-1" href="#Characteristic-matrices-1">Characteristic matrices</a></h3><p>A precise mathematical definition of a cellular complex is not trivial; we may rely on the intuitive idea of constructing a space <em>by gluing together</em> a number of <em>building blocks</em> of different dimensions, called <strong>cells</strong>.</p><p>The <strong>characteristic function</strong> <span>$\chi _A : S \to \{ 0, 1 \}$</span> is a function defined on a set <span>$S = \{s_j\}$</span>, that indicates membership of an element <span>$s_j$</span> in a subset <span>$A \subseteq S$</span>, having the value 1 for all elements of <span>$A$</span> and the value 0 for all elements of <span>$S$</span> not in <span>$A$</span>. We call <strong>characteristic matrix</strong> <span>$M$</span> of a collection of subsets <span>$A_i \subseteq S$</span>  <span>$(i=1,...,n)$</span> the binary matrix <span>$M=(m_{ij})$</span>, with <span>$m_{ij} = \chi_{A_i}(s_j)$</span>.</p><h4><a class="nav-anchor" id="Examples-1" href="#Examples-1">Examples</a></h4><p>Binary matrix representing by rows the <code>p</code>-cells of a cellular complex. The input parameter must be of <code>Cells</code> type. Return a sparse binary matrix,  providing the basis of a <span>$Chain$</span> space of given dimension. Notice that the  number of columns is equal to the number of vertices (0-cells). </p><p>First the cellular complex describing the 0-, 1-, 2-, anf 3-faces of a single unit cube is generated. </p><pre><code class="language-julia">V,(VV,EV,FV,CV) = cuboid([1.,1.,1.], true); </code></pre><p>Then, we may see the characteristic matrix of 1-cells (edges), with two ones per row:</p><pre><code class="language-julia">julia&gt; full(characteristicMatrix(EV))
 12×8 Array{Int8,2}:
  1  1  0  0  0  0  0  0
  0  0  1  1  0  0  0  0
@@ -166,4 +166,196 @@ julia&gt; cscFE # coboundaries[2]
 18×34 SparseMatrixCSC{Int8,Int64} with 80 stored entries: ...
 
 julia&gt; cscCF # coboundaries[3]
-4×18 SparseMatrixCSC{Int8,Int64} with 36 stored entries: ...</code></pre><footer><hr/><a class="previous" href="lar.html"><span class="direction">Previous</span><span class="title">LAR</span></a><a class="next" href="arrangement.html"><span class="direction">Next</span><span class="title">Arrangement</span></a></footer></article></body></html>
+4×18 SparseMatrixCSC{Int8,Int64} with 36 stored entries: ...</code></pre><h2><a class="nav-anchor" id="Main-Interface-1" href="#Main-Interface-1">Main Interface</a></h2><section class="docstring"><div class="docstring-header"><a class="docstring-binding" id="LARLIB.characteristicMatrix" href="#LARLIB.characteristicMatrix"><code>LARLIB.characteristicMatrix</code></a> — <span class="docstring-category">Function</span>.</div><div><pre><code class="language-none">characteristicMatrix( FV::Cells )::ChainOp</code></pre><p>Binary matrix representing by rows the <code>p</code>-cells of a cellular complex. The input parameter must be of <code>Cells</code> type. Return a sparse binary matrix,  providing the basis of a <span>$Chain$</span> space of given dimension. Notice that the  number of columns is equal to the number of vertices (0-cells). </p><p><strong>Example</strong></p><pre><code class="language-julia">V,(VV,EV,FV,CV) = cuboid([1.,1.,1.], true); 
+
+julia&gt; full(characteristicMatrix(FV))
+6×8 Array{Int8,2}:
+	1  1  1  1  0  0  0  0
+	0  0  0  0  1  1  1  1
+	1  1  0  0  1  1  0  0
+	0  0  1  1  0  0  1  1
+	1  0  1  0  1  0  1  0
+	0  1  0  1  0  1  0  1
+
+julia&gt; full(characteristicMatrix(CV))
+1×8 Array{Int8,2}:
+	1  1  1  1  1  1  1  1
+
+julia&gt; full(characteristicMatrix(EV))
+12×8 Array{Int8,2}:
+	1  1  0  0  0  0  0  0
+	0  0  1  1  0  0  0  0
+	0  0  0  0  1  1  0  0
+	0  0  0  0  0  0  1  1
+	1  0  1  0  0  0  0  0
+	0  1  0  1  0  0  0  0
+	0  0  0  0  1  0  1  0
+	0  0  0  0  0  1  0  1
+	1  0  0  0  1  0  0  0
+	0  1  0  0  0  1  0  0
+	0  0  1  0  0  0  1  0
+	0  0  0  1  0  0  0  1</code></pre></div><a class="source-link" target="_blank" href="https://github.com/cvdlab/LARLIB.jl/blob/bce444844f7fe2cf6f3d2d8c6bc29a27c379b2ad/src/interface.jl#L2-L43">source</a></section><section class="docstring"><div class="docstring-header"><a class="docstring-binding" id="LARLIB.boundary_1" href="#LARLIB.boundary_1"><code>LARLIB.boundary_1</code></a> — <span class="docstring-category">Function</span>.</div><div><pre><code class="language-none">boundary_1( EV::Cells )::ChainOp</code></pre><p>Computation of sparse signed boundary operator <span>$C_1 -&gt; C_0$</span>.</p><p><strong>Example</strong></p><pre><code class="language-julia">julia&gt; V,(VV,EV,FV,CV) = cuboid([1.,1.,1.], true);
+
+julia&gt; EV
+12-element Array{Array{Int64,1},1}:
+	[1, 2]
+	[3, 4]
+	...
+	[2, 6]
+	[3, 7]
+	[4, 8]
+
+julia&gt; boundary_1( EV::Cells )
+8×12 SparseMatrixCSC{Int8,Int64} with 24 stored entries:
+	[1 ,  1]  =  -1
+	[2 ,  1]  =  1
+	[3 ,  2]  =  -1
+	...       ...
+	[7 , 11]  =  1
+	[4 , 12]  =  -1
+	[8 , 12]  =  1
+
+julia&gt; full(boundary_1(EV::Cells))
+8×12 Array{Int8,2}:
+	-1   0   0   0  -1   0   0   0  -1   0   0   0
+	1   0   0   0   0  -1   0   0   0  -1   0   0
+	0  -1   0   0   1   0   0   0   0   0  -1   0
+	0   1   0   0   0   1   0   0   0   0   0  -1
+	0   0  -1   0   0   0  -1   0   1   0   0   0
+	0   0   1   0   0   0   0  -1   0   1   0   0
+	0   0   0  -1   0   0   1   0   0   0   1   0
+	0   0   0   1   0   0   0   1   0   0   0   1</code></pre></div><a class="source-link" target="_blank" href="https://github.com/cvdlab/LARLIB.jl/blob/bce444844f7fe2cf6f3d2d8c6bc29a27c379b2ad/src/interface.jl#L58-L97">source</a></section><section class="docstring"><div class="docstring-header"><a class="docstring-binding" id="LARLIB.coboundary_0" href="#LARLIB.coboundary_0"><code>LARLIB.coboundary_0</code></a> — <span class="docstring-category">Function</span>.</div><div><pre><code class="language-none">coboundary_0(EV::LARLIB.Cells)</code></pre><p>Return the <code>coboundary_0</code> signed operator <code>C_0</code> -&gt; <code>C_1</code>.</p></div><a class="source-link" target="_blank" href="https://github.com/cvdlab/LARLIB.jl/blob/bce444844f7fe2cf6f3d2d8c6bc29a27c379b2ad/src/interface.jl#L109-L113">source</a></section><section class="docstring"><div class="docstring-header"><a class="docstring-binding" id="LARLIB.u_coboundary_1" href="#LARLIB.u_coboundary_1"><code>LARLIB.u_coboundary_1</code></a> — <span class="docstring-category">Function</span>.</div><div><pre><code class="language-none">u_coboundary_1( FV::Cells, EV::::Cells)::ChainOp</code></pre><p>Compute the sparse <em>unsigned</em> coboundary_1 operator <span>$C_1 -&gt; C_2$</span>. Notice that the output matrix is <code>m x n</code>, where <code>m</code> is the number of faces, and <code>n</code>  is the number of edges.</p><p><strong>Example</strong></p><pre><code class="language-julia">julia&gt; V,(VV,EV,FV,CV) = LARLIB.cuboid([1.,1.,1.], true);
+
+julia&gt; u_coboundary_1(FV,EV)
+6×12 SparseMatrixCSC{Int8,Int64} with 24 stored entries:
+	[1 ,  1]  =  1
+	[3 ,  1]  =  1
+	[1 ,  2]  =  1
+	[4 ,  2]  =  1
+	...		...
+	[4 , 11]  =  1
+	[5 , 11]  =  1
+	[4 , 12]  =  1
+	[6 , 12]  =  1
+
+julia&gt; full(u_coboundary_1(FV,EV))
+6×12 Array{Int8,2}:
+	1  1  0  0  1  1  0  0  0  0  0  0
+	0  0  1  1  0  0  1  1  0  0  0  0
+	1  0  1  0  0  0  0  0  1  1  0  0
+	0  1  0  1  0  0  0  0  0  0  1  1
+	0  0  0  0  1  0  1  0  1  0  1  0
+	0  0  0  0  0  1  0  1  0  1  0  1
+	
+julia&gt; unsigned_boundary_2 = u_coboundary_1(FV,EV)&#39;;</code></pre></div><a class="source-link" target="_blank" href="https://github.com/cvdlab/LARLIB.jl/blob/bce444844f7fe2cf6f3d2d8c6bc29a27c379b2ad/src/interface.jl#L118-L153">source</a></section><section class="docstring"><div class="docstring-header"><a class="docstring-binding" id="LARLIB.u_boundary_2" href="#LARLIB.u_boundary_2"><code>LARLIB.u_boundary_2</code></a> — <span class="docstring-category">Function</span>.</div><div><pre><code class="language-none">u_boundary_2(FV::LARLIB.Cells, EV::LARLIB.Cells)::LARLIB.ChainOp</code></pre><p>Return the unsigned <code>boundary_2</code> operator <code>C_2</code> -&gt; <code>C_1</code>.</p></div><a class="source-link" target="_blank" href="https://github.com/cvdlab/LARLIB.jl/blob/bce444844f7fe2cf6f3d2d8c6bc29a27c379b2ad/src/interface.jl#L175-L179">source</a></section><section class="docstring"><div class="docstring-header"><a class="docstring-binding" id="LARLIB.coboundary_1" href="#LARLIB.coboundary_1"><code>LARLIB.coboundary_1</code></a> — <span class="docstring-category">Function</span>.</div><div><pre><code class="language-none">coboundary_1( FV::Cells, EV::Cells)::ChainOp</code></pre><p>Compute the sparse <em>signed</em> coboundary_1 operator <span>$C_1 -&gt; C_2$</span>. The sparse matrix generated by <code>coboundary_1</code> contains by row a representation  of faces as oriented cycles of edges. The orientation of cycles is arbitrary.</p><pre><code class="language-none">julia&gt; coboundary_1( FV,EV )
+6×12 SparseMatrixCSC{Int8,Int64} with 24 stored entries:
+	[1 ,  1]  =  -1
+	[3 ,  1]  =  -1
+	[1 ,  2]  =  1
+	[4 ,  2]  =  -1
+	...		  ...	
+	[4 , 11]  =  1
+	[5 , 11]  =  -1
+	[4 , 12]  =  -1
+	[6 , 12]  =  -1
+
+julia&gt; full(coboundary_1( FV,EV ))
+6×12 Array{Int8,2}:
+	-1   1   0  0   1  -1  0   0  0   0   0   0
+	0   0  -1  1   0   0  1  -1  0   0   0   0
+	-1   0   1  0   0   0  0   0  1  -1   0   0
+	0  -1   0  1   0   0  0   0  0   0   1  -1
+	0   0   0  0  -1   0  1   0  1   0  -1   0
+	0   0   0  0   0  -1  0   1  0   1   0  -1
+	
+		
+julia&gt; boundary_2(FV,EV) = coboundary_1(FV,EV)&#39;
+12×6 Array{Int8,2}:
+	-1   0  -1   0   0   0
+	1   0   0  -1   0   0
+	0  -1   1   0   0   0
+	...			...
+	0   0  -1   0   0   1
+	0   0   0   1  -1   0
+	0   0   0  -1   0  -1</code></pre></div><a class="source-link" target="_blank" href="https://github.com/cvdlab/LARLIB.jl/blob/bce444844f7fe2cf6f3d2d8c6bc29a27c379b2ad/src/interface.jl#L198-L237">source</a></section><section class="docstring"><div class="docstring-header"><a class="docstring-binding" id="LARLIB.chaincomplex" href="#LARLIB.chaincomplex"><code>LARLIB.chaincomplex</code></a> — <span class="docstring-category">Function</span>.</div><div><pre><code class="language-none">chaincomplex( W::Points, EW::Cells )::Tuple{Array{Cells,1},Array{ChainOp,1}}</code></pre><p>Chain 2-complex construction from basis of 1-cells. </p><p>From the minimal input, construct the whole two-dimensional chain complex, i.e. the bases for linear spaces C_1 and  C_2 of 1-chains and  2-chains, and the signed coboundary operators from  C_0 to C_1 and from C_1 to C_2.</p><p><strong>Example</strong></p><pre><code class="language-julia">julia&gt; W = 
+	[0.0  0.0  0.0  0.0  1.0  1.0  1.0  1.0  2.0  2.0  2.0  2.0  3.0  3.0  3.0  3.0
+	0.0  1.0  2.0  3.0  0.0  1.0  2.0  3.0  0.0  1.0  2.0  3.0  0.0  1.0  2.0  3.0]
+# output  
+	2×16 Array{Float64,2}: ...
+
+julia&gt; EW = 
+[[1, 2],[2, 3],[3, 4],[5, 6],[6, 7],[7, 8],[9, 10],[10, 11],[11, 12],[13, 14],
+	[14, 15],[15, 16],[1, 5],[2, 6],[3, 7],[4, 8],[5, 9],[6, 10],[7, 11],[8, 12],
+	[9, 13],[10, 14],[11, 15],[12, 16]]
+# output  
+24-element Array{Array{Int64,1},1}: ...
+
+julia&gt; V,bases,coboundaries = chaincomplex(W,EW)
+
+julia&gt; bases[1]	# edges
+24-element Array{Array{Int64,1},1}: ...
+
+julia&gt; bases[2] # faces -- previously unknown !!
+9-element Array{Array{Int64,1},1}: ...
+
+julia&gt; coboundaries[1] # coboundary_1 
+24×16 SparseMatrixCSC{Int8,Int64} with 48 stored entries: ...
+
+julia&gt; full(coboundaries[2]) # coboundary_1: faces as oriented 1-cycles of edges
+9×24 Array{Int8,2}:
+	-1  0  0  1  0  0  0  0  0  0  0  0  1 -1  0  0  0  0  0  0  0  0  0  0
+	0 -1  0  0  1  0  0  0  0  0  0  0  0  1 -1  0  0  0  0  0  0  0  0  0
+	0  0 -1  0  0  1  0  0  0  0  0  0  0  0  1 -1  0  0  0  0  0  0  0  0
+	0  0  0 -1  0  0  1  0  0  0  0  0  0  0  0  0  1 -1  0  0  0  0  0  0
+	0  0  0  0 -1  0  0  1  0  0  0  0  0  0  0  0  0  1 -1  0  0  0  0  0
+	0  0  0  0  0 -1  0  0  1  0  0  0  0  0  0  0  0  0  1 -1  0  0  0  0
+	0  0  0  0  0  0  0 -1  0  0  1  0  0  0  0  0  0  0  0  0  0  1 -1  0
+	0  0  0  0  0  0 -1  0  0  1  0  0  0  0  0  0  0  0  0  0  1 -1  0  0
+	0  0  0  0  0  0  0  0 -1  0  0  1  0  0  0  0  0  0  0  0  0  0  1 -1</code></pre></div><a class="source-link" target="_blank" href="https://github.com/cvdlab/LARLIB.jl/blob/bce444844f7fe2cf6f3d2d8c6bc29a27c379b2ad/src/interface.jl#L280-L328">source</a><div><pre><code class="language-none">chaincomplex( W::Points, FW::Cells, EW::Cells )
+	::Tuple{ Array{Cells,1}, Array{ChainOp,1} }</code></pre><p>Chain 3-complex construction from bases of 2- and 1-cells. </p><p>From the minimal input, construct the whole two-dimensional chain complex, i.e. the bases for linear spaces C_1 and  C_2 of 1-chains and  2-chains, and the signed coboundary operators from  C_0 to C_1  and from C_1 to C_2.</p><p><strong>Example</strong></p><pre><code class="language-julia">julia&gt; cube_1 = ([0 0 0 0 1 1 1 1; 0 0 1 1 0 0 1 1; 0 1 0 1 0 1 0 1], 
+[[1,2,3,4],[5,6,7,8],[1,2,5,6],[3,4,7,8],[1,3,5,7],[2,4,6,8]], 
+[[1,2],[3,4],[5,6],[7,8],[1,3],[2,4],[5,7],[6,8],[1,5],[2,6],[3,7],[4,8]] )
+
+julia&gt; cube_2 = LARLIB.Struct([LARLIB.t(0,0,0.5), LARLIB.r(0,0,pi/3), cube_1])
+
+julia&gt; V,FV,EV = LARLIB.struct2lar(LARLIB.Struct([ cube_1, cube_2 ]))
+
+julia&gt; V,bases,coboundaries = LARLIB.chaincomplex(V,FV,EV)
+
+julia&gt; (EV, FV, CV), (cscEV, cscFE, cscCF) = bases,coboundaries
+
+julia&gt; FV # bases[2]
+18-element Array{Array{Int64,1},1}:
+	[1, 3, 4, 6]            
+	[2, 3, 5, 6]            
+	[7, 8, 9, 10]           
+	[1, 2, 3, 7, 8]         
+	[4, 6, 9, 10, 11, 12]   
+	[5, 6, 11, 12]          
+	[1, 4, 7, 9]            
+	[2, 5, 11, 13]          
+	[2, 8, 10, 11, 13]      
+	[2, 3, 14, 15, 16]      
+	[11, 12, 13, 17]        
+	[11, 12, 13, 18, 19, 20]
+	[2, 3, 13, 17]          
+	[2, 13, 14, 18]         
+	[15, 16, 19, 20]        
+	[3, 6, 12, 15, 19]      
+	[3, 6, 12, 17]          
+	[14, 16, 18, 20]        
+
+julia&gt; CV # bases[3]
+3-element Array{Array{Int64,1},1}:
+	[2, 3, 5, 6, 11, 12, 13, 14, 15, 16, 18, 19, 20]
+	[2, 3, 5, 6, 11, 12, 13, 17]                    
+	[1, 2, 3, 4, 6, 7, 8, 9, 10, 11, 12, 13, 17]    
+	
+julia&gt; cscEV # coboundaries[1]
+34×20 SparseMatrixCSC{Int8,Int64} with 68 stored entries: ...
+
+julia&gt; cscFE # coboundaries[2]
+18×34 SparseMatrixCSC{Int8,Int64} with 80 stored entries: ...
+
+julia&gt; cscCF # coboundaries[3]
+4×18 SparseMatrixCSC{Int8,Int64} with 36 stored entries: ...</code></pre></div><a class="source-link" target="_blank" href="https://github.com/cvdlab/LARLIB.jl/blob/bce444844f7fe2cf6f3d2d8c6bc29a27c379b2ad/src/interface.jl#L350-L411">source</a></section><footer><hr/><a class="previous" href="lar.html"><span class="direction">Previous</span><span class="title">LAR</span></a><a class="next" href="arrangement.html"><span class="direction">Next</span><span class="title">Arrangement</span></a></footer></article></body></html>
