@@ -177,5 +177,13 @@ julia> LARVIEW.view(W,FW)
 ## Main Interface
 
 ```@docs
-LARLIB.simplexn
+LARLIB.simplexGrid
+```
+
+```@docs
+LARLIB.simplexFacets
+```
+
+```@docs
+LARLIB.extrudeSimplicial
 ```

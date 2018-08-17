@@ -329,3 +329,34 @@ julia> cscFE # coboundaries[2]
 julia> cscCF # coboundaries[3]
 4×18 SparseMatrixCSC{Int8,Int64} with 36 stored entries: ...
 ```	
+
+
+## Main Interface
+
+```@docs
+LARLIB.characteristicMatrix
+```
+
+```@docs
+LARLIB.boundary_1
+```
+
+```@docs
+LARLIB.coboundary_0
+```
+
+```@docs
+LARLIB.u_coboundary_1
+```
+
+```@docs
+LARLIB.u_boundary_2
+```
+
+```@docs
+LARLIB.coboundary_1
+```
+
+```@docs
+LARLIB.chaincomplex
+```

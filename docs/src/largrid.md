@@ -96,5 +96,14 @@ julia> grid2D[2]
 ## Main Interface
 
 ```@docs
-LARLIB.largrid
+LARLIB.larCellProd
+```
+```@docs
+LARLIB.larGridSkeleton
+```
+```@docs
+LARLIB.larCuboids
+```
+```@docs
+LARLIB.larModelProduct
 ```

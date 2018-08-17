@@ -144,5 +144,13 @@ and apply the 3D integration functions on the LAR of such models.
 ## Main Interface
 
 ```@docs
-LARLIB.simplexn
+LARLIB.surface
+```
+
+```@docs
+LARLIB.volume
+```
+
+```@docs
+LARLIB.centroid
 ```

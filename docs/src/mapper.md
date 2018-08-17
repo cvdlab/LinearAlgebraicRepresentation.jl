@@ -203,7 +203,59 @@ mapped instances and store them in a `Array{Array{Int64,1},1}`
 
 ## Main Interface
 
+### Curve primitives
+
 ```@docs
-LARLIB.mapper
-LARLIB.mapper
+LARLIB.circle
+```
+
+```@docs
+LARLIB.helix
+```
+### Surface primitives
+
+```@docs
+LARLIB.disk
+```
+
+```@docs
+LARLIB.helicoid
+```
+
+```@docs
+LARLIB.ring
+```
+
+```@docs
+LARLIB.cylinder
+```
+
+```@docs
+LARLIB.sphere
+```
+
+```@docs
+LARLIB.toroidal
+```
+
+### Solid primitives
+
+```@docs
+LARLIB.cuboid
+```
+
+```@docs
+LARLIB.ball
+```
+
+```@docs
+LARLIB.hollowCyl
+```
+
+```@docs
+LARLIB.hollowBall
+```
+
+```@docs
+LARLIB.torus
 ```
