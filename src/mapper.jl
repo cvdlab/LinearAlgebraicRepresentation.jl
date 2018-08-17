@@ -93,7 +93,7 @@ Compute the approximate elix curve in three-dimensional space, with basis on ``z
 
 # Example
 ```julia
-julia> V, CV = LARLIB.helix(radius=.1, pitch=.1, nturns=10)()
+julia> V, CV = LARLIB.helix(.1, .1, 10)()
 # output
 ([0.1 0.0984808 … 0.0984808 0.1; 0.0 0.0173648 … -0.0173648 0.0; 0.0 0.0027778 … 0.997222 1.0], Array{Int64,1}[[1, 2], [2, 3], [3, 4], [4, 5], [5, 6], [6, 7], [7, 8], [8, 9], [9, 10], [10, 11]  …  [351, 352], [352, 353], [353, 354], [354, 355], [355, 356], [356, 357], [357, 358], [358, 359], [359, 360], [360, 361]])
 
@@ -128,7 +128,7 @@ julia> LARLIB.disk()()
 
 julia> using LARVIEW
 
-julia> LARVIEW.view(disk()())
+julia> LARVIEW.view(LARLIB.disk()())
 ```
 """
 function disk(radius=1., angle=2*pi)
@@ -329,7 +329,7 @@ julia> LARLIB.cuboid([-0.5, -0.5])
 # output
 ([0.0 0.0 -0.5 -0.5; 0.0 -0.5 0.0 -0.5], Array{Int64,1}[[1, 2, 3, 4]])
 
-julia> LARLIB.cuboid([-0.5, -0.5, 0], full=true)
+julia> LARLIB.cuboid([-0.5, -0.5, 0], true)
 # output
 ([0.0 0.0 … -0.5 -0.5; 0.0 0.0 … -0.5 -0.5; 0.0 0.0 … 0.0 0.0],
 Array{Array{Int64,1},1}[Array{Int64,1}[[1], [2], [3], [4], [5], [6], [7], [8]],
@@ -337,9 +337,9 @@ Array{Int64,1}[[1, 2], [3, 4], [5, 6], [7, 8], [1, 3], [2, 4], [5, 7], [6, 8], [
 6], [3, 7], [4, 8]], Array{Int64,1}[[1, 2, 3, 4], [5, 6, 7, 8], [1, 2, 5, 6], [3, 4, 7,
 8], [1, 3, 5, 7], [2, 4, 6, 8]], Array{Int64,1}[[1, 2, 3, 4, 5, 6, 7, 8]]])
 
-julia> V, (VV, EV, FV, CV) = LARLIB.cuboid([1,1,1], full=true);
+julia> V, (VV, EV, FV, CV) = LARLIB.cuboid([1,1,1], true);
 
-julia> assemby = LARLIB.Struct([ (V, EV), t(1,0,0), (V, CV) ])
+julia> assemby = LARLIB.Struct([ (V, EV), LARLIB.t(1,0,0), (V, CV) ])
 
 julia> using LARVIEW
 
@@ -455,7 +455,7 @@ Compute the cellular 3-complex approximating a 3-sphere. The model is meshed wit
 
 # Example
 ```julia
-julia> V, CV = LARLIB.hollowBall(r=1, R=2, angle1=pi/2, angle2=pi/2)([6, 12, 4]);
+julia> V, CV = LARLIB.hollowBall(1, 2, pi/2, pi/2)([6, 12, 4]);
 
 julia> using LARVIEW
 
@@ -489,7 +489,7 @@ Compute the cellular 3-complex approximating the solid torus in 3D. The model is
 ```julia
 julia> using LARVIEW
 
-julia> LARVIEW.view(LARLIB.torus(r=1., R=2., h=.5, angle1=pi, angle2=pi)())
+julia> LARVIEW.view(LARLIB.torus(1., 2., .5, pi, pi)())
 ```
 """
 function torus(r=1., R=2., h=.5, angle1=2*pi, angle2=2*pi)

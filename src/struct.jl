@@ -15,7 +15,7 @@ julia> t(1,2)			# 2D translation
  0.0  1.0  2.0
  0.0  0.0  1.0
 
-julia> t(1.,2,3)		# 3D translation
+julia> LARLIB.t(1.,2,3)		# 3D translation
 # return
 4×4 Array{Float64,2}:
  1.0  0.0  0.0  1.0
@@ -44,14 +44,14 @@ Return an *affine transformation Matrix* in homogeneous coordinates. Such `scali
 # Examples
 
 ```julia
-julia> s(2,3)			# 2D scaling
+julia> LARLIB.s(2,3)			# 2D scaling
 # return
 3×3 Array{Float64,2}:
  2.0  0.0  0.0
  0.0  3.0  0.0
  0.0  0.0  1.0
 
-julia> s(2.,3.,4.)		# 3D scaling
+julia> LARLIB.s(2.,3.,4.)		# 3D scaling
 # return
 4×4 Array{Float64,2}:
  2.0  0.0  0.0  0.0
@@ -81,14 +81,14 @@ The `{Number,1}` of `args` either contain a single `angle` parameter in *radiant
 # Examples
 
 ```julia
-julia> r(pi/6)				# 2D rotation of ``π/6`` angle
+julia> LARLIB.r(pi/6)				# 2D rotation of ``π/6`` angle
 # return
 3×3 Array{Float64,2}:
  0.866025  -0.5       0.0
  0.5        0.866025  0.0
  0.0        0.0       1.0
 
-julia> r(0,0,pi/4)
+julia> LARLIB.r(0,0,pi/4)
 # return
 4×4 Array{Float64,2}:		# 3D rotation about the ``z`` axis, with ``π/6`` angle
  0.707107  -0.707107  0.0  0.0
@@ -96,7 +96,7 @@ julia> r(0,0,pi/4)
  0.0        0.0       1.0  0.0
  0.0        0.0       0.0  1.0
  
-julia> r(1,1,1)		# 3D rotation about the ``x=y=z`` axis, with angle ``1.7320508`` angle
+julia> LARLIB.r(1,1,1)		# 3D rotation about the ``x=y=z`` axis, with angle ``1.7320508`` angle
 # return
 4×4 Array{Float64,2}:
   0.226296  -0.183008   0.956712  0.0
@@ -174,6 +174,8 @@ The generation of containers may continue hierarchically by suitably applying `S
 # Example
 
 ```julia
+julia> L = LARLIB;
+
 julia> assembly = L.Struct([L.sphere()(), L.t(3,0,-1), L.cylinder()()])
 # return
 LARLIB.Struct(Any[([0.0 -0.173648 … -0.336824 -0.17101; 0.0 0.0 … 0.0593912 0.0301537;
