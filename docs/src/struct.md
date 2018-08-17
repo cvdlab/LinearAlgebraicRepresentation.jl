@@ -237,3 +237,22 @@ refectory=L.Struct(repeat([singleRow,L.t(3,0,0)],outer=10));
 View(refectory)
 ```
 
+
+## Main Interface
+
+```@docs
+LARLIB.Struct
+```
+
+```@docs
+LARLIB.apply
+```
+
+```@docs
+LARLIB.struct2lar
+```
+
+```@docs
+LARLIB.evalStruct
+```
+
