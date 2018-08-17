@@ -80,14 +80,14 @@ julia> P = [V;[0 0 0 0]], FV
 ([0.0 1.0 0.0 1.0; 0.0 0.0 1.0 1.0; 0.0 0.0 0.0 0.0], 
 Array{Int64,1}[[1, 2, 3], [2, 3, 4]])
 
-julia> surface(P)
+julia> LARLIB.surface(P)
 1.0
 
 julia> p = LARLIB.Struct([LARLIB.t(0.5,0.5,0), LARLIB.r(0,0,pi/4), P]);
 
 julia> q = LARLIB.struct2lar(p);
 
-julia> surface(q)
+julia> LARLIB.surface(q)
 1.0000000532124802
 ```
 Then, the surface and the barycenter  of the simplicial grid `3 x 4` of unit 2-cells on the ``z=0`` plane is computed. Notice that the  `centroid` function cannot be used, since `P` is two-dimensional (flat) and embedded in 3-space. So, we use directly the centroid definition as first surface moments divided by area. Remember that the grid domain is ``3 x 4``.
@@ -97,16 +97,16 @@ julia> V,FV = LARLIB.simplexGrid([3,4]);
 
 julia> P = [V; zeros(size(V,2))'], FV;
 
-julia> surface(P)
+julia> LARLIB.surface(P)
 12.0
 
-julia> LARLIB.II(P,1,0,0)/II(P,0,0,0)
+julia> LARLIB.II(P,1,0,0)/LARLIB.II(P,0,0,0)
 1.5
 
-julia> LARLIB.II(P,0,1,0)/II(P,0,0,0)
+julia> LARLIB.II(P,0,1,0)/LARLIB.II(P,0,0,0)
 2.0
 
-julia> LARLIB.II(P,0,0,1)/II(P,0,0,0)
+julia> LARLIB.II(P,0,0,1)/LARLIB.II(P,0,0,0)
 0.0
 ```
 

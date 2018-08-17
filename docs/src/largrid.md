@@ -18,11 +18,11 @@ The `grid_0` second-order function generates a **0-dimensional uniform complex**
 A `larGrid` function is given to generate the LAR representation of the cells of either a 0- or a 1-dimensional complex, depending on the value of a `d` parameter, to take values in the set ``\{0,1\}``, and providing the *order* of the output complex.
 
 ```julia
-julia> larGrid(10)(0)
+julia> LARLIB.larGrid(10)(0)
 1×11 Array{Int64,2}:
  0  1  2  3  4  5  6  7  8  9  10
 
-julia> larGrid(10)(1)
+julia> LARLIB.larGrid(10)(1)
 2×10 Array{Int64,2}:
  0  1  2  3  4  5  6  7  8   9
  1  2  3  4  5  6  7  8  9  10
@@ -98,12 +98,15 @@ julia> grid2D[2]
 ```@docs
 LARLIB.larCellProd
 ```
+
 ```@docs
 LARLIB.larGridSkeleton
 ```
+
 ```@docs
 LARLIB.larCuboids
 ```
+
 ```@docs
 LARLIB.larModelProduct
 ```
