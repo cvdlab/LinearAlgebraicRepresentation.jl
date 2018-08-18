@@ -120,7 +120,8 @@ end
 
 @testset "LarImageVerts Tests" begin
       @testset "$shape" for shape in [[3,2,1],[3,2],[10,10,10]]
-            @test size(LinearAlgebraicRepresentation.larImageVerts(shape)) == (length(shape),prod(shape + 1))
+            endShape = shape .+ 1
+            @test size(LinearAlgebraicRepresentation.larImageVerts(shape)) == (length(shape),prod(endShape))
       end
 end
 

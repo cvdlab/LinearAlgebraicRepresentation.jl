@@ -13,7 +13,7 @@ using Test
 		 0  1  0  1  0  1  0  1]
 		@test size(LinearAlgebraicRepresentation.characteristicMatrix(CV))==(1,8)
 		@test typeof(LinearAlgebraicRepresentation.characteristicMatrix(CV))==SparseMatrixCSC{Int8,Int64}
-		@test full(LinearAlgebraicRepresentation.characteristicMatrix(EV)) == [
+		@test Matrix(LinearAlgebraicRepresentation.characteristicMatrix(EV)) == [
 		 1  1  0  0  0  0  0  0;
 		 0  0  1  1  0  0  0  0;
 		 0  0  0  0  1  1  0  0;
@@ -28,9 +28,7 @@ using Test
 		 0  0  0  1  0  0  0  1]
 		@test size(LinearAlgebraicRepresentation.characteristicMatrix(EV))==(12,8)
 		@test typeof(LinearAlgebraicRepresentation.characteristicMatrix(EV))==SparseMatrixCSC{Int8,Int64}
-	end;
-   
-
+	end
 
 	@testset "signed_boundary_1 Tests" begin
 		V,(VV,EV,FV,CV) = LinearAlgebraicRepresentation.cuboid([1.,1.,1.], true);
