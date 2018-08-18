@@ -1,5 +1,5 @@
 module Arrangement
-    using LARLIB
+    using LinearAlgebraicRepresentation
     using IntervalTrees
     using NearestNeighbors
     using Triangle

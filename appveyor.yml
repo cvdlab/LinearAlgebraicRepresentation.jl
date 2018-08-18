@@ -33,4 +33,4 @@ install:
 build_script:
   - IF EXIST .git\shallow (git fetch --unshallow)
   - C:\projects\julia\bin\julia -e "versioninfo();
-      Pkg.clone(pwd(), \"LARLIB\"); Pkg.build(\"LARLIB\")"
+      Pkg.clone(pwd(), \"LinearAlgebraicRepresentation\"); Pkg.build(\"LinearAlgebraicRepresentation\")"

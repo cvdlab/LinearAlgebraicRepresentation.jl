@@ -1,10 +1,10 @@
 push!(LOAD_PATH,"../src/")
 
-using Documenter, LARLIB
+using Documenter, LinearAlgebraicRepresentation
 
 makedocs(
 	format = :html,
-	sitename = "LARLIB.jl",
+	sitename = "LinearAlgebraicRepresentation.jl",
 	pages = [
 		"Home" => "index.md",
 		"LAR" => "lar.md",
