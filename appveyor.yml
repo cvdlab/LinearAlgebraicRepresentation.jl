@@ -41,4 +41,4 @@ install:
 
 build_script:
   - IF EXIST .git\shallow (git fetch --unshallow)
-  - C:\projects\julia\bin\julia -e "using InteractiveUtils; InteractiveUtils.versioninfo(); using Pkg; Pkg.clone(pwd(), \"LARLIB\"); Pkg.build(\"LARLIB\")"
+  - C:\projects\julia\bin\julia -e "using InteractiveUtils; InteractiveUtils.versioninfo(); using Pkg; Pkg.clone(pwd(), \"LinearAlgebraicRepresentation\"); Pkg.build(\"LinearAlgebraicRepresentation\")"

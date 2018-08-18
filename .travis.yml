@@ -23,8 +23,8 @@ notifications:
 
 after_success:
   - julia -e 'using Pkg; Pkg.add("Documenter"); Pkg.add("Coverage");'
-  - julia -e 'import LARLIB; cd(dirname(dirname(pathof(LARLIB)))); include(joinpath("docs", "make.jl"))'
-  - julia -e 'using Coverage; import LARLIB; cd(dirname(dirname(pathof(LARLIB)))); Codecov.submit(process_folder())'
+  - julia -e 'import LinearAlgebraicRepresentation; cd(dirname(dirname(pathof(LinearAlgebraicRepresentation)))); include(joinpath("docs", "make.jl"))'
+  - julia -e 'using Coverage; import LinearAlgebraicRepresentation; cd(dirname(dirname(pathof(LinearAlgebraicRepresentation)))); Codecov.submit(process_folder())'
 
 deploy:
   provider: pages

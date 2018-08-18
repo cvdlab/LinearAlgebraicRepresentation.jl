@@ -1,10 +1,10 @@
 using Test
 using LinearAlgebra
-using LARLIB
+using LinearAlgebraicRepresentation
 
 @testset "submanifold_mapping test" begin
     V = rand(3, 3)
-    m = LARLIB.Arrangement.submanifold_mapping(V)
+    m = LinearAlgebraicRepresentation.Arrangement.submanifold_mapping(V)
     err = 1e-10
 
     @test any(map((x,y)->-err<x-y<err, m*inv(m), Matrix{Float64}(LinearAlgebra.I, 4, 4)))

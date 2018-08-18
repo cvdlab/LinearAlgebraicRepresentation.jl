@@ -258,7 +258,7 @@ julia> filterByOrder(3)
  Array{Int8,1}[Int8[1, 1, 1]]                              
 ```"""
 function filterByOrder(n::Int)Array{Array{Array{Int8,1},1},1}
-   terms = [[parse(Int8,bit) for bit in collect(term)] for term in LARLIB.binaryRange(n)]
+   terms = [[parse(Int8,bit) for bit in collect(term)] for term in LinearAlgebraicRepresentation.binaryRange(n)]
    return [[term for term in terms if sum(term) == k] for k in 0:n]
 end
 

@@ -18,11 +18,11 @@ The `grid_0` second-order function generates a **0-dimensional uniform complex**
 A `larGrid` function is given to generate the LAR representation of the cells of either a 0- or a 1-dimensional complex, depending on the value of a `d` parameter, to take values in the set ``\{0,1\}``, and providing the *order* of the output complex.
 
 ```julia
-julia> larGrid(10)(0)
+julia> LinearAlgebraicRepresentation.larGrid(10)(0)
 1×11 Array{Int64,2}:
  0  1  2  3  4  5  6  7  8  9  10
 
-julia> larGrid(10)(1)
+julia> LinearAlgebraicRepresentation.larGrid(10)(1)
 2×10 Array{Int64,2}:
  0  1  2  3  4  5  6  7  8   9
  1  2  3  4  5  6  7  8  9  10
@@ -54,20 +54,20 @@ Therefore, we get `index2addr([4,3,6])([2,2,0])=48`=``2\times(3\times 6)+2\times
 ### Examples
 
 To understand the *generation of cuboidal grids* from products of 0- or 1-dimensional complexes, below we show a simple example of 2D grids embedded in ``R^3``.
-In particular, `v1 = [0 1 2 3]` and `v0 = [0 1 2]` are two 2-arrays of 1D `Points` (i.e. with just one coordinate per vertex), `c1 = [[0,1],[1,2],[2,3]]` and `c0 = [[0],[1],[2]]` are the LAR representation of one *``1``-complex* and one *``0``-complex*, respectively. The solid 2-complex named `grid2D` is generated in 2D as follows, with reference to LARLIB types:
+In particular, `v1 = [0 1 2 3]` and `v0 = [0 1 2]` are two 2-arrays of 1D `Points` (i.e. with just one coordinate per vertex), `c1 = [[0,1],[1,2],[2,3]]` and `c0 = [[0],[1],[2]]` are the LAR representation of one *``1``-complex* and one *``0``-complex*, respectively. The solid 2-complex named `grid2D` is generated in 2D as follows, with reference to LinearAlgebraicRepresentation types:
 
 ```julia
-julia> v1 = [0 1 2 3]::LARLIB.Points
+julia> v1 = [0 1 2 3]::LinearAlgebraicRepresentation.Points
 1×4 Array{Int64,2}:
  0  1  2  3
 
-julia> c1 = [[0,1],[1,2],[2,3]]::LARLIB.Cells
+julia> c1 = [[0,1],[1,2],[2,3]]::LinearAlgebraicRepresentation.Cells
 3-element Array{Array{Int64,1},1}:
  [0, 1]
  [1, 2]
  [2, 3]
 
-julia> grid2D = ( LARLIB.larVertProd([v1,v1]), LARLIB.larCellProd([c1,c1]) )::LARLIB.LAR
+julia> grid2D = ( LinearAlgebraicRepresentation.larVertProd([v1,v1]), LinearAlgebraicRepresentation.larCellProd([c1,c1]) )::LinearAlgebraicRepresentation.LAR
 ([0 0 … 3 3; 0 1 … 2 3], Array{Int64,1}[[1, 2, 5, 6], [2, 3, 6, 7], [3, 4, 7, 8], [5, 6,
 9, 10], [6, 7, 10, 11], [7, 8, 11, 12], [9, 10, 13, 14], [10, 11, 14, 15], [11, 12, 15,
 16]])
@@ -96,5 +96,17 @@ julia> grid2D[2]
 ## Main Interface
 
 ```@docs
-LARLIB.largrid
+LinearAlgebraicRepresentation.larCellProd
+```
+
+```@docs
+LinearAlgebraicRepresentation.larGridSkeleton
+```
+
+```@docs
+LinearAlgebraicRepresentation.larCuboids
+```
+
+```@docs
+LinearAlgebraicRepresentation.larModelProduct
 ```

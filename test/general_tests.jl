@@ -1,5 +1,5 @@
 using Test
-include("../src/LARLIB.jl")
+include("../src/LinearAlgebraicRepresentation.jl")
 
 function generate_perpendicular_lines(steps::Int, minlen, maxlen)
     V = zeros(0,2)
@@ -92,7 +92,7 @@ function rubiks_example(ncubes = 3)
     cubesRow = (zeros(0,3),spzeros(Int8,0,0),spzeros(Int8,0,0))
 
     for i in 1:ncubes
-        cubesRow = LARLIB.skel_merge(cubesRow..., cube...)
+        cubesRow = LinearAlgebraicRepresentation.skel_merge(cubesRow..., cube...)
         cube[1] = cube[1] + [zeros(8) zeros(8) ones(8)]
     end
 
@@ -100,7 +100,7 @@ function rubiks_example(ncubes = 3)
     cubesPlane = cubesRow
     num = size(cubesRow[1], 1)
     for i in 1:ncubes
-        cubesPlane = LARLIB.skel_merge(cubesPlane..., cubesRow...)
+        cubesPlane = LinearAlgebraicRepresentation.skel_merge(cubesPlane..., cubesRow...)
         cubesRow[1] = cubesRow[1] + [zeros(num) ones(num) zeros(num)]
     end
 
@@ -108,12 +108,12 @@ function rubiks_example(ncubes = 3)
     cubesCube = cubesPlane
     num = size(cubesPlane[1], 1)
     for i in 1:ncubes
-        cubesCube = LARLIB.skel_merge(cubesCube..., cubesPlane...)
+        cubesCube = LinearAlgebraicRepresentation.skel_merge(cubesCube..., cubesPlane...)
         cubesPlane[1] = cubesPlane[1] + [ones(num) zeros(num) zeros(num)]
     end
 
     println("Arranging a cube of ", ncubes^3," cubes...")
-    rubik = LARLIB.spatial_arrangement(cubesCube...)
+    rubik = LinearAlgebraicRepresentation.spatial_arrangement(cubesCube...)
     println("DONE")
 
     rubik = rubik[1] - 1.5, rubik[2:3]...
@@ -123,9 +123,9 @@ function rubiks_example(ncubes = 3)
     rot_rubik = rubik[1]*M1*M2, rubik[2:3]...
 
     println("Arranging two rubik cubes...")
-    two_rubiks = LARLIB.skel_merge(rubik..., rot_rubik...)
+    two_rubiks = LinearAlgebraicRepresentation.skel_merge(rubik..., rot_rubik...)
     println("DONE")
 
-    arranged_rubiks = LARLIB.spatial_arrangement(two_rubiks...)
+    arranged_rubiks = LinearAlgebraicRepresentation.spatial_arrangement(two_rubiks...)
 end
 

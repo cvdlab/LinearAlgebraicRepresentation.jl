@@ -43,7 +43,7 @@ function TT(tau::Array{Float64,2}, alpha, beta, gamma, signedInt=false)
 end
 
 """ 
-	II(P::LARLIB.LAR, alpha::Int, beta::Int, gamma::Int, signedInt=false)
+	II(P::LinearAlgebraicRepresentation.LAR, alpha::Int, beta::Int, gamma::Int, signedInt=false)
 
 Basic integration function on 2D plane.
 
@@ -62,11 +62,11 @@ julia> FV = [[1,2,3]]
 julia> P = V,FV
 ([0.0 1.0 0.0; 0.0 0.0 1.0; 0.0 0.0 0.0], Array{Int64,1}[[1, 2, 3]])
 
-julia> LARLIB.II(P, 0,0,0)
+julia> LinearAlgebraicRepresentation.II(P, 0,0,0)
 0.5
 ```
 """
-function II(P::LARLIB.LAR, alpha::Int, beta::Int, gamma::Int, signedInt=false)::Float64
+function II(P::LinearAlgebraicRepresentation.LAR, alpha::Int, beta::Int, gamma::Int, signedInt=false)::Float64
     w = 0
     V, FV = P
     if typeof(FV) == Array{Int64,2}
@@ -91,7 +91,7 @@ function II(P::LARLIB.LAR, alpha::Int, beta::Int, gamma::Int, signedInt=false)::
 end
 
 """ 
-	III(P::LARLIB.LAR, alpha::Int, beta::Int, gamma::Int)::Float64
+	III(P::LinearAlgebraicRepresentation.LAR, alpha::Int, beta::Int, gamma::Int)::Float64
 
 Basic integration function on 3D space.
 
@@ -114,7 +114,7 @@ julia> P = V,FV
 ([0.0 1.0 0.0 0.0; 0.0 0.0 1.0 0.0; 0.0 0.0 0.0 1.0], 
 Array{Int64,1}[[1, 2, 4], [1, 3, 2], [4, 3, 1], [2, 3, 4]])
 
-julia> LARLIB.III(P, 0,0,0)
+julia> LinearAlgebraicRepresentation.III(P, 0,0,0)
 0.16666666666666674
 ```
 """
@@ -136,7 +136,7 @@ end
 
 
 """
-	surface(P::LARLIB.LAR, signedInt=false)::Float64
+	surface(P::LinearAlgebraicRepresentation.LAR, signedInt=false)::Float64
 
 `surface` integral on polyhedron `P`.
 
@@ -159,18 +159,18 @@ julia> P = V,FV
 ([0.0 1.0 0.0 0.0; 0.0 0.0 1.0 0.0; 0.0 0.0 0.0 1.0], 
 Array{Int64,1}[[1, 2, 4], [1, 3, 2], [4, 3, 1], [2, 3, 4]])
 
-julia> LARLIB.volume(P)
+julia> LinearAlgebraicRepresentation.volume(P)
 0.16666666666666674
 ```
 """
-function surface(P::LARLIB.LAR, signedInt=false)::Float64
+function surface(P::LinearAlgebraicRepresentation.LAR, signedInt=false)::Float64
     return II(P, 0, 0, 0, signedInt)
 end
 
 
 
 """
-	volume(P::LARLIB.LAR)::Float64
+	volume(P::LinearAlgebraicRepresentation.LAR)::Float64
 
 `volume` integral on polyhedron `P`.
 
@@ -193,11 +193,11 @@ julia> P = V,FV
 ([0.0 1.0 0.0 0.0; 0.0 0.0 1.0 0.0; 0.0 0.0 0.0 1.0], 
 Array{Int64,1}[[1, 2, 4], [1, 3, 2], [4, 3, 1], [2, 3, 4]])
 
-julia> LARLIB.volume(P)
+julia> LinearAlgebraicRepresentation.volume(P)
 0.16666666666666674
 ```
 """
-function volume(P::LARLIB.LAR)::Float64
+function volume(P::LinearAlgebraicRepresentation.LAR)::Float64
     return III(P, 0, 0, 0)
 end
 
@@ -251,7 +251,7 @@ end
 
 
 """ 
-	firstMoment(P::LARLIB.LAR)::Array{Float64,1}
+	firstMoment(P::LinearAlgebraicRepresentation.LAR)::Array{Float64,1}
 
 First moments as terms of the Euler tensor. Remember that the integration algorithm is a boundary integration. Hence the model must be a boundary model. In this case, a 2-complex of triangles. 
 
@@ -263,14 +263,14 @@ julia> FV = [[1, 2, 4], [1, 3, 2], [4, 3, 1], [2, 3, 4]];
 
 julia> P = V,FV;
 
-julia> LARLIB.firstMoment(P)
+julia> LinearAlgebraicRepresentation.firstMoment(P)
 3-element Array{Float64,1}:
  0.0416667
  0.0416667
  0.0416667
 ```
 """
-function firstMoment(P::LARLIB.LAR)::Array{Float64,1}
+function firstMoment(P::LinearAlgebraicRepresentation.LAR)::Array{Float64,1}
     out = zeros(3)
     out[1] = III(P, 1, 0, 0)
     out[2] = III(P, 0, 1, 0)
@@ -281,7 +281,7 @@ end
 
 
 """ 
-	secondMoment(P::LARLIB.LAR)::Array{Float64,1}
+	secondMoment(P::LinearAlgebraicRepresentation.LAR)::Array{Float64,1}
 
 Second moments as terms of the Euler tensor.
 
@@ -293,14 +293,14 @@ julia> FV = [[1, 2, 4], [1, 3, 2], [4, 3, 1], [2, 3, 4]];
 
 julia> P = V,FV;
 
-julia> LARLIB.secondMoment(P)
+julia> LinearAlgebraicRepresentation.secondMoment(P)
 3-element Array{Float64,1}:
  0.0166667
  0.0166667
  0.0166667
 ```
 """
-function secondMoment(P::LARLIB.LAR)::Array{Float64,1}
+function secondMoment(P::LinearAlgebraicRepresentation.LAR)::Array{Float64,1}
     out = zeros(3)
     out[1] = III(P, 2, 0, 0)
     out[2] = III(P, 0, 2, 0)
@@ -311,7 +311,7 @@ end
 
 
 """ 
-	inertiaProduct(P::LARLIB.LAR)::Array{Float64,1}
+	inertiaProduct(P::LinearAlgebraicRepresentation.LAR)::Array{Float64,1}
 
 Inertia products as terms of the Euler tensor.
 
@@ -323,14 +323,14 @@ julia> FV = [[1, 2, 4], [1, 3, 2], [4, 3, 1], [2, 3, 4]];
 
 julia> P = V,FV;
 
-julia> LARLIB.inertiaProduct(P)
+julia> LinearAlgebraicRepresentation.inertiaProduct(P)
 3-element Array{Float64,1}:
  0.00833333
  0.00833333
  0.00833333
 ```
 """
-function inertiaProduct(P::LARLIB.LAR)::Array{Float64,1}
+function inertiaProduct(P::LinearAlgebraicRepresentation.LAR)::Array{Float64,1}
     out = zeros(3)
     out[1] = III(P, 0, 1, 1)
     out[2] = III(P, 1, 0, 1)
@@ -341,7 +341,7 @@ end
 
 
 """ 
-	centroid(P::LARLIB.LAR)::Array{Float64,1}
+	centroid(P::LinearAlgebraicRepresentation.LAR)::Array{Float64,1}
 
 Barycenter or `centroid` of polyhedron `P`.
 
@@ -353,21 +353,21 @@ julia> FV = [[1, 2, 4], [1, 3, 2], [4, 3, 1], [2, 3, 4]];
 
 julia> P = V,FV;
 
-julia> LARLIB.centroid(P)
+julia> LinearAlgebraicRepresentation.centroid(P)
 3-element Array{Float64,1}:
  0.25
  0.25
  0.25
 ```
 """
-function centroid(P::LARLIB.LAR)::Array{Float64,1}
+function centroid(P::LinearAlgebraicRepresentation.LAR)::Array{Float64,1}
 	return firstMoment(P)./volume(P)
 end
 
 
 
 """ 
-	inertiaMoment(P::LARLIB.LAR)::Array{Float64,1}
+	inertiaMoment(P::LinearAlgebraicRepresentation.LAR)::Array{Float64,1}
 
 Inertia moments  of polyhedron `P`.
 
@@ -379,14 +379,14 @@ julia> FV = [[1, 2, 4], [1, 3, 2], [4, 3, 1], [2, 3, 4]];
 
 julia> P = V,FV;
 
-julia> LARLIB.inertiaMoment(P)
+julia> LinearAlgebraicRepresentation.inertiaMoment(P)
 3-element Array{Float64,1}:
  0.0333333
  0.0333333
  0.0333333
 ```
 """
-function inertiaMoment(P::LARLIB.LAR)::Array{Float64,1}
+function inertiaMoment(P::LinearAlgebraicRepresentation.LAR)::Array{Float64,1}
     out = zeros(3)
     result = secondMoment(P)
     out[1] = result[2] + result[3]
