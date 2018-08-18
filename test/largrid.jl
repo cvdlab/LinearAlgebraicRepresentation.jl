@@ -142,7 +142,7 @@ end
             cubes = LinearAlgebraicRepresentation.larCuboids(shape,true);
             verts, cells = cubes;
             VV,EV,FV,CV = cells;
-            @test size(LinearAlgebraicRepresentation.larCuboids(shape)[1],2) == prod(collect(endShape) + 1)
+            @test size(LinearAlgebraicRepresentation.larCuboids(shape)[1],2) == prod(collect(endShape))
             @test length(LinearAlgebraicRepresentation.larCuboids(shape)[2]) == prod(shape)
             @test typeof(verts) == Array{Float64,2}
 	      @test typeof(VV) == Array{Array{Int64,1},1}
@@ -153,7 +153,7 @@ end
 
       @testset "$shape" for shape in [[3,2],[1,1],[3,10]]
             endShape = shape .+ 1
-            @test size(LinearAlgebraicRepresentation.larCuboids(shape)[1],2) == prod(collect(endShape) + 1)
+            @test size(LinearAlgebraicRepresentation.larCuboids(shape)[1],2) == prod(collect(endShape))
             @test length(LinearAlgebraicRepresentation.larCuboids(shape)[2]) == prod(shape)
             cubes = LinearAlgebraicRepresentation.larCuboids(shape,true)
             verts, cells = cubes
@@ -166,7 +166,7 @@ end
 
       @testset "$shape" for shape in [[3],[1],[10]]
             endShape = shape .+ 1
-            @test size(LinearAlgebraicRepresentation.larCuboids(shape)[1],2) == prod(collect(endShape) + 1)
+            @test size(LinearAlgebraicRepresentation.larCuboids(shape)[1],2) == prod(collect(endShape))
             @test length(LinearAlgebraicRepresentation.larCuboids(shape)[2]) == prod(shape)
             cubes = LinearAlgebraicRepresentation.larCuboids(shape,true)
             verts, cells = cubes
