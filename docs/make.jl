@@ -5,7 +5,7 @@ using Documenter, LinearAlgebraicRepresentation
 makedocs(
 	format = :html,
 	sitename = "LinearAlgebraicRepresentation.jl",
-	assets = ["assets/lar.css", "assets/logo.png"]
+	assets = ["assets/lar.css", "assets/logo.png"],
 	pages = [
 		"Home" => "index.md",
 		"L.A.R. Intro" => "lar.md",
