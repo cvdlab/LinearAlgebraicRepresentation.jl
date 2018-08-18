@@ -1,4 +1,4 @@
-module LARLIB
+module LinearAlgebraicRepresentation
 
 	using NearestNeighbors
 	using DataStructures

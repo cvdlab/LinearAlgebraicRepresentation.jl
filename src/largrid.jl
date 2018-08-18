@@ -258,7 +258,7 @@ julia> filterByOrder(3)
  Array{Int8,1}[Int8[0, 1, 1], Int8[1, 0, 1], Int8[1, 1, 0]]
  Array{Int8,1}[Int8[1, 1, 1]]                              
 ```"""
-function filterByOrder(n::Int)Array{Array{Array{Int8,1},1},1}
+function filterByOrder(n::Int)::Array{Array{Array{Int8,1},1},1}
    binaryRange(n) = bin.(range(0,2^n),n)
    terms = [[parse(Int8,bit) for bit in collect(term)] for term in binaryRange(n)]
    return [[term for term in terms if sum(term) == k] for k in 0:n]

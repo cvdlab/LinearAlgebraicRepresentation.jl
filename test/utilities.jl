@@ -1,9 +1,9 @@
 using Base.Test
-using LARLIB
+using LinearAlgebraicRepresentation
 
 @testset "Bounding boxes building test" begin
     V = [.56 .28; .84 .57; .35  1.0; .22  .43]
-    @test LARLIB.bbox(V) == ([.22 .28], [.84 1.0])
+    @test LinearAlgebraicRepresentation.bbox(V) == ([.22 .28], [.84 1.0])
 end
 
 @testset "Bounding boxes containment test" begin
@@ -13,10 +13,10 @@ end
     bboxD = ([0 .75], [.25 1])
     bboxE = ([0 1.25], [.25 1.5])
 
-    @test LARLIB.bbox_contains(bboxA, bboxD)
-    @test LARLIB.bbox_contains(bboxB, bboxC)
-    @test !LARLIB.bbox_contains(bboxA, bboxB)
-    @test !LARLIB.bbox_contains(bboxA, bboxE)
+    @test LinearAlgebraicRepresentation.bbox_contains(bboxA, bboxD)
+    @test LinearAlgebraicRepresentation.bbox_contains(bboxB, bboxC)
+    @test !LinearAlgebraicRepresentation.bbox_contains(bboxA, bboxB)
+    @test !LinearAlgebraicRepresentation.bbox_contains(bboxA, bboxE)
 end
 @testset "Face area calculation test" begin
     V = Float64[2 1; 1 2; 0 0; 1 1; 2 0; 0 2]
@@ -28,6 +28,6 @@ end
     FE[1, :] = [ 1 -1  1 -1  1 -1]
     FE[2, :] = [-1  1 -1  1 -1  1]
 
-    @test LARLIB.face_area(V, EV, FE[1,:]) == -LARLIB.face_area(V, EV, FE[2,:])
+    @test LinearAlgebraicRepresentation.face_area(V, EV, FE[1,:]) == -LinearAlgebraicRepresentation.face_area(V, EV, FE[2,:])
 end
 

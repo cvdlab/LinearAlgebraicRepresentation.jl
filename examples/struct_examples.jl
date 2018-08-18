@@ -1,6 +1,6 @@
-using LARLIB
+using LinearAlgebraicRepresentation
 using LARVIEW
-L = LARLIB
+L = LinearAlgebraicRepresentation
 View = LARVIEW.view
 
 

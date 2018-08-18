@@ -1,4 +1,4 @@
-using LARLIB
+using LinearAlgebraicRepresentation
 
 include("./planar_arrangement.jl")
 include("./dimension_travel.jl")
