@@ -234,7 +234,7 @@ function larCellProd(cellLists::Array{Cells,1})::Cells
    subscripts = cart([collect(range(0,shape)) for shape in shapes])
    indices = [collect(tuple) for tuple in subscripts]
    jointCells = [cart([cells[k] for (k,cells) in zip(index,cellLists)]) 
-   				for index in indices+1]
+   				for index in indices .+ 1]
    convertIt = index2addr([ (length(cellLists[k][1]) > 1)? shape+1 : shape 
       for (k,shape) in enumerate(shapes) ])     
    [vcat(map(convertIt, map(collect,jointCells[j]))...) for j in 1:length(jointCells)]
