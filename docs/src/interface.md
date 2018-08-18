@@ -43,7 +43,7 @@ V,(VV,EV,FV,CV) = LinearAlgebraicRepresentation.cuboid([1.,1.,1.], true);
 Then, we may see the characteristic matrix of 1-cells (edges), with two ones per row:
 
 ```julia
-julia> full(LinearAlgebraicRepresentation.characteristicMatrix(EV))
+julia> Matrix(LinearAlgebraicRepresentation.characteristicMatrix(EV))
 12×8 Array{Int8,2}:
  1  1  0  0  0  0  0  0
  0  0  1  1  0  0  0  0
@@ -61,7 +61,7 @@ julia> full(LinearAlgebraicRepresentation.characteristicMatrix(EV))
 and of 2-cells (faces):
 
 ```julia
-julia> full(LinearAlgebraicRepresentation.characteristicMatrix(FV))
+julia> Matrix(LinearAlgebraicRepresentation.characteristicMatrix(FV))
 6×8 Array{Int8,2}:
  1  1  1  1  0  0  0  0
  0  0  0  0  1  1  1  1
@@ -74,7 +74,7 @@ julia> full(LinearAlgebraicRepresentation.characteristicMatrix(FV))
 Finally, the boundary of the single 3-cell contains all the 0-cells (vertices). Of course, the 3D cube has 12 edges in `EV`, 6 faces in `FV`, and one 3-cell in `CV`:
 
 ```julia
-julia> full(LinearAlgebraicRepresentation.characteristicMatrix(CV))
+julia> Matrix(LinearAlgebraicRepresentation.characteristicMatrix(CV))
 1×8 Array{Int8,2}:
  1  1  1  1  1  1  1  1
 ```
@@ -185,7 +185,7 @@ julia> LinearAlgebraicRepresentation.boundary_1( EV::LinearAlgebraicRepresentati
   [4 , 12]  =  -1
   [8 , 12]  =  1
 
-julia> full(LinearAlgebraicRepresentation.boundary_1(EV::LinearAlgebraicRepresentation.Cells))
+julia> Matrix(LinearAlgebraicRepresentation.boundary_1(EV::Cells))
 8×12 Array{Int8,2}:
  -1   0   0   0  -1   0   0   0  -1   0   0   0
   1   0   0   0   0  -1   0   0   0  -1   0   0
@@ -249,7 +249,7 @@ Analogously, the `coboundaries` variable will contain the ``[\delta_1]`` and ``[
 julia> coboundaries[1] # coboundary_1 
 24×16 SparseMatrixCSC{Int8,Int64} with 48 stored entries: ...
 
-julia> full(coboundaries[2]) # coboundary_1: faces as oriented 1-cycles of edges
+julia> Matrix(coboundaries[2]) # coboundary_1: faces as oriented 1-cycles of edges
 9×24 Array{Int8,2}:
  -1  0  0  1  0  0  0  0  0  0  0  0  1 -1  0  0  0  0  0  0  0  0  0  0
   0 -1  0  0  1  0  0  0  0  0  0  0  0  1 -1  0  0  0  0  0  0  0  0  0

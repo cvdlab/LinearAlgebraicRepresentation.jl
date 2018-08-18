@@ -31,8 +31,8 @@ function extrudeSimplicial(model::LinearAlgebraicRepresentation.LAR, pattern)
     coords = collect(cumsum(append!([0], abs.(pattern))))
     offset, outcells, rangelimit = length(V), [], d*m
     for cell in FV  
-        tube = [v+k*offset for k in range(0, m+1) for v in cell]
-        cellTube = [tube[k:k+d] for k in range(1, rangelimit)]
+        tube = [v+k*offset for k in range(0, length=m+1) for v in cell]
+        cellTube = [tube[k:k+d] for k in range(1, length=rangelimit)]
         outcells = vcat(outcells, reshape(cellTube, d, m))
     end
     cellGroups = []
@@ -52,8 +52,8 @@ function extrudeSimplicial(model::Union{Any,LinearAlgebraicRepresentation.Cells}
     coords = collect(cumsum(append!([0], abs.(pattern))))
     offset, outcells, rangelimit = length(V), [], d*m
     for cell in FV  
-        tube = [v+k*offset for k in range(0, m+1) for v in cell]
-        cellTube = [tube[k:k+d] for k in range(1, rangelimit)]
+        tube = [v+k*offset for k in range(0, length=m+1) for v in cell]
+        cellTube = [tube[k:k+d] for k in range(1, length=rangelimit)]
         outcells = vcat(outcells, reshape(cellTube, d, m))
     end
     cellGroups = []

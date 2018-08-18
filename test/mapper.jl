@@ -1,5 +1,5 @@
 using LinearAlgebraicRepresentation
-using Base.Test
+using Test
 
 function BoxCalculation(Vertices)
 	Minx=minimum(Vertices[1,:])
@@ -103,9 +103,6 @@ end
 	@test size(LinearAlgebraicRepresentation.crown(1.5, 5.6, pi/8)()[1],2)==481
 	@test length(LinearAlgebraicRepresentation.crown(1.5, 5.6, pi/8)()[2])==864
 end
-
-
-
 
 @testset "ball" begin
 	@test BoxCalculation(LinearAlgebraicRepresentation.ball(1, pi, 2*pi)()[1])==8

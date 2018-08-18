@@ -1,9 +1,10 @@
-using Base.Test
+using Test
+using SparseArrays
 using LinearAlgebraicRepresentation
 
 @testset "Bounding boxes building test" begin
-    V = [.56 .28; .84 .57; .35  1.0; .22  .43]
-    @test LinearAlgebraicRepresentation.bbox(V) == ([.22 .28], [.84 1.0])
+    bboxV = [.56 .28; .84 .57; .35  1.0; .22  .43]
+    @test LinearAlgebraicRepresentation.bbox(bboxV) == ([.22 .28], [.84 1.0])
 end
 
 @testset "Bounding boxes containment test" begin
@@ -18,16 +19,23 @@ end
     @test !LinearAlgebraicRepresentation.bbox_contains(bboxA, bboxB)
     @test !LinearAlgebraicRepresentation.bbox_contains(bboxA, bboxE)
 end
-@testset "Face area calculation test" begin
-    V = Float64[2 1; 1 2; 0 0; 1 1; 2 0; 0 2]
-    EV = spzeros(Int8, 6, 6)
-    EV[1, [1, 4]] = [-1, 1]; EV[2, [2, 4]] = [-1, 1]
-    EV[3, [2, 6]] = [-1, 1]; EV[4, [3, 6]] = [-1, 1]
-    EV[5, [3, 5]] = [-1, 1]; EV[6, [1, 5]] = [-1, 1]
-    FE = spzeros(Int8, 2, 6)
-    FE[1, :] = [ 1 -1  1 -1  1 -1]
-    FE[2, :] = [-1  1 -1  1 -1  1]
 
-    @test LinearAlgebraicRepresentation.face_area(V, EV, FE[1,:]) == -LinearAlgebraicRepresentation.face_area(V, EV, FE[2,:])
+@testset "Face area calculation test" begin
+    facetestV = Float64[2 1; 1 2; 0 0; 1 1; 2 0; 0 2]
+    facetestEV = spzeros(Int8, 6, 6)
+    facetestEV[1, [1, 4]] = [-1, 1]; facetestEV[2, [2, 4]] = [-1, 1]
+    facetestEV[3, [2, 6]] = [-1, 1]; facetestEV[4, [3, 6]] = [-1, 1]
+    facetestEV[5, [3, 5]] = [-1, 1]; facetestEV[6, [1, 5]] = [-1, 1]
+    facetestFE = spzeros(Int8, 2, 6)
+    facetestFE[1, :] = [ 1 -1  1 -1  1 -1]
+    facetestFE[2, :] = [-1  1 -1  1 -1  1]
+
+    @test LinearAlgebraicRepresentation.face_area(facetestV, facetestEV, facetestFE[1,:]) == -LinearAlgebraicRepresentation.face_area(facetestV, facetestEV, facetestFE[2,:])
+end
+
+@testset "Binaryrange" begin
+    @test LinearAlgebraicRepresentation.binaryRange(1) == [ "0", "1" ]
+    @test LinearAlgebraicRepresentation.binaryRange(2) == [ "00", "01", "10", "11"]
+    @test LinearAlgebraicRepresentation.binaryRange(3) == [ "000", "001", "010", "011", "100", "101", "110", "111"]
 end
 
