@@ -239,9 +239,9 @@ function coboundary_1( FV::Cells, EV::Cells)::ChainOp
 	sp_u_coboundary_1 = u_coboundary_1(FV,EV)
 	larEV = characteristicMatrix(EV)
 	# unsigned incidence relation
-	FE = [findn(sp_u_coboundary_1[f,:]) for f=1:size(sp_u_coboundary_1,1) ]
+	FE = [findall(!iszero, sp_u_coboundary_1[f,:]) for f=1:size(sp_u_coboundary_1,1) ]
 	I,J,V = Int64[],Int64[],Int8[]
-	vedges = [findn(larEV[:,v]) for v=1:size(larEV,2)]
+	vedges = [findall(!iszero, larEV[:,v]) for v=1:size(larEV,2)]
 
 	# Loop on faces
 	for f=1:length(FE)
@@ -332,14 +332,14 @@ function chaincomplex( W, EW )
 	V,cscEV,cscFE = LinearAlgebraicRepresentation.planar_arrangement(V,EV)
 	ne,nv = size(cscEV)
 	nf = size(cscFE,1)
-	EV = [findn(cscEV[e,:]) for e=1:ne]
-	FV = [collect(Set(vcat([EV[e] for e in findn(cscFE[f,:])]...)))  for f=1:nf]
+	EV = [findall(!iszero, cscEV[e,:]) for e=1:ne]
+	FV = [collect(Set(vcat([EV[e] for e in findall(!iszero, cscFE[f,:])]...)))  for f=1:nf]
 	function ord(cells)
 		return [sort(cell) for cell in cells]
 	end
 	temp = copy(cscEV')
 	for k=1:size(temp,2)
-		h = findn(temp[:,k])[1]
+		h = findall(!iszero, temp[:,k])[1]
 		temp[h,k] = -1
 	end    
 	cscEV = temp'
@@ -417,15 +417,15 @@ function chaincomplex(W,FW,EW)
 	ne,nv = size(cscEV)
 	nf = size(cscFE,1)
 	nc = size(cscCF,1)
-	EV = [findn(cscEV[e,:]) for e=1:ne]
-	FV = [collect(Set(vcat([EV[e] for e in findn(cscFE[f,:])]...)))  for f=1:nf]
-	CV = [collect(Set(vcat([FV[f] for f in findn(cscCF[c,:])]...)))  for c=2:nc]
+	EV = [findall(!iszero, cscEV[e,:]) for e=1:ne]
+	FV = [collect(Set(vcat([EV[e] for e in findall(!iszero, cscFE[f,:])]...)))  for f=1:nf]
+	CV = [collect(Set(vcat([FV[f] for f in findall(!iszero, cscCF[c,:])]...)))  for c=2:nc]
 	function ord(cells)
 		return [sort(cell) for cell in cells]
 	end
 	temp = copy(cscEV')
 	for k=1:size(temp,2)
-		h = findn(temp[:,k])[1]
+		h = findall(!iszero, temp[:,k])[1]
 		temp[h,k] = -1
 	end    
 	cscEV = temp'
@@ -474,7 +474,7 @@ end
 #          vs_indices = [v for v in FV[f]]
 #          vdict = Dict([(i,index) for (i,index) in enumerate(vs_indices)])
 #          dictv = Dict([(index,i) for (i,index) in enumerate(vs_indices)])
-#          es = findn(cscFE[f,:])
+#          es = findall(!iszero, cscFE[f,:])
       
 #          vts = [v-vs[1] for v in vs]
       

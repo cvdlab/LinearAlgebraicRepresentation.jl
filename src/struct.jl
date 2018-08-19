@@ -200,8 +200,8 @@ mutable struct Struct
 	category::AbstractString
 	
 	function Struct()
-		self = new([],Nullable{Any},"new",Nullable{Any},"feature")
-		self.name = string(object_id(self))
+		self = new([],Any,"new",Any,"feature")
+		self.name = string(objectid(self))
 		return self
 
 	end
@@ -427,8 +427,8 @@ function box(model)
 
 	elseif (isa(model,Tuple) ||isa(model,Array))&& (length(model)==2 || length(model)==3)
 		V = model[1]
-		theMin = minimum(V, 2)
-		theMax = maximum(V, 2)
+		theMin = minimum(V, dims=2)
+		theMax = maximum(V, dims=2)
 	end
 
 	return [theMin,theMax]

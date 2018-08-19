@@ -6,6 +6,7 @@ module LinearAlgebraicRepresentation
 	using Triangle
 	using SparseArrays
 	using LinearAlgebra
+	using Distributed
    
 	"""
 		Points = Array{Number,2}

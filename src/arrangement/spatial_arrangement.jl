@@ -149,8 +149,8 @@ function spatial_arrangement(V::LinearAlgebraicRepresentation.Points, EV::Linear
     rFE = spzeros(Int8,0,0)
 
     if (multiproc == true)
-        in_chan = RemoteChannel(()->Channel{Int64}(0))
-        out_chan = RemoteChannel(()->Channel{Tuple}(0))
+        in_chan = Distributed.RemoteChannel(()->Channel{Int64}(0))
+        out_chan = Distributed.RemoteChannel(()->Channel{Tuple}(0))
         
         @async begin
             for sigma in 1:fs_num

@@ -407,8 +407,8 @@ function planar_arrangement(
     finalcells_num = 0
 
     if (multiproc == true)
-        in_chan = RemoteChannel(()->Channel{Int64}(0))
-        out_chan = RemoteChannel(()->Channel{Tuple}(0))
+        in_chan = Distributed.RemoteChannel(()->Channel{Int64}(0))
+        out_chan = Distributed.RemoteChannel(()->Channel{Tuple}(0))
         
         ordered_dict = SortedDict{Int64,Tuple}()
         
@@ -416,12 +416,12 @@ function planar_arrangement(
             for i in 1:edgenum
                 put!(in_chan,i)
             end
-            for p in workers()
+            for p in distributed.workers()
                 put!(in_chan,-1)
             end
         end
         
-        for p in workers()
+        for p in distributed.workers()
             @async Base.remote_do(frag_edge_channel, p, in_chan, out_chan, V, copEV)
         end
         
