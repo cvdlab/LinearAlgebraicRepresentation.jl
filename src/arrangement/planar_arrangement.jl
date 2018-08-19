@@ -89,7 +89,7 @@ function merge_vertices!(V::LinearAlgebraicRepresentation.Points, EV::LinearAlge
     newverts = zeros(Int, vertsnum)
     # KDTree constructor needs an explicit array of Float64
     V = Array{Float64,2}(V)
-    kdtree = KDTree(V')
+    kdtree = KDTree(permutedims(V))
 
     todelete = []
     
@@ -98,7 +98,7 @@ function merge_vertices!(V::LinearAlgebraicRepresentation.Points, EV::LinearAlge
         if !(vi in todelete)
             nearvs = LinearAlgebraicRepresentation.inrange(kdtree, V[vi, :], err)
     
-            newverts[nearvs] = i
+            newverts[nearvs] .= i
     
             nearvs = setdiff(nearvs, vi)
             todelete = union(todelete, nearvs)
@@ -109,8 +109,8 @@ function merge_vertices!(V::LinearAlgebraicRepresentation.Points, EV::LinearAlge
     
     nV = V[setdiff(collect(1:vertsnum), todelete), :]
     
-    edges = Array{Tuple{Int, Int}, 1}(edgenum)
-    oedges = Array{Tuple{Int, Int}, 1}(edgenum)
+    edges = Array{Tuple{Int, Int}, 1}(undef, edgenum)
+    oedges = Array{Tuple{Int, Int}, 1}(undef, edgenum)
     
     for ei in 1:edgenum
         v1, v2 = EV[ei, :].nzind
@@ -128,7 +128,7 @@ function merge_vertices!(V::LinearAlgebraicRepresentation.Points, EV::LinearAlge
     etuple2idx = Dict{Tuple{Int, Int}, Int}()
     
     for ei in 1:nedgenum
-        nEV[ei, collect(nedges[ei])] = 1
+        nEV[ei, collect(nedges[ei])] .= 1
         etuple2idx[nedges[ei]] = ei
     end
     
@@ -166,7 +166,10 @@ function biconnected_components(EV::LinearAlgebraicRepresentation.ChainOp)
     
     function v_to_vi(v)
         i = findfirst(t->t[1]==v, ps)
-        if i == 0
+        # seems findfirst changed from 0 to Nothing
+        if typeof(i) == Nothing
+            return false
+        elseif i == 0
             return false
         else
             return ps[i][2]
@@ -239,7 +242,7 @@ end
 
 function get_external_cycle(V::LinearAlgebraicRepresentation.Points, EV::LinearAlgebraicRepresentation.ChainOp, FE::LinearAlgebraicRepresentation.ChainOp)
     FV = abs.(FE)*EV
-    vs = sparsevec(mapslices(sum, abs.(EV), 1)).nzind
+    vs = sparsevec(mapslices(sum, abs.(EV), dims=1)').nzind
     minv_x1 = maxv_x1 = minv_x2 = maxv_x2 = pop!(vs)
     for i in vs
         if V[i, 1] > V[maxv_x1, 1]
@@ -322,7 +325,7 @@ function transitive_reduction!(graph)
 end
 function cell_merging(n, containment_graph, V, EVs, boundaries, shells, shell_bboxes)
     function bboxes(V::LinearAlgebraicRepresentation.Points, indexes::LinearAlgebraicRepresentation.ChainOp)
-        boxes = Array{Tuple{Any, Any}}(indexes.n)
+        boxes = Array{Tuple{Any, Any}}(undef, indexes.n)
         for i in 1:indexes.n
             v_inds = indexes[:, i].nzind
             boxes[i] = LinearAlgebraicRepresentation.bbox(V[v_inds, :])
@@ -331,7 +334,7 @@ function cell_merging(n, containment_graph, V, EVs, boundaries, shells, shell_bb
     end
     
 
-    sums = Array{Tuple{Int, Int, Int}}(0);
+    sums = Array{Tuple{Int, Int, Int}}(undef, 0);
 
     for father in 1:n
         if sum(containment_graph[:, father]) > 0
@@ -409,7 +412,7 @@ function planar_arrangement(
         
         ordered_dict = SortedDict{Int64,Tuple}()
         
-        @schedule begin
+        @async begin
             for i in 1:edgenum
                 put!(in_chan,i)
             end

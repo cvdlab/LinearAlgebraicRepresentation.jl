@@ -1,5 +1,6 @@
+using LinearAlgebra
+using Test
 using LinearAlgebraicRepresentation
-using Base.Test
 
 @testset "checkStruct" begin
 	square=[([[0.575;-0.175] [0.575;0.175] [0.925;-0.175] [0.925;0.175]],
@@ -83,8 +84,8 @@ end
 	structure=LinearAlgebraicRepresentation.Struct([square])
 	@test typeof(structure.body) ==
 	Array{Tuple{Array{Float64,2},Array{Array{Int64,1},1}},1}
-	@test length(LinearAlgebraicRepresentation.traversal(eye(dim+1),[],structure,[]))==length(structure.body)
-	@test typeof(LinearAlgebraicRepresentation.traversal(eye(dim+1),[],structure,[]))==Array{Any,1}
+	@test length(LinearAlgebraicRepresentation.traversal(Matrix{Float64}(LinearAlgebra.I, dim+1, dim+1),[],structure,[]))==length(structure.body)
+	@test typeof(LinearAlgebraicRepresentation.traversal(Matrix{Float64}(LinearAlgebra.I, dim+1, dim+1),[],structure,[]))==Array{Any,1}
 end
 
 @testset "Struct Tests" begin

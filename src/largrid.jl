@@ -1,4 +1,3 @@
-using IterTools
 using DataStructures
 
 
@@ -17,7 +16,7 @@ julia> grid_0(10)
 ```
 """
 function grid_0(n::Int)::Array{Int64,2}
-    return hcat([[i] for i in range(0,n+1)]...)
+    return hcat([[i] for i in range(0, length=n+1)]...)
 end
 
 
@@ -37,7 +36,7 @@ julia> grid_1(10)
 ```
 """
 function grid_1(n)
-    return hcat([[i,i+1] for i in range(0,n)]...)
+    return hcat([[i,i+1] for i in range(0, length=n)]...)
 end
 
 
@@ -45,7 +44,7 @@ end
 	larGrid(n::Int)(d::Int)::Array{Int64,2}
 
 Generate either a *uniform 0D cellular complex* or a *uniform 1D cellular complex*.
-A `larGrid` function is given to generate the LAR representation of the cells of either a 0- or a 1-dimensional complex, depending on the value of the `d` parameter, to take values in the set ``\{0,1\}``, and providing the *order* of the output complex.
+A `larGrid` function is given to generate the LAR representation of the cells of either a 0- or a 1-dimensional complex, depending on the value of the `d` parameter, to take values in the set ``\\{0,1\\}``, and providing the *order* of the output complex.
 
 #	Example
 ```julia
@@ -100,7 +99,7 @@ julia> cart([[1,2,3],["a","b"],[11,12]])
 ```
 """
 function cart(args)::Array{Tuple,1}
-   return sort(collect(IterTools.product(args...)))
+   return sort(vcat(collect(Iterators.product(args...))...))
 end
 
 
@@ -108,7 +107,7 @@ end
 	larVertProd(vertLists::Array{Points,1})::Points
 
 Generate the integer *coordinates of vertices* (0-cells) of a *multidimensional grid*.
-*Grid n-vertices* are produced by the `larVertProd` function, via Cartesian product of vertices of ``n`` 0-dimensional arguments (vertex arrays in `vertLists`), orderly corresponding to ``x_1, x_2, ..., x_n`` coordinates in the output points ``(x_1, x_2,\ldots,x_n)`` in ``R^n``.
+*Grid n-vertices* are produced by the `larVertProd` function, via Cartesian product of vertices of ``n`` 0-dimensional arguments (vertex arrays in `vertLists`), orderly corresponding to ``x_1, x_2, ..., x_n`` coordinates in the output points ``(x_1, x_2,\\ldots,x_n)`` in ``R^n``.
 
 #	Example
 
@@ -122,7 +121,7 @@ julia> larVertProd([ larGrid(3)(0), larGrid(4)(0) ])
 """
 function larVertProd(vertLists::Array{Array{Int64,2},1})::Array{Int64,2}
    coords = [[x[1] for x in v] for v in cart(vertLists)]
-   return sortcols(hcat(coords...))
+   return sortslices(hcat(coords...), dims=2)
 end
 
 
@@ -153,7 +152,7 @@ julia> index2addr([3,6])([2,5])
 function index2addr( shape::Array{Int64,2} )
     n = length(shape)
     theShape = append!(shape[2:end],1)
-    weights = [prod(theShape[k:end]) for k in range(1,n)]
+    weights = [prod(theShape[k:end]) for k in range(1, length=n)]
     
     function index2addr0( multiIndex::Array{Int,1} )::Int
         return dot(collect(multiIndex), weights) + 1
@@ -231,11 +230,13 @@ julia> LARVIEW.view(grid3D)
 """
 function larCellProd(cellLists::Array{Cells,1})::Cells
    shapes = [length(item) for item in cellLists]
-   subscripts = cart([collect(range(0,shape)) for shape in shapes])
-   indices = [collect(tuple) for tuple in subscripts]
+   subscripts = cart([collect(range(0, length=shape)) for shape in shapes])
+   dindices = [collect(tuple) for tuple in subscripts]
+   # Broadcast +1 on subarrays
+   dindices = [item .+ 1 for item in dindices]
    jointCells = [cart([cells[k] for (k,cells) in zip(index,cellLists)]) 
    				for index in indices .+ 1]
-   convertIt = index2addr([ (length(cellLists[k][1]) > 1)? shape+1 : shape 
+   convertIt = index2addr([ (length(cellLists[k][1]) > 1) ? shape+1 : shape 
       for (k,shape) in enumerate(shapes) ])     
    [vcat(map(convertIt, map(collect,jointCells[j]))...) for j in 1:length(jointCells)]
 end
@@ -258,9 +259,8 @@ julia> filterByOrder(3)
  Array{Int8,1}[Int8[0, 1, 1], Int8[1, 0, 1], Int8[1, 1, 0]]
  Array{Int8,1}[Int8[1, 1, 1]]                              
 ```"""
-function filterByOrder(n::Int)::Array{Array{Array{Int8,1},1},1}
-   binaryRange(n) = bin.(range(0,2^n),n)
-   terms = [[parse(Int8,bit) for bit in collect(term)] for term in binaryRange(n)]
+function filterByOrder(n::Int)Array{Array{Array{Int8,1},1},1}
+   terms = [[parse(Int8,bit) for bit in collect(term)] for term in LinearAlgebraicRepresentation.binaryRange(n)]
    return [[term for term in terms if sum(term) == k] for k in 0:n]
 end
 

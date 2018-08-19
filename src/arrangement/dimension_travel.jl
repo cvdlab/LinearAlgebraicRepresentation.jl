@@ -1,10 +1,12 @@
+using LinearAlgebra
+
 function submanifold_mapping(vs)
     u1 = vs[2,:] - vs[1,:]
     u2 = vs[3,:] - vs[1,:]
     u3 = cross(u1, u2)
-    T = eye(4)
+    T = Matrix{Float64}(LinearAlgebra.I, 4, 4)
     T[4, 1:3] = - vs[1,:]
-    M = eye(4)
+    M = Matrix{Float64}(LinearAlgebra.I, 4, 4)
     M[1:3, 1:3] = [u1 u2 u3]
     return T*M
 end
@@ -19,7 +21,7 @@ function spatial_index(V::LinearAlgebraicRepresentation.Points, EV::LinearAlgebr
         intervals = map((l,u)->IntervalsType(l,u,fi), LinearAlgebraicRepresentation.bbox(V[vidxs, :])...)
         boxes1D = vcat(boxes1D, intervals)
     end
-    trees = mapslices(IntervalTree{Float64, IntervalsType}, sort(boxes1D, 1), 1)
+    trees = mapslices(IntervalTree{Float64, IntervalsType}, sort(boxes1D, 1), dims=1)
     
     function intersect_intervals(intervals)
         cells = Array{Int64,1}[]

@@ -6,8 +6,8 @@ The axis aligned bounding box of the provided set of n-dim `vertices`.
 The box is returned as the couple of `Points` of the two opposite corners of the box.
 """
 function bbox(vertices::Points)
-    minimum = mapslices(x->min(x...), vertices, 1)
-    maximum = mapslices(x->max(x...), vertices, 1)
+    minimum = mapslices(x->min(x...), vertices, dims=1)
+    maximum = mapslices(x->max(x...), vertices, dims=1)
     minimum, maximum
 end
 
@@ -180,9 +180,11 @@ function buildFV(copEV::ChainOp, face::Array{Int, 1})
         push!(vs, curv)
 
         edge = 0
-        for edge in copEV[:, curv].nzind
-            nextv = setdiff(copEV[edge, :].nzind, curv)[1]
-            if nextv in face && (nextv == startv || !(nextv in vs)) && !(edge in visited_edges)
+
+        for edgeEx in copEV[:, curv].nzind
+            nextv = setdiff(copEV[edgeEx, :].nzind, curv)[1]
+            if nextv in face && (nextv == startv || !(nextv in vs)) && !(edgeEx in visited_edges)
+                edge = edgeEx
                 break
             end
         end
@@ -209,7 +211,7 @@ function build_copFE(FV::Cells, EV::Cells)
     for face in FV
         f = []
         for (i,v) in enumerate(face)
-            edge = [v, face[i==length(face)?1:i+1]]
+            edge = [v, face[(i==length(face)) ? 1 : i+1]]
             ord_edge = sort(edge)
 
             edge_idx = findfirst(e->e==ord_edge, EV)
@@ -608,4 +610,13 @@ function obj2lar(path)
     end
 
     return vs, build_cops(edges, faces)
+end
+
+"""
+    binaryRange(n)
+
+Generate the first `n` binary numbers in string padded for max `2^n` length
+"""
+function binaryRange(n) 
+    return string.(range(0, length=2^n), base=2, pad=n)
 end

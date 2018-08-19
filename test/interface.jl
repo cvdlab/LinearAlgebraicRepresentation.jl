@@ -1,11 +1,10 @@
 using LinearAlgebraicRepresentation
-using Base.Test
-
+using Test
 
 @testset "interface.jl file Tests" begin
 	@testset "characteristicMatrix Tests" begin
 		V,(VV,EV,FV,CV) = LinearAlgebraicRepresentation.cuboid([1.,1.,1.], true); 
-		@test full(LinearAlgebraicRepresentation.characteristicMatrix(FV)) == [
+		@test Matrix(LinearAlgebraicRepresentation.characteristicMatrix(FV)) == [
 		 1  1  1  1  0  0  0  0;
 		 0  0  0  0  1  1  1  1;
 		 1  1  0  0  1  1  0  0;
@@ -14,7 +13,7 @@ using Base.Test
 		 0  1  0  1  0  1  0  1]
 		@test size(LinearAlgebraicRepresentation.characteristicMatrix(CV))==(1,8)
 		@test typeof(LinearAlgebraicRepresentation.characteristicMatrix(CV))==SparseMatrixCSC{Int8,Int64}
-		@test full(LinearAlgebraicRepresentation.characteristicMatrix(EV)) == [
+		@test Matrix(LinearAlgebraicRepresentation.characteristicMatrix(EV)) == [
 		 1  1  0  0  0  0  0  0;
 		 0  0  1  1  0  0  0  0;
 		 0  0  0  0  1  1  0  0;
@@ -29,9 +28,7 @@ using Base.Test
 		 0  0  0  1  0  0  0  1]
 		@test size(LinearAlgebraicRepresentation.characteristicMatrix(EV))==(12,8)
 		@test typeof(LinearAlgebraicRepresentation.characteristicMatrix(EV))==SparseMatrixCSC{Int8,Int64}
-	end;
-   
-
+	end
 
 	@testset "signed_boundary_1 Tests" begin
 		V,(VV,EV,FV,CV) = LinearAlgebraicRepresentation.cuboid([1.,1.,1.], true);
@@ -45,7 +42,7 @@ using Base.Test
 		@test typeof(signed_boundary_1)==SparseMatrixCSC{Int8,Int64}
 		@test nnz(signed_boundary_1)==24
 
-		@test full(LinearAlgebraicRepresentation.boundary_1(EV::LinearAlgebraicRepresentation.Cells))==[
+		@test Matrix(LinearAlgebraicRepresentation.boundary_1(EV::LinearAlgebraicRepresentation.Cells))==[
 		 -1   0   0   0  -1   0   0   0  -1   0   0   0;
 		  1   0   0   0   0  -1   0   0   0  -1   0   0;
 		  0  -1   0   0   1   0   0   0   0   0  -1   0;
@@ -56,8 +53,6 @@ using Base.Test
 		  0   0   0   1   0   0   0   1   0   0   0   1]
 	end
 
-
-
 	@testset "unsigned_coboundary_1 Tests" begin
 		V,(VV,EV,FV,CV) = LinearAlgebraicRepresentation.cuboid([1.,1.,1.], true);
 		unsigned_coboundary_1 = LinearAlgebraicRepresentation.u_coboundary_1(FV,EV)
@@ -66,7 +61,7 @@ using Base.Test
 		@test nnz(unsigned_coboundary_1)==24
 		@test typeof(unsigned_coboundary_1)==SparseMatrixCSC{Int8,Int64}
 
-		@test full(unsigned_coboundary_1)==[
+		@test Matrix(unsigned_coboundary_1)==[
 		 1  1  0  0  1  1  0  0  0  0  0  0;
 		 0  0  1  1  0  0  1  1  0  0  0  0;
 		 1  0  1  0  0  0  0  0  1  1  0  0;
@@ -74,10 +69,6 @@ using Base.Test
 		 0  0  0  0  1  0  1  0  1  0  1  0;
 		 0  0  0  0  0  1  0  1  0  1  0  1]
 	 end
-
-
-  
-
 
 	@testset "signed_coboundary_1 Tests" begin
 		V,(VV,EV,FV,CV) = LinearAlgebraicRepresentation.cuboid([1.,1.,1.], true);
@@ -88,7 +79,7 @@ using Base.Test
 		@test nnz(signed_coboundary_1)==24
 		@test signed_coboundary_1[1,1]==-1
 		@test signed_coboundary_1[6,12]==-1
-		@test full(signed_coboundary_1)==
+		@test Matrix(signed_coboundary_1)==
 		[-1   1   0  0   1  -1  0   0  0   0   0   0;
 		  0   0  -1  1   0   0  1  -1  0   0   0   0;
 		 -1   0   1  0   0   0  0   0  1  -1   0   0;
@@ -96,9 +87,6 @@ using Base.Test
 		  0   0   0  0  -1   0  1   0  1   0  -1   0;
 		  0   0   0  0   0  -1  0   1  0   1   0  -1]
 	end
-
-
-
 
 	@testset "chaincomplex 2D Tests" begin
 		W = 
@@ -123,7 +111,7 @@ using Base.Test
 		@test size(coboundaries[2])==(9,24) # coboundary_2: oriented 2-cycles of faces
 		@test typeof(coboundaries[2])==SparseMatrixCSC{Int8,Int64} 
 		@test nnz(coboundaries[2])==36 # coboundary_2: oriented 2-cycles of faces
-		@test full(coboundaries[2]) ==
+		@test Matrix(coboundaries[2]) ==
 		[-1  0  0  1  0  0  0  0  0  0  0  0  1 -1  0  0  0  0  0  0  0  0  0  0;
 		  0 -1  0  0  1  0  0  0  0  0  0  0  0  1 -1  0  0  0  0  0  0  0  0  0;
 		  0  0 -1  0  0  1  0  0  0  0  0  0  0  0  1 -1  0  0  0  0  0  0  0  0;
@@ -134,8 +122,6 @@ using Base.Test
 		  0  0  0  0  0  0 -1  0  0  1  0  0  0  0  0  0  0  0  0  0  1 -1  0  0;
 		  0  0  0  0  0  0  0  0 -1  0  0  1  0  0  0  0  0  0  0  0  0  0  1 -1]
 	end
-
-
 
 	@testset "chaincomplex 3D Tests" begin
 		cube_1 = ([0 0 0 0 1 1 1 1; 0 0 1 1 0 0 1 1; 0 1 0 1 0 1 0 1], 
