@@ -20,7 +20,7 @@ end
 
 function minimal_3cycles(V::LinearAlgebraicRepresentation.Points, EV::LinearAlgebraicRepresentation.ChainOp, FE::LinearAlgebraicRepresentation.ChainOp)
 
-    triangulated_faces = Array{Any, 1}(FE.m)
+    triangulated_faces = Array{Any, 1}(undef, FE.m)
     
     function face_angle(e::Int, f::Int)
         if !isassigned(triangulated_faces, f)
@@ -77,13 +77,14 @@ function minimal_3cycles(V::LinearAlgebraicRepresentation.Points, EV::LinearAlge
         vs = V[[edge_vs..., third_v], :]*M
     
         v = vs[3, :] - vs[1, :]
-        angle = atan2(v[2], v[3]) 
+        angle = atan(v[2], v[3]) 
     
         return angle
     end
     
 
-    EF = FE'
+    #EF = FE'
+    EF = convert(LinearAlgebraicRepresentation.ChainOp, LinearAlgebra.transpose(FE))
 
     FC = minimal_cycles(face_angle, true)(V, EF)
 
@@ -93,7 +94,8 @@ end
 
 function minimal_cycles(angles_fn::Function, verbose=false)
 
-    function _minimal_cycles(V::LinearAlgebraicRepresentation.Points, ld_bounds::LinearAlgebraicRepresentation.ChainOp)
+    function _minimal_cycles(V::LinearAlgebraicRepresentation.Points, 
+    ld_bounds::LinearAlgebraicRepresentation.ChainOp)
         lld_cellsnum, ld_cellsnum = size(ld_bounds)
         count_marks = zeros(Int8, ld_cellsnum)
         dir_marks = zeros(Int8, ld_cellsnum)
@@ -121,6 +123,7 @@ function minimal_cycles(angles_fn::Function, verbose=false)
             as = map(a->a[1], as)
             angles[lld] = as
         end
+        
         function nextprev(lld::Int64, ld::Int64, norp)
             as = angles[lld]
             #ne = findfirst(as, ld)  (findfirst(isequal(v), A), 0)[1]

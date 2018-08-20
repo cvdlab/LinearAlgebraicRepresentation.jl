@@ -477,7 +477,7 @@ function planar_arrangement(
                 v1, v2 = map(i->V[vidxs[i], :], [1,2])
                 centroid = .5*(v1 + v2)
                 
-                if ! point_in_face(centroid, V, ev) 
+                if ! LinearAlgebraicRepresentation.point_in_face(centroid, V, ev) 
                     push!(todel, e)
                 end
             end
@@ -496,7 +496,7 @@ function planar_arrangement(
             end
         end
     
-        V, copEV = delete_edges(todel, V, copEV)
+        V, copEV = LinearAlgebraicRepresentation.delete_edges(todel, V, copEV)
     end
     
     bicon_comps = biconnected_components(copEV)

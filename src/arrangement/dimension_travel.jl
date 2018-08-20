@@ -46,7 +46,7 @@ end
 function face_int(V::LinearAlgebraicRepresentation.Points, EV::LinearAlgebraicRepresentation.ChainOp, face::LinearAlgebraicRepresentation.Cell)
 
     vs = LinearAlgebraicRepresentation.buildFV(EV, face)
-    retV = LinearAlgebraicRepresentation.Points(0, 3)
+    retV = LinearAlgebraicRepresentation.Points(undef, 0, 3)
     
     visited_verts = []
     for i in 1:length(vs)
@@ -80,7 +80,7 @@ function face_int(V::LinearAlgebraicRepresentation.Points, EV::LinearAlgebraicRe
 
     if vnum == 1
         vnum = 0
-        retV = LinearAlgebraicRepresentation.Points(0, 3)
+        retV = LinearAlgebraicRepresentation.Points(undef, 0, 3)
     end
     enum = Int(vnum / 2)
     retEV = spzeros(Int8, enum, vnum)
