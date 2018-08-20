@@ -24,7 +24,7 @@ function frag_face(V, EV, FE, sp_idx, sigma)
     for i in sp_idx[sigma]
         tmpV, tmpEV = face_int(tV, EV, FE[i, :])
         
-        sV, sEV = LinearAlgebraicRepresentation.skel_merge(sV, sEV, tmpV, tmpEV)
+        sV, sEV = skel_merge(sV, sEV, tmpV, tmpEV)
     end
     
     sV = sV[:, 1:2]
@@ -144,9 +144,9 @@ function spatial_arrangement(V::LinearAlgebraicRepresentation.Points, EV::Linear
     fs_num = size(FE, 1)
     sp_idx = spatial_index(V, EV, FE)
 
-    rV = LinearAlgebraicRepresentation.Points(0,3)
-    rEV = spzeros(Int8,0,0)
-    rFE = spzeros(Int8,0,0)
+    global rV = LinearAlgebraicRepresentation.Points(undef, 0,3)
+    global rEV = SparseArrays.spzeros(Int8,0,0)
+    global rFE = SparseArrays.spzeros(Int8,0,0)
 
     if (multiproc == true)
         in_chan = Distributed.RemoteChannel(()->Channel{Int64}(0))
@@ -156,25 +156,25 @@ function spatial_arrangement(V::LinearAlgebraicRepresentation.Points, EV::Linear
             for sigma in 1:fs_num
                 put!(in_chan, sigma)
             end
-            for p in workers()
+            for p in Distributed.workers()
                 put!(in_chan, -1)
             end
         end
         
-        for p in workers()
+        for p in Distributed.workers()
             @async Base.remote_do(
                 frag_face_channel, p, in_chan, out_chan, V, EV, FE, sp_idx)
         end
         
         for sigma in 1:fs_num
-            rV, rEV, rFE = LinearAlgebraicRepresentation.skel_merge(rV, rEV, rFE, take!(out_chan)...)
+            rV, rEV, rFE = skel_merge(rV, rEV, rFE, take!(out_chan)...)
         end
         
     else
         for sigma in 1:fs_num
             # print(sigma, "/", fs_num, "\r")
             nV, nEV, nFE = frag_face(V, EV, FE, sp_idx, sigma)
-            rV, rEV, rFE = LinearAlgebraicRepresentation.skel_merge(rV, rEV, rFE, nV, nEV, nFE)
+            rV, rEV, rFE = skel_merge(rV, rEV, rFE, nV, nEV, nFE)
         end
         
     end

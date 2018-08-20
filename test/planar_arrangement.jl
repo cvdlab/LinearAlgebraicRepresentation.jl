@@ -2,6 +2,7 @@ using Test
 using LinearAlgebraicRepresentation
 using SparseArrays
 using LinearAlgebra
+using LinearAlgebraicRepresentation.Arrangement
 
 @testset "Edge fragmentation tests" begin
     V = [2 2; 4 2; 3 3.5; 1 3; 5 3; 1 2; 5 2]

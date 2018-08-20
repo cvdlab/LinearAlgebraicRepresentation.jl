@@ -38,18 +38,18 @@ module LinearAlgebraicRepresentation
 
 
 	"""
-		Chain = SparseVector{Int8,Int}
+		Chain = SparseArrays.SparseVector{Int8,Int}
 	
 	Alias declation of LAR-specific data structure.
 	Binary `SparseVector` to store the coordinates of a `chain` of `N-cells`. It is
 	`nnz=1` with `value=1` for the coordinates of an *elementary N-chain*, constituted by 
 	a single *N-chain*.
 	"""
-	const Chain = SparseVector{Int8,Int}
+	const Chain = SparseArrays.SparseVector{Int8,Int}
 
 
 	"""
-		ChainOp = SparseMatrixCSC{Int8,Int}
+		ChainOp = SparseArrays.SparseMatrixCSC{Int8,Int}
 	
 	Alias declation of LAR-specific data structure. 
 	`SparseMatrix` in *Compressed Sparse Column* format, contains the coordinate 
@@ -59,7 +59,7 @@ module LinearAlgebraicRepresentation
 	`ChainOp` with elements in ``\\{-1,0,1\\}`` or in ``\\{0,1\\}``, for 
 	*signed* and *unsigned* operators, respectively.
 	"""
-	const ChainOp = SparseMatrixCSC{Int8,Int}
+	const ChainOp = SparseArrays.SparseMatrixCSC{Int8,Int}
 
 
 	"""

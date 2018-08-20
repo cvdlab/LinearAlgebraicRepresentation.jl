@@ -16,7 +16,8 @@ function frag_edge(V::LinearAlgebraicRepresentation.Points, EV::LinearAlgebraicR
     verts = V[edge.nzind, :]
     for i in 1:size(EV, 1)
         if i != edge_idx
-            intersection = intersect_edges(V, edge, EV[i, :])
+            intersection = intersect_edges(
+            	V, edge, EV[i, :])
             for (point, alpha) in intersection
                 verts = [verts; point]
                 alphas[alpha] = size(verts, 1)
@@ -29,7 +30,7 @@ function frag_edge(V::LinearAlgebraicRepresentation.Points, EV::LinearAlgebraicR
     alphas_keys = sort(collect(keys(alphas)))
     edge_num = length(alphas_keys)-1
     verts_num = size(verts, 1)
-    ev = spzeros(Int8, edge_num, verts_num)
+    ev = SparseArrays.spzeros(Int8, edge_num, verts_num)
 
     for i in 1:edge_num
         ev[i, alphas[alphas_keys[i]]] = 1
@@ -395,16 +396,17 @@ returns the full arranged complex `V`, `EV` and `FE`.
 - `multiproc::Bool`: Runs the computation in parallel mode. Defaults to `false`.
 """
 function planar_arrangement(
-        V::LinearAlgebraicRepresentation.Points, copEV::LinearAlgebraicRepresentation.ChainOp, 
+        V::LinearAlgebraicRepresentation.Points, 	
+        copEV::LinearAlgebraicRepresentation.ChainOp, 
         sigma::LinearAlgebraicRepresentation.Chain=spzeros(Int8, 0), 
         return_edge_map::Bool=false, 
         multiproc::Bool=false)
     
     edgenum = size(copEV, 1)
-    edge_map = Array{Array{Int, 1}, 1}(edgenum)
-    rV = LinearAlgebraicRepresentation.Points(zeros(0, 2))
-    rEV = spzeros(Int8, 0, 0)
-    finalcells_num = 0
+    edge_map = Array{Array{Int, 1}, 1}(undef,edgenum)
+    global rV = LinearAlgebraicRepresentation.Points(zeros(0, 2))
+    global rEV = SparseArrays.spzeros(Int8, 0, 0)
+    global finalcells_num = 0
 
     if (multiproc == true)
         in_chan = Distributed.RemoteChannel(()->Channel{Int64}(0))
@@ -439,7 +441,7 @@ function planar_arrangement(
             
             finalcells_num += size(ev, 1)
             
-            rV, rEV = LinearAlgebraicRepresentation.skel_merge(rV, rEV, v, ev)
+            rV, rEV = skel_merge(rV, rEV, v, ev)
         end
         
     else
@@ -451,7 +453,7 @@ function planar_arrangement(
             edge_map[i] = newedges_nums
         
             finalcells_num += size(ev, 1)
-            rV, rEV = LinearAlgebraicRepresentation.skel_merge(rV, rEV, v, ev)
+            rV, rEV = skel_merge(rV, rEV, v, ev)
         end
         
     end
@@ -475,7 +477,7 @@ function planar_arrangement(
                 v1, v2 = map(i->V[vidxs[i], :], [1,2])
                 centroid = .5*(v1 + v2)
                 
-                if !LinearAlgebraicRepresentation.point_in_face(centroid, V, ev) 
+                if ! point_in_face(centroid, V, ev) 
                     push!(todel, e)
                 end
             end
@@ -494,7 +496,7 @@ function planar_arrangement(
             end
         end
     
-        V, copEV = LinearAlgebraicRepresentation.delete_edges(todel, V, copEV)
+        V, copEV = delete_edges(todel, V, copEV)
     end
     
     bicon_comps = biconnected_components(copEV)
