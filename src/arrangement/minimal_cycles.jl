@@ -4,18 +4,18 @@ function minimal_2cycles(V::LinearAlgebraicRepresentation.Points, EV::LinearAlge
         edge = EV[e, :]
         v2 = setdiff(edge.nzind, [v])[1]
         x, y = V[v2, :] - V[v, :]
-        return atan2(y, x)
+        return atan(y, x)
     end
 
     for i in 1:EV.m
         j = min(EV[i,:].nzind...)
         EV[i, j] = -1
     end
-    VE = EV'
+    VE = convert(LinearAlgebraicRepresentation.ChainOp, SparseArrays.transpose(EV))
 
-    EF = minimal_cycles(edge_angle)(V, VE)
+    EF = LinearAlgebraicRepresentation.Arrangement.minimal_cycles(edge_angle)(V, VE)
 
-    return EF'
+    return convert(LinearAlgebraicRepresentation.ChainOp, SparseArrays.transpose(EF))
 end
 
 function minimal_3cycles(V::LinearAlgebraicRepresentation.Points, EV::LinearAlgebraicRepresentation.ChainOp, FE::LinearAlgebraicRepresentation.ChainOp)
@@ -99,7 +99,7 @@ function minimal_cycles(angles_fn::Function, verbose=false)
         dir_marks = zeros(Int8, ld_cellsnum)
         d_bounds = spzeros(Int8, ld_cellsnum, 0)
         
-        angles = Array{Array{Int64, 1}, 1}(lld_cellsnum)
+        angles = Array{Array{Int64, 1}, 1}(undef, lld_cellsnum)
         
         function get_seed_cell()
             s = -1
@@ -123,7 +123,8 @@ function minimal_cycles(angles_fn::Function, verbose=false)
         end
         function nextprev(lld::Int64, ld::Int64, norp)
             as = angles[lld]
-            ne = findfirst(as, ld)
+            #ne = findfirst(as, ld)  (findfirst(isequal(v), A), 0)[1]
+            ne = (findfirst(isequal(ld), as), 0)[1]  
             while true
                 ne += norp
                 if ne > length(as)

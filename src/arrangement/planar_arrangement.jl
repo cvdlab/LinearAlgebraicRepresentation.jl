@@ -441,7 +441,7 @@ function planar_arrangement(
             
             finalcells_num += size(ev, 1)
             
-            rV, rEV = skel_merge(rV, rEV, v, ev)
+            rV, rEV = LinearAlgebraicRepresentation.skel_merge(rV, rEV, v, ev)
         end
         
     else
@@ -453,7 +453,7 @@ function planar_arrangement(
             edge_map[i] = newedges_nums
         
             finalcells_num += size(ev, 1)
-            rV, rEV = skel_merge(rV, rEV, v, ev)
+            rV, rEV = LinearAlgebraicRepresentation.skel_merge(rV, rEV, v, ev)
         end
         
     end
@@ -531,13 +531,14 @@ function planar_arrangement(
     bicon_comps = biconnected_components(copEV)
     
     n = size(bicon_comps, 1)
-    shells = Array{LinearAlgebraicRepresentation.Chain, 1}(n)
-    boundaries = Array{LinearAlgebraicRepresentation.ChainOp, 1}(n)
-    EVs = Array{LinearAlgebraicRepresentation.ChainOp, 1}(n)
+    shells = Array{LinearAlgebraicRepresentation.Chain, 1}(undef, n)
+    boundaries = Array{LinearAlgebraicRepresentation.ChainOp, 1}(undef, n)
+    EVs = Array{LinearAlgebraicRepresentation.ChainOp, 1}(undef, n)
     for p in 1:n
         ev = copEV[sort(bicon_comps[p]), :]
-        fe = minimal_2cycles(V, ev)
-        shell_num = get_external_cycle(V, ev, fe)
+        fe = LinearAlgebraicRepresentation.Arrangement.minimal_2cycles(V, ev)
+        shell_num = LinearAlgebraicRepresentation.Arrangement.get_external_cycle(
+        	V, ev, fe)
     
         EVs[p] = ev 
         tokeep = setdiff(1:fe.m, shell_num)
@@ -556,7 +557,8 @@ function planar_arrangement(
     
     transitive_reduction!(containment_graph) 
     
-    copEV, FE = cell_merging(n, containment_graph, V, EVs, boundaries, shells, shell_bboxes)
+    copEV, FE = LinearAlgebraicRepresentation.Arrangement.cell_merging(
+    	n, containment_graph, V, EVs, boundaries, shells, shell_bboxes)
     
     if (return_edge_map)
         return V, copEV, FE, edge_map

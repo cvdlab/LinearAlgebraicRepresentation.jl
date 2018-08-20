@@ -327,13 +327,17 @@ julia> Matrix(coboundaries[2]) # coboundary_1: faces as oriented 1-cycles of edg
 ```
 """
 function chaincomplex( W, EW )
-	V = W'
-	EV = LinearAlgebraicRepresentation.boundary_1(EW)'
+	V = convert(Array{Float64,2},LinearAlgebra.transpose(W))
+	EV = SparseArrays.transpose(LinearAlgebraicRepresentation.boundary_1(EW))
+	EV = convert(LinearAlgebraicRepresentation.ChainOp,EV)
+	
 	V,cscEV,cscFE = LinearAlgebraicRepresentation.planar_arrangement(V,EV)
+	
 	ne,nv = size(cscEV)
 	nf = size(cscFE,1)
 	EV = [findall(!iszero, cscEV[e,:]) for e=1:ne]
 	FV = [collect(Set(vcat([EV[e] for e in findall(!iszero, cscFE[f,:])]...)))  for f=1:nf]
+	
 	function ord(cells)
 		return [sort(cell) for cell in cells]
 	end
@@ -410,7 +414,8 @@ julia> cscCF # coboundaries[3]
 ```	
 """
 function chaincomplex(W,FW,EW)
-	V = W'
+	#V = W'
+	V = convert(LinearAlgebraicRepresentation.Points,LinearAlgebra.transpose(W))
 	EV = LinearAlgebraicRepresentation.build_copEV(EW)
 	FE = LinearAlgebraicRepresentation.coboundary_1(FW,EW)
 	V,cscEV,cscFE,cscCF = LinearAlgebraicRepresentation.spatial_arrangement(V,EV,FE)
