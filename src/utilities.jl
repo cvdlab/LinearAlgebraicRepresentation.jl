@@ -65,10 +65,8 @@ Merge two **1-skeletons**
 """
 function skel_merge(V1::Points, EV1::ChainOp, V2::Points, EV2::ChainOp)
     V = [V1; V2]
-    EV = spzeros(Int8, EV1.m + EV2.m, EV1.n + EV2.n)
-    EV[1:EV1.m, 1:EV1.n] = EV1
-    EV[EV1.m+1:end, EV1.n+1:end] = EV2
-    V, EV
+    EV = blockdiag(EV1,EV2)
+    return V, EV
 end
 
 """
@@ -77,11 +75,9 @@ end
 Merge two **2-skeletons**
 """
 function skel_merge(V1::Points, EV1::ChainOp, FE1::ChainOp, V2::Points, EV2::ChainOp, FE2::ChainOp)
-    FE = spzeros(Int8, FE1.m + FE2.m, FE1.n + FE2.n)
-    FE[1:FE1.m, 1:FE1.n] = FE1
-    FE[FE1.m+1:end, FE1.n+1:end] = FE2
+    FE = blockdiag(FE1,FE2)
     V, EV = skel_merge(V1, EV1, V2, EV2)
-    V, EV, FE
+    return V, EV, FE
 end
 
 """
@@ -110,6 +106,9 @@ function delete_edges(todel, V::Points, EV::ChainOp)
 
     return V, EV
 end
+
+
+
 
 """
     buildFV(EV::Cells, face::Cell)
@@ -620,3 +619,30 @@ Generate the first `n` binary numbers in string padded for max `2^n` length
 function binaryRange(n) 
     return string.(range(0, length=2^n), base=2, pad=n)
 end
+
+
+function space_arrangement(V,EV,FE)
+    fs_num = size(FE, 1)
+    sp_idx = LinearAlgebraicRepresentation.Arrangement.spatial_index(V, EV, FE)
+
+    global rV = LinearAlgebraicRepresentation.Points(undef, 0,3)
+    global rEV = SparseArrays.spzeros(Int8,0,0)
+    global rFE = SparseArrays.spzeros(Int8,0,0)
+    
+
+        for sigma in 1:fs_num
+            # print(sigma, "/", fs_num, "\r")
+            nV, nEV, nFE = LinearAlgebraicRepresentation.Arrangement.frag_face(
+            	V, EV, FE, sp_idx, sigma)
+            a,b,c = LinearAlgebraicRepresentation.skel_merge(
+            	rV, rEV, rFE, nV, nEV, nFE)
+            global rV=a; global rEV=b; global rFE=c
+        end
+
+    rV, rEV, rFE = LinearAlgebraicRepresentation.Arrangement.merge_vertices(rV, rEV, rFE)
+    
+    rCF = LinearAlgebraicRepresentation.Arrangement.minimal_3cycles(rV, rEV, rFE)
+
+    return rV, rEV, rFE, rCF
+end
+

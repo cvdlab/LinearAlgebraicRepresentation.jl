@@ -88,7 +88,8 @@ function minimal_3cycles(V::LinearAlgebraicRepresentation.Points, EV::LinearAlge
 
     FC = minimal_cycles(face_angle, true)(V, EF)
 
-    return -FC'
+	#FC'
+    return -convert(LinearAlgebraicRepresentation.ChainOp, LinearAlgebra.transpose(FC))
 end
 
 

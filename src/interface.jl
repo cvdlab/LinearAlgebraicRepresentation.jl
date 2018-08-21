@@ -414,11 +414,11 @@ julia> cscCF # coboundaries[3]
 ```	
 """
 function chaincomplex(W,FW,EW)
-	#V = W'
-	V = convert(LinearAlgebraicRepresentation.Points,LinearAlgebra.transpose(W))
+	V = convert(LinearAlgebraicRepresentation.Points, LinearAlgebra.transpose(W))
 	EV = LinearAlgebraicRepresentation.build_copEV(EW)
 	FE = LinearAlgebraicRepresentation.coboundary_1(FW,EW)
-	V,cscEV,cscFE,cscCF = LinearAlgebraicRepresentation.spatial_arrangement(V,EV,FE)
+	V,cscEV,cscFE,cscCF = LinearAlgebraicRepresentation.space_arrangement(V,EV,FE)
+	
 	ne,nv = size(cscEV)
 	nf = size(cscFE,1)
 	nc = size(cscCF,1)
@@ -433,7 +433,7 @@ function chaincomplex(W,FW,EW)
 		h = findall(!iszero, temp[:,k])[1]
 		temp[h,k] = -1
 	end    
-	cscEV = temp'
+	cscEV = convert(LinearAlgebraicRepresentation.ChainOp, LinearAlgebra.transpose(temp))
 	bases, coboundaries = (ord(EV),ord(FV),ord(CV)), (cscEV,cscFE,cscCF)
 	return V',bases,coboundaries
 end

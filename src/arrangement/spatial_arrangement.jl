@@ -3,7 +3,7 @@ function frag_face_channel(in_chan, out_chan, V, EV, FE, sp_idx)
     while run_loop
         sigma = take!(in_chan)
         if sigma != -1
-            put!(out_chan, LinearAlgebraicRepresentation.Arrangement.frag_face(V, EV, FE, sp_idx, sigma))
+            put!(out_chan, frag_face(V, EV, FE, sp_idx, sigma))
         else
             run_loop = false
         end
@@ -180,8 +180,11 @@ FE::LinearAlgebraicRepresentation.ChainOp, multiproc::Bool=false)
     else
         for sigma in 1:fs_num
             # print(sigma, "/", fs_num, "\r")
-            nV, nEV, nFE = LinearAlgebraicRepresentation.Arrangement.frag_face(V, EV, FE, sp_idx, sigma)
-            rV, rEV, rFE = LinearAlgebraicRepresentation.skel_merge(rV, rEV, rFE, nV, nEV, nFE)
+            nV, nEV, nFE = LinearAlgebraicRepresentation.Arrangement.frag_face(
+            	V, EV, FE, sp_idx, sigma)
+            a,b,c = LinearAlgebraicRepresentation.skel_merge(
+            	rV, rEV, rFE, nV, nEV, nFE)
+            global rV=a; global rEV=b; global rFE=c
         end
         
     end
