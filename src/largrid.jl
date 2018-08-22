@@ -298,7 +298,10 @@ julia> LinearAlgebraicRepresentation.larGridSkeleton([1,1,1])(3)
 function larGridSkeleton(shape)
     n = length(shape)
     function larGridSkeleton0( d::Int )::Cells
-        components = filterByOrder(n)[d+1]
+    
+    	@assert d<=n
+    	
+        components = filterByOrder(n)[d .+ 1]
         apply(fun,a) = fun(a)
 		componentCellLists = [ [map(f,x)  for (f,x) in  zip( [larGrid(dim) 
 			for dim in shape], convert(Array{Int64,1},component) ) ]  

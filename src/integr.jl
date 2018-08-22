@@ -1,5 +1,5 @@
 """ Module for integration of polynomials over 3D volumes and surfaces """
-function M(alpha, beta)
+function M(alpha::Int, beta::Int)::Float64
     a = 0
     for l=0:(alpha + 1)
         a += binomial(alpha+1,l) * (-1)^l/(l+beta+1)
@@ -8,7 +8,10 @@ function M(alpha, beta)
 end
 
 """ The main integration routine """
-function TT(tau::Array{Float64,2}, alpha, beta, gamma, signedInt=false)
+function TT(
+tau::Array{Float64,2}, 
+alpha::Int, beta::Int, gamma::Int, 
+signedInt::Bool=false)
 	vo,va,vb = tau[:,1],tau[:,2],tau[:,3]
 	a = va - vo
 	b = vb - vo
@@ -66,7 +69,10 @@ julia> LinearAlgebraicRepresentation.II(P, 0,0,0)
 0.5
 ```
 """
-function II(P::LinearAlgebraicRepresentation.LAR, alpha::Int, beta::Int, gamma::Int, signedInt=false)::Float64
+function II(
+P::LAR, 
+alpha::Int, beta::Int, gamma::Int, 
+signedInt=false)::Float64
     w = 0
     V, FV = P
     if typeof(FV) == Array{Int64,2}
@@ -118,7 +124,7 @@ julia> LinearAlgebraicRepresentation.III(P, 0,0,0)
 0.16666666666666674
 ```
 """
-function III(P, alpha, beta, gamma)
+function III(P::LAR, alpha::Int, beta::Int, gamma::Int)::Float64
     w = 0
     V, FV = P
     for i=1:length(FV)
@@ -136,7 +142,7 @@ end
 
 
 """
-	surface(P::LinearAlgebraicRepresentation.LAR, signedInt=false)::Float64
+	surface(P::LinearAlgebraicRepresentation.LAR, signedInt::Bool=false)::Float64
 
 `surface` integral on polyhedron `P`.
 
@@ -163,7 +169,7 @@ julia> LinearAlgebraicRepresentation.volume(P)
 0.16666666666666674
 ```
 """
-function surface(P::LinearAlgebraicRepresentation.LAR, signedInt=false)::Float64
+function surface(P::LinearAlgebraicRepresentation.LAR, signedInt::Bool=false)::Float64
     return II(P, 0, 0, 0, signedInt)
 end
 
@@ -197,7 +203,7 @@ julia> LinearAlgebraicRepresentation.volume(P)
 0.16666666666666674
 ```
 """
-function volume(P::LinearAlgebraicRepresentation.LAR)::Float64
+function volume(P::LAR)::Float64
     return III(P, 0, 0, 0)
 end
 
@@ -270,7 +276,7 @@ julia> LinearAlgebraicRepresentation.firstMoment(P)
  0.0416667
 ```
 """
-function firstMoment(P::LinearAlgebraicRepresentation.LAR)::Array{Float64,1}
+function firstMoment(P::LAR)::Array{Float64,1}
     out = zeros(3)
     out[1] = III(P, 1, 0, 0)
     out[2] = III(P, 0, 1, 0)
@@ -300,7 +306,7 @@ julia> LinearAlgebraicRepresentation.secondMoment(P)
  0.0166667
 ```
 """
-function secondMoment(P::LinearAlgebraicRepresentation.LAR)::Array{Float64,1}
+function secondMoment(P::LAR)::Array{Float64,1}
     out = zeros(3)
     out[1] = III(P, 2, 0, 0)
     out[2] = III(P, 0, 2, 0)
@@ -330,7 +336,7 @@ julia> LinearAlgebraicRepresentation.inertiaProduct(P)
  0.00833333
 ```
 """
-function inertiaProduct(P::LinearAlgebraicRepresentation.LAR)::Array{Float64,1}
+function inertiaProduct(P::LAR)::Array{Float64,1}
     out = zeros(3)
     out[1] = III(P, 0, 1, 1)
     out[2] = III(P, 1, 0, 1)
@@ -360,7 +366,7 @@ julia> LinearAlgebraicRepresentation.centroid(P)
  0.25
 ```
 """
-function centroid(P::LinearAlgebraicRepresentation.LAR)::Array{Float64,1}
+function centroid(P::LAR)::Array{Float64,1}
 	return firstMoment(P)./volume(P)
 end
 
@@ -386,7 +392,7 @@ julia> LinearAlgebraicRepresentation.inertiaMoment(P)
  0.0333333
 ```
 """
-function inertiaMoment(P::LinearAlgebraicRepresentation.LAR)::Array{Float64,1}
+function inertiaMoment(P::LAR)::Array{Float64,1}
     out = zeros(3)
     result = secondMoment(P)
     out[1] = result[2] + result[3]

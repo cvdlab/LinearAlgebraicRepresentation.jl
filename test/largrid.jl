@@ -89,10 +89,37 @@ end
 end
 
 @testset "LarCellProd Tests" begin
-	 @testset "$shape" for shape in [[3,2,1],[3,2],[3],[1,1,1]]
-		@testset "$d" for d in 0:length(shape)
-		   @test typeof(LinearAlgebraicRepresentation.larGridSkeleton(shape)(d)) == Array{Array{Int64,1},1}
-		end
+	 @testset "3D shape" begin
+		@test typeof(LinearAlgebraicRepresentation.larGridSkeleton([3,2,1])(3)) == 
+		   		Array{Array{Int64,1},1}
+		@test typeof(LinearAlgebraicRepresentation.larGridSkeleton([3,2,1])(2)) == 
+		   		Array{Array{Int64,1},1}
+		@test typeof(LinearAlgebraicRepresentation.larGridSkeleton([3,2,1])(1)) == 
+		   		Array{Array{Int64,1},1}
+		@test typeof(LinearAlgebraicRepresentation.larGridSkeleton([3,2,1])(0)) == 
+		   		Array{Array{Int64,1},1}
+		@test typeof(LinearAlgebraicRepresentation.larGridSkeleton([1,1,1])(3)) == 
+		   		Array{Array{Int64,1},1}
+		@test typeof(LinearAlgebraicRepresentation.larGridSkeleton([1,1,1])(2)) == 
+		   		Array{Array{Int64,1},1}
+		@test typeof(LinearAlgebraicRepresentation.larGridSkeleton([1,1,1])(1)) == 
+		   		Array{Array{Int64,1},1}
+		@test typeof(LinearAlgebraicRepresentation.larGridSkeleton([1,1,1])(0)) == 
+		   		Array{Array{Int64,1},1}
+	 end
+	 @testset "2D shape" begin
+		@test typeof(LinearAlgebraicRepresentation.larGridSkeleton([3,2])(2)) == 
+		   		Array{Array{Int64,1},1}
+		@test typeof(LinearAlgebraicRepresentation.larGridSkeleton([3,2])(1)) == 
+		   		Array{Array{Int64,1},1}
+		@test typeof(LinearAlgebraicRepresentation.larGridSkeleton([3,2])(0)) == 
+		   		Array{Array{Int64,1},1}
+	 end
+	 @testset "1D shape" begin
+		@test typeof(LinearAlgebraicRepresentation.larGridSkeleton([3])(1)) == 
+		   		Array{Array{Int64,1},1}
+		@test typeof(LinearAlgebraicRepresentation.larGridSkeleton([3])(0)) == 
+		   		Array{Array{Int64,1},1}
 	 end
 end
 
@@ -103,7 +130,8 @@ end
       @test typeof(theTerm) == Array{Char,1}
       @test parse(Int8,bit) == 0
       @test [parse(Int8,bit) for bit in theTerm] == zeros(3)
-      out = hcat([[parse(Int8,bit) for bit in term] for term in LinearAlgebraicRepresentation.binaryRange(3)]...)
+      out = hcat([[parse(Int8,bit) for bit in term] for term in 
+      	LinearAlgebraicRepresentation.binaryRange(3)]...)
       @test typeof(out) == Array{Int8,2}
       @test size(out) == (3,8)
       @test repr(out) == "Int8[0 0 0 0 1 1 1 1; 0 0 1 1 0 0 1 1; 0 1 0 1 0 1 0 1]"
