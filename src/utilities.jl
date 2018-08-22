@@ -621,10 +621,7 @@ function binaryRange(n)
 end
 
 
-function space_arrangement(
-V::LinearAlgebraicRepresentation.Points, 
-EV::LinearAlgebraicRepresentation.ChainOp, 
-FE::LinearAlgebraicRepresentation.ChainOp, multiproc::Bool=false)
+function space_arrangement(V::Points, EV::ChainOp, FE::ChainOp, multiproc::Bool=false)
 
     fs_num = size(FE, 1)
     sp_idx = LinearAlgebraicRepresentation.Arrangement.spatial_index(V, EV, FE)
@@ -652,25 +649,39 @@ FE::LinearAlgebraicRepresentation.ChainOp, multiproc::Bool=false)
         end
         
         for sigma in 1:fs_num
-            rV, rEV, rFE = LinearAlgebraicRepresentation.skel_merge(rV, rEV, rFE, take!(out_chan)...)
+            rV, rEV, rFE = skel_merge(rV, rEV, rFE, take!(out_chan)...)
         end
         
     else
 
-        for sigma in 1:fs_num
-            # print(sigma, "/", fs_num, "\r")
-            nV, nEV, nFE = LinearAlgebraicRepresentation.Arrangement.frag_face(
-            	V, EV, FE, sp_idx, sigma)
-            a,b,c = LinearAlgebraicRepresentation.skel_merge(
-            	rV, rEV, rFE, nV, nEV, nFE)
-            global rV=a; global rEV=b; global rFE=c
-        end
-        
+       for sigma in 1:fs_num
+           # print(sigma, "/", fs_num, "\r")
+           nV, nEV, nFE = Arrangement.frag_face(
+           	V, EV, FE, sp_idx, sigma)
+           a,b,c = skel_merge(
+           	rV, rEV, rFE, nV, nEV, nFE)
+           global rV=a; global rEV=b; global rFE=c
+       end
+
+#		depot_V = Array{Array{Float64,2},1}(undef,fs_num)
+#		depot_EV = Array{ChainOp,1}(undef,fs_num)
+#		depot_FE = Array{ChainOp,1}(undef,fs_num)
+#        for sigma in 1:fs_num
+#            print(sigma, "/", fs_num, "\r")
+#            nV, nEV, nFE = Arrangement.frag_face( V, EV, FE, sp_idx, sigma)
+#            depot_V[sigma] = nV
+#            depot_EV[sigma] = nEV
+#            depot_FE[sigma] = nFE
+#        end
+#		rV = vcat(depot_V...)
+#		rEV = SparseArrays.blockdiag(depot_EV...)
+#		rFE = SparseArrays.blockdiag(depot_FE...)
+    
     end
 
-    rV, rEV, rFE = LinearAlgebraicRepresentation.Arrangement.merge_vertices(rV, rEV, rFE)
+    rV, rEV, rFE = Arrangement.merge_vertices(rV, rEV, rFE)
     
-    rCF = LinearAlgebraicRepresentation.Arrangement.minimal_3cycles(rV, rEV, rFE)
+    rCF = Arrangement.minimal_3cycles(rV, rEV, rFE)
 
     return rV, rEV, rFE, rCF
 end
