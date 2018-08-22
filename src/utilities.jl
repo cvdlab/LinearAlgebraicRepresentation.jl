@@ -621,7 +621,11 @@ function binaryRange(n)
 end
 
 
-function space_arrangement(V,EV,FE)
+function space_arrangement(
+V::LinearAlgebraicRepresentation.Points, 
+EV::LinearAlgebraicRepresentation.ChainOp, 
+FE::LinearAlgebraicRepresentation.ChainOp, multiproc::Bool=false)
+
     fs_num = size(FE, 1)
     sp_idx = LinearAlgebraicRepresentation.Arrangement.spatial_index(V, EV, FE)
 
@@ -629,6 +633,29 @@ function space_arrangement(V,EV,FE)
     global rEV = SparseArrays.spzeros(Int8,0,0)
     global rFE = SparseArrays.spzeros(Int8,0,0)
     
+    if (multiproc == true)
+        in_chan = Distributed.RemoteChannel(()->Channel{Int64}(0))
+        out_chan = Distributed.RemoteChannel(()->Channel{Tuple}(0))
+        
+        @async begin
+            for sigma in 1:fs_num
+                put!(in_chan, sigma)
+            end
+            for p in Distributed.workers()
+                put!(in_chan, -1)
+            end
+        end
+        
+        for p in Distributed.workers()
+            @async Base.remote_do(
+                frag_face_channel, p, in_chan, out_chan, V, EV, FE, sp_idx)
+        end
+        
+        for sigma in 1:fs_num
+            rV, rEV, rFE = LinearAlgebraicRepresentation.skel_merge(rV, rEV, rFE, take!(out_chan)...)
+        end
+        
+    else
 
         for sigma in 1:fs_num
             # print(sigma, "/", fs_num, "\r")
@@ -638,6 +665,8 @@ function space_arrangement(V,EV,FE)
             	rV, rEV, rFE, nV, nEV, nFE)
             global rV=a; global rEV=b; global rFE=c
         end
+        
+    end
 
     rV, rEV, rFE = LinearAlgebraicRepresentation.Arrangement.merge_vertices(rV, rEV, rFE)
     

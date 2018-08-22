@@ -36,9 +36,9 @@ function TT(tau::Array{Float64,2}, alpha, beta, gamma, signedInt=false)
 	end
 	c = cross(a,b)
 	if signedInt == true
-		return s1 * vecnorm(c) * sign(c[3])
+		return s1 * norm(c) * sign(c[3])
 	else
-		return s1 * vecnorm(c)
+		return s1 * norm(c)
 	end	
 end
 
@@ -127,7 +127,7 @@ function III(P, alpha, beta, gamma)
         a = va - vo
         b = vb - vo
         c = cross(a,b)
-        w += c[1]/vecnorm(c) * TT(tau, alpha+1, beta, gamma)
+        w += c[1]/norm(c) * TT(tau, alpha+1, beta, gamma)
     end
     return w/(alpha + 1)
 end

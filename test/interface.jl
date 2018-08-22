@@ -105,13 +105,15 @@ using SparseArrays
 		@test length(bases[2])==9 # faces -- previously unknown !!
 		@test typeof(bases[2])==Array{Array{Int64,1},1} # faces 
 
-		@test size(coboundaries[1])==(24,16) # coboundary_1 
-		@test typeof(coboundaries[1])==SparseArrays.SparseMatrixCSC{Int8,Int64} # coboundary_1 
-		@test nnz(coboundaries[1])==48 # coboundary_1 
+		@test size(coboundaries[1])==(24, 16) # coboundary_1 
+		@test typeof(coboundaries[1])==SparseArrays.SparseMatrixCSC{Int8,Int64} 
+		# coboundary_1 
+		@test SparseArrays.nnz(coboundaries[1])==48 # coboundary_1 
 
 		@test size(coboundaries[2])==(9,24) # coboundary_2: oriented 2-cycles of faces
 		@test typeof(coboundaries[2])==SparseArrays.SparseMatrixCSC{Int8,Int64} 
-		@test nnz(coboundaries[2])==36 # coboundary_2: oriented 2-cycles of faces
+		@test SparseArrays.nnz(coboundaries[2])==36 
+		# coboundary_2: oriented 2-cycles of faces
 		@test Matrix(coboundaries[2]) ==
 		[-1  0  0  1  0  0  0  0  0  0  0  0  1 -1  0  0  0  0  0  0  0  0  0  0;
 		  0 -1  0  0  1  0  0  0  0  0  0  0  0  1 -1  0  0  0  0  0  0  0  0  0;
@@ -129,8 +131,12 @@ using SparseArrays
 		[[1,2,3,4],[5,6,7,8],[1,2,5,6],[3,4,7,8],[1,3,5,7],[2,4,6,8]], 
 		[[1,2],[3,4],[5,6],[7,8],[1,3],[2,4],[5,7],[6,8],[1,5],[2,6],[3,7],[4,8]] )
 	
-		cube_2 = LinearAlgebraicRepresentation.Struct([LinearAlgebraicRepresentation.t(0,0,0.5), LinearAlgebraicRepresentation.r(0,0,pi/3), cube_1])
-		V,FV,EV = LinearAlgebraicRepresentation.struct2lar(LinearAlgebraicRepresentation.Struct([ cube_1, cube_2 ]))
+		cube_2 = LinearAlgebraicRepresentation.Struct(
+			[LinearAlgebraicRepresentation.t(
+			0,0,0.5), LinearAlgebraicRepresentation.r(0,0,pi/3), cube_1])
+		V,FV,EV = LinearAlgebraicRepresentation.struct2lar(
+			LinearAlgebraicRepresentation.Struct([ cube_1, cube_2 ]))
+			
 		V,bases,coboundaries = LinearAlgebraicRepresentation.chaincomplex(V,FV,EV)
 		(EV, FV, CV), (cscEV, cscFE, cscCF) = bases,coboundaries
 

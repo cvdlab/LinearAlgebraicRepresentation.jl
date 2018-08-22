@@ -29,11 +29,13 @@ function extrudeSimplicial(model::LinearAlgebraicRepresentation.LAR, pattern)
     FV = model[2]
     d, m = length(FV[1]), length(pattern)
     coords = collect(cumsum(append!([0], abs.(pattern))))
-    offset, outcells, rangelimit = length(V), [], d*m
+    offset, outcells, rangelimit, i = length(V), [], d*m, 0
     for cell in FV  
+    	i += 1
         tube = [v+k*offset for k in range(0, length=m+1) for v in cell]
         cellTube = [tube[k:k+d] for k in range(1, length=rangelimit)]
-        outcells = vcat(outcells, reshape(cellTube, d, m))
+        if i==1 outcells = reshape(cellTube, d, m)
+        else outcells = vcat(outcells, reshape(cellTube, d, m)) end
     end
     cellGroups = []
     for i in 1:size(outcells, 2)
@@ -50,11 +52,13 @@ function extrudeSimplicial(model::Union{Any,LinearAlgebraicRepresentation.Cells}
 	V,FV = model
     d, m = length(FV[1]), length(pattern)
     coords = collect(cumsum(append!([0], abs.(pattern))))
-    offset, outcells, rangelimit = length(V), [], d*m
+    offset, outcells, rangelimit, i = length(V), [], d*m, 0
     for cell in FV  
+    	i += 1
         tube = [v+k*offset for k in range(0, length=m+1) for v in cell]
         cellTube = [tube[k:k+d] for k in range(1, length=rangelimit)]
-        outcells = vcat(outcells, reshape(cellTube, d, m))
+        if i==1 outcells = reshape(cellTube, d, m)
+        else outcells = vcat(outcells, reshape(cellTube, d, m)) end
     end
     cellGroups = []
     for i in 1:size(outcells, 2)

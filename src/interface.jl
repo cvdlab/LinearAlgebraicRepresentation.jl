@@ -328,8 +328,7 @@ julia> Matrix(coboundaries[2]) # coboundary_1: faces as oriented 1-cycles of edg
 """
 function chaincomplex( W, EW )
 	V = convert(Array{Float64,2},LinearAlgebra.transpose(W))
-	EV = SparseArrays.transpose(LinearAlgebraicRepresentation.boundary_1(EW))
-	EV = convert(LinearAlgebraicRepresentation.ChainOp,EV)
+	EV = convert(ChainOp, SparseArrays.transpose(boundary_1(EW)))
 	
 	V,cscEV,cscFE = LinearAlgebraicRepresentation.planar_arrangement(V,EV)
 	
@@ -341,12 +340,12 @@ function chaincomplex( W, EW )
 	function ord(cells)
 		return [sort(cell) for cell in cells]
 	end
-	temp = copy(cscEV')
+	temp = copy(convert(ChainOp, LinearAlgebra.transpose(cscEV)))
 	for k=1:size(temp,2)
 		h = findall(!iszero, temp[:,k])[1]
 		temp[h,k] = -1
 	end    
-	cscEV = temp'
+	cscEV = convert(ChainOp, LinearAlgebra.transpose(temp))
 	bases, coboundaries = (ord(EV),ord(FV)), (cscEV,cscFE)
 	return V',bases,coboundaries
 end
@@ -414,10 +413,10 @@ julia> cscCF # coboundaries[3]
 ```	
 """
 function chaincomplex(W,FW,EW)
-	V = convert(LinearAlgebraicRepresentation.Points, LinearAlgebra.transpose(W))
-	EV = LinearAlgebraicRepresentation.build_copEV(EW)
-	FE = LinearAlgebraicRepresentation.coboundary_1(FW,EW)
-	V,cscEV,cscFE,cscCF = LinearAlgebraicRepresentation.space_arrangement(V,EV,FE)
+	V = convert(Points, LinearAlgebra.transpose(W))
+	EV = build_copEV(EW)
+	FE = coboundary_1(FW,EW)
+	V,cscEV,cscFE,cscCF = space_arrangement(V,EV,FE)
 	
 	ne,nv = size(cscEV)
 	nf = size(cscFE,1)
@@ -428,12 +427,12 @@ function chaincomplex(W,FW,EW)
 	function ord(cells)
 		return [sort(cell) for cell in cells]
 	end
-	temp = copy(cscEV')
+	temp = copy(convert(ChainOp, LinearAlgebra.transpose(cscEV)))
 	for k=1:size(temp,2)
 		h = findall(!iszero, temp[:,k])[1]
 		temp[h,k] = -1
 	end    
-	cscEV = convert(LinearAlgebraicRepresentation.ChainOp, LinearAlgebra.transpose(temp))
+	cscEV = convert(ChainOp, LinearAlgebra.transpose(temp))
 	bases, coboundaries = (ord(EV),ord(FV),ord(CV)), (cscEV,cscFE,cscCF)
 	return V',bases,coboundaries
 end

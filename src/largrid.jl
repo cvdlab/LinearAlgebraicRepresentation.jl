@@ -274,22 +274,22 @@ Produce the `d`-dimensional skeleton (set of `d`-cells) of a cuboidal grid of gi
 A `shape=[1,1,1]` parameter refers to a *grid* with a single step on the three axes, i.e. to a single *3D unit cube*. Below all *skeletons* of such simplest grid are generated.
 
 ```julia
-julia> larGridSkeleton([1,1,1])(0)
+julia> LinearAlgebraicRepresentation.larGridSkeleton([1,1,1])(0)
 # output
 8-element Array{Array{Int64,1},1}:
 [[1], [2], [3], [4], [5], [6], [7], [8]]
 
-julia> larGridSkeleton([1,1,1])(1)
+julia> LinearAlgebraicRepresentation.larGridSkeleton([1,1,1])(1)
 # output
 12-element Array{Array{Int64,1},1}:
 [[1,2],[3,4],[5,6],[7,8],[1,3],[2,4],[5,7],[6,8],[1,5],[2,6],[3,7],[4,8]]
 
-julia> larGridSkeleton([1,1,1])(2)
+julia> LinearAlgebraicRepresentation.larGridSkeleton([1,1,1])(2)
 # output
 6-element Array{Array{Int64,1},1}:
 [[1,2,3,4], [5,6,7,8], [1,2,5,6], [3,4,7,8], [1,3,5,7], [2,4,6,8]]
 
-julia> larGridSkeleton([1,1,1])(3)
+julia> LinearAlgebraicRepresentation.larGridSkeleton([1,1,1])(3)
 # output
 1-element Array{Array{Int64,1},1}:
  [1, 2, 3, 4, 5, 6, 7, 8]
