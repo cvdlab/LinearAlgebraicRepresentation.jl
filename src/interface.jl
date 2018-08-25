@@ -434,7 +434,8 @@ function chaincomplex(W,FW,EW)
 	end    
 	cscEV = convert(ChainOp, LinearAlgebra.transpose(temp))
 	bases, coboundaries = (ord(EV),ord(FV),ord(CV)), (cscEV,cscFE,cscCF)
-	return V',bases,coboundaries
+	W = convert(Points, (LinearAlgebra.transpose(V')))
+	return W,bases,coboundaries
 end
 
 
