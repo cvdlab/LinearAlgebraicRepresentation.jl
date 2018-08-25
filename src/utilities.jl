@@ -310,7 +310,7 @@ Full constrained Delaunnay triangulation of the given 3-dimensional model (given
 function triangulate(V::Points, cc::ChainComplex)
     copEV, copFE = cc
 
-    triangulated_faces = Array{Any, 1}(copFE.m)
+    triangulated_faces = Array{Any, 1}(undef, copFE.m)
 
     for f in 1:copFE.m
         if f % 10 == 0
@@ -536,8 +536,10 @@ function lar2obj(V::Points, cc::ChainComplex)
 
     obj = ""
     for v in 1:size(V, 1)
-        obj = string(obj, "v ", round(V[v, 1], 6), " ", round(V[v, 2], 6), " ", 
-        	round(V[v, 3], 6), "\n")
+        obj = string(obj, "v ", 
+        	round(V[v, 1], digits=6), " ", 
+        	round(V[v, 2], digits=6), " ", 
+        	round(V[v, 3], digits=6), "\n")
     end
 
     print("Triangulating")
@@ -567,7 +569,7 @@ Read OBJ file at `path` and create a 2-skeleton as `Tuple{Points, ChainComplex}`
 This function does not care about eventual internal grouping inside the OBJ file.
 """
 function obj2lar(path)
-    vs = Array{Float64, 2}(0, 3)
+    vs = Array{Float64, 2}(undef, 0, 3)
     edges = Array{Array{Int, 1}, 1}()
     faces = Array{Array{Int, 1}, 1}()
 

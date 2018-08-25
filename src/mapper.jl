@@ -10,7 +10,7 @@ Transform the float `value` to get a `PRECISION` number of significant digits.
 """
 function approxVal(PRECISION)
     function approxVal0(value)
-        out = round(value*(10^(PRECISION)))/10^(PRECISION)
+        out = round(value, digits=PRECISION)
         if out == -0.0
             out = 0.0
         end
