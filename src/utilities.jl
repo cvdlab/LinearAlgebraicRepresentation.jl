@@ -688,22 +688,17 @@ function space_arrangement(V::Points, EV::ChainOp, FE::ChainOp, multiproc::Bool=
     return rV, rEV, rFE, rCF
 end
 
-using DataStructures
-using LinearAlgebraicRepresentation
-using LARVIEW
-Lar = LinearAlgebraicRepresentation
-View = LARVIEW.view
 
 
 ###  2D triangulation
-##################################################################
+Lar = LinearAlgebraicRepresentation
 """ 
 	obj2lar2D(path::AbstractString)::LinearAlgebraicRepresentation.LARmodel
 
 Read a *triangulation* from file, given its `path`. Return a `LARmodel` object
 """
 function obj2lar2D(path::AbstractString)::LinearAlgebraicRepresentation.LARmodel
-    vs = Array{Float64, 2}(0, 3)
+    vs = Array{Float64, 2}(undef, 0, 3)
     edges = Array{Array{Int, 1}, 1}()
     faces = Array{Array{Int, 1}, 1}()
 
@@ -749,9 +744,7 @@ function lar2obj2D(V::LinearAlgebraicRepresentation.Points, cc::LinearAlgebraicR
         	round(V[v, 3], 6), "\n")
     end
 
-    print("Triangulating")
-    triangulated_faces = triangulate2D(V, cc[1:2])
-    println("DONE")
+    triangulated_faces = triangulate2D(V, cc)
 
 	obj = string(obj, "\n")
 	for f in 1:copFE.m

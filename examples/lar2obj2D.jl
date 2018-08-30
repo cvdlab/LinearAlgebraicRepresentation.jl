@@ -1,4 +1,9 @@
 
+using DataStructures
+using LinearAlgebraicRepresentation
+using LARVIEW
+Lar = LinearAlgebraicRepresentation
+
 ###	Data:  1D complex embedded in 2D 
 #####################################################################
 
@@ -10,13 +15,15 @@ EV = Array{Int64,1}[[1, 2], [3, 4], [5, 6], [7, 8], [9, 10], [11, 12], [13, 14],
 ###	execution 
 #####################################################################
 
+using LARVIEW
+
 V,bases,coboundaries = Lar.chaincomplex(V,EV)
 LARVIEW.view(V,bases[1])
 
 ev,fv=bases
 VV = [[k] for k=1:size(V,2)]
 model = (V, [VV,ev,fv])
-View(LARVIEW.numbering(80.)(model))
+LARVIEW.view(LARVIEW.numbering(80.)(model))
 
 objs = lar2obj2D(V'::Lar.Points, [coboundaries...])  #va in errore
 open("./villa.obj", "w") do f
