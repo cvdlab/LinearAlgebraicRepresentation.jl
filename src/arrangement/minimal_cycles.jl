@@ -38,6 +38,7 @@ function minimal_3cycles(V::LinearAlgebraicRepresentation.Points, EV::LinearAlge
             vs = V[vs_idxs, :]
             
             v1 = normalize(vs[2, :] - vs[1, :])
+            v2 = [0 0 0]		# added for debug
             v3 = [0 0 0]
             err = 1e-8
             i = 3
@@ -86,7 +87,7 @@ function minimal_3cycles(V::LinearAlgebraicRepresentation.Points, EV::LinearAlge
     #EF = FE'
     EF = convert(LinearAlgebraicRepresentation.ChainOp, LinearAlgebra.transpose(FE))
 
-    FC = minimal_cycles(face_angle, true)(V, EF)
+    FC = LinearAlgebraicRepresentation.Arrangement.minimal_cycles(face_angle, true)(V, EF)
 
 	#FC'
     return -convert(LinearAlgebraicRepresentation.ChainOp, LinearAlgebra.transpose(FC))
@@ -97,6 +98,7 @@ function minimal_cycles(angles_fn::Function, verbose=false)
 
     function _minimal_cycles(V::LinearAlgebraicRepresentation.Points, 
     ld_bounds::LinearAlgebraicRepresentation.ChainOp)
+    
         lld_cellsnum, ld_cellsnum = size(ld_bounds)
         count_marks = zeros(Int8, ld_cellsnum)
         dir_marks = zeros(Int8, ld_cellsnum)
@@ -116,8 +118,10 @@ function minimal_cycles(angles_fn::Function, verbose=false)
             return s
         end
         for lld in 1:lld_cellsnum
+        @show lld
             as = []
             for ld in ld_bounds[lld, :].nzind
+            @show ld
                 push!(as, (ld, angles_fn(lld, ld)))
             end
             sort!(as, lt=(a,b)->a[2]<b[2])

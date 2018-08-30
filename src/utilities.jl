@@ -658,9 +658,9 @@ function space_arrangement(V::Points, EV::ChainOp, FE::ChainOp, multiproc::Bool=
 
        for sigma in 1:fs_num
            # print(sigma, "/", fs_num, "\r")
-           nV, nEV, nFE = Arrangement.frag_face(
+           nV, nEV, nFE = LinearAlgebraicRepresentation.Arrangement.frag_face(
            	V, EV, FE, sp_idx, sigma)
-           a,b,c = skel_merge(
+           a,b,c = LinearAlgebraicRepresentation.skel_merge(
            	rV, rEV, rFE, nV, nEV, nFE)
            global rV=a; global rEV=b; global rFE=c
        end
@@ -681,7 +681,7 @@ function space_arrangement(V::Points, EV::ChainOp, FE::ChainOp, multiproc::Bool=
     
     end
 
-    rV, rEV, rFE = Arrangement.merge_vertices(rV, rEV, rFE)
+    rV, rEV, rFE = LinearAlgebraicRepresentation.Arrangement.merge_vertices(rV, rEV, rFE)
     
     rCF = Arrangement.minimal_3cycles(rV, rEV, rFE)
 

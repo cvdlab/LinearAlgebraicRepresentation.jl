@@ -44,7 +44,7 @@ end
 	larGrid(n::Int)(d::Int)::Array{Int64,2}
 
 Generate either a *uniform 0D cellular complex* or a *uniform 1D cellular complex*.
-A `larGrid` function is given to generate the LAR representation of the cells of either a 0- or a 1-dimensional complex, depending on the value of the `d` parameter, to take values in the set ``\\{0,1\\}``, and providing the *order* of the output complex.
+A `larGrid` function is given to generate the LAR representation of the cells of either a 0- or a 1-dimensional complex, depending on the value of the `d` parameter, to take values in the set ``{0,1}``, and providing the *order* of the output complex.
 
 #	Example
 ```julia
@@ -107,7 +107,7 @@ end
 	larVertProd(vertLists::Array{Points,1})::Points
 
 Generate the integer *coordinates of vertices* (0-cells) of a *multidimensional grid*.
-*Grid n-vertices* are produced by the `larVertProd` function, via Cartesian product of vertices of ``n`` 0-dimensional arguments (vertex arrays in `vertLists`), orderly corresponding to ``x_1, x_2, ..., x_n`` coordinates in the output points ``(x_1, x_2,\\ldots,x_n)`` in ``R^n``.
+*Grid n-vertices* are produced by the `larVertProd` function, via Cartesian product of vertices of ``n`` 0-dimensional arguments (vertex arrays in `vertLists`), orderly corresponding to ``x_1, x_2, ..., x_n`` coordinates in the output points ``(x_1, x_2,...,x_n)`` in ``R^n``.
 
 #	Example
 
