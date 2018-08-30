@@ -118,10 +118,8 @@ function minimal_cycles(angles_fn::Function, verbose=false)
             return s
         end
         for lld in 1:lld_cellsnum
-        @show lld
             as = []
             for ld in ld_bounds[lld, :].nzind
-            @show ld
                 push!(as, (ld, angles_fn(lld, ld)))
             end
             sort!(as, lt=(a,b)->a[2]<b[2])
