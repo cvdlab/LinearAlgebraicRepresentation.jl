@@ -5,9 +5,14 @@ Lar = LinearAlgebraicRepresentation
 View = LARVIEW.view
 
 
-###  triangolazione 2D
+###  2D triangulation
 ##################################################################
-function obj2lar2D(path)
+""" 
+	obj2lar2D(path::AbstractString)::LinearAlgebraicRepresentation.LARmodel
+
+Read a *triangulation* from file, given its `path`. Return a `LARmodel` object
+"""
+function obj2lar2D(path::AbstractString)::LinearAlgebraicRepresentation.LARmodel
     vs = Array{Float64, 2}(0, 3)
     edges = Array{Array{Int, 1}, 1}()
     faces = Array{Array{Int, 1}, 1}()
@@ -31,17 +36,20 @@ function obj2lar2D(path)
 			end
 		end
 	end
-    return vs, (edges,faces)
+    return (vs, [edges,faces])::LinearAlgebraicRepresentation.LARmodel
 end
 
 
-function lar2obj2D(V::LinearAlgebraicRepresentation.Points, cc::LinearAlgebraicRepresentation.ChainComplex)
-	if length(cc) == 3
-    	copEV, copFE, copCF = cc
-    elseif length(cc) == 2
-    	copEV, copFE = cc
-    	V = [V zeros(size(V, 1))]
-    end
+""" 
+	lar2obj2D(V::LinearAlgebraicRepresentation.Points, 
+			cc::LinearAlgebraicRepresentation.ChainComplex)::String
+
+Produce a *triangulation* from a `LARmodel`. Return a `String` object
+"""
+function lar2obj2D(V::LinearAlgebraicRepresentation.Points, cc::LinearAlgebraicRepresentation.ChainComplex)::String
+    assert(length(cc) == 2)
+    copEV, copFE = cc
+    V = [V zeros(size(V, 1))]
 
     obj = ""
     for v in 1:size(V, 1)
@@ -68,13 +76,16 @@ function lar2obj2D(V::LinearAlgebraicRepresentation.Points, cc::LinearAlgebraicR
     return obj
 end
 
-###	funzioni modificate da utilities.jl 
-#####################################################################
-function triangulate2D(V::LinearAlgebraicRepresentation.Points, cc::LinearAlgebraicRepresentation.ChainComplex)
-    copEV, copFE = cc
 
+""" 
+	triangulate2D(V::LinearAlgebraicRepresentation.Points, 
+			cc::LinearAlgebraicRepresentation.ChainComplex)::Array{Any, 1}
+
+Compute a *CDT* for each face of a `ChainComplex`. Return an `Array` of triangles.
+"""
+function triangulate2D(V::LinearAlgebraicRepresentation.Points, cc::LinearAlgebraicRepresentation.ChainComplex)::Array{Any, 1}
+    copEV, copFE = cc
     triangulated_faces = Array{Any, 1}(copFE.m)
-	print("eccomi")
 	
     for f in 1:copFE.m       
         edges_idxs = copFE[f, :].nzind
@@ -108,7 +119,11 @@ function triangulate2D(V::LinearAlgebraicRepresentation.Points, cc::LinearAlgebr
 end
 
 
-###	Dari:  complesso 1D immerso in 2D 
+###	Unit test:  to insert in test/utilities.jl
+#####################################################################
+
+
+###	Dati:  complesso 1D immerso in 2D 
 #####################################################################
 
 V = [732.725 1123.87 1123.87 1124.49 1124.49 776.005 776.005 731.819 731.819 732.725 732.725 732.725 1284.06 1592.17 1592.17 1592.32 1592.32 1281.66 1281.66 1284.06 1284.06 1284.06 789.106 789.236 789.236 1030.28 1030.28 1031.02 1031.02 789.106 789.106 789.106 734.892 1087.13 1087.13 1087.63 1087.63 1227.73 1227.73 1226.84 1226.84 1648.35 1648.35 1649.66 1649.66 1591.08 1591.08 1590.19 1590.19 1469.27 1469.27 1470.21 1470.21 1414.42 1414.42 1412.64 1412.64 1178.75 1178.75 1179.1 1179.1 1123.36 1123.36 1123.49 1123.49 677.788 677.788 677.027 677.027 736.012 736.012 734.892 734.892 734.892 692.591 692.119 692.119 710.549 710.549 748.971 748.971 748.398 748.398 774.963 774.963 773.044 773.044 1046.13 1046.13 1046.3 1046.3 1073.16 1073.16 1075.13 1075.13 1240.87 1240.87 1239.87 1239.87 1266.97 1266.97 1266.83 1266.83 1606.23 1606.23 1605.59 1605.59 1632.89 1632.89 1634.74 1634.74 1608.8 1608.8 1605.94 1605.94 1455.92 1455.92 1456.28 1456.28 1431.23 1431.23 1428.3 1428.3 1163.49 1163.49 1164.92 1164.92 1138.7 1138.7 1136.96 1136.96 934.882 934.882 775.749 775.749 776.12 776.12 761.45 761.45 718.072 718.072 719.533 719.533 1137.14 1137.14 1137.32 1137.32 719.091 719.091 719.221 719.221 692.591 692.591 692.591 776.005 1047.47 1047.47 1046.64 1046.64 776.368 776.368 776.005 776.005 776.005 1269.2 1268.89 1268.89 1606.74 1606.74 1606.72 1606.72 1269.2 1269.2 1269.2; 781.1 782.673 782.673 1048.94 1048.94 1045.53 1045.53 1005.26 1005.26 781.1 781.1 781.1 1108.07 1106.08 1106.08 1174.09 1174.09 1172.27 1172.27 1108.07 1108.07 1108.07 1106.08 1288.98 1288.98 1289.83 1289.83 1106.9 1106.9 1106.08 1106.08 1106.08 1349.71 1349.71 1349.71 1107.42 1107.42 1105.77 1105.77 1230.35 1230.35 1230.86 1230.86 615.61 615.61 615.61 615.61 1051.75 1051.75 1052.69 1052.69 615.61 615.61 615.61 615.61 1049.7 1049.7 1050.6 1050.6 615.61 615.61 615.61 615.61 726.053 726.053 726.777 726.777 1024.77 1024.77 1078.88 1078.88 1349.71 1349.71 1349.71 730.096 1024.88 1024.88 1025.99 1025.99 1067.18 1067.18 1345.41 1345.41 1345.84 1345.84 1333.11 1333.11 1333.92 1333.92 1349.71 1349.71 1347.57 1347.57 1094.47 1094.47 1093.37 1093.37 1226.19 1226.19 1226.85 1226.85 1214.78 1214.78 1215.55 1215.55 1227.84 1227.84 1227.51 1227.51 615.946 615.946 615.61 615.61 1066.73 1066.73 1067.74 1067.74 616.213 616.213 616.301 616.301 1066.68 1066.68 1065.78 1065.78 616.712 616.712 617.245 617.245 1067.13 1067.13 1064.62 1064.62 1065.23 1065.23 1057.26 1057.26 1057.24 1057.24 1011.09 1011.09 768.914 768.914 770.027 770.027 742.676 742.676 742.388 742.388 729.39 729.39 730.096 730.096 730.096 1090.67 1092.32 1092.32 1306.35 1306.35 1304.4 1304.4 1090.67 1090.67 1090.67 1093.67 1187.53 1187.53 1187.41 1187.41 1093.67 1093.67 1093.67 1093.67 1093.67]
