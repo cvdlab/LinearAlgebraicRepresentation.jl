@@ -1,9 +1,12 @@
-using Base.Test
+using Test
 using LinearAlgebraicRepresentation
+using SparseArrays
+using LinearAlgebra
+using LinearAlgebraicRepresentation.Arrangement
 
 @testset "Edge fragmentation tests" begin
     V = [2 2; 4 2; 3 3.5; 1 3; 5 3; 1 2; 5 2]
-    EV = sparse(Array{Int8, 2}([
+    EV = SparseArrays.sparse(Array{Int8, 2}([
         [1 1 0 0 0 0 0] #1->1,2
         [0 1 1 0 0 0 0] #2->2,3
         [1 0 1 0 0 0 0] #3->1,3
@@ -23,11 +26,12 @@ using LinearAlgebraicRepresentation
     @testset "frag_edge" begin
         rV, rEV = LinearAlgebraicRepresentation.Arrangement.frag_edge(V, EV, 5)
         @test rV == [1.0 2.0; 5.0 2.0; 2.0 2.0; 4.0 2.0; 4.0 2.0; 2.0 2.0]
-        @test full(rEV) == [1 0 0 0 0 1;
+        @test Matrix(rEV) == [1 0 0 0 0 1;
                              0 0 0 0 1 1; 
                              0 1 0 0 1 0]
     end
 end
+
 @testset "merge_vertices test set" begin
     n0 = 1e-12
     n1l = 1-1e-12
@@ -56,11 +60,12 @@ end
     V, EV = LinearAlgebraicRepresentation.Arrangement.merge_vertices!(V, EV, [])
 
     @test V == [n0 n0; n0 n1u; n1u n1u; n1u n0]
-    @test full(EV) == [1 1 0 0;
+    @test Matrix(EV) == [1 1 0 0;
                        0 1 1 0;
                        0 0 1 1;
                        1 0 0 1]
 end
+
 @testset "biconnected_components test set" begin
     EV = Int8[0 0 0 1 0 0 0 0 0 0 1 0; #1
               0 0 1 0 0 1 0 0 0 0 0 0; #2
@@ -82,6 +87,7 @@ end
 
     @test bc == Set([Set([1,5,9]), Set([2,6,10]), Set([3,7,11])])
 end
+
 @testset "Face creation" begin
     @testset "External cell individuation" begin
         V = [ .5 .5;  1.5   1;  1.5  2; 
@@ -107,6 +113,7 @@ end
     
         @test LinearAlgebraicRepresentation.Arrangement.get_external_cycle(V, EV, FE) == 3
     end
+
     @testset "Containment test" begin
         V = [  0   0;    4   0;    4   2;   2   4;  0 4;
               .5  .5;  2.5  .5;  2.5 2.5;  .5 2.5;
@@ -153,11 +160,13 @@ end
         graph = LinearAlgebraicRepresentation.Arrangement.prune_containment_graph(n, V, EVs, shells, graph)
         @test graph == [0 0 1 1 0; 0 0 1 1 0; 0 0 0 1 0; 0 0 0 0 0; 0 0 0 0 0]
     end
+
     @testset "Transitive reduction" begin
         graph = [0 0 1 1 0; 0 0 1 1 0; 0 0 0 1 0; 0 0 0 0 0; 0 0 0 0 0]
         LinearAlgebraicRepresentation.Arrangement.transitive_reduction!(graph)
         @test graph == [0 0 1 0 0; 0 0 1 0 0; 0 0 0 1 0; 0 0 0 0 0; 0 0 0 0 0]
     end
+
     @testset "Cell merging" begin
         graph = [0 1; 0 0]
         V = [.25 .25; .75 .25; .75 .75; .25 .75;
@@ -195,6 +204,4 @@ end
     
         @test selector*FE == [0  0  0  0  0  1  1  1 -1]
     end
-    
 end
-

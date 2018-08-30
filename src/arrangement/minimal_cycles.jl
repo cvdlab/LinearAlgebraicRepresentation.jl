@@ -4,23 +4,23 @@ function minimal_2cycles(V::LinearAlgebraicRepresentation.Points, EV::LinearAlge
         edge = EV[e, :]
         v2 = setdiff(edge.nzind, [v])[1]
         x, y = V[v2, :] - V[v, :]
-        return atan2(y, x)
+        return atan(y, x)
     end
 
     for i in 1:EV.m
         j = min(EV[i,:].nzind...)
         EV[i, j] = -1
     end
-    VE = EV'
+    VE = convert(LinearAlgebraicRepresentation.ChainOp, SparseArrays.transpose(EV))
 
-    EF = minimal_cycles(edge_angle)(V, VE)
+    EF = LinearAlgebraicRepresentation.Arrangement.minimal_cycles(edge_angle)(V, VE)
 
-    return EF'
+    return convert(LinearAlgebraicRepresentation.ChainOp, SparseArrays.transpose(EF))
 end
 
 function minimal_3cycles(V::LinearAlgebraicRepresentation.Points, EV::LinearAlgebraicRepresentation.ChainOp, FE::LinearAlgebraicRepresentation.ChainOp)
 
-    triangulated_faces = Array{Any, 1}(FE.m)
+    triangulated_faces = Array{Any, 1}(undef, FE.m)
     
     function face_angle(e::Int, f::Int)
         if !isassigned(triangulated_faces, f)
@@ -38,6 +38,7 @@ function minimal_3cycles(V::LinearAlgebraicRepresentation.Points, EV::LinearAlge
             vs = V[vs_idxs, :]
             
             v1 = normalize(vs[2, :] - vs[1, :])
+            v2 = [0 0 0]		# added for debug
             v3 = [0 0 0]
             err = 1e-8
             i = 3
@@ -77,29 +78,33 @@ function minimal_3cycles(V::LinearAlgebraicRepresentation.Points, EV::LinearAlge
         vs = V[[edge_vs..., third_v], :]*M
     
         v = vs[3, :] - vs[1, :]
-        angle = atan2(v[2], v[3]) 
+        angle = atan(v[2], v[3]) 
     
         return angle
     end
     
 
-    EF = FE'
+    #EF = FE'
+    EF = convert(LinearAlgebraicRepresentation.ChainOp, LinearAlgebra.transpose(FE))
 
-    FC = minimal_cycles(face_angle, true)(V, EF)
+    FC = LinearAlgebraicRepresentation.Arrangement.minimal_cycles(face_angle, true)(V, EF)
 
-    return -FC'
+	#FC'
+    return -convert(LinearAlgebraicRepresentation.ChainOp, LinearAlgebra.transpose(FC))
 end
 
 
 function minimal_cycles(angles_fn::Function, verbose=false)
 
-    function _minimal_cycles(V::LinearAlgebraicRepresentation.Points, ld_bounds::LinearAlgebraicRepresentation.ChainOp)
+    function _minimal_cycles(V::LinearAlgebraicRepresentation.Points, 
+    ld_bounds::LinearAlgebraicRepresentation.ChainOp)
+    
         lld_cellsnum, ld_cellsnum = size(ld_bounds)
         count_marks = zeros(Int8, ld_cellsnum)
         dir_marks = zeros(Int8, ld_cellsnum)
         d_bounds = spzeros(Int8, ld_cellsnum, 0)
         
-        angles = Array{Array{Int64, 1}, 1}(lld_cellsnum)
+        angles = Array{Array{Int64, 1}, 1}(undef, lld_cellsnum)
         
         function get_seed_cell()
             s = -1
@@ -121,9 +126,11 @@ function minimal_cycles(angles_fn::Function, verbose=false)
             as = map(a->a[1], as)
             angles[lld] = as
         end
+        
         function nextprev(lld::Int64, ld::Int64, norp)
             as = angles[lld]
-            ne = findfirst(as, ld)
+            #ne = findfirst(as, ld)  (findfirst(isequal(v), A), 0)[1]
+            ne = (findfirst(isequal(ld), as), 0)[1]  
             while true
                 ne += norp
                 if ne > length(as)

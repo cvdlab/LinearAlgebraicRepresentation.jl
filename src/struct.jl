@@ -1,5 +1,3 @@
-
-
 """
 	t(args::Array{Number,1}...)::Matrix
 
@@ -26,14 +24,12 @@ julia> LinearAlgebraicRepresentation.t(1.,2,3)		# 3D translation
 """
 function t(args...)
 	d = length(args)
-	mat = convert(Matrix,eye(d+1))
-	for k in range(1,d)
+	mat = Matrix{Float64}(LinearAlgebra.I, d+1, d+1)
+	for k in range(1, length=d)
         	mat[k,d+1]=args[k]
 	end
 	return mat
 end
-
-
 
 """
 	s(args::Array{Number,1}...)::Matrix
@@ -62,15 +58,12 @@ julia> LinearAlgebraicRepresentation.s(2.,3.,4.)		# 3D scaling
 """
 function s(args...)
 	d = length(args)
-	mat = eye(d+1)
-	for k in range(1,d)
+	mat = Matrix{Float64}(LinearAlgebra.I, d+1, d+1)
+	for k in range(1, length=d)
 		mat[k,k]=args[k]
 	end
 	return mat
 end
-
-
-
 
 """
 	r(args...)
@@ -111,13 +104,13 @@ function r(args...)
     n = length(args)
     if n == 1 # rotation in 2D
         angle = args[1]; COS = cos(angle); SIN = sin(angle)
-        mat = eye(3)
+        mat = Matrix{Float64}(LinearAlgebra.I, 3, 3)
         mat[1,1] = COS;    mat[1,2] = -SIN;
         mat[2,1] = SIN;    mat[2,2] = COS;
     end
 
      if n == 3 # rotation in 3D
-        mat = eye(4)
+        mat = Matrix{Float64}(LinearAlgebra.I, 4, 4)
         angle = norm(args); 
         if norm(args) != 0.0
 			axis = normalize(args)
@@ -132,7 +125,7 @@ function r(args...)
 				mat[1,1] = COS;    mat[1,2] = -SIN;
 				mat[2,1] = SIN;    mat[2,2] = COS;
 			else
-				I = eye(3); u = axis
+				I = Matrix{Float64}(LinearAlgebra.I, 3, 3); u = axis
 				Ux=[0 -u[3] u[2] ; u[3] 0 -u[1] ;  -u[2] u[1] 1]
 				UU =[u[1]*u[1]    u[1]*u[2]   u[1]*u[3];
 					 u[2]*u[1]    u[2]*u[2]   u[2]*u[3];
@@ -144,8 +137,6 @@ function r(args...)
 	return mat
 end
 
-
-
 """
 	removeDups(CW::Cells)::Cells
 
@@ -155,9 +146,7 @@ function removeDups(CW::Cells)::Cells
 	CW = collect(Set(CW))
 	CWs = collect(map(sort,CW))
 	return CWs
-end 
-
-
+end
 
 """
 	Struct
@@ -203,7 +192,7 @@ julia> using LARVIEW
 julia> LARVIEW.view(assembly)
 ```
 """
-type Struct
+mutable struct Struct
 	body::Array
 	box
 	name::AbstractString
@@ -211,8 +200,8 @@ type Struct
 	category::AbstractString
 	
 	function Struct()
-		self = new([],Nullable{Any},"new",Nullable{Any},"feature")
-		self.name = string(object_id(self))
+		self = new([],Any,"new",Any,"feature")
+		self.name = string(objectid(self))
 		return self
 
 	end
@@ -278,8 +267,6 @@ end
 	function set_category(self::Struct,category)
 		self.category = string(category)
 	end
-
-
 
 """
 	struct2lar(structure::Struct)::Union{LAR,LARmodel}
@@ -348,25 +335,19 @@ function struct2lar(structure)
 	end
 end
 
-
-
-
-
 """
 	embedTraversal(cloned::Struct,obj::Struct,n::Int,suffix::String)
 
 # TODO:  debug embedTraversal
 """
-
 function embedTraversal(cloned::Struct,obj::Struct,n::Int,suffix::String)
-
 	for i=1:length(obj.body)
 		if isa(obj.body[i],Matrix)
 			mat = obj.body[i]
 			d,d = size(mat)
-			newMat = eye(d+n)
-			for h in range(1,d)
-				for k in range(1,d)
+			newMat = Matrix{Float64}(LinearAlgebra.I, d+n, d+n)
+			for h in range(1, length=d)
+				for k in range(1, length=d)
 					newMat[h,k]=mat[h,k]
 				end
 			end
@@ -396,14 +377,11 @@ function embedTraversal(cloned::Struct,obj::Struct,n::Int,suffix::String)
 	return cloned
 end
 
-
-
 """
 	embedStruct(n::Int)(self::Struct,suffix::String="New")
 
 # TODO:  debug embedStruct
 """
-
 function embedStruct(n::Int)
 	function embedStruct0(self::Struct,suffix::String="New")
 		if n==0
@@ -420,8 +398,6 @@ function embedStruct(n::Int)
 	end
 	return embedStruct0
 end
-
-
 
 """
 	box(model)
@@ -451,15 +427,12 @@ function box(model)
 
 	elseif (isa(model,Tuple) ||isa(model,Array))&& (length(model)==2 || length(model)==3)
 		V = model[1]
-		theMin = minimum(V, 2)
-		theMax = maximum(V, 2)
+		theMin = minimum(V, dims=2)
+		theMax = maximum(V, dims=2)
 	end
 
 	return [theMin,theMax]
 end
-
- 
-
 
 """
 	apply(affineMatrix::Array{Float64,2}, larmodel::Union{LAR,LARmodel})
@@ -478,9 +451,6 @@ function apply(affineMatrix, larmodel)
 	return larmodel
 end
 
-
-
-
 """
 	checkStruct(lst)
 
@@ -496,15 +466,12 @@ function checkStruct(lst)
 		dim = length(obj.box[1])
 	end
 	return dim
-end		
-
-
+end
 
 """
 	traversal(CTM,stack,obj,scene=[])
 
 """
-
 function traversal(CTM::Matrix, stack, obj, scene=[])
 	for i = 1:length(obj.body)
 		if isa(obj.body[i],Matrix)
@@ -522,20 +489,13 @@ function traversal(CTM::Matrix, stack, obj, scene=[])
 	return scene
 end
 
-
-
-
 """
 	evalStruct(self)
 
 """
 function evalStruct(self::Struct)
 	dim = checkStruct(self.body)
-   	CTM, stack = eye(dim+1), []
+   	CTM, stack = Matrix{Float64}(LinearAlgebra.I, dim+1, dim+1), []
    	scene = traversal(CTM, stack, self, []) 
-return scene
+	return scene
 end
-
-
-
-

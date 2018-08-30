@@ -3,6 +3,9 @@ module Arrangement
     using IntervalTrees
     using NearestNeighbors
     using Triangle
+	using SparseArrays
+	using LinearAlgebra    
+	using Distributed    
 
     include("./minimal_cycles.jl")
     include("./dimension_travel.jl")

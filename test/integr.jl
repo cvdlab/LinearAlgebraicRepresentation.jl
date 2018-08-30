@@ -1,10 +1,7 @@
-
 using LinearAlgebraicRepresentation
-using Base.Test
-
+using Test
 
 @testset "Integration Tests" begin
-
 	@testset "M" begin
 		@test LinearAlgebraicRepresentation.M(0,0)==0.5
 		@test LinearAlgebraicRepresentation.M(1,0)==0.16666666666666666

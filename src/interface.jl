@@ -12,7 +12,7 @@ number of columns is equal to the number of vertices (0-cells).
 ```julia
 V,(VV,EV,FV,CV) = cuboid([1.,1.,1.], true); 
 
-julia> full(characteristicMatrix(FV))
+julia> Matrix(characteristicMatrix(FV))
 6×8 Array{Int8,2}:
 	1  1  1  1  0  0  0  0
 	0  0  0  0  1  1  1  1
@@ -21,11 +21,11 @@ julia> full(characteristicMatrix(FV))
 	1  0  1  0  1  0  1  0
 	0  1  0  1  0  1  0  1
 
-julia> full(characteristicMatrix(CV))
+julia> Matrix(characteristicMatrix(CV))
 1×8 Array{Int8,2}:
 	1  1  1  1  1  1  1  1
 
-julia> full(characteristicMatrix(EV))
+julia> Matrix(characteristicMatrix(EV))
 12×8 Array{Int8,2}:
 	1  1  0  0  0  0  0  0
 	0  0  1  1  0  0  0  0
@@ -83,7 +83,7 @@ julia> boundary_1( EV::Cells )
 	[4 , 12]  =  -1
 	[8 , 12]  =  1
 
-julia> full(boundary_1(EV::Cells))
+julia> Matrix(boundary_1(EV::Cells))
 8×12 Array{Int8,2}:
 	-1   0   0   0  -1   0   0   0  -1   0   0   0
 	1   0   0   0   0  -1   0   0   0  -1   0   0
@@ -139,7 +139,7 @@ julia> u_coboundary_1(FV,EV)
 	[4 , 12]  =  1
 	[6 , 12]  =  1
 
-julia> full(u_coboundary_1(FV,EV))
+julia> Matrix(u_coboundary_1(FV,EV))
 6×12 Array{Int8,2}:
 	1  1  0  0  1  1  0  0  0  0  0  0
 	0  0  1  1  0  0  1  1  0  0  0  0
@@ -214,7 +214,7 @@ julia> coboundary_1( FV,EV )
 	[4 , 12]  =  -1
 	[6 , 12]  =  -1
 
-julia> full(coboundary_1( FV,EV ))
+julia> Matrix(coboundary_2( FV,EV ))
 6×12 Array{Int8,2}:
 	-1   1   0  0   1  -1  0   0  0   0   0   0
 	0   0  -1  1   0   0  1  -1  0   0   0   0
@@ -239,9 +239,9 @@ function coboundary_1( FV::Cells, EV::Cells)::ChainOp
 	sp_u_coboundary_1 = u_coboundary_1(FV,EV)
 	larEV = characteristicMatrix(EV)
 	# unsigned incidence relation
-	FE = [findn(sp_u_coboundary_1[f,:]) for f=1:size(sp_u_coboundary_1,1) ]
+	FE = [findall(!iszero, sp_u_coboundary_1[f,:]) for f=1:size(sp_u_coboundary_1,1) ]
 	I,J,V = Int64[],Int64[],Int8[]
-	vedges = [findn(larEV[:,v]) for v=1:size(larEV,2)]
+	vedges = [findall(!iszero, larEV[:,v]) for v=1:size(larEV,2)]
 
 	# Loop on faces
 	for f=1:length(FE)
@@ -313,7 +313,7 @@ julia> bases[2] # faces -- previously unknown !!
 julia> coboundaries[1] # coboundary_1 
 24×16 SparseMatrixCSC{Int8,Int64} with 48 stored entries: ...
 
-julia> full(coboundaries[2]) # coboundary_1: faces as oriented 1-cycles of edges
+julia> Matrix(coboundaries[2]) # coboundary_1: faces as oriented 1-cycles of edges
 9×24 Array{Int8,2}:
 	-1  0  0  1  0  0  0  0  0  0  0  0  1 -1  0  0  0  0  0  0  0  0  0  0
 	0 -1  0  0  1  0  0  0  0  0  0  0  0  1 -1  0  0  0  0  0  0  0  0  0
@@ -327,22 +327,25 @@ julia> full(coboundaries[2]) # coboundary_1: faces as oriented 1-cycles of edges
 ```
 """
 function chaincomplex( W, EW )
-	V = W'
-	EV = LinearAlgebraicRepresentation.boundary_1(EW)'
+	V = convert(Array{Float64,2},LinearAlgebra.transpose(W))
+	EV = convert(ChainOp, SparseArrays.transpose(boundary_1(EW)))
+	
 	V,cscEV,cscFE = LinearAlgebraicRepresentation.planar_arrangement(V,EV)
+	
 	ne,nv = size(cscEV)
 	nf = size(cscFE,1)
-	EV = [findn(cscEV[e,:]) for e=1:ne]
-	FV = [collect(Set(vcat([EV[e] for e in findn(cscFE[f,:])]...)))  for f=1:nf]
+	EV = [findall(!iszero, cscEV[e,:]) for e=1:ne]
+	FV = [collect(Set(vcat([EV[e] for e in findall(!iszero, cscFE[f,:])]...)))  for f=1:nf]
+	
 	function ord(cells)
 		return [sort(cell) for cell in cells]
 	end
-	temp = copy(cscEV')
+	temp = copy(convert(ChainOp, LinearAlgebra.transpose(cscEV)))
 	for k=1:size(temp,2)
-		h = findn(temp[:,k])[1]
+		h = findall(!iszero, temp[:,k])[1]
 		temp[h,k] = -1
 	end    
-	cscEV = temp'
+	cscEV = convert(ChainOp, LinearAlgebra.transpose(temp))
 	bases, coboundaries = (ord(EV),ord(FV)), (cscEV,cscFE)
 	return V',bases,coboundaries
 end
@@ -410,27 +413,29 @@ julia> cscCF # coboundaries[3]
 ```	
 """
 function chaincomplex(W,FW,EW)
-	V = W'
-	EV = LinearAlgebraicRepresentation.build_copEV(EW)
-	FE = LinearAlgebraicRepresentation.coboundary_1(FW,EW)
-	V,cscEV,cscFE,cscCF = LinearAlgebraicRepresentation.spatial_arrangement(V,EV,FE)
+	V = convert(Points, LinearAlgebra.transpose(W))
+	EV = build_copEV(EW)
+	FE = coboundary_1(FW,EW)
+	V,cscEV,cscFE,cscCF = space_arrangement(V,EV,FE)
+	
 	ne,nv = size(cscEV)
 	nf = size(cscFE,1)
 	nc = size(cscCF,1)
-	EV = [findn(cscEV[e,:]) for e=1:ne]
-	FV = [collect(Set(vcat([EV[e] for e in findn(cscFE[f,:])]...)))  for f=1:nf]
-	CV = [collect(Set(vcat([FV[f] for f in findn(cscCF[c,:])]...)))  for c=2:nc]
+	EV = [findall(!iszero, cscEV[e,:]) for e=1:ne]
+	FV = [collect(Set(vcat([EV[e] for e in findall(!iszero, cscFE[f,:])]...)))  for f=1:nf]
+	CV = [collect(Set(vcat([FV[f] for f in findall(!iszero, cscCF[c,:])]...)))  for c=2:nc]
 	function ord(cells)
 		return [sort(cell) for cell in cells]
 	end
-	temp = copy(cscEV')
+	temp = copy(convert(ChainOp, LinearAlgebra.transpose(cscEV)))
 	for k=1:size(temp,2)
-		h = findn(temp[:,k])[1]
+		h = findall(!iszero, temp[:,k])[1]
 		temp[h,k] = -1
 	end    
-	cscEV = temp'
+	cscEV = convert(ChainOp, LinearAlgebra.transpose(temp))
 	bases, coboundaries = (ord(EV),ord(FV),ord(CV)), (cscEV,cscFE,cscCF)
-	return V',bases,coboundaries
+	W = convert(Points, (LinearAlgebra.transpose(V')))
+	return W,bases,coboundaries
 end
 
 
@@ -474,7 +479,7 @@ end
 #          vs_indices = [v for v in FV[f]]
 #          vdict = Dict([(i,index) for (i,index) in enumerate(vs_indices)])
 #          dictv = Dict([(index,i) for (i,index) in enumerate(vs_indices)])
-#          es = findn(cscFE[f,:])
+#          es = findall(!iszero, cscFE[f,:])
       
 #          vts = [v-vs[1] for v in vs]
       

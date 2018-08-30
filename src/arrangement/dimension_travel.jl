@@ -1,10 +1,12 @@
+using LinearAlgebra
+
 function submanifold_mapping(vs)
     u1 = vs[2,:] - vs[1,:]
     u2 = vs[3,:] - vs[1,:]
     u3 = cross(u1, u2)
-    T = eye(4)
+    T = Matrix{Float64}(LinearAlgebra.I, 4, 4)
     T[4, 1:3] = - vs[1,:]
-    M = eye(4)
+    M = Matrix{Float64}(LinearAlgebra.I, 4, 4)
     M[1:3, 1:3] = [u1 u2 u3]
     return T*M
 end
@@ -13,14 +15,16 @@ function spatial_index(V::LinearAlgebraicRepresentation.Points, EV::LinearAlgebr
     d = 3
     faces_num = size(FE, 1)
     IntervalsType = IntervalValue{Float64, Int64}
-    boxes1D = Array{IntervalsType, 2}(0, d)
+    global boxes1D = Array{IntervalsType, 2}(undef, 0, d)
+
     for fi in 1:faces_num
         vidxs = (abs.(FE[fi:fi,:])*abs.(EV))[1,:].nzind
-        intervals = map((l,u)->IntervalsType(l,u,fi), LinearAlgebraicRepresentation.bbox(V[vidxs, :])...)
+        intervals = map((l,u)->IntervalsType(l,u,fi), 
+        	LinearAlgebraicRepresentation.bbox(V[vidxs, :])...)
         boxes1D = vcat(boxes1D, intervals)
     end
-    trees = mapslices(IntervalTree{Float64, IntervalsType}, sort(boxes1D, 1), 1)
-    
+    trees = mapslices(IntervalTree{Float64, IntervalsType}, sort(boxes1D; dims=1), dims=1)
+
     function intersect_intervals(intervals)
         cells = Array{Int64,1}[]
         for axis in 1:d
@@ -42,7 +46,7 @@ end
 function face_int(V::LinearAlgebraicRepresentation.Points, EV::LinearAlgebraicRepresentation.ChainOp, face::LinearAlgebraicRepresentation.Cell)
 
     vs = LinearAlgebraicRepresentation.buildFV(EV, face)
-    retV = LinearAlgebraicRepresentation.Points(0, 3)
+    retV = LinearAlgebraicRepresentation.Points(undef, 0, 3)
     
     visited_verts = []
     for i in 1:length(vs)
@@ -76,7 +80,7 @@ function face_int(V::LinearAlgebraicRepresentation.Points, EV::LinearAlgebraicRe
 
     if vnum == 1
         vnum = 0
-        retV = LinearAlgebraicRepresentation.Points(0, 3)
+        retV = LinearAlgebraicRepresentation.Points(undef, 0, 3)
     end
     enum = Int(vnum / 2)
     retEV = spzeros(Int8, enum, vnum)

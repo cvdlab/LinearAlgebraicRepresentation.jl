@@ -16,7 +16,8 @@ function frag_edge(V::LinearAlgebraicRepresentation.Points, EV::LinearAlgebraicR
     verts = V[edge.nzind, :]
     for i in 1:size(EV, 1)
         if i != edge_idx
-            intersection = intersect_edges(V, edge, EV[i, :])
+            intersection = intersect_edges(
+            	V, edge, EV[i, :])
             for (point, alpha) in intersection
                 verts = [verts; point]
                 alphas[alpha] = size(verts, 1)
@@ -29,7 +30,7 @@ function frag_edge(V::LinearAlgebraicRepresentation.Points, EV::LinearAlgebraicR
     alphas_keys = sort(collect(keys(alphas)))
     edge_num = length(alphas_keys)-1
     verts_num = size(verts, 1)
-    ev = spzeros(Int8, edge_num, verts_num)
+    ev = SparseArrays.spzeros(Int8, edge_num, verts_num)
 
     for i in 1:edge_num
         ev[i, alphas[alphas_keys[i]]] = 1
@@ -89,7 +90,7 @@ function merge_vertices!(V::LinearAlgebraicRepresentation.Points, EV::LinearAlge
     newverts = zeros(Int, vertsnum)
     # KDTree constructor needs an explicit array of Float64
     V = Array{Float64,2}(V)
-    kdtree = KDTree(V')
+    kdtree = KDTree(permutedims(V))
 
     todelete = []
     
@@ -98,7 +99,7 @@ function merge_vertices!(V::LinearAlgebraicRepresentation.Points, EV::LinearAlge
         if !(vi in todelete)
             nearvs = LinearAlgebraicRepresentation.inrange(kdtree, V[vi, :], err)
     
-            newverts[nearvs] = i
+            newverts[nearvs] .= i
     
             nearvs = setdiff(nearvs, vi)
             todelete = union(todelete, nearvs)
@@ -109,8 +110,8 @@ function merge_vertices!(V::LinearAlgebraicRepresentation.Points, EV::LinearAlge
     
     nV = V[setdiff(collect(1:vertsnum), todelete), :]
     
-    edges = Array{Tuple{Int, Int}, 1}(edgenum)
-    oedges = Array{Tuple{Int, Int}, 1}(edgenum)
+    edges = Array{Tuple{Int, Int}, 1}(undef, edgenum)
+    oedges = Array{Tuple{Int, Int}, 1}(undef, edgenum)
     
     for ei in 1:edgenum
         v1, v2 = EV[ei, :].nzind
@@ -128,7 +129,7 @@ function merge_vertices!(V::LinearAlgebraicRepresentation.Points, EV::LinearAlge
     etuple2idx = Dict{Tuple{Int, Int}, Int}()
     
     for ei in 1:nedgenum
-        nEV[ei, collect(nedges[ei])] = 1
+        nEV[ei, collect(nedges[ei])] .= 1
         etuple2idx[nedges[ei]] = ei
     end
     
@@ -166,7 +167,10 @@ function biconnected_components(EV::LinearAlgebraicRepresentation.ChainOp)
     
     function v_to_vi(v)
         i = findfirst(t->t[1]==v, ps)
-        if i == 0
+        # seems findfirst changed from 0 to Nothing
+        if typeof(i) == Nothing
+            return false
+        elseif i == 0
             return false
         else
             return ps[i][2]
@@ -239,7 +243,7 @@ end
 
 function get_external_cycle(V::LinearAlgebraicRepresentation.Points, EV::LinearAlgebraicRepresentation.ChainOp, FE::LinearAlgebraicRepresentation.ChainOp)
     FV = abs.(FE)*EV
-    vs = sparsevec(mapslices(sum, abs.(EV), 1)).nzind
+    vs = sparsevec(mapslices(sum, abs.(EV), dims=1)').nzind
     minv_x1 = maxv_x1 = minv_x2 = maxv_x2 = pop!(vs)
     for i in vs
         if V[i, 1] > V[maxv_x1, 1]
@@ -322,7 +326,7 @@ function transitive_reduction!(graph)
 end
 function cell_merging(n, containment_graph, V, EVs, boundaries, shells, shell_bboxes)
     function bboxes(V::LinearAlgebraicRepresentation.Points, indexes::LinearAlgebraicRepresentation.ChainOp)
-        boxes = Array{Tuple{Any, Any}}(indexes.n)
+        boxes = Array{Tuple{Any, Any}}(undef, indexes.n)
         for i in 1:indexes.n
             v_inds = indexes[:, i].nzind
             boxes[i] = LinearAlgebraicRepresentation.bbox(V[v_inds, :])
@@ -331,7 +335,7 @@ function cell_merging(n, containment_graph, V, EVs, boundaries, shells, shell_bb
     end
     
 
-    sums = Array{Tuple{Int, Int, Int}}(0);
+    sums = Array{Tuple{Int, Int, Int}}(undef, 0);
 
     for father in 1:n
         if sum(containment_graph[:, father]) > 0
@@ -392,33 +396,34 @@ returns the full arranged complex `V`, `EV` and `FE`.
 - `multiproc::Bool`: Runs the computation in parallel mode. Defaults to `false`.
 """
 function planar_arrangement(
-        V::LinearAlgebraicRepresentation.Points, copEV::LinearAlgebraicRepresentation.ChainOp, 
+        V::LinearAlgebraicRepresentation.Points, 	
+        copEV::LinearAlgebraicRepresentation.ChainOp, 
         sigma::LinearAlgebraicRepresentation.Chain=spzeros(Int8, 0), 
         return_edge_map::Bool=false, 
         multiproc::Bool=false)
     
     edgenum = size(copEV, 1)
-    edge_map = Array{Array{Int, 1}, 1}(edgenum)
-    rV = LinearAlgebraicRepresentation.Points(zeros(0, 2))
-    rEV = spzeros(Int8, 0, 0)
-    finalcells_num = 0
+    edge_map = Array{Array{Int, 1}, 1}(undef,edgenum)
+    global rV = LinearAlgebraicRepresentation.Points(zeros(0, 2))
+    global rEV = SparseArrays.spzeros(Int8, 0, 0)
+    global finalcells_num = 0
 
     if (multiproc == true)
-        in_chan = RemoteChannel(()->Channel{Int64}(0))
-        out_chan = RemoteChannel(()->Channel{Tuple}(0))
+        in_chan = Distributed.RemoteChannel(()->Channel{Int64}(0))
+        out_chan = Distributed.RemoteChannel(()->Channel{Tuple}(0))
         
         ordered_dict = SortedDict{Int64,Tuple}()
         
-        @schedule begin
+        @async begin
             for i in 1:edgenum
                 put!(in_chan,i)
             end
-            for p in workers()
+            for p in distributed.workers()
                 put!(in_chan,-1)
             end
         end
         
-        for p in workers()
+        for p in distributed.workers()
             @async Base.remote_do(frag_edge_channel, p, in_chan, out_chan, V, copEV)
         end
         
@@ -472,7 +477,7 @@ function planar_arrangement(
                 v1, v2 = map(i->V[vidxs[i], :], [1,2])
                 centroid = .5*(v1 + v2)
                 
-                if !LinearAlgebraicRepresentation.point_in_face(centroid, V, ev) 
+                if ! LinearAlgebraicRepresentation.point_in_face(centroid, V, ev) 
                     push!(todel, e)
                 end
             end
@@ -526,13 +531,14 @@ function planar_arrangement(
     bicon_comps = biconnected_components(copEV)
     
     n = size(bicon_comps, 1)
-    shells = Array{LinearAlgebraicRepresentation.Chain, 1}(n)
-    boundaries = Array{LinearAlgebraicRepresentation.ChainOp, 1}(n)
-    EVs = Array{LinearAlgebraicRepresentation.ChainOp, 1}(n)
+    shells = Array{LinearAlgebraicRepresentation.Chain, 1}(undef, n)
+    boundaries = Array{LinearAlgebraicRepresentation.ChainOp, 1}(undef, n)
+    EVs = Array{LinearAlgebraicRepresentation.ChainOp, 1}(undef, n)
     for p in 1:n
         ev = copEV[sort(bicon_comps[p]), :]
-        fe = minimal_2cycles(V, ev)
-        shell_num = get_external_cycle(V, ev, fe)
+        fe = LinearAlgebraicRepresentation.Arrangement.minimal_2cycles(V, ev)
+        shell_num = LinearAlgebraicRepresentation.Arrangement.get_external_cycle(
+        	V, ev, fe)
     
         EVs[p] = ev 
         tokeep = setdiff(1:fe.m, shell_num)
@@ -551,7 +557,8 @@ function planar_arrangement(
     
     transitive_reduction!(containment_graph) 
     
-    copEV, FE = cell_merging(n, containment_graph, V, EVs, boundaries, shells, shell_bboxes)
+    copEV, FE = LinearAlgebraicRepresentation.Arrangement.cell_merging(
+    	n, containment_graph, V, EVs, boundaries, shells, shell_bboxes)
     
     if (return_edge_map)
         return V, copEV, FE, edge_map
