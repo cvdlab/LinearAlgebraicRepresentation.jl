@@ -1,3 +1,4 @@
+Lar = LinearAlgebraicRepresentation
 
 """
 	characteristicMatrix( FV::Cells )::ChainOp

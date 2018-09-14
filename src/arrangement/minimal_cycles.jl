@@ -1,3 +1,5 @@
+Lar = LinearAlgebraicRepresentation
+
 function minimal_2cycles(V::Lar.Points, EV::Lar.ChainOp)
 
     function edge_angle(v::Int, e::Int)
