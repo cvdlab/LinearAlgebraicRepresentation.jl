@@ -1,7 +1,7 @@
 using LinearAlgebraicRepresentation
-using LARVIEW
+using Plasm
 L = LinearAlgebraicRepresentation
-View = LARVIEW.view
+View = Plasm.view
 
 
 square=([[0; 0] [0; 1] [1; 0] [1; 1]], [[1, 2, 3, 4]], 
@@ -17,7 +17,7 @@ structo2=L.Struct(repeat([structo1,L.t(3,0)],outer=10));
 scene=L.evalStruct(structo2);
 View(scene)
 W,FW,EW = L.struct2lar(structo2);
-View(LARVIEW.lar2hpc(W,EW))
+View(Plasm.lar2hpc(W,EW))
 assembly = L.Struct([L.sphere()(), L.t(3,0,-1), L.cylinder()()])
 View(assembly)
 View(L.struct2lar(assembly))
