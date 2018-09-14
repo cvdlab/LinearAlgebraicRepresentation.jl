@@ -411,6 +411,7 @@ julia> cscCF # coboundaries[3]
 """
 function chaincomplex(W,FW,EW)
 	V = W'
+	EV = map(sort, EW)
 	EV = LinearAlgebraicRepresentation.build_copEV(EW)
 	FE = LinearAlgebraicRepresentation.coboundary_1(FW,EW)
 	V,cscEV,cscFE,cscCF = LinearAlgebraicRepresentation.spatial_arrangement(V,EV,FE)

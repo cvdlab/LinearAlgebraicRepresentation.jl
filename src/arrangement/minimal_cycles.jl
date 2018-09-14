@@ -1,4 +1,4 @@
-function minimal_2cycles(V::LinearAlgebraicRepresentation.Points, EV::LinearAlgebraicRepresentation.ChainOp)
+function minimal_2cycles(V::Lar.Points, EV::Lar.ChainOp)
 
     function edge_angle(v::Int, e::Int)
         edge = EV[e, :]
@@ -18,7 +18,7 @@ function minimal_2cycles(V::LinearAlgebraicRepresentation.Points, EV::LinearAlge
     return EF'
 end
 
-function minimal_3cycles(V::LinearAlgebraicRepresentation.Points, EV::LinearAlgebraicRepresentation.ChainOp, FE::LinearAlgebraicRepresentation.ChainOp)
+function minimal_3cycles(V::Lar.Points, EV::Lar.ChainOp, FE::Lar.ChainOp)
 
     triangulated_faces = Array{Any, 1}(FE.m)
     
@@ -93,7 +93,7 @@ end
 
 function minimal_cycles(angles_fn::Function, verbose=false)
 
-    function _minimal_cycles(V::LinearAlgebraicRepresentation.Points, ld_bounds::LinearAlgebraicRepresentation.ChainOp)
+    function _minimal_cycles(V::Lar.Points, ld_bounds::Lar.ChainOp)
         lld_cellsnum, ld_cellsnum = size(ld_bounds)
         count_marks = zeros(Int8, ld_cellsnum)
         dir_marks = zeros(Int8, ld_cellsnum)

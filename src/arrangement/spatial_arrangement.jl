@@ -1,3 +1,5 @@
+Lar = LinearAlgebraicRepresentation
+
 function frag_face_channel(in_chan, out_chan, V, EV, FE, sp_idx)
     run_loop = true
     while run_loop
@@ -24,7 +26,7 @@ function frag_face(V, EV, FE, sp_idx, sigma)
     for i in sp_idx[sigma]
         tmpV, tmpEV = face_int(tV, EV, FE[i, :])
         
-        sV, sEV = LinearAlgebraicRepresentation.skel_merge(sV, sEV, tmpV, tmpEV)
+        sV, sEV = Lar.skel_merge(sV, sEV, tmpV, tmpEV)
     end
     
     sV = sV[:, 1:2]
@@ -41,7 +43,7 @@ function frag_face(V, EV, FE, sp_idx, sigma)
     return nV, nEV, nFE
 end
 
-function merge_vertices(V::LinearAlgebraicRepresentation.Points, EV::LinearAlgebraicRepresentation.ChainOp, FE::LinearAlgebraicRepresentation.ChainOp, err=1e-4)
+function merge_vertices(V::Lar.Points, EV::Lar.ChainOp, FE::Lar.ChainOp, err=1e-4)
     vertsnum = size(V, 1)
     edgenum = size(EV, 1)
     facenum = size(FE, 1)
@@ -55,7 +57,7 @@ function merge_vertices(V::LinearAlgebraicRepresentation.Points, EV::LinearAlgeb
     i = 1
     for vi in 1:vertsnum
         if !(vi in todelete)
-            nearvs = LinearAlgebraicRepresentation.inrange(kdtree, V[vi, :], err)
+            nearvs = Lar.inrange(kdtree, V[vi, :], err)
     
             newverts[nearvs] = i
     
@@ -123,7 +125,7 @@ function merge_vertices(V::LinearAlgebraicRepresentation.Points, EV::LinearAlgeb
         end
     end
     
-    return LinearAlgebraicRepresentation.Points(nV), nEV, nFE
+    return Lar.Points(nV), nEV, nFE
 end
 
 
@@ -139,12 +141,12 @@ The function returns the full arranged complex as a list of vertices V and a cha
 ## Additional arguments:
 - `multiproc::Bool`: Runs the computation in parallel mode. Defaults to `false`.
 """
-function spatial_arrangement(V::LinearAlgebraicRepresentation.Points, EV::LinearAlgebraicRepresentation.ChainOp, FE::LinearAlgebraicRepresentation.ChainOp, multiproc::Bool=false)
+function spatial_arrangement(V::Lar.Points, EV::Lar.ChainOp, FE::Lar.ChainOp, multiproc::Bool=false)
 
     fs_num = size(FE, 1)
     sp_idx = spatial_index(V, EV, FE)
 
-    rV = LinearAlgebraicRepresentation.Points(0,3)
+    rV = Lar.Points(0,3)
     rEV = spzeros(Int8,0,0)
     rFE = spzeros(Int8,0,0)
 
@@ -167,14 +169,14 @@ function spatial_arrangement(V::LinearAlgebraicRepresentation.Points, EV::Linear
         end
         
         for sigma in 1:fs_num
-            rV, rEV, rFE = LinearAlgebraicRepresentation.skel_merge(rV, rEV, rFE, take!(out_chan)...)
+            rV, rEV, rFE = Lar.skel_merge(rV, rEV, rFE, take!(out_chan)...)
         end
         
     else
         for sigma in 1:fs_num
             # print(sigma, "/", fs_num, "\r")
             nV, nEV, nFE = frag_face(V, EV, FE, sp_idx, sigma)
-            rV, rEV, rFE = LinearAlgebraicRepresentation.skel_merge(rV, rEV, rFE, nV, nEV, nFE)
+            rV, rEV, rFE = Lar.skel_merge(rV, rEV, rFE, nV, nEV, nFE)
         end
         
     end

@@ -9,14 +9,14 @@ function submanifold_mapping(vs)
     return T*M
 end
 
-function spatial_index(V::LinearAlgebraicRepresentation.Points, EV::LinearAlgebraicRepresentation.ChainOp, FE::LinearAlgebraicRepresentation.ChainOp)
+function spatial_index(V::Lar.Points, EV::Lar.ChainOp, FE::Lar.ChainOp)
     d = 3
     faces_num = size(FE, 1)
     IntervalsType = IntervalValue{Float64, Int64}
     boxes1D = Array{IntervalsType, 2}(0, d)
     for fi in 1:faces_num
         vidxs = (abs.(FE[fi:fi,:])*abs.(EV))[1,:].nzind
-        intervals = map((l,u)->IntervalsType(l,u,fi), LinearAlgebraicRepresentation.bbox(V[vidxs, :])...)
+        intervals = map((l,u)->IntervalsType(l,u,fi), Lar.bbox(V[vidxs, :])...)
         boxes1D = vcat(boxes1D, intervals)
     end
     trees = mapslices(IntervalTree{Float64, IntervalsType}, sort(boxes1D, 1), 1)
@@ -39,10 +39,10 @@ function spatial_index(V::LinearAlgebraicRepresentation.Points, EV::LinearAlgebr
     mapping
 end
 
-function face_int(V::LinearAlgebraicRepresentation.Points, EV::LinearAlgebraicRepresentation.ChainOp, face::LinearAlgebraicRepresentation.Cell)
+function face_int(V::Lar.Points, EV::Lar.ChainOp, face::Lar.Cell)
 
-    vs = LinearAlgebraicRepresentation.buildFV(EV, face)
-    retV = LinearAlgebraicRepresentation.Points(0, 3)
+    vs = Lar.buildFV(EV, face)
+    retV = Lar.Points(0, 3)
     
     visited_verts = []
     for i in 1:length(vs)
@@ -59,7 +59,7 @@ function face_int(V::LinearAlgebraicRepresentation.Points, EV::LinearAlgebraicRe
                 p = o + alpha*d
 
                 if -err < alpha < err || 1-err < alpha < 1+err
-                    if !(LinearAlgebraicRepresentation.vin(p, visited_verts))
+                    if !(Lar.vin(p, visited_verts))
                         push!(visited_verts, p)
                         retV = [retV; reshape(p, 1, 3)] 
                     end
@@ -76,7 +76,7 @@ function face_int(V::LinearAlgebraicRepresentation.Points, EV::LinearAlgebraicRe
 
     if vnum == 1
         vnum = 0
-        retV = LinearAlgebraicRepresentation.Points(0, 3)
+        retV = Lar.Points(0, 3)
     end
     enum = Int(vnum / 2)
     retEV = spzeros(Int8, enum, vnum)
