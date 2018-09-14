@@ -107,7 +107,7 @@ end
 
 
 """
-	coboundary_0(EV::LinearAlgebraicRepresentation.Cells)
+	coboundary_0(EV::Lar.Cells)
 	
 Return the `coboundary_0` signed operator `C_0` -> `C_1`.
 """
@@ -125,7 +125,7 @@ is the number of edges.
 # Example
 
 ```julia
-julia> V,(VV,EV,FV,CV) = LinearAlgebraicRepresentation.cuboid([1.,1.,1.], true);
+julia> V,(VV,EV,FV,CV) = Lar.cuboid([1.,1.,1.], true);
 
 julia> u_coboundary_1(FV,EV)
 6×12 SparseMatrixCSC{Int8,Int64} with 24 stored entries:
@@ -151,9 +151,9 @@ julia> full(u_coboundary_1(FV,EV))
 julia> unsigned_boundary_2 = u_coboundary_1(FV,EV)';
 ```
 """
-function u_coboundary_1( FV::LinearAlgebraicRepresentation.Cells, EV::LinearAlgebraicRepresentation.Cells)::LinearAlgebraicRepresentation.ChainOp
-	cscFV = LinearAlgebraicRepresentation.characteristicMatrix(FV)
-	cscEV = LinearAlgebraicRepresentation.characteristicMatrix(EV)
+function u_coboundary_1( FV::Lar.Cells, EV::Lar.Cells)::Lar.ChainOp
+	cscFV = Lar.characteristicMatrix(FV)
+	cscEV = Lar.characteristicMatrix(EV)
 	temp = cscFV * cscEV'
 	I,J,V = Int64[],Int64[],Int8[]
 	for j=1:size(temp,2)
@@ -173,11 +173,11 @@ end
 
 
 """
-	u_boundary_2(FV::LinearAlgebraicRepresentation.Cells, EV::LinearAlgebraicRepresentation.Cells)::LinearAlgebraicRepresentation.ChainOp
+	u_boundary_2(FV::Lar.Cells, EV::Lar.Cells)::Lar.ChainOp
 	
 Return the unsigned `boundary_2` operator `C_2` -> `C_1`.
 """
-u_boundary_2(EV, FV) = (LinearAlgebraicRepresentation.u_coboundary_1(FV, EV))'
+u_boundary_2(EV, FV) = (Lar.u_coboundary_1(FV, EV))'
 
 
 
@@ -328,8 +328,8 @@ julia> full(coboundaries[2]) # coboundary_1: faces as oriented 1-cycles of edges
 """
 function chaincomplex( W, EW )
 	V = W'
-	EV = LinearAlgebraicRepresentation.boundary_1(EW)'
-	V,cscEV,cscFE = LinearAlgebraicRepresentation.planar_arrangement(V,EV)
+	EV = Lar.boundary_1(EW)'
+	V,cscEV,cscFE = Lar.planar_arrangement(V,EV)
 	ne,nv = size(cscEV)
 	nf = size(cscFE,1)
 	EV = [findn(cscEV[e,:]) for e=1:ne]
@@ -364,11 +364,11 @@ julia> cube_1 = ([0 0 0 0 1 1 1 1; 0 0 1 1 0 0 1 1; 0 1 0 1 0 1 0 1],
 [[1,2,3,4],[5,6,7,8],[1,2,5,6],[3,4,7,8],[1,3,5,7],[2,4,6,8]], 
 [[1,2],[3,4],[5,6],[7,8],[1,3],[2,4],[5,7],[6,8],[1,5],[2,6],[3,7],[4,8]] )
 
-julia> cube_2 = LinearAlgebraicRepresentation.Struct([LinearAlgebraicRepresentation.t(0,0,0.5), LinearAlgebraicRepresentation.r(0,0,pi/3), cube_1])
+julia> cube_2 = Lar.Struct([Lar.t(0,0,0.5), Lar.r(0,0,pi/3), cube_1])
 
-julia> V,FV,EV = LinearAlgebraicRepresentation.struct2lar(LinearAlgebraicRepresentation.Struct([ cube_1, cube_2 ]))
+julia> V,FV,EV = Lar.struct2lar(Lar.Struct([ cube_1, cube_2 ]))
 
-julia> V,bases,coboundaries = LinearAlgebraicRepresentation.chaincomplex(V,FV,EV)
+julia> V,bases,coboundaries = Lar.chaincomplex(V,FV,EV)
 
 julia> (EV, FV, CV), (cscEV, cscFE, cscCF) = bases,coboundaries
 
@@ -412,9 +412,9 @@ julia> cscCF # coboundaries[3]
 function chaincomplex(W,FW,EW)
 	V = W'
 	EV = map(sort, EW)
-	EV = LinearAlgebraicRepresentation.build_copEV(EW)
-	FE = LinearAlgebraicRepresentation.coboundary_1(FW,EW)
-	V,cscEV,cscFE,cscCF = LinearAlgebraicRepresentation.spatial_arrangement(V,EV,FE)
+	EV = Lar.build_copEV(EW)
+	FE = Lar.coboundary_1(FW,EW)
+	V,cscEV,cscFE,cscCF = Lar.Arrangement.spatial_arrangement(V,EV,FE)
 	ne,nv = size(cscEV)
 	nf = size(cscFE,1)
 	nc = size(cscCF,1)
@@ -462,11 +462,11 @@ end
 # 	[[1,2,3,4],[5,6,7,8],[1,2,5,6],[3,4,7,8],[1,3,5,7],[2,4,6,8]], 
 # 	[[1,2],[3,4],[5,6],[7,8],[1,3],[2,4],[5,7],[6,8],[1,5],[2,6],[3,7],[4,8]] )
 	
-# 	julia> cube_2 = LinearAlgebraicRepresentation.Struct([LinearAlgebraicRepresentation.t(0,0,0.5), LinearAlgebraicRepresentation.r(0,0,pi/3), cube_1])
+# 	julia> cube_2 = Lar.Struct([Lar.t(0,0,0.5), Lar.r(0,0,pi/3), cube_1])
 	
-# 	julia> W,FW,EW = LinearAlgebraicRepresentation.struct2lar(LinearAlgebraicRepresentation.Struct([ cube_1, cube_2 ]))
+# 	julia> W,FW,EW = Lar.struct2lar(Lar.Struct([ cube_1, cube_2 ]))
 
-# 	julia> V,(EV,FV,EV),(cscEV,cscFE,cscCF) = LinearAlgebraicRepresentation.chaincomplex(W,FW,EW)
+# 	julia> V,(EV,FV,EV),(cscEV,cscFE,cscCF) = Lar.chaincomplex(W,FW,EW)
 # 	```	
 # 	"""
 #    function facetriangulation(V,FV,EV,cscFE,cscCF)

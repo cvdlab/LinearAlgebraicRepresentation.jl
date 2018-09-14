@@ -1,5 +1,7 @@
 module LinearAlgebraicRepresentation
 
+Lar = LinearAlgebraicRepresentation
+
 	using NearestNeighbors
 	using DataStructures
 	using IntervalTrees

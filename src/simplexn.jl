@@ -24,7 +24,7 @@ julia> W,FW = extrudeSimplicial(model, pattern);
 julia> LARVIEW.view(W,FW)
 ```
 """
-function extrudeSimplicial(model::LinearAlgebraicRepresentation.LAR, pattern)
+function extrudeSimplicial(model::Lar.LAR, pattern)
 	V = [model[1][:,k] for k=1:size(model[1],2)]
     FV = model[2]
     d, m = length(FV[1]), length(pattern)
@@ -46,7 +46,7 @@ function extrudeSimplicial(model::LinearAlgebraicRepresentation.LAR, pattern)
     outModel = outVertices, cellGroups
     hcat(outVertices...), cellGroups
 end
-function extrudeSimplicial(model::Union{Any,LinearAlgebraicRepresentation.Cells}, pattern)
+function extrudeSimplicial(model::Union{Any,Lar.Cells}, pattern)
 	V,FV = model
     d, m = length(FV[1]), length(pattern)
     coords = collect(cumsum(append!([0], abs.(pattern))))
@@ -165,7 +165,7 @@ function simplexFacets(simplices)
         append!(out, oriented_facets)
     end
     out = collect(Set(out))
-    return convert(LinearAlgebraicRepresentation.Cells, out)
+    return convert(Lar.Cells, out)
 end
 
 

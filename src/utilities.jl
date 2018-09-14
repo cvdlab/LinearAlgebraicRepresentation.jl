@@ -477,11 +477,11 @@ Use this function to export LAR models into OBJ
 	[[1,2,3,4],[5,6,7,8],[1,2,5,6],[3,4,7,8],[1,3,5,7],[2,4,6,8]], 
 	[[1,2],[3,4],[5,6],[7,8],[1,3],[2,4],[5,7],[6,8],[1,5],[2,6],[3,7],[4,8]] )
 	
-	julia> cube_2 = LinearAlgebraicRepresentation.Struct([LinearAlgebraicRepresentation.t(0,0,0.5), LinearAlgebraicRepresentation.r(0,0,pi/3), cube_1])
+	julia> cube_2 = Lar.Struct([Lar.t(0,0,0.5), Lar.r(0,0,pi/3), cube_1])
 	
-	julia> V, FV, EV = LinearAlgebraicRepresentation.struct2lar(LinearAlgebraicRepresentation.Struct([ cube_1, cube_2 ]))
+	julia> V, FV, EV = Lar.struct2lar(Lar.Struct([ cube_1, cube_2 ]))
 	
-	julia> V, bases, coboundaries = LinearAlgebraicRepresentation.chaincomplex(V,FV,EV)
+	julia> V, bases, coboundaries = Lar.chaincomplex(V,FV,EV)
 	
 	julia> (EV, FV, CV), (copEV, copFE, copCF) = bases, coboundaries
 
@@ -521,7 +521,7 @@ Use this function to export LAR models into OBJ
 	julia> copCF # coboundaries[3]
 	4×18 SparseMatrixCSC{Int8,Int64} with 36 stored entries: ...
 	
-	objs = LinearAlgebraicRepresentation.lar2obj(V'::LinearAlgebraicRepresentation.Points, [coboundaries...])
+	objs = Lar.lar2obj(V'::Lar.Points, [coboundaries...])
 			
 	open("./two_cubes.obj", "w") do f
     	write(f, objs)
