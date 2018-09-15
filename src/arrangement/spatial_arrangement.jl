@@ -174,7 +174,7 @@ function spatial_arrangement(V::Lar.Points, EV::Lar.ChainOp, FE::Lar.ChainOp, mu
         
     else
         for sigma in 1:fs_num
-            # print(sigma, "/", fs_num, "\r")
+            print(sigma, "/", fs_num, "\n")
             nV, nEV, nFE = frag_face(V, EV, FE, sp_idx, sigma)
             rV, rEV, rFE = Lar.skel_merge(rV, rEV, rFE, nV, nEV, nFE)
         end
