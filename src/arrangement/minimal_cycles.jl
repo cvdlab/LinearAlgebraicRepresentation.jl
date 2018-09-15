@@ -86,7 +86,7 @@ function minimal_3cycles(V::Lar.Points, EV::Lar.ChainOp, FE::Lar.ChainOp)
     
 
     EF = FE'
-
+	@show EF
     FC = minimal_cycles(face_angle, true)(V, EF)
 
     return -FC'

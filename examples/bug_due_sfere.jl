@@ -53,6 +53,13 @@ Stacktrace:
  [5] spatial_arrangement(::Array{Float64,2}, ::SparseMatrixCSC{Int8,Int64}, ::SparseMatrixCSC{Int8,Int64}) at /Users/paoluzzi/.julia/v0.6/LinearAlgebraicRepresentation/src/./arrangement/./spatial_arrangement.jl:144
  [6] chaincomplex(::Array{Float64,2}, ::Array{Array{Int64,1},1}, ::Array{Array{Int64,1},1}) at /Users/paoluzzi/.julia/v0.6/LinearAlgebraicRepresentation/src/./interface.jl:416
 
+V = rV'
+EV = [findnz(ev[h,:])[1] for h=1:rEV.m]
+FE = [findnz(fe[h,:])[1] for h=1:rFE.m]
 
+[ef for ef in EF if length(ef)==4]
+cycle = [EV[k] for (k,ef) in enumerate(EF) if length(ef)==4]
+length(Set(vcat(cycle...)))
+length(cycle)
 
-
+Plasm.view(Plasm.numbering(0.1)((V,[[[v] for v=1:size(V,2)],cycle])))

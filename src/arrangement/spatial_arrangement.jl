@@ -183,6 +183,18 @@ function spatial_arrangement(V::Lar.Points, EV::Lar.ChainOp, FE::Lar.ChainOp, mu
 
     rV, rEV, rFE = merge_vertices(rV, rEV, rFE)
     
+        
+    V = rV'
+	EV = [findnz(rEV[h,:])[1] for h=1:rEV.m]
+	FE = [findnz(rFE[h,:])[1] for h=1:rFE.m]
+	rEF = rFE'
+	EF = [findnz(rEF[h,:])[1] for h=1:rEF.m]
+    @show V
+    @show EV
+    @show FE
+    @show EF
+
+    
     rCF = minimal_3cycles(rV, rEV, rFE)
 
     return rV, rEV, rFE, rCF
