@@ -31,28 +31,28 @@ function space_arrangement(V::Points, EV::ChainOp, FE::ChainOp, multiproc::Bool=
         
     else
 
-       for sigma in 1:fs_num
-           # print(sigma, "/", fs_num, "\r")
-           nV, nEV, nFE = LinearAlgebraicRepresentation.Arrangement.frag_face(
-           	V, EV, FE, sp_idx, sigma)
-           a,b,c = LinearAlgebraicRepresentation.skel_merge(
-           	rV, rEV, rFE, nV, nEV, nFE)
-           global rV=a; global rEV=b; global rFE=c
-       end
+#       for sigma in 1:fs_num
+#           # print(sigma, "/", fs_num, "\r")
+#           nV, nEV, nFE = LinearAlgebraicRepresentation.Arrangement.frag_face(
+#           	V, EV, FE, sp_idx, sigma)
+#           a,b,c = LinearAlgebraicRepresentation.skel_merge(
+#           	rV, rEV, rFE, nV, nEV, nFE)
+#           global rV=a; global rEV=b; global rFE=c
+#       end
 
-#		depot_V = Array{Array{Float64,2},1}(undef,fs_num)
-#		depot_EV = Array{ChainOp,1}(undef,fs_num)
-#		depot_FE = Array{ChainOp,1}(undef,fs_num)
-#        for sigma in 1:fs_num
-#            print(sigma, "/", fs_num, "\r")
-#            nV, nEV, nFE = Arrangement.frag_face( V, EV, FE, sp_idx, sigma)
-#            depot_V[sigma] = nV
-#            depot_EV[sigma] = nEV
-#            depot_FE[sigma] = nFE
-#        end
-#		rV = vcat(depot_V...)
-#		rEV = SparseArrays.blockdiag(depot_EV...)
-#		rFE = SparseArrays.blockdiag(depot_FE...)
+		depot_V = Array{Array{Float64,2},1}(undef,fs_num)
+		depot_EV = Array{ChainOp,1}(undef,fs_num)
+		depot_FE = Array{ChainOp,1}(undef,fs_num)
+		   for sigma in 1:fs_num
+			   print(sigma, "/", fs_num, "\r")
+			   nV, nEV, nFE = Arrangement.frag_face( V, EV, FE, sp_idx, sigma)
+			   depot_V[sigma] = nV
+			   depot_EV[sigma] = nEV
+			   depot_FE[sigma] = nFE
+		   end
+		rV = vcat(depot_V...)
+		rEV = SparseArrays.blockdiag(depot_EV...)
+		rFE = SparseArrays.blockdiag(depot_FE...)
     
     end
 
@@ -174,4 +174,51 @@ function triangulate2D(V::LinearAlgebraicRepresentation.Points, cc::LinearAlgebr
     end
 
     return triangulated_faces
+end
+
+
+"""
+    blockdiag(A...)
+Concatenate matrices block-diagonally. Currently only implemented for sparse matrices.
+# Examples
+```jldoctest
+julia> blockdiag(sparse(2I, 3, 3), sparse(4I, 2, 2))
+5×5 SparseMatrixCSC{Int64,Int64} with 5 stored entries:
+  [1, 1]  =  2
+  [2, 2]  =  2
+  [3, 3]  =  2
+  [4, 4]  =  4
+  [5, 5]  =  4
+```
+"""
+function blockdiag(X::SparseMatrixCSC...)
+    num = length(X)
+    mX = Int[ size(x, 1) for x in X ]
+    nX = Int[ size(x, 2) for x in X ]
+    m = sum(mX)
+    n = sum(nX)
+
+    Tv = promote_type(map(x->eltype(x.nzval), X)...)
+    Ti = isempty(X) ? Int : promote_type(map(x->eltype(x.rowval), X)...)
+
+    colptr = Vector{Ti}(n+1)
+    nnzX = Int[ nnz(x) for x in X ]
+    nnz_res = sum(nnzX)
+    rowval = Vector{Ti}(nnz_res)
+    nzval = Vector{Tv}(nnz_res)
+
+    nnz_sofar = 0
+    nX_sofar = 0
+    mX_sofar = 0
+    for i = 1 : num
+        colptr[(1 : nX[i] + 1) .+ nX_sofar] = X[i].colptr .+ nnz_sofar
+        rowval[(1 : nnzX[i]) .+ nnz_sofar] = X[i].rowval .+ mX_sofar
+        nzval[(1 : nnzX[i]) .+ nnz_sofar] = X[i].nzval
+        nnz_sofar += nnzX[i]
+        nX_sofar += nX[i]
+        mX_sofar += mX[i]
+    end
+    colptr[n+1] = nnz_sofar + 1
+
+    SparseMatrixCSC(m, n, colptr, rowval, nzval)
 end
