@@ -179,10 +179,10 @@ function spatial_arrangement(V::Lar.Points, EV::Lar.ChainOp, FE::Lar.ChainOp, mu
 		depot_V = Array{Array{Float64,2},1}(fs_num)
 		depot_EV = Array{Lar.ChainOp,1}(fs_num)
 		depot_FE = Array{Lar.ChainOp,1}(fs_num)
-		V, EV, FE, space_idx = preprocessing(V,EV,FV)
+		V, EV, FE, space_idx = Lar.preprocessing(V,EV,FV)
 		for sigma in 1:fs_num
 		   print(sigma, "/", fs_num, "\r")
-		   nV, nEV, nFE = computefragments(V, EV, FE, space_idx, sigma)
+		   nV, nEV, nFE = Lar.computefragments(V, EV, FE, space_idx, sigma)
 		   depot_V[sigma] = nV
 		   depot_EV[sigma] = Matrix(nEV)
 		   depot_FE[sigma] = Matrix(nFE)
