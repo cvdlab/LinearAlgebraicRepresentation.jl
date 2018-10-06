@@ -191,34 +191,3 @@ julia> blockdiag(sparse(2I, 3, 3), sparse(4I, 2, 2))
   [5, 5]  =  4
 ```
 """
-function blockdiag(X::SparseMatrixCSC...)
-    num = length(X)
-    mX = Int[ size(x, 1) for x in X ]
-    nX = Int[ size(x, 2) for x in X ]
-    m = sum(mX)
-    n = sum(nX)
-
-    Tv = promote_type(map(x->eltype(x.nzval), X)...)
-    Ti = isempty(X) ? Int : promote_type(map(x->eltype(x.rowval), X)...)
-
-    colptr = Vector{Ti}(n+1)
-    nnzX = Int[ nnz(x) for x in X ]
-    nnz_res = sum(nnzX)
-    rowval = Vector{Ti}(nnz_res)
-    nzval = Vector{Tv}(nnz_res)
-
-    nnz_sofar = 0
-    nX_sofar = 0
-    mX_sofar = 0
-    for i = 1 : num
-        colptr[(1 : nX[i] + 1) .+ nX_sofar] = X[i].colptr .+ nnz_sofar
-        rowval[(1 : nnzX[i]) .+ nnz_sofar] = X[i].rowval .+ mX_sofar
-        nzval[(1 : nnzX[i]) .+ nnz_sofar] = X[i].nzval
-        nnz_sofar += nnzX[i]
-        nX_sofar += nX[i]
-        mX_sofar += mX[i]
-    end
-    colptr[n+1] = nnz_sofar + 1
-
-    SparseMatrixCSC(m, n, colptr, rowval, nzval)
-end

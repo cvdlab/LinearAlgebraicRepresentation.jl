@@ -164,7 +164,8 @@ function simplexFacets(simplices)
     	end
         append!(out, oriented_facets)
     end
-    out = collect(Set(out))
+    out = map(sort, collect(Set(out)))
+    out = sort(out, by=x->(x[1],x[2]))
     return convert(Lar.Cells, out)
 end
 

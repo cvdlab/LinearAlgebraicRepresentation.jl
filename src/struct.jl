@@ -312,6 +312,7 @@ function struct2lar(structure)
 			end
 			append!(FW,[outcell])
 		end
+		FW = sort(map(sort, FW), by=x->(x[1],x[2],x[3]))
 	end
 	if length(listOfModels[1])==3
 		for model in listOfModels
@@ -331,7 +332,7 @@ function struct2lar(structure)
 				end
 				append!(EW,[outcell])
 			end
-			
+		EW = sort(map(sort, EW), by=x->(x[1],x[2]))
 		end
 	end
 	

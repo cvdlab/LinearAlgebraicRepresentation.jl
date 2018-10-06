@@ -56,10 +56,14 @@ Stacktrace:
 V = rV'
 EV = [findnz(ev[h,:])[1] for h=1:rEV.m]
 FE = [findnz(fe[h,:])[1] for h=1:rFE.m]
-
-[ef for ef in EF if length(ef)==4]
 cycle = [EV[k] for (k,ef) in enumerate(EF) if length(ef)==4]
+hpc = Plasm.numbering(0.01)((V,[[[v] for v=1:size(V,2)],cycle]))
+
 length(Set(vcat(cycle...)))
 length(cycle)
 
-Plasm.view(Plasm.numbering(0.1)((V,[[[v] for v=1:size(V,2)],cycle])))
+Plasm.view()
+badedges = [EV[k] for (k,ef) in enumerate(EF) if (length(ef)!=2)&(length(ef)!=4)]
+hpc2 = p.COLOR(p.RED)(Plasm.lar2hpc(V,badedges))
+p.VIEW(p.STRUCT([hpc,hpc2]))
+

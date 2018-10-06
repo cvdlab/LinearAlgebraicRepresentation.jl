@@ -1,0 +1,388 @@
+using Plasm
+using LinearAlgebraicRepresentation
+Lar = LinearAlgebraicRepresentation
+using NearestNeighbors
+PRECISION = 5
+
+
+""" Half-line crossing test """
+function crossingTest(new,old,count,status)
+    if status == 0
+        status = new
+        count += 0.5
+    else
+        if status == old
+        	count += 0.5
+        else
+        	count -= 0.5
+        end
+        status = 0
+    end
+end
+
+function setTile(box)
+	tiles = [[9,1,5],[8,0,4],[10,2,6]]
+	b1,b2,b3,b4 = box
+	function tileCode(point)
+		x,y = point
+		code = 0
+		if y>b1 code=code|1 end
+		if y<b2 code=code|2 end
+		if x>b3 code=code|4 end
+		if x<b4 code=code|8 end
+		return code
+	end
+	return tileCode
+end
+
+# Point in polygon classification #
+function pointInPolygonClassification(V,EV)
+    function pointInPolygonClassification0(pnt)
+        x,y = pnt
+        xmin,xmax,ymin,ymax = x,x,y,y
+        tilecode = setTile([ymax,ymin,xmax,xmin])
+        count,status = 0,0
+    
+        for (k,edge) in enumerate(EV)
+            p1,p2 = V[:,edge[1]],V[:,edge[2]]
+            (x1,y1),(x2,y2) = p1,p2
+            c1,c2 = tilecode(p1),tilecode(p2)
+            c_edge, c_un, c_int = c1⊻c2, c1|c2, c1&c2
+            
+            if (c_edge == 0) & (c_un == 0) return "p_on" 
+            elseif (c_edge == 12) & (c_un == c_edge) return "p_on"
+            elseif c_edge == 3
+                if c_int == 0 return "p_on"
+                elseif c_int == 4 count += 1 end
+            elseif c_edge == 15
+                x_int = ((y-y2)*(x1-x2)/(y1-y2))+x2 
+                if x_int > x count += 1
+                elseif x_int == x return "p_on" end
+            elseif (c_edge == 13) & ((c1==4) | (c2==4))
+                    crossingTest(1,2,status,count)
+            elseif (c_edge == 14) & ((c1==4) | (c2==4))
+                    crossingTest(2,1,status,count)
+            elseif c_edge == 7 count += 1
+            elseif c_edge == 11 count = count
+            elseif c_edge == 1
+                if c_int == 0 return "p_on"
+                elseif c_int == 4 crossingTest(1,2,status,count) end
+            elseif c_edge == 2
+                if c_int == 0 return "p_on"
+                elseif c_int == 4 crossingTest(2,1,status,count) end
+            elseif (c_edge == 4) & (c_un == c_edge) return "p_on"
+            elseif (c_edge == 8) & (c_un == c_edge) return "p_on"
+            elseif c_edge == 5
+                if (c1==0) | (c2==0) return "p_on"
+                else crossingTest(1,2,status,count) end
+            elseif c_edge == 6
+                if (c1==0) | (c2==0) return "p_on"
+                else crossingTest(2,1,status,count) end
+            elseif (c_edge == 9) & ((c1==0) | (c2==0)) return "p_on"
+            elseif (c_edge == 10) & ((c1==0) | (c2==0)) return "p_on"
+            end
+        end
+        if (round(count)%2)==1 
+        	return "p_in"
+        else 
+        	return "p_out"
+        end
+    end
+    return pointInPolygonClassification0
+end
+
+
+# transform sigma and related faces in space_idx
+function submanifold_mapping(FV, sigma, err=1.0e-5 )
+	sigmavs = FV[sigma]; i = 1
+	# compute affinely independent triple
+	while -err < det(V[:, sigmavs[i:i+2]]) < err
+		i += 1
+	end
+	# sigma translation
+	T = Lar.t(-V[:,sigmavs[i+1]]...)
+	W = T * [V[:,sigmavs] ; ones(1,length(sigmavs))]
+	t_vs = W[1:3,:]
+	# translated sigma rotation
+	r1,r2,r3 = t_vs[:,i], t_vs[:,i+2], cross(t_vs[:,i], t_vs[:,i+2])
+	R = eye(4)
+	R[1:3,1:3] = inv([r1 r2 r3])
+	mapping = R * T
+	return mapping
+end
+
+function polyline(V::Lar.Points)::Lar.LAR
+	return V,[[k,k+1] for k=1:size(V,2)-1]
+end
+
+function sigmamodel(V, EV, FE, sigma, space_idx)
+	bigpi = space_idx[sigma]
+	Q = submanifold_mapping(FV, sigma)
+	sigma_edges = EV[FE[sigma]]
+	sigma_verts = union(sigma_edges...)
+	sigma_vdict =  Dict(zip(sigma_verts, 1:length(sigma_verts)))
+	sigma_lines = [[sigma_vdict[v] for v in edge] for edge in sigma_edges]
+	# sigma face on z=0 plane
+	S = V[:,sigma_verts] # sigma vertices
+	Z = (Q * [S; ones(1,size(S,2))])[1:3,:] # sigma mapped in z=0
+	v,ev = Z,sigma_lines
+	#Plasm.view(Plasm.numbering(0.5)((v,[[[k] for k=1:size(v,2)],ev])))
+	return v,ev,Q
+end
+
+function sigma_intersect(V, EV, FE, sigma, Q, bigpi)
+	sigma_edges = EV[FE[sigma]]
+	sigma_verts = union(sigma_edges...)
+	sigma_vdict =  Dict(zip(sigma_verts, 1:length(sigma_verts)))
+	sigma_lines = [[sigma_vdict[v] for v in edge] for edge in sigma_edges]
+	# sigma face on z=0 plane
+	S = V[:,sigma_verts] # sigma vertices
+	Z = (Q * [S; ones(1,size(S,2))])[1:3,:] # sigma mapped in z=0
+	#Plasm.view(Z, sigma_lines)
+	# initialization of line storage (to be intersected)
+	linestore = [[Z[:,v1] Z[:,v2]] for (v1,v2) in sigma_lines]
+	b_linenum = length(sigma_lines)
+	# reindexing of ∏(σ) chain 
+	bigpi_edges = [EV[fe] for fe in FE[bigpi]]
+	bigpi_verts = union(union(bigpi_edges...)...)
+	bigpi_vdict =  Dict(zip(bigpi_verts, 1:length(bigpi_verts)))
+	bigpi_lines = [[sort([bigpi_vdict[v] for v in edge]) for edge in faceedges] 
+		for faceedges in bigpi_edges]
+	# bigpi trasformed in 3D according to Q mapping
+	P = V[:,bigpi_verts] # bigpi vertices
+	W = (Q * [P; ones(1,size(P,2))])[1:3,:] # bigpi mapped by Q
+	#Plasm.view(W, union(bigpi_lines...))
+	# filter on bigpi_lines that do not cross z=0
+	filtered_edges = [[[v1,v2] for (v1,v2) in face_lines 
+		if (sign(W[3,v1]) * sign(W[3,v2])) <= 0] 
+			for face_lines in bigpi_lines]
+	filtered_edges = [edge for edge in filtered_edges if edge!=[]]
+	#Plasm.view(W, union(filtered_edges...))
+	#Plasm.view(Plasm.numbering()((W,[[[k] for k=1:size(W,2)],union(filtered_edges...)])))
+	# computation of ordered z=0 points by face
+	facepoints = []
+	for face in filtered_edges
+		points = []
+		for (v1,v2) in face
+			#v1[3] + (v2[3]-v1[3])*t = 0 # compute parameter of intersection point with z=0
+			if (W[3,v2] - W[3,v1]) != 0
+				t = -W[3,v1] / (W[3,v2] - W[3,v1])  # z1 + (z2-z1)*t = 0
+				point = W[:,v1] + (W[:,v2] - W[:,v1]) * t
+				push!(points,point)
+			end
+		end
+		if length(Set(points)) > 1
+			push!(facepoints,Set(points))
+		end
+		# TODO: linearly order facepoints[face]
+	end
+	# compute z_lines
+	c = collect
+	z0_lines = [[[c(ps)[k] c(ps)[k+1]] for k=1:2:length(ps)] for ps in facepoints]
+	
+	# intersecting lines upload in linestore
+	linestore = [[Z[:,v1] Z[:,v2]] for (v1,v2) in sigma_lines]
+	if z0_lines != []
+		linestore = append!(linestore, union(z0_lines...))
+	end
+	return linestore,b_linenum
+end
+
+
+function computeparams(linestore,b_linenum)
+	m = length(linestore)
+	params = [[] for i=1:m]
+	for h=1:(m-1)
+		(x1,y1,x2,y2) = reshape(linestore[h][1:2,:],1,4)
+		for k=(h+1):m
+			(x3,y3,x4,y4) = reshape(linestore[k][1:2,:],1,4)
+			# intersect lines h,k
+			# http://www.cs.swan.ac.uk/~cssimon/line_intersection.html
+			det = (x4-x3)*(y1-y2)-(x1-x2)*(y4-y3)
+			α,β = 99,99
+			if det != 0.0
+				a = 1/det
+				b = [y1-y2 x2-x1; y3-y4 x4-x3]  # x1-x2 => x2-x1 bug in the source link !!
+				c = [x1-x3; y1-y3]
+				(β,α) = a * b * c
+			else
+				if (y1==y2) == (y3==y4) # segments collinear
+					α = -x1/(x2-x1)
+					β = -x3/(x4-x3)
+				elseif (x1==x2) == (x3==x4)
+					α = -y1/(y2-y1)
+					β = -y3/(y4-y3)
+				else
+					 # segments parallel: no intersection
+					 (β,α) = 999
+				end
+			end
+			if 0<=α<=1 && 0<=β<=1
+				push!(params[h], α)
+				push!(params[k], β)
+			end
+		end
+	end
+	out = []
+	for line in params
+		push!(line, 0.0)
+		push!(line, 1.0)
+		line = sort(collect(Set(line)))
+		push!(out, line)
+	end	
+	return out
+end
+
+function fragface(V, EV, FV, FE, space_idx, sigma)
+	bigpi = space_idx[sigma]
+	Q = submanifold_mapping(FV, sigma)
+	linestore, b_linenum = sigma_intersect(V, EV, FE, sigma, Q, bigpi)
+	lineparams = computeparams(linestore,b_linenum)
+	pairs = collect(zip(lineparams,linestore))
+
+	linepoints = []
+	number = 0
+	for (k,(params,line)) in enumerate(pairs)
+		v1,v2 = line[1:2,1],line[1:2,2]
+		if params==[0.0, 1.0]
+			points = [v1,v2]
+			if k<=b_linenum number += 1 end
+		elseif length(params)>2 
+			points = [v1+α*(v2-v1) for α ∈ params]
+			if k<=b_linenum number += length(params)-1 end
+		end
+		push!(linepoints,points)
+	end
+	#linepoints = collect(Set(linepoints))
+	verts = []
+	edges = Array{Array{Int},1}()
+	offset = 0
+	for (h,pointline) in enumerate(linepoints)
+		append!(verts, pointline)
+		append!(edges, [[k,k+1] for k=1:length(pointline)-1]+offset)
+		offset = length(verts)
+	end
+	verts = hcat(verts...)
+	edges = convert(Lar.Cells, edges)
+	return verts, edges, number
+end
+
+
+function removevertices(verts, edges, err=1e-5)
+	vertices = collect(Set(vcat(edges...)))
+	vertexnum = length(vertices)
+	vdict = Dict(zip(vertices,1:vertexnum))
+	cells0D = cells0D = zeros(2,vertexnum)
+	cells1D = Array{Int64,1}[]
+	for (v1,v2) in edges
+		push!(cells1D,[vdict[v1],vdict[v2]])
+	end
+	#vdict = Dict(zip(values(vdict),keys(vdict))) # inverted vdict
+	for key in keys(vdict)
+		cells0D[:,vdict[key]] = verts[:,key]
+	end
+	return cells0D, cells1D
+end
+	
+function mergevertices(verts, edges, err=1e-5)
+    vertsnum = size(verts, 2)
+    kdtree = KDTree(verts)
+    todelete = []
+    newverts = zeros(Int, vertsnum)
+    i = 1
+    for vi in 1:vertsnum
+        if !(vi in todelete)
+            nearvs = inrange(kdtree, verts[:,vi], err)
+            newverts[nearvs] = i
+            nearvs = setdiff(nearvs, vi)
+            todelete = union(todelete, nearvs)
+            i = i + 1
+        end
+    end
+	nverts = verts[:,setdiff(collect(1:vertsnum), todelete)]
+	vertdict = DataStructures.OrderedDict()
+	for k=1:size(nverts,2)
+		key = map(Lar.approxVal(PRECISION), nverts[:,k])
+		vertdict[key] = k
+	end
+	nedges = Array{Array{Int},1}()
+	for (v1,v2) in edges
+		(w1,w2) = abs.((v1,v2))
+		key1 = map(Lar.approxVal(PRECISION), verts[:,w1])
+		key2 = map(Lar.approxVal(PRECISION), verts[:,w2])
+		push!(nedges, [vertdict[key1], vertdict[key2]])
+	end
+	nedges = Set(map(sort,nedges))
+	nedges = sort(collect(nedges), by=x->(x[1],x[2]))
+	nedges = filter( x->x[1]!=x[2], nedges )	
+	return nverts,nedges
+end
+
+function preprocessing(V,EV,FV)
+	copEV = Lar.coboundary_0(EV)
+	copFE = Lar.coboundary_1(FV,EV)
+	copEF = Lar.coboundary_1(FV,EV)'
+	EF = [findnz(copEF[e,:])[1] for e=1:size(copEF,1)]
+	FE = [findnz(copFE[e,:])[1] for e=1:size(copFE,1)]
+
+	sp_idx = Lar.Arrangement.spatial_index(V', copEV, copFE)
+	space_idx = Array{Int,1}[]
+	for sigma = 1:length(FV)
+		edges = FE[sigma];
+		# remove faces incident on sigma edges
+		facesofedges = Set(vcat([EF[edge] for edge in edges]...));
+		push!(space_idx, setdiff(sp_idx[sigma], facesofedges))
+	end
+	return V, EV, FE, space_idx
+end
+
+function computefragments(V, EV, FE, space_idx, sigma)
+	v,ev = sigmamodel(V, EV, FE, sigma, space_idx)
+	#Plasm.view(Plasm.numbering(0.4)((v,[ [[k] for k=1:size(v,2)],ev ])))
+
+	verts, edges, b_linenum = fragface(V, EV, FV, FE, space_idx, sigma)
+	v,ev,Q = sigmamodel(V, EV, FE, sigma, space_idx)
+	classify = pointInPolygonClassification(v,ev)
+	internal = []
+	for (k,edge)  in enumerate(edges)
+		v1,v2 = edge
+		if k <= b_linenum
+			push!(internal, edge)
+		else
+			vm = (verts[:,v1]+verts[:,v2])/2
+			if (classify(vm)=="p_in")
+				push!(internal, edge)
+			end
+		end
+	end
+	
+	nverts, nedges = removevertices(verts, internal)
+	w, ev = mergevertices(nverts, nedges)
+	cop_ev = Lar.build_copEV(ev,true)
+	cop_fe = Lar.Arrangement.minimal_2cycles(w',cop_ev)	#OK
+	shell_num = Lar.Arrangement.get_external_cycle(w', cop_ev, cop_fe)
+	for j=1:cop_fe.n  
+		cop_fe[shell_num,j]=0 
+	end
+	cop_fe = dropzeros(cop_fe)
+	faces = [findnz(cop_fe[e,:])[1] for e=1:size(cop_fe,1) if e≠shell_num]
+	fv = [collect(Set(vcat([ev[e] for e in face]...))) for face in faces]
+	vv = [[k] for k=1:size(w,2)]
+	#Plasm.view(Plasm.numbering(0.4)((w, [vv, ev, fv])))
+		
+	w = [ w; zeros(size(w,2))'; ones(size(w,2))' ]
+	v = (inv(Q) * w)[1:3,:]
+	vv = [[k] for k=1:size(w,2)]
+	#Plasm.view(Plasm.numbering(0.4)((v, [vv, ev, fv])))
+	return v', Lar.coboundary_0(ev), cop_fe
+end
+
+
+
+
+
+
+
+
+
+

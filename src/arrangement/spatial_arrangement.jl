@@ -43,12 +43,13 @@ function frag_face(V, EV, FE, sp_idx, sigma)
     return nV, nEV, nFE
 end
 
-function merge_vertices(V::Lar.Points, EV::Lar.ChainOp, FE::Lar.ChainOp, err=1e-4)
+function merge_vertices(V::Lar.Points, EV::Lar.ChainOp, FE::Lar.ChainOp, err=1e-14)
     vertsnum = size(V, 1)
     edgenum = size(EV, 1)
     facenum = size(FE, 1)
     newverts = zeros(Int, vertsnum)
-    # KDTree constructor needs an explicit array of Float64
+    
+    # KDTree constructor needs an explicit array of Float64 #############
     V = Array{Float64,2}(V)
     kdtree = KDTree(V')
 
@@ -57,7 +58,7 @@ function merge_vertices(V::Lar.Points, EV::Lar.ChainOp, FE::Lar.ChainOp, err=1e-
     i = 1
     for vi in 1:vertsnum
         if !(vi in todelete)
-            nearvs = Lar.inrange(kdtree, V[vi, :], err)
+            nearvs = inrange(kdtree, V[vi, :], err)
     
             newverts[nearvs] = i
     
@@ -70,6 +71,7 @@ function merge_vertices(V::Lar.Points, EV::Lar.ChainOp, FE::Lar.ChainOp, err=1e-
     
     nV = V[setdiff(collect(1:vertsnum), todelete), :]
     
+    # edge collapse ######################################################
     edges = Array{Tuple{Int, Int}, 1}(edgenum)
     oedges = Array{Tuple{Int, Int}, 1}(edgenum)
     
@@ -93,11 +95,12 @@ function merge_vertices(V::Lar.Points, EV::Lar.ChainOp, FE::Lar.ChainOp, err=1e-
         etuple2idx[nedges[ei]] = ei
     end
     
+    # face collapse ######################################################
     faces = [[
         map(x->newverts[x], FE[fi, ei] > 0 ? oedges[ei] : reverse(oedges[ei]))
         for ei in FE[fi, :].nzind
     ] for fi in 1:facenum]
-    
+    #@show faces
     
     visited = []
     function filter_fn(face)
@@ -173,44 +176,63 @@ function spatial_arrangement(V::Lar.Points, EV::Lar.ChainOp, FE::Lar.ChainOp, mu
         end
         
     else
-#        for sigma in 1:fs_num
-#            print(sigma, "/", fs_num, "\n")
-#            nV, nEV, nFE = frag_face(V, EV, FE, sp_idx, sigma)
-#            rV, rEV, rFE = Lar.skel_merge(rV, rEV, rFE, nV, nEV, nFE)
-#        end
-
-		depot_V = Array{Array{Float64,2},1}(undef,fs_num)
-		depot_EV = Array{ChainOp,1}(undef,fs_num)
-		depot_FE = Array{ChainOp,1}(undef,fs_num)
-		   for sigma in 1:fs_num
-			   print(sigma, "/", fs_num, "\r")
-			   nV, nEV, nFE = Arrangement.frag_face( V, EV, FE, sp_idx, sigma)
-			   depot_V[sigma] = nV
-			   depot_EV[sigma] = nEV
-			   depot_FE[sigma] = nFE
-		   end
+		depot_V = Array{Array{Float64,2},1}(fs_num)
+		depot_EV = Array{Lar.ChainOp,1}(fs_num)
+		depot_FE = Array{Lar.ChainOp,1}(fs_num)
+		V, EV, FE, space_idx = preprocessing(V,EV,FV)
+		for sigma in 1:fs_num
+		   print(sigma, "/", fs_num, "\r")
+		   nV, nEV, nFE = computefragments(V, EV, FE, space_idx, sigma)
+		   depot_V[sigma] = nV
+		   depot_EV[sigma] = Matrix(nEV)
+		   depot_FE[sigma] = Matrix(nFE)
+		end
 		rV = vcat(depot_V...)
-		rEV = SparseArrays.blockdiag(depot_EV...)
-		rFE = SparseArrays.blockdiag(depot_FE...)
-        
+		rEV = blockdiag(depot_EV...)
+		rFE = blockdiag(depot_FE...)
     end
 
     rV, rEV, rFE = merge_vertices(rV, rEV, rFE)
-    
         
-    V = rV'
-	EV = [findnz(rEV[h,:])[1] for h=1:rEV.m]
-	FE = [findnz(rFE[h,:])[1] for h=1:rFE.m]
-	rEF = rFE'
-	EF = [findnz(rEF[h,:])[1] for h=1:rEF.m]
-    @show V
-    @show EV
-    @show FE
-    @show EF
+#    V = rV'
+#	EV = [findnz(rEV[h,:])[1] for h=1:rEV.m]
+#	FE = [findnz(rFE[h,:])[1] for h=1:rFE.m]
+#	rEF = rFE'
+#	EF = [findnz(rEF[h,:])[1] for h=1:rEF.m]
 
-    
     rCF = minimal_3cycles(rV, rEV, rFE)
 
     return rV, rEV, rFE, rCF
 end
 
+function blockdiag(X::SparseMatrixCSC...)
+    num = length(X)
+    mX = Int[ size(x, 1) for x in X ]
+    nX = Int[ size(x, 2) for x in X ]
+    m = sum(mX)
+    n = sum(nX)
+
+    Tv = promote_type(map(x->eltype(x.nzval), X)...)
+    Ti = isempty(X) ? Int : promote_type(map(x->eltype(x.rowval), X)...)
+
+    colptr = Vector{Ti}(n+1)
+    nnzX = Int[ nnz(x) for x in X ]
+    nnz_res = sum(nnzX)
+    rowval = Vector{Ti}(nnz_res)
+    nzval = Vector{Tv}(nnz_res)
+
+    nnz_sofar = 0
+    nX_sofar = 0
+    mX_sofar = 0
+    for i = 1 : num
+        colptr[(1 : nX[i] + 1) .+ nX_sofar] = X[i].colptr .+ nnz_sofar
+        rowval[(1 : nnzX[i]) .+ nnz_sofar] = X[i].rowval .+ mX_sofar
+        nzval[(1 : nnzX[i]) .+ nnz_sofar] = X[i].nzval
+        nnz_sofar += nnzX[i]
+        nX_sofar += nX[i]
+        mX_sofar += mX[i]
+    end
+    colptr[n+1] = nnz_sofar + 1
+
+    SparseMatrixCSC(m, n, colptr, rowval, nzval)
+end
