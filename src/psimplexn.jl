@@ -4,6 +4,29 @@
 ### Authors: Fabio Fatelli, Emanuele Loprevite
 #####################################################
 
+"""
+	plarExtrude1(model::Tuple{Array{Array{T,1},1},Array{Array{Int64,1},1}}, pattern::Array{Int64,1}) where T<:Real
+		::Tuple{Array{Array{Int64,1},1},Array{Array{Int64,1},1}}
+
+Algorithm for multidimensional extrusion of a simplicial complex. 
+Can be applied to 0-, 1-, 2-, ... simplicial models, to get a 1-, 2-, 3-, ... model.
+The pattern `Array` is used to specify how to decompose the added dimension.
+
+A `model` is a LAR model, i.e. a pair (vertices,cells) to be extruded, whereas pattern is an array of `Int64`, to be used as lateral measures of the *extruded* model. `pattern` elements are assumed as either *solid* or *empty* measures, according to their (+/-) sign.
+
+# Example
+```julia
+julia> V = [[0,0], [1,0], [2,0], [0,1], [1,1], [2,1], [0,2], [1,2], [2,2]];
+
+julia> FV = [[1,2,4],[2,3,5],[3,5,6],[4,5,7],[5,7,8],[6,8,9]];
+
+julia> pattern = repeat([1,2,-3],outer=4);
+
+julia> model = (V,FV);
+
+julia> W,FW = plarExtrude1(model, pattern);
+```
+"""
 # Generation of the output model vertices in a multiple extrusion of a LAR model
 using SharedArrays
 
@@ -35,6 +58,34 @@ using SharedArrays
 	return fetch(outVertices), outCellGroups
 end
 
+"""
+	plarSimplexGrid1(shape::Array{Int64,1})::Tuple{Array{Array{Int64,1},1},Array{Array{Int64,1},1}}
+
+Generate a simplicial complex decomposition of a cubical grid of ``d``-cuboids, where ``d`` is the length of `shape` array. Vertices (0-cells) of the grid have `Int64` coordinates.
+
+# Example
+```julia
+julia> plarSimplexGrid1([0]) # 0-dimensional complex
+# output
+(Array{Int64,1}[[0]], Array{Int64,1}[])
+
+julia> V,EV = plarSimplexGrid1([1]) # 1-dimensional complex
+# output
+(Array{Int64,1}[[0], [1]], Array{Int64,1}[[0, 1]])
+
+julia> V,FV = plarSimplexGrid1([1,1]) # 2-dimensional complex
+# output
+(Array{Int64,1}[[0, 0], [1, 0], [0, 1], [1, 1]], Array{Int64,1}[[0, 1, 2], [1, 2, 3]])
+
+julia> V,CV = plarSimplexGrid1([10,10,1]) # 3-dimensional complex
+# output
+(Array{Int64,1}[[0, 0, 0], [1, 0, 0], [2, 0, 0], [3, 0, 0], [4, 0, 0], [5, 0, 0], [6, 0, 0], [7, 0, 0], [8, 0, 0], [9, 0, 0]  …  [1, 10, 1], [2, 10, 1], [3, 10, 1], [4, 10, 1], [5, 10, 1], [6, 10, 1], [7, 10, 1], [8, 10, 1], [9, 10, 1], [10, 10, 1]], Array{Int64,1}[[0, 1, 11, 121], [1, 11, 121, 122], [11, 121, 122, 132], [1, 11, 12, 122], [11, 12, 122, 132], [12, 122, 132, 133], [1, 2, 12, 122], [2, 12, 122, 123], [12, 122, 123, 133], [2, 12, 13, 123]  …  [118, 228, 229, 239], [108, 118, 119, 229], [118, 119, 229, 239], [119, 229, 239, 240], [108, 109, 119, 229], [109, 119, 229, 230], [119, 229, 230, 240], [109, 119, 120, 230], [119, 120, 230, 240], [120, 230, 240, 241]])
+
+julia> V,HV = plarSimplexGrid1([1,1,1,1]) # 4-dim cellular complex from the 4D simplex
+# output
+(Array{Int64,1}[[0, 0, 0, 0], [1, 0, 0, 0], [0, 1, 0, 0], [1, 1, 0, 0], [0, 0, 1, 0], [1, 0, 1, 0], [0, 1, 1, 0], [1, 1, 1, 0], [0, 0, 0, 1], [1, 0, 0, 1], [0, 1, 0, 1], [1, 1, 0, 1], [0, 0, 1, 1], [1, 0, 1, 1], [0, 1, 1, 1], [1, 1, 1, 1]], Array{Int64,1}[[0, 1, 2, 4, 8], [1, 2, 4, 8, 9], [2, 4, 8, 9, 10], [4, 8, 9, 10, 12], [1, 2, 4, 5, 9], [2, 4, 5, 9, 10], [4, 5, 9, 10, 12], [5, 9, 10, 12, 13], [2, 4, 5, 6, 10], [4, 5, 6, 10, 12]  …  [3, 5, 9, 10, 11], [5, 9, 10, 11, 13], [2, 3, 5, 6, 10], [3, 5, 6, 10, 11], [5, 6, 10, 11, 13], [6, 10, 11, 13, 14], [3, 5, 6, 7, 11], [5, 6, 7, 11, 13], [6, 7, 11, 13, 14], [7, 11, 13, 14, 15]])
+```
+"""
 # Generation of simplicial grids of any dimension and shape
 @everywhere function plarSimplexGrid1(shape::Array{Int64,1})
 	model = [Int64[]],[[0]] # the empty simplicial model
@@ -44,6 +95,44 @@ end
 	return model
 end
 
+
+"""
+	plarSimplexFacets(simplices::Array{Array{Int64,1},1})::Array{Array{Int64,1},1}
+
+Compute the `(d-1)`-skeleton (set of `facets`) of a simplicial `d`-complex.
+
+# Example
+```julia
+julia> V,FV = plarSimplexGrid1([1,1])
+# output
+(Array{Int64,1}[[0, 0], [1, 0], [0, 1], [1, 1]], Array{Int64,1}[[0, 1, 2], [1, 2, 3]])
+
+julia> W,CW = plarExtrude1((V,FV), [1])
+# output
+(Array{Int64,1}[[0, 0, 0], [1, 0, 0], [0, 1, 0], [1, 1, 0], [0, 0, 1], [1, 0, 1], [0, 1, 1], [1, 1, 1]], Array{Int64,1}[[0, 1, 2, 4], [1, 2, 4, 5], [2, 4, 5, 6], [1, 2, 3, 5], [2, 3, 5, 6], [3, 5, 6, 7]])
+
+julia> FW = plarSimplexFacets(CW)
+18-element Array{Array{Int64,1},1}:
+ [0, 1, 2]
+ [0, 1, 4]
+ [0, 2, 4]
+ [1, 2, 3]
+ [1, 2, 4]
+ [1, 2, 5]
+ [1, 3, 5]
+ [1, 4, 5]
+ [2, 3, 5]
+ [2, 3, 6]
+ [2, 4, 5]
+ [2, 4, 6]
+ [2, 5, 6]
+ [3, 5, 6]
+ [3, 5, 7]
+ [3, 6, 7]
+ [4, 5, 6]
+ [5, 6, 7]
+```
+"""
 # Extraction of non-oriented (d-1)-facets of d-dimensional simplices
 @everywhere using Combinatorics # for combinations() function
 
