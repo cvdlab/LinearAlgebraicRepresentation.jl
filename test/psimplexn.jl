@@ -8,6 +8,15 @@ include("../src/psimplexn.jl")
 
 using Test
 
+println("Checking the number of nodes...")
+if nprocs() < 4
+	println("The number of nodes is less then 4, you shall not pass!")
+	sleep(3)
+	exit(1)
+else
+	println("You have more than 3 nodes, good to go!")
+end
+
 @testset "Unit Tests" begin
 	@testset "plarExtrude1" begin
 		VOID = [Int64[]],[[0]] # the empty simplicial model
