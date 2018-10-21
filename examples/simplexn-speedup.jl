@@ -25,10 +25,10 @@ function timing(f::Function,x,n::Int64)
 	return mean(t)
 end
 
-# Create and save the plots in the folder "zfigures"
+# Create and save the plots in the specified folder
 function plotting(name::String,timeS::Array{Float64,1},timeP::Array{Float64,1},flag::Int64)
 	l = max(length(timeS),length(timeP))+1
-	pathName = "../../zfigures/"*name
+	pathName = "./"*name
 	s, p, xlb, ylb, DPI = "Serial", "Parallel", "Input", "Time (seconds)", 150
 	plot(timeS,xlims=(1,l),title=name,label=s,xlabel=xlb,ylabel=ylb,dpi=DPI,legend=:topleft)
 	savefig(pathName*"serial")
@@ -48,9 +48,11 @@ function plotting(name::String,timeS::Array{Float64,1},timeP::Array{Float64,1})
 	plot(p1,p2,p3,xlims=(1,l),xlabel=xlb,ylabel=ylb,dpi=1.5*DPI,legend=:topleft)
 end
 
+
 timeSer = [timing(larExtrude1,[VOID,repeat([1,2,3,4],k^4)],nt) for k in 1:2*N]
 timePar = [timing(plarExtrude1,[VOID,repeat([1,2,3,4],k^4)],nt) for k in 1:2*N]
 plotting("larExtrude1",timeSer,timePar)
+
 
 simp = [collect(1:500)]
 sLen = length(simp[1])
@@ -60,6 +62,7 @@ end
 timeSer = [timing(larSimplexFacets,[simp[1:k]],nt) for k in 1:2*N^2]
 timePar = [timing(plarSimplexFacets,[simp[1:k]],nt) for k in 1:2*N^2]
 plotting("larSimplexFacets",timeSer,timePar)
+
 
 verts, quads = [[0,0,0],[0,1,0],[1,0,0],[1,1,0],[2,2,0],[2,3,0],[3,2,0],[3,3,0]], [[0,1,2,3],[4,5,6,7]]
 len = length(quads[1])
