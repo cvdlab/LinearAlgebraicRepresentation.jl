@@ -145,6 +145,24 @@ julia> FW = plarSimplexFacets(CW)
 	return sort!(unique(out),lt=isless)
 end
 
+
+"""
+	pquads2tria(model::Tuple{Array{Array{T,1},1},Array{Array{Int64,1},1}}) where T<:Real
+		::Tuple{Array{Array{Float64,1},1},Array{Array{Int64,1},1}}
+
+Give the conversion of a LAR boundary representation (B-Rep), i.e. a LAR model `V, FV` made of 2D faces, usually quads but also general polygons, into a LAR model `verts, triangles` made by triangles.
+
+# Example
+```julia
+julia> model = plarSimplexGrid1([2,2,2])
+# output
+(Array{Int64,1}[[0, 0, 0], [1, 0, 0], [2, 0, 0], [0, 1, 0], [1, 1, 0], [2, 1, 0], [0, 2, 0], [1, 2, 0], [2, 2, 0], [0, 0, 1]  …  [2, 2, 1], [0, 0, 2], [1, 0, 2], [2, 0, 2], [0, 1, 2], [1, 1, 2], [2, 1, 2], [0, 2, 2], [1, 2, 2], [2, 2, 2]], Array{Int64,1}[[0, 1, 3, 9], [1, 3, 9, 10], [3, 9, 10, 12], [1, 3, 4, 10], [3, 4, 10, 12], [4, 10, 12, 13], [1, 2, 4, 10], [2, 4, 10, 11], [4, 10, 11, 13], [2, 4, 5, 11]  …  [15, 21, 22, 24], [13, 15, 16, 22], [15, 16, 22, 24], [16, 22, 24, 25], [13, 14, 16, 22], [14, 16, 22, 23], [16, 22, 23, 25], [14, 16, 17, 23], [16, 17, 23, 25], [17, 23, 25, 26]])
+
+julia> pquads2tria(model)
+# output
+(Array{Float64,1}[[0.0, 0.0, 0.0], [1.0, 0.0, 0.0], [2.0, 0.0, 0.0], [0.0, 1.0, 0.0], [1.0, 1.0, 0.0], [2.0, 1.0, 0.0], [0.0, 2.0, 0.0], [1.0, 2.0, 0.0], [2.0, 2.0, 0.0], [0.0, 0.0, 1.0]  …  [0.25, 1.5, 1.75], [0.75, 1.5, 1.25], [0.5, 1.75, 1.5], [0.75, 1.75, 1.75], [1.25, 1.25, 1.25], [1.5, 1.25, 1.5], [1.25, 1.5, 1.75], [1.75, 1.5, 1.25], [1.5, 1.75, 1.5], [1.75, 1.75, 1.75]], Array{Int64,1}[[27, 3, 9], [27, 9, 0], [27, 0, 1], [27, 1, 3], [28, 9, 10], [28, 10, 1], [28, 1, 3], [28, 3, 9], [29, 10, 12], [29, 12, 3]  …  [72, 16, 17], [72, 17, 23], [73, 23, 25], [73, 25, 16], [73, 16, 17], [73, 17, 23], [74, 26, 25], [74, 25, 17], [74, 17, 23], [74, 23, 26]])
+```
+"""
 # Transformation to triangles by sorting circularly the vertices of faces
 using LinearAlgebra
 
