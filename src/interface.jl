@@ -414,8 +414,11 @@ function chaincomplex(W,FW,EW)
 	V = W'
 	EV = map(sort, EW)
 	EV = Lar.build_copEV(EW)
-	FE = Lar.coboundary_1(FW,EW)
-	V,cscEV,cscFE,cscCF = Lar.Arrangement.spatial_arrangement(V,EV,FE)
+	FE = Lar.build_copFE(FW,EW)
+		println("ciao 0")
+	V,cscEV,cscFE,cscCF = Lar.Arrangement.spatial_arrangement(
+			V::Lar.Points, EV::Lar.ChainOp, FW::Lar.Cells, FE::Lar.ChainOp)
+		println("ciao 1")
 	ne,nv = size(cscEV)
 	nf = size(cscFE,1)
 	nc = size(cscCF,1)

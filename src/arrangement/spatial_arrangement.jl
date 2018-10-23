@@ -1,4 +1,5 @@
 Lar = LinearAlgebraicRepresentation
+using Plasm
 
 function frag_face_channel(in_chan, out_chan, V, EV, FE, sp_idx)
     run_loop = true
@@ -133,7 +134,7 @@ end
 
 
 """
-    spatial_arrangement(V::Points, EV::ChainOp, FE::ChainOp; [multiproc::Bool])
+    spatial_arrangement(V::Points, EV::ChainOp, FV::Lar.Cells, FE::ChainOp; [multiproc::Bool])
 
 Compute the arrangement on the given cellular complex 2-skeleton in 3D.
 
@@ -144,10 +145,11 @@ The function returns the full arranged complex as a list of vertices V and a cha
 ## Additional arguments:
 - `multiproc::Bool`: Runs the computation in parallel mode. Defaults to `false`.
 """
-function spatial_arrangement(V::Lar.Points, EV::Lar.ChainOp, FE::Lar.ChainOp, multiproc::Bool=false)
+function spatial_arrangement(V::Lar.Points, EV::Lar.ChainOp, FV::Lar.Cells, FE::Lar.ChainOp, multiproc=false)
 
+		println("eccomi 1")
     fs_num = size(FE, 1)
-    sp_idx = spatial_index(V, EV, FE)
+    sp_idx = Lar.Arrangement.spatial_index(V, EV, FE)
 
     rV = Lar.Points(0,3)
     rEV = spzeros(Int8,0,0)
@@ -180,27 +182,44 @@ function spatial_arrangement(V::Lar.Points, EV::Lar.ChainOp, FE::Lar.ChainOp, mu
 		depot_EV = Array{Lar.ChainOp,1}(fs_num)
 		depot_FE = Array{Lar.ChainOp,1}(fs_num)
 		V, EV, FE, space_idx = Lar.preprocessing(V,EV,FV)
+			println("eccomi 2")
+
 		for sigma in 1:fs_num
 		   print(sigma, "/", fs_num, "\r")
-		   nV, nEV, nFE = Lar.computefragments(V, EV, FE, space_idx, sigma)
+		   nV, nEV, nFE = Lar.computefragments(V, EV, FV, FE, space_idx, sigma)
+		   #nV, nEV, nFE = Lar.Arrangement.frag_face(V, EV, FE, space_idx, sigma)
+			#@show nV
+			#@show Matrix(nEV)
+			#@show nFE
+			#Plasm.view(nV',[findnz(nEV[k,:])[1] for k=1:size(nEV,1)])
 		   depot_V[sigma] = nV
 		   depot_EV[sigma] = Matrix(nEV)
 		   depot_FE[sigma] = Matrix(nFE)
 		end
+			println("eccomi 3")
 		rV = vcat(depot_V...)
-		rEV = blockdiag(depot_EV...)
-		rFE = blockdiag(depot_FE...)
+		rEV = Lar.blockdiag(depot_EV...)
+		rFE = Lar.blockdiag(depot_FE...)
     end
 
-    rV, rEV, rFE = merge_vertices(rV, rEV, rFE)
-        
-#    V = rV'
-#	EV = [findnz(rEV[h,:])[1] for h=1:rEV.m]
-#	FE = [findnz(rFE[h,:])[1] for h=1:rFE.m]
-#	rEF = rFE'
-#	EF = [findnz(rEF[h,:])[1] for h=1:rEF.m]
+    #rV, rEV, rFE = Lar.merge_vertices(rV, rEV, rFE)
+    rV, rEV, rFE = Lar.Arrangement.merge_vertices(rV, rEV, rFE)
+			println("eccomi 4")
+			
+	@show size(rFE)
+	
+	V = rV'
+	EV = [findnz(rEV[h,:])[1] for h=1:rEV.m]
+	FE = [findnz(rFE[h,:])[1] for h=1:rFE.m]
+	FV = [collect(Set(vcat([EV[e] for e in face]...))) for face in FE]
+	@show V
+	@show EV
+	@show FV
+	rEF = rFE'
+	EF = [findnz(rEF[h,:])[1] for h=1:rEF.m]
 
-    rCF = minimal_3cycles(rV, rEV, rFE)
+    rCF = Lar.Arrangement.minimal_3cycles(rV, rEV, rFE)
+			println("eccomi 5")
 
     return rV, rEV, rFE, rCF
 end

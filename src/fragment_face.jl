@@ -93,7 +93,7 @@ end
 
 
 # transform sigma and related faces in space_idx
-function submanifold_mapping(FV, sigma, err=1.0e-5 )
+function face_mapping(V, FV, sigma, err=1.0e-5 )
 	sigmavs = FV[sigma]; i = 1
 	# compute affinely independent triple
 	while -err < det(V[:, sigmavs[i:i+2]]) < err
@@ -115,22 +115,26 @@ function polyline(V::Lar.Points)::Lar.LAR
 	return V,[[k,k+1] for k=1:size(V,2)-1]
 end
 
-function sigmamodel(V, EV, FE, sigma, space_idx)
+function sigmamodel(V, copEV, FV, copFE, sigma, space_idx)
 	bigpi = space_idx[sigma]
-	Q = submanifold_mapping(FV, sigma)
+	Q = Lar.face_mapping(V', FV, sigma)
+	EV = [findnz(copEV[e,:])[1] for e=1:size(copEV,1)]
+	FE = [findnz(copFE[e,:])[1] for e=1:size(copFE,1)]
 	sigma_edges = EV[FE[sigma]]
 	sigma_verts = union(sigma_edges...)
 	sigma_vdict =  Dict(zip(sigma_verts, 1:length(sigma_verts)))
 	sigma_lines = [[sigma_vdict[v] for v in edge] for edge in sigma_edges]
 	# sigma face on z=0 plane
-	S = V[:,sigma_verts] # sigma vertices
+	S = V'[:,sigma_verts] # sigma vertices
 	Z = (Q * [S; ones(1,size(S,2))])[1:3,:] # sigma mapped in z=0
 	v,ev = Z,sigma_lines
 	#Plasm.view(Plasm.numbering(0.5)((v,[[[k] for k=1:size(v,2)],ev])))
 	return v,ev,Q
 end
 
-function sigma_intersect(V, EV, FE, sigma, Q, bigpi)
+function sigma_intersect(V, copEV, copFE, sigma, Q, bigpi)
+	EV = [findnz(copEV[e,:])[1] for e=1:size(copEV,1)]
+	FE = [findnz(copFE[f,:])[1] for f=1:size(copFE,1)]
 	sigma_edges = EV[FE[sigma]]
 	sigma_verts = union(sigma_edges...)
 	sigma_vdict =  Dict(zip(sigma_verts, 1:length(sigma_verts)))
@@ -178,7 +182,7 @@ function sigma_intersect(V, EV, FE, sigma, Q, bigpi)
 	end
 	# compute z_lines
 	c = collect
-	z0_lines = [[[c(ps)[k] c(ps)[k+1]] for k=1:2:length(ps)] for ps in facepoints]
+	z0_lines = [[[c(ps)[k] c(ps)[k+1]] for k=1:2:(length(ps)-1)] for ps in facepoints]
 	
 	# intersecting lines upload in linestore
 	linestore = [[Z[:,v1] Z[:,v2]] for (v1,v2) in sigma_lines]
@@ -235,9 +239,9 @@ end
 
 function fragface(V, EV, FV, FE, space_idx, sigma)
 	bigpi = space_idx[sigma]
-	Q = submanifold_mapping(FV, sigma)
-	linestore, b_linenum = sigma_intersect(V, EV, FE, sigma, Q, bigpi)
-	lineparams = computeparams(linestore,b_linenum)
+	Q = Lar.face_mapping(V', FV, sigma)
+	linestore, b_linenum = Lar.sigma_intersect(V', EV, FE, sigma, Q, bigpi)
+	lineparams = Lar.computeparams(linestore,b_linenum)
 	pairs = collect(zip(lineparams,linestore))
 
 	linepoints = []
@@ -284,7 +288,16 @@ function removevertices(verts, edges, err=1e-5)
 	return cells0D, cells1D
 end
 	
-function mergevertices(verts, edges, err=1e-5)
+function merge_vertices(rV::Lar.Points, rEV::Lar.ChainOp, rFE::Lar.ChainOp, err=1e-5)
+	verts = rV'
+	edges = [findnz(rEV[e,:])[1] for e=1:size(rEV,1)]
+	faces = [findnz(rFE[f,:])[1] for f=1:size(rFE,1)]
+	
+#	@show verts
+#	@show faces
+#	@show edges	
+	
+	
     vertsnum = size(verts, 2)
     kdtree = KDTree(verts)
     todelete = []
@@ -305,6 +318,63 @@ function mergevertices(verts, edges, err=1e-5)
 		key = map(Lar.approxVal(PRECISION), nverts[:,k])
 		vertdict[key] = k
 	end
+	
+	nedges = Array{Array{Int},1}()
+	for (v1,v2) in edges
+		(w1,w2) = abs.((v1,v2))
+		key1 = map(Lar.approxVal(PRECISION), verts[:,w1])
+		key2 = map(Lar.approxVal(PRECISION), verts[:,w2])
+		push!(nedges, [vertdict[key1], vertdict[key2]])
+	end
+	nedges = Set(map(sort,nedges))
+	nedges = sort(collect(nedges), by=x->(x[1],x[2]))
+	nedges = filter( x->x[1]!=x[2], nedges )	
+	
+	nfaces = Array{Array{Int},1}()
+	for (k,face) in enumerate(faces)
+		nface = Int64[]
+		for edge in face
+			(v1,v2) = edges[edge]
+			(w1,w2) = abs.((v1,v2))
+			key1 = map(Lar.approxVal(PRECISION), verts[:,w1])
+			key2 = map(Lar.approxVal(PRECISION), verts[:,w2])
+			push!(nface, vertdict[key1])
+			push!(nface, vertdict[key2])
+		end
+		if nface ≠ [] 
+			nface = sort(collect(Set(nface)))
+			push!(nfaces,nface)
+		end
+	end
+	nfaces = collect(Set(nfaces))
+	nfaces = sort(nfaces, lt=lexless)
+	@show nverts
+	@show nfaces
+	@show nedges	
+	return nverts, build_copEV(nedges), build_copFE(nfaces, nedges)	
+end
+	
+function mergevertices(verts, edges, err=1e-5)
+	vertsnum = size(verts, 2)
+	kdtree = KDTree(verts)
+	todelete = []
+	newverts = zeros(Int, vertsnum)
+	i = 1
+	for vi in 1:vertsnum
+	   if !(vi in todelete)
+		   nearvs = inrange(kdtree, verts[:,vi], err)
+		   newverts[nearvs] = i
+		   nearvs = setdiff(nearvs, vi)
+		   todelete = union(todelete, nearvs)
+		   i = i + 1
+	   end
+	end
+	nverts = verts[:,setdiff(collect(1:vertsnum), todelete)]
+	vertdict = DataStructures.OrderedDict()
+	for k=1:size(nverts,2)
+		key = map(Lar.approxVal(PRECISION), nverts[:,k])
+		vertdict[key] = k
+	end
 	nedges = Array{Array{Int},1}()
 	for (v1,v2) in edges
 		(w1,w2) = abs.((v1,v2))
@@ -318,14 +388,15 @@ function mergevertices(verts, edges, err=1e-5)
 	return nverts,nedges
 end
 
-function preprocessing(V,EV,FV)
-	copEV = Lar.coboundary_0(EV)
-	copFE = Lar.coboundary_1(FV,EV)
-	copEF = Lar.coboundary_1(FV,EV)'
+function preprocessing(V,copEV,FV)
+	EV = [findnz(copEV[e,:])[1] for e=1:size(copEV,1)]
+	#copEV = Lar.coboundary_0(EV)
+	copFE = Lar.build_copFE(FV,EV)
+	copEF = copFE'
 	EF = [findnz(copEF[e,:])[1] for e=1:size(copEF,1)]
 	FE = [findnz(copFE[e,:])[1] for e=1:size(copFE,1)]
 
-	sp_idx = Lar.Arrangement.spatial_index(V', copEV, copFE)
+	sp_idx = Lar.Arrangement.spatial_index(V, copEV, copFE)
 	space_idx = Array{Int,1}[]
 	for sigma = 1:length(FV)
 		edges = FE[sigma];
@@ -333,16 +404,16 @@ function preprocessing(V,EV,FV)
 		facesofedges = Set(vcat([EF[edge] for edge in edges]...));
 		push!(space_idx, setdiff(sp_idx[sigma], facesofedges))
 	end
-	return V, EV, FE, space_idx
+	return V, copEV, copFE, space_idx
 end
 
-function computefragments(V, EV, FE, space_idx, sigma)
-	v,ev = sigmamodel(V, EV, FE, sigma, space_idx)
+function computefragments(V, EV, FV, FE, space_idx, sigma)
+	#v,ev = Lar.sigmamodel(V, EV, FE, sigma, space_idx)
 	#Plasm.view(Plasm.numbering(0.4)((v,[ [[k] for k=1:size(v,2)],ev ])))
 
-	verts, edges, b_linenum = fragface(V, EV, FV, FE, space_idx, sigma)
-	v,ev,Q = sigmamodel(V, EV, FE, sigma, space_idx)
-	classify = pointInPolygonClassification(v,ev)
+	verts, edges, b_linenum = Lar.fragface(V, EV, FV, FE, space_idx, sigma) #OK
+	v,ev,Q = Lar.sigmamodel(V, EV, FV, FE, sigma, space_idx) #OK
+	classify = Lar.pointInPolygonClassification(v,ev)
 	internal = []
 	for (k,edge)  in enumerate(edges)
 		v1,v2 = edge
@@ -356,8 +427,8 @@ function computefragments(V, EV, FE, space_idx, sigma)
 		end
 	end
 	
-	nverts, nedges = removevertices(verts, internal)
-	w, ev = mergevertices(nverts, nedges)
+	nverts, nedges = Lar.removevertices(verts, internal)
+	w, ev = Lar.mergevertices(nverts, nedges)
 	cop_ev = Lar.build_copEV(ev,true)
 	cop_fe = Lar.Arrangement.minimal_2cycles(w',cop_ev)	#OK
 	shell_num = Lar.Arrangement.get_external_cycle(w', cop_ev, cop_fe)

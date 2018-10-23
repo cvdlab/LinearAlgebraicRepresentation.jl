@@ -101,6 +101,7 @@ Lar = LinearAlgebraicRepresentation
    include("./mapper.jl")
    include("./struct.jl")
    include("./integr.jl")
+   include("./fragment_face.jl")
    
    include("./arrangement/arrangement.jl")
    planar_arrangement = Arrangement.planar_arrangement
