@@ -46,11 +46,11 @@ V,(EV,FV,CV),(copEV,copFE,copCF) = LinearAlgebraicRepresentation.chaincomplex(V,
 
 ERROR: InexactError()
 Stacktrace:
- [1] setindex!(::SparseVector{Int8,Int64}, ::Int64, ::Int64) at ./sparse/sparsevector.jl:251
- [2] (::LinearAlgebraicRepresentation.Arrangement.#_minimal_cycles#9{LinearAlgebraicRepresentation.Arrangement.#face_angle#3{Array{Float64,2},SparseMatrixCSC{Int8,Int64},SparseMatrixCSC{Int8,Int64},Array{Any,1}},Bool})(::Array{Float64,2}, ::SparseMatrixCSC{Int8,Int64}) at /Users/paoluzzi/.julia/v0.6/LinearAlgebraicRepresentation/src/./arrangement/./minimal_cycles.jl:164
- [3] minimal_3cycles(::Array{Float64,2}, ::SparseMatrixCSC{Int8,Int64}, ::SparseMatrixCSC{Int8,Int64}) at /Users/paoluzzi/.julia/v0.6/LinearAlgebraicRepresentation/src/./arrangement/./minimal_cycles.jl:88
- [4] spatial_arrangement(::Array{Float64,2}, ::SparseMatrixCSC{Int8,Int64}, ::SparseMatrixCSC{Int8,Int64}, ::Bool) at /Users/paoluzzi/.julia/v0.6/LinearAlgebraicRepresentation/src/./arrangement/./spatial_arrangement.jl:184
- [5] spatial_arrangement(::Array{Float64,2}, ::SparseMatrixCSC{Int8,Int64}, ::SparseMatrixCSC{Int8,Int64}) at /Users/paoluzzi/.julia/v0.6/LinearAlgebraicRepresentation/src/./arrangement/./spatial_arrangement.jl:144
+ [1] setindex!(::SparseVector{Int,Int64}, ::Int64, ::Int64) at ./sparse/sparsevector.jl:251
+ [2] (::LinearAlgebraicRepresentation.Arrangement.#_minimal_cycles#9{LinearAlgebraicRepresentation.Arrangement.#face_angle#3{Array{Float64,2},SparseMatrixCSC{Int,Int64},SparseMatrixCSC{Int,Int64},Array{Any,1}},Bool})(::Array{Float64,2}, ::SparseMatrixCSC{Int,Int64}) at /Users/paoluzzi/.julia/v0.6/LinearAlgebraicRepresentation/src/./arrangement/./minimal_cycles.jl:164
+ [3] minimal_3cycles(::Array{Float64,2}, ::SparseMatrixCSC{Int,Int64}, ::SparseMatrixCSC{Int,Int64}) at /Users/paoluzzi/.julia/v0.6/LinearAlgebraicRepresentation/src/./arrangement/./minimal_cycles.jl:88
+ [4] spatial_arrangement(::Array{Float64,2}, ::SparseMatrixCSC{Int,Int64}, ::SparseMatrixCSC{Int,Int64}, ::Bool) at /Users/paoluzzi/.julia/v0.6/LinearAlgebraicRepresentation/src/./arrangement/./spatial_arrangement.jl:184
+ [5] spatial_arrangement(::Array{Float64,2}, ::SparseMatrixCSC{Int,Int64}, ::SparseMatrixCSC{Int,Int64}) at /Users/paoluzzi/.julia/v0.6/LinearAlgebraicRepresentation/src/./arrangement/./spatial_arrangement.jl:144
  [6] chaincomplex(::Array{Float64,2}, ::Array{Array{Int64,1},1}, ::Array{Array{Int64,1},1}) at /Users/paoluzzi/.julia/v0.6/LinearAlgebraicRepresentation/src/./interface.jl:416
 
 V = rV'

@@ -4,8 +4,8 @@ function space_arrangement(V::Points, EV::ChainOp, FE::ChainOp, multiproc::Bool=
     sp_idx = LinearAlgebraicRepresentation.Arrangement.spatial_index(V, EV, FE)
 
     global rV = LinearAlgebraicRepresentation.Points(undef, 0,3)
-    global rEV = SparseArrays.spzeros(Int8,0,0)
-    global rFE = SparseArrays.spzeros(Int8,0,0)
+    global rEV = SparseArrays.spzeros(Int,0,0)
+    global rFE = SparseArrays.spzeros(Int,0,0)
     
     if (multiproc == true)
         in_chan = Distributed.RemoteChannel(()->Channel{Int64}(0))

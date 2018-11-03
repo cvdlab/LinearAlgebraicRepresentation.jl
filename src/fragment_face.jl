@@ -2,7 +2,6 @@ using Plasm
 using LinearAlgebraicRepresentation
 Lar = LinearAlgebraicRepresentation
 using NearestNeighbors
-PRECISION = 5
 
 
 """ Half-line crossing test """
@@ -93,7 +92,7 @@ end
 
 
 # transform sigma and related faces in space_idx
-function face_mapping(V, FV, sigma, err=1.0e-5 )
+function face_mapping(V, FV, sigma, err=LinearAlgebraicRepresentation.ERR )
 	sigmavs = FV[sigma]; i = 1
 	# compute affinely independent triple
 	while -err < det(V[:, sigmavs[i:i+2]]) < err
@@ -272,7 +271,7 @@ function fragface(V, EV, FV, FE, space_idx, sigma)
 end
 
 
-function removevertices(verts, edges, err=1e-5)
+function removevertices(verts, edges, err=LinearAlgebraicRepresentation.ERR)
 	vertices = collect(Set(vcat(edges...)))
 	vertexnum = length(vertices)
 	vdict = Dict(zip(vertices,1:vertexnum))
@@ -288,7 +287,7 @@ function removevertices(verts, edges, err=1e-5)
 	return cells0D, cells1D
 end
 	
-function merge_vertices(rV::Lar.Points, rEV::Lar.ChainOp, rFE::Lar.ChainOp, err=1e-5)
+function merge_vertices(rV::Lar.Points, rEV::Lar.ChainOp, rFE::Lar.ChainOp, err=LinearAlgebraicRepresentation.ERR)
 	verts = rV'
 	edges = [findnz(rEV[e,:])[1] for e=1:size(rEV,1)]
 	faces = [findnz(rFE[f,:])[1] for f=1:size(rFE,1)]
@@ -348,13 +347,14 @@ function merge_vertices(rV::Lar.Points, rEV::Lar.ChainOp, rFE::Lar.ChainOp, err=
 	end
 	nfaces = collect(Set(nfaces))
 	nfaces = sort(nfaces, lt=lexless)
+	nfaces = convert(Cells, nfaces)
 	@show nverts
 	@show nfaces
 	@show nedges	
 	return nverts, build_copEV(nedges), build_copFE(nfaces, nedges)	
 end
 	
-function mergevertices(verts, edges, err=1e-5)
+function mergevertices(verts, edges, err=LinearAlgebraicRepresentation.ERR)
 	vertsnum = size(verts, 2)
 	kdtree = KDTree(verts)
 	todelete = []

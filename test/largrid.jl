@@ -109,12 +109,12 @@ end
    bit = '0'
    theTerm = convert(Array{Char,1},term)
    @test typeof(theTerm) == Array{Char,1}
-   @test parse(Int8,bit) == 0
-   @test [parse(Int8,bit) for bit in theTerm] == zeros(3)
-   out = hcat([[parse(Int8,bit) for bit in term] for term in binaryRange(3)]...)
-   @test typeof(out) == Array{Int8,2}
+   @test parse(Int,bit) == 0
+   @test [parse(Int,bit) for bit in theTerm] == zeros(3)
+   out = hcat([[parse(Int,bit) for bit in term] for term in binaryRange(3)]...)
+   @test typeof(out) == Array{Int,2}
    @test size(out) == (3,8)
-   @test repr(out) == "Int8[0 0 0 0 1 1 1 1; 0 0 1 1 0 0 1 1; 0 1 0 1 0 1 0 1]"
+   @test repr(out) == "Int[0 0 0 0 1 1 1 1; 0 0 1 1 0 0 1 1; 0 1 0 1 0 1 0 1]"
 
    @testset  "$n" for n in 1:4
       data = [LinearAlgebraicRepresentation.filterByOrder(n)[k] for (k,el) in enumerate(LinearAlgebraicRepresentation.filterByOrder(n))]

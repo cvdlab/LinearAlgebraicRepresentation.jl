@@ -33,10 +33,10 @@ function frag_face(V, EV, FE, sp_idx, sigma)
     sV = sV[:, 1:2]
     
 
-    nV, nEV, nFE = planar_arrangement(sV, sEV, sparsevec(ones(Int8, length(sigmavs))))
+    nV, nEV, nFE = planar_arrangement(sV, sEV, sparsevec(ones(Int, length(sigmavs))))
 
     if nV == nothing
-        return [], spzeros(Int8, 0,0), spzeros(Int8, 0,0)
+        return [], spzeros(Int, 0,0), spzeros(Int, 0,0)
     end
 
     nvsize = size(nV, 1)
@@ -44,7 +44,7 @@ function frag_face(V, EV, FE, sp_idx, sigma)
     return nV, nEV, nFE
 end
 
-function merge_vertices(V::Lar.Points, EV::Lar.ChainOp, FE::Lar.ChainOp, err=1e-14)
+function merge_vertices(V::Lar.Points, EV::Lar.ChainOp, FE::Lar.ChainOp, err=1e-8)
     vertsnum = size(V, 1)
     edgenum = size(EV, 1)
     facenum = size(FE, 1)
@@ -87,7 +87,7 @@ function merge_vertices(V::Lar.Points, EV::Lar.ChainOp, FE::Lar.ChainOp, err=1e-
     nedges = filter(t->t[1]!=t[2], nedges)
     
     nedgenum = length(nedges)
-    nEV = spzeros(Int8, nedgenum, size(nV, 1))
+    nEV = spzeros(Int, nedgenum, size(nV, 1))
     
     etuple2idx = Dict{Tuple{Int, Int}, Int}()
     
@@ -120,7 +120,7 @@ function merge_vertices(V::Lar.Points, EV::Lar.ChainOp, FE::Lar.ChainOp, err=1e-
     nfaces = filter(filter_fn, faces)
     
     nfacenum = length(nfaces)
-    nFE = spzeros(Int8, nfacenum, size(nEV, 1))
+    nFE = spzeros(Int, nfacenum, size(nEV, 1))
     
     for fi in 1:nfacenum
         for edge in nfaces[fi]
@@ -152,8 +152,8 @@ function spatial_arrangement(V::Lar.Points, EV::Lar.ChainOp, FV::Lar.Cells, FE::
     sp_idx = Lar.Arrangement.spatial_index(V, EV, FE)
 
     rV = Lar.Points(0,3)
-    rEV = spzeros(Int8,0,0)
-    rFE = spzeros(Int8,0,0)
+    rEV = spzeros(Int,0,0)
+    rFE = spzeros(Int,0,0)
 
     if (multiproc == true)
         in_chan = RemoteChannel(()->Channel{Int64}(0))
@@ -182,21 +182,28 @@ function spatial_arrangement(V::Lar.Points, EV::Lar.ChainOp, FV::Lar.Cells, FE::
 		depot_EV = Array{Lar.ChainOp,1}(fs_num)
 		depot_FE = Array{Lar.ChainOp,1}(fs_num)
 		V, EV, FE, space_idx = Lar.preprocessing(V,EV,FV)
+@show V
+@show FV
 			println("eccomi 2")
 
+soncells=Array{Int,1}[]
+stored = 0
 		for sigma in 1:fs_num
-		   print(sigma, "/", fs_num, "\r")
-		   nV, nEV, nFE = Lar.computefragments(V, EV, FV, FE, space_idx, sigma)
-		   #nV, nEV, nFE = Lar.Arrangement.frag_face(V, EV, FE, space_idx, sigma)
+		   println(sigma, "/", fs_num, "\r")
+		   #nV, nEV, nFE = Lar.computefragments(V, EV, FV, FE, space_idx, sigma)
+		   nV, nEV, nFE = Lar.Arrangement.frag_face(V, EV, FE, space_idx, sigma)
 			#@show nV
 			#@show Matrix(nEV)
 			#@show nFE
-			#Plasm.view(nV',[findnz(nEV[k,:])[1] for k=1:size(nEV,1)])
+push!(soncells, [indexs for indexs=stored+1:stored+size(nFE,1)])
+stored = stored+size(nFE,1)
+#if size(nFE,1)>2 Plasm.view(nV',[findnz(nEV[k,:])[1] for k=1:size(nEV,1)]) end 
 		   depot_V[sigma] = nV
 		   depot_EV[sigma] = Matrix(nEV)
 		   depot_FE[sigma] = Matrix(nFE)
 		end
 			println("eccomi 3")
+@show soncells
 		rV = vcat(depot_V...)
 		rEV = Lar.blockdiag(depot_EV...)
 		rFE = Lar.blockdiag(depot_FE...)

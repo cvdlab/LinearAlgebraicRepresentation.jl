@@ -31,7 +31,7 @@ function generate_perpendicular_lines(steps::Int, minlen, maxlen)
     rec([0 0], [0 1], steps)
     vnum = size(V, 1)
     enum = vnum >> 1
-    EV = spzeros(Int8, enum, vnum)
+    EV = spzeros(Int, enum, vnum)
     for i in 1:enum
         EV[i, i*2-1:i*2] = 1
     end
@@ -48,7 +48,7 @@ function generate_random_lines(n, points_range, alphas_range)
         new_points[i, :] = origins[i, :] + alphas[i]*directions[i, :]
     end
     V = [origins; new_points]
-    EV = spzeros(Int8, n, n*2)
+    EV = spzeros(Int, n, n*2)
     for i in 1:n
         EV[i, i] = 1
         EV[i, n+i] = 1
@@ -64,7 +64,7 @@ function rubiks_example(ncubes = 3)
         1 1 1; 1 0 1
     ]
 
-    EV = sparse(Int8[
+    EV = sparse(Int[
         -1  1  0  0  0  0  0  0;
         0 -1  1  0  0  0  0  0;
         0  0 -1  1  0  0  0  0;
@@ -79,7 +79,7 @@ function rubiks_example(ncubes = 3)
         0  0  0  0 -1  0  0  1;
     ])
 
-    FE = sparse(Int8[
+    FE = sparse(Int[
         1  1  1 -1  0  0  0  0  0  0  0  0;
         0  0  0  0  0  0  0  0 -1 -1 -1  1;
         -1  0  0  0  1 -1  0  0  1  0  0  0;
@@ -89,7 +89,7 @@ function rubiks_example(ncubes = 3)
     ])
 
     cube = [V, EV, FE]
-    cubesRow = (zeros(0,3),spzeros(Int8,0,0),spzeros(Int8,0,0))
+    cubesRow = (zeros(0,3),spzeros(Int,0,0),spzeros(Int,0,0))
 
     for i in 1:ncubes
         cubesRow = LinearAlgebraicRepresentation.skel_merge(cubesRow..., cube...)

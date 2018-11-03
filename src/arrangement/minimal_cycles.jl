@@ -41,7 +41,7 @@ function minimal_3cycles(V::Lar.Points, EV::Lar.ChainOp, FE::Lar.ChainOp)
             
             v1 = normalize(vs[2, :] - vs[1, :])
             v3 = [0 0 0]
-            err = 1e-8
+            err = LinearAlgebraicRepresentation.ERR
             i = 3
             while -err < norm(v3) < err
                 v2 = normalize(vs[i, :] - vs[1, :])
@@ -96,9 +96,9 @@ function minimal_cycles(angles_fn::Function, verbose=false)
 
     function _minimal_cycles(V::Lar.Points, ld_bounds::Lar.ChainOp)
         lld_cellsnum, ld_cellsnum = size(ld_bounds)
-        count_marks = zeros(Int8, ld_cellsnum)
-        dir_marks = zeros(Int8, ld_cellsnum)
-        d_bounds = spzeros(Int8, ld_cellsnum, 0)
+        count_marks = zeros(Int, ld_cellsnum)
+        dir_marks = zeros(Int, ld_cellsnum)
+        d_bounds = spzeros(Int, ld_cellsnum, 0)
         
         angles = Array{Array{Int64, 1}, 1}(lld_cellsnum)
         
@@ -147,7 +147,7 @@ function minimal_cycles(angles_fn::Function, verbose=false)
                 print(Int(floor(50 * sum(count_marks) / ld_cellsnum)), "%\r")
             end
         
-            c_ld = spzeros(Int8, ld_cellsnum)
+            c_ld = spzeros(Int, ld_cellsnum)
             if count_marks[sigma] == 0
                 c_ld[sigma] = 1
             else
@@ -155,7 +155,7 @@ function minimal_cycles(angles_fn::Function, verbose=false)
             end
             c_lld = ld_bounds*c_ld
             while c_lld.nzind != []
-                corolla = spzeros(Int8, ld_cellsnum)
+                corolla = spzeros(Int, ld_cellsnum)
                 for tau in c_lld.nzind
                     b_ld = ld_bounds[tau, :]
                     pivot = intersect(c_ld.nzind, b_ld.nzind)[1]

@@ -29,7 +29,7 @@ function frag_edge(V::Lar.Points, EV::Lar.ChainOp, edge_idx::Int)
     alphas_keys = sort(collect(keys(alphas)))
     edge_num = length(alphas_keys)-1
     verts_num = size(verts, 1)
-    ev = spzeros(Int8, edge_num, verts_num)
+    ev = spzeros(Int, edge_num, verts_num)
 
     for i in 1:edge_num
         ev[i, alphas[alphas_keys[i]]] = 1
@@ -40,7 +40,7 @@ function frag_edge(V::Lar.Points, EV::Lar.ChainOp, edge_idx::Int)
 end
 
 function intersect_edges(V::Lar.Points, edge1::Lar.Cell, edge2::Lar.Cell)
-    err = 10e-8
+    err = LinearAlgebraicRepresentation.ERR
 
     x1, y1, x2, y2 = vcat(map(c->V[c, :], edge1.nzind)...)
     x3, y3, x4, y4 = vcat(map(c->V[c, :], edge2.nzind)...)
@@ -83,7 +83,7 @@ function intersect_edges(V::Lar.Points, edge1::Lar.Cell, edge2::Lar.Cell)
     return ret
 end
 
-function merge_vertices!(V::Lar.Points, EV::Lar.ChainOp, edge_map, err=1e-4)
+function merge_vertices!(V::Lar.Points, EV::Lar.ChainOp, edge_map, err=1e-8)
     vertsnum = size(V, 1)
     edgenum = size(EV, 1)
     newverts = zeros(Int, vertsnum)
@@ -123,7 +123,7 @@ function merge_vertices!(V::Lar.Points, EV::Lar.ChainOp, edge_map, err=1e-4)
     nedges = filter(t->t[1]!=t[2], nedges)
     
     nedgenum = length(nedges)
-    nEV = spzeros(Int8, nedgenum, size(nV, 1))
+    nEV = spzeros(Int, nedgenum, size(nV, 1))
     
     etuple2idx = Dict{Tuple{Int, Int}, Int}()
     
@@ -271,7 +271,7 @@ function get_external_cycle(V::Lar.Points, EV::Lar.ChainOp, FE::Lar.ChainOp)
 end
 function pre_containment_test(bboxes)
     n = length(bboxes)
-    containment_graph = spzeros(Int8, n, n)
+    containment_graph = spzeros(Int, n, n)
 
     for i in 1:n
         for j in 1:n
@@ -353,8 +353,8 @@ function cell_merging(n, containment_graph, V, EVs, boundaries, shells, shell_bb
     EV = vcat(EVs...)
     edgenum = size(EV, 1)
     facenum = sum(map(x->size(x,1), boundaries))
-    FE = spzeros(Int8, facenum, edgenum)
-    shells2 = spzeros(Int8, length(shells), edgenum)
+    FE = spzeros(Int, facenum, edgenum)
+    shells2 = spzeros(Int, length(shells), edgenum)
     r_offsets = [1]
     c_offset = 1
     for i in 1:n
@@ -393,14 +393,14 @@ returns the full arranged complex `V`, `EV` and `FE`.
 """
 function planar_arrangement(
         V::Lar.Points, copEV::Lar.ChainOp, 
-        sigma::Lar.Chain=spzeros(Int8, 0), 
+        sigma::Lar.Chain=spzeros(Int, 0), 
         return_edge_map::Bool=false, 
         multiproc::Bool=false)
     
     edgenum = size(copEV, 1)
     edge_map = Array{Array{Int, 1}, 1}(edgenum)
     rV = Lar.Points(zeros(0, 2))
-    rEV = spzeros(Int8, 0, 0)
+    rEV = spzeros(Int, 0, 0)
     finalcells_num = 0
 
     if (multiproc == true)

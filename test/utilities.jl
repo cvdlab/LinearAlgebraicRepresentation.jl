@@ -20,11 +20,11 @@ end
 end
 @testset "Face area calculation test" begin
     V = Float64[2 1; 1 2; 0 0; 1 1; 2 0; 0 2]
-    EV = spzeros(Int8, 6, 6)
+    EV = spzeros(Int, 6, 6)
     EV[1, [1, 4]] = [-1, 1]; EV[2, [2, 4]] = [-1, 1]
     EV[3, [2, 6]] = [-1, 1]; EV[4, [3, 6]] = [-1, 1]
     EV[5, [3, 5]] = [-1, 1]; EV[6, [1, 5]] = [-1, 1]
-    FE = spzeros(Int8, 2, 6)
+    FE = spzeros(Int, 2, 6)
     FE[1, :] = [ 1 -1  1 -1  1 -1]
     FE[2, :] = [-1  1 -1  1 -1  1]
 

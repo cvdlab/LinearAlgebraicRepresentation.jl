@@ -32,7 +32,6 @@ on mapped coordinates. Close vertices are identified, according to the
 PRECISION number of significant digits.
 """
 function simplifyCells(V,CV)
-	PRECISION = 7
 	vertDict = DefaultDict{Array{Float64,1}, Int64}(0)
 	index = 0
 	W = Array{Float64,1}[]
@@ -201,7 +200,8 @@ end
 """
 	cylinder(radius=.5, height=2., angle=2*pi)(shape=[36, 1])
 
-Compute a cellular 2-complex, approximation of a right circular cylindrical surface in 3D. The open surface has basis on ``z=0`` plane and is centered around the ``z`` axis.
+Compute a cellular 2-complex, approximation of a right circular cylindrical surface in 3D. 
+The open surface has basis on ``z=0`` plane and is centered around the ``z`` axis.
 
 # Example
 ```julia
@@ -228,7 +228,9 @@ end
 """
 	sphere(radius=1., angle1=pi, angle2=2*pi)(shape=[18, 36])
 	
-Compute a cellular 2-complex, approximation of the two-dimensional closed surface, embedded in a three-dimensional Euclidean space. Geographical coordinates are user to compute the 0-cells of the complex.
+Compute a cellular 2-complex, approximation of the two-dimensional closed surface, 
+embedded in a three-dimensional Euclidean space. 
+Geographical coordinates are user to compute the 0-cells of the complex.
 
 # Example
 ```julia
@@ -240,14 +242,27 @@ julia> LARVIEW.view(Lar.sphere()())
 @enum surface triangled=1 single=2
 function sphere(radius=1., angle1=pi, angle2=2*pi, surface=triangled)
     function sphere0(shape=[18, 36])
-        V, CV = simplexGrid(shape)
+        V, CV = Lar.simplexGrid(shape)
         V = [angle1/shape[1] 0;0 angle2/shape[2]]*V
         V = broadcast(+, V, [-angle1/2, -angle2/2])
         W = [V[:, k] for k=1:size(V, 2)]
         V = hcat(map(p->let(u, v)=p;[radius*cos(u)*cos(v);
         	radius*cos(u)*sin(v);radius*sin(u)]end, W)...) 
-        W, CW = simplifyCells(V, CV)
+        W, CW = Lar.simplifyCells(V, CV)
         CW = [triangle for triangle in CW if length(triangle)==3]
+        
+        if shape[2]>24
+			zmaxidx = findmax(W[3,:],1)[2][1]
+			zminidx = findmin(W[3,:],1)[2][1]
+			top = Set(vcat([triangle for triangle in CW if (zmaxidx in triangle) ]...))
+			bottom = Set(vcat([triangle for triangle in CW if (zminidx in triangle) ]...))
+			topface = [v for v in top if v!=zmaxidx]
+			bottomface = [v for v in bottom if v!=zminidx]
+			CW = [triangle for triangle in CW if 
+				!((zmaxidx in triangle) || (zminidx in triangle)) ]
+			push!(CW, topface, bottomface)
+		end
+        
         if Int(surface)==1
         	return W, CW
         elseif Int(surface)==2

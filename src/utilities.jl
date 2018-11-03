@@ -111,7 +111,7 @@ Merge two **1-skeletons**
 """
 function skel_merge(V1::Points, EV1::ChainOp, V2::Points, EV2::ChainOp)
     V = [V1; V2]
-    EV = spzeros(Int8, EV1.m + EV2.m, EV1.n + EV2.n)
+    EV = spzeros(Int, EV1.m + EV2.m, EV1.n + EV2.n)
     EV[1:EV1.m, 1:EV1.n] = EV1
     EV[EV1.m+1:end, EV1.n+1:end] = EV2
     V, EV
@@ -123,7 +123,7 @@ end
 Merge two **2-skeletons**
 """
 function skel_merge(V1::Points, EV1::ChainOp, FE1::ChainOp, V2::Points, EV2::ChainOp, FE2::ChainOp)
-    FE = spzeros(Int8, FE1.m + FE2.m, FE1.n + FE2.n)
+    FE = spzeros(Int, FE1.m + FE2.m, FE1.n + FE2.n)
     FE[1:FE1.m, 1:FE1.n] = FE1
     FE[FE1.m+1:end, FE1.n+1:end] = FE2
     V, EV = skel_merge(V1, EV1, V2, EV2)
@@ -165,7 +165,7 @@ The list of vertex indices that expresses the given `face`.
 The returned list is made of the vertex indices ordered following the traversal order to keep a coherent face orientation. 
 The edges are need to understand the topology of the face.
 
-In this method the input face must be expressed as a `Cell`(=`SparseVector{Int8, Int}`) and the edges as `Cells`.
+In this method the input face must be expressed as a `Cell`(=`SparseVector{Int, Int}`) and the edges as `Cells`.
 """
 function buildFV(EV::Cells, face::Cell)
     return buildFV(build_copEV(EV), face)
@@ -179,7 +179,7 @@ The list of vertex indices that expresses the given `face`.
 The returned list is made of the vertex indices ordered following the traversal order to keep a coherent face orientation. 
 The edges are need to understand the topology of the face.
 
-In this method the input face must be expressed as a `Cell`(=`SparseVector{Int8, Int}`) and the edges as `ChainOp`.
+In this method the input face must be expressed as a `Cell`(=`SparseVector{Int, Int}`) and the edges as `ChainOp`.
 """
 function buildFV(copEV::ChainOp, face::Cell)
     startv = -1
@@ -266,9 +266,10 @@ function build_copFE(FV::Lar.Cells, EV::Lar.Cells)
         push!(faces, f)
     end
 
-    FE = spzeros(Int8, length(faces), length(EV))
+    FE = spzeros(Int, length(faces), length(EV))
 
     for (i,f) in enumerate(faces)
+    @show (i,f)
         for e in f
             FE[i, e[1]] = e[2]
         end
@@ -289,7 +290,7 @@ function build_copEV(EV::Cells, signed=true)
     end
 
     maxv = max(map(x->max(x...), EV)...)
-    copEV = spzeros(Int8, length(EV), maxv)
+    copEV = spzeros(Int, length(EV), maxv)
 
     for (i,e) in enumerate(EV)
         e = sort(collect(e))
@@ -332,7 +333,7 @@ end
 Check the equality between vertex `v1` and vertex `v2`
 """
 function vequals(v1, v2)
-    err = 10e-8
+    err = LinearAlgebraicRepresentation.ERR
     return length(v1) == length(v2) && all(map((x1, x2)->-err < x1-x2 < err, v1, v2))
 end
 
@@ -374,7 +375,7 @@ function triangulate(V::Points, cc::ChainComplex)
         v1 = normalize(vs[2, :] - vs[1, :])
         v2 = [0 0 0]
         v3 = [0 0 0]
-        err = 1e-8
+        err = LinearAlgebraicRepresentation.ERR
         i = 3
         while -err < norm(v3) < err
             v2 = normalize(vs[i, :] - vs[1, :])
@@ -559,13 +560,13 @@ Use this function to export LAR models into OBJ
 	 [1, 2, 3, 4, 6, 7, 8, 9, 10, 11, 12, 13, 17]    
 	 
 	julia> copEV # coboundaries[1]
-	34×20 SparseMatrixCSC{Int8,Int64} with 68 stored entries: ...
+	34×20 SparseMatrixCSC{Int,Int64} with 68 stored entries: ...
 
 	julia> copFE # coboundaries[2]
-	18×34 SparseMatrixCSC{Int8,Int64} with 80 stored entries: ...
+	18×34 SparseMatrixCSC{Int,Int64} with 80 stored entries: ...
 	
 	julia> copCF # coboundaries[3]
-	4×18 SparseMatrixCSC{Int8,Int64} with 36 stored entries: ...
+	4×18 SparseMatrixCSC{Int,Int64} with 36 stored entries: ...
 	
 	objs = Lar.lar2obj(V'::Lar.Points, [coboundaries...])
 			

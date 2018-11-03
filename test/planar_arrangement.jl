@@ -3,7 +3,7 @@ using LinearAlgebraicRepresentation
 
 @testset "Edge fragmentation tests" begin
     V = [2 2; 4 2; 3 3.5; 1 3; 5 3; 1 2; 5 2]
-    EV = sparse(Array{Int8, 2}([
+    EV = sparse(Array{Int, 2}([
         [1 1 0 0 0 0 0] #1->1,2
         [0 1 1 0 0 0 0] #2->2,3
         [1 0 1 0 0 0 0] #3->1,3
@@ -36,7 +36,7 @@ end
           n0 n1u; -n0 n1u;  n0 n1l; -n0 n1l;
          n1u n1u; n1l n1u; n1u n1l; n1l n1l;
          n1u  n0; n1l  n0; n1u -n0; n1l -n0]
-    EV = Int8[1 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0;
+    EV = Int[1 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0;
               0 1 0 0 0 1 0 0 0 0 0 0 0 0 0 0;
               0 0 1 0 0 0 1 0 0 0 0 0 0 0 0 0;
               0 0 0 1 0 0 0 1 0 0 0 0 0 0 0 0;
@@ -62,7 +62,7 @@ end
                        1 0 0 1]
 end
 @testset "biconnected_components test set" begin
-    EV = Int8[0 0 0 1 0 0 0 0 0 0 1 0; #1
+    EV = Int[0 0 0 1 0 0 0 0 0 0 1 0; #1
               0 0 1 0 0 1 0 0 0 0 0 0; #2
               0 0 0 0 0 0 1 0 0 1 0 0; #3
               1 0 0 0 1 0 0 0 0 0 0 0; #4
@@ -88,7 +88,7 @@ end
              2.5  2;  2.5   1;  3.5 .5;
              3.5  3;    2 2.5;   .5  3]
     
-        EV = Int8[-1  1  0  0  0  0  0  0  0;
+        EV = Int[-1  1  0  0  0  0  0  0  0;
                    0 -1  1  0  0  0  0  0  0;
                    0  0 -1  1  0  0  0  0  0;
                    0  0  0 -1  1  0  0  0  0;
@@ -100,7 +100,7 @@ end
                    0 -1  0  0  1  0  0  0  0]
         EV = sparse(EV)
         
-        FE = Int8[ 0 -1 -1 -1  0  0  0  0  0  1;
+        FE = Int[ 0 -1 -1 -1  0  0  0  0  0  1;
                    1  1  1  1  1  1  1  1 -1  0;
                   -1  0  0  0 -1 -1 -1 -1  1 -1]
         FE = sparse(FE)
@@ -113,31 +113,31 @@ end
                1   1;  1.5   1;    1   2;
                2   1;    2   2;  1.5   2;
              3.5 3.5;    3 3.5;  3.5   3]
-        EV1 = Int8[ 0  0  0  0  0  0  0  0  0 -1  1  0  0  0  0  0  0  0;
+        EV1 = Int[ 0  0  0  0  0  0  0  0  0 -1  1  0  0  0  0  0  0  0;
                     0  0  0  0  0  0  0  0  0  0 -1  1  0  0  0  0  0  0;
                     0  0  0  0  0  0  0  0  0 -1  0  1  0  0  0  0  0  0]
-        EV2 = Int8[ 0  0  0  0  0  0  0  0  0  0  0  0 -1  1  0  0  0  0;
+        EV2 = Int[ 0  0  0  0  0  0  0  0  0  0  0  0 -1  1  0  0  0  0;
                     0  0  0  0  0  0  0  0  0  0  0  0  0 -1  1  0  0  0;
                     0  0  0  0  0  0  0  0  0  0  0  0 -1  0  1  0  0  0]
-        EV3 = Int8[ 0  0  0  0  0 -1  1  0  0  0  0  0  0  0  0  0  0  0;
+        EV3 = Int[ 0  0  0  0  0 -1  1  0  0  0  0  0  0  0  0  0  0  0;
                     0  0  0  0  0  0 -1  1  0  0  0  0  0  0  0  0  0  0;
                     0  0  0  0  0  0  0 -1  1  0  0  0  0  0  0  0  0  0;
                     0  0  0  0  0 -1  0  0  1  0  0  0  0  0  0  0  0  0]
-        EV4 = Int8[-1  1  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0;
+        EV4 = Int[-1  1  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0;
                     0 -1  1  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0;
                     0  0 -1  1  0  0  0  0  0  0  0  0  0  0  0  0  0  0;
                     0  0  0 -1  1  0  0  0  0  0  0  0  0  0  0  0  0  0;
                    -1  0  0  0  1  0  0  0  0  0  0  0  0  0  0  0  0  0]
-        EV5 = Int8[ 0  0  0  0  0  0  0  0  0  0  0  0  0  0  0 -1  1  0;
+        EV5 = Int[ 0  0  0  0  0  0  0  0  0  0  0  0  0  0  0 -1  1  0;
                     0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0 -1  1;
                     0  0  0  0  0  0  0  0  0  0  0  0  0  0  0 -1  0  1]
         EVs = map(sparse, [EV1, EV2, EV3, EV4, EV5])
         
-        shell1 = Int8[-1 -1  1];
-        shell2 = Int8[-1 -1  1];
-        shell3 = Int8[-1 -1 -1  1];
-        shell4 = Int8[-1 -1 -1 -1  1];
-        shell5 = Int8[-1 -1  1];
+        shell1 = Int[-1 -1  1];
+        shell2 = Int[-1 -1  1];
+        shell3 = Int[-1 -1 -1  1];
+        shell4 = Int[-1 -1 -1 -1  1];
+        shell5 = Int[-1 -1  1];
         shells = map(sparsevec, [shell1, shell2, shell3, shell4, shell5])
         
         shell_bboxes = []
@@ -162,24 +162,24 @@ end
         graph = [0 1; 0 0]
         V = [.25 .25; .75 .25; .75 .75; .25 .75;
                0   0;   1   0;   1   1;   0   1]
-        EV1 = Int8[-1  1  0  0  0  0  0  0;
+        EV1 = Int[-1  1  0  0  0  0  0  0;
                     0 -1  1  0  0  0  0  0;
                     0  0 -1  1  0  0  0  0;
                    -1  0  0  1  0  0  0  0;
                    -1  0  1  0  0  0  0  0]
-        EV2 = Int8[ 0  0  0  0 -1  1  0  0;
+        EV2 = Int[ 0  0  0  0 -1  1  0  0;
                     0  0  0  0  0 -1  1  0;
                     0  0  0  0  0  0 -1  1;
                     0  0  0  0 -1  0  0  1]
         EVs = map(sparse, [EV1, EV2])
     
-        shell1 = Int8[-1 -1 -1  1  0]
-        shell2 = Int8[-1 -1 -1  1]
+        shell1 = Int[-1 -1 -1  1  0]
+        shell2 = Int[-1 -1 -1  1]
         shells = map(sparsevec, [shell1, shell2])
     
-        boundary1 = Int8[ 1  1  0  0 -1;
+        boundary1 = Int[ 1  1  0  0 -1;
                           0  0  1 -1  1]
-        boundary2 = Int8[ 1  1  1 -1]
+        boundary2 = Int[ 1  1  1 -1]
         boundaries = map(sparse, [boundary1, boundary2])
     
         shell_bboxes = []
@@ -191,7 +191,7 @@ end
     
         EV, FE = LinearAlgebraicRepresentation.Arrangement.cell_merging(2, graph, V, EVs, boundaries, shells, shell_bboxes)
     
-        selector = sparse(ones(Int8, 1, 3))
+        selector = sparse(ones(Int, 1, 3))
     
         @test selector*FE == [0  0  0  0  0  1  1  1 -1]
     end

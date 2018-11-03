@@ -13,7 +13,7 @@ using Base.Test
 		 1  0  1  0  1  0  1  0;
 		 0  1  0  1  0  1  0  1]
 		@test size(LinearAlgebraicRepresentation.characteristicMatrix(CV))==(1,8)
-		@test typeof(LinearAlgebraicRepresentation.characteristicMatrix(CV))==SparseMatrixCSC{Int8,Int64}
+		@test typeof(LinearAlgebraicRepresentation.characteristicMatrix(CV))==SparseMatrixCSC{Int,Int64}
 		@test full(LinearAlgebraicRepresentation.characteristicMatrix(EV)) == [
 		 1  1  0  0  0  0  0  0;
 		 0  0  1  1  0  0  0  0;
@@ -28,7 +28,7 @@ using Base.Test
 		 0  0  1  0  0  0  1  0;
 		 0  0  0  1  0  0  0  1]
 		@test size(LinearAlgebraicRepresentation.characteristicMatrix(EV))==(12,8)
-		@test typeof(LinearAlgebraicRepresentation.characteristicMatrix(EV))==SparseMatrixCSC{Int8,Int64}
+		@test typeof(LinearAlgebraicRepresentation.characteristicMatrix(EV))==SparseMatrixCSC{Int,Int64}
 	end;
    
 
@@ -42,7 +42,7 @@ using Base.Test
 		@test length(EV)==12
 		@test typeof(EV)==Array{Array{Int64,1},1}
 		@test size(signed_boundary_1)==(8,12)
-		@test typeof(signed_boundary_1)==SparseMatrixCSC{Int8,Int64}
+		@test typeof(signed_boundary_1)==SparseMatrixCSC{Int,Int64}
 		@test nnz(signed_boundary_1)==24
 
 		@test full(LinearAlgebraicRepresentation.boundary_1(EV::LinearAlgebraicRepresentation.Cells))==[
@@ -64,7 +64,7 @@ using Base.Test
 
 		@test size(unsigned_coboundary_1)==(6,12)
 		@test nnz(unsigned_coboundary_1)==24
-		@test typeof(unsigned_coboundary_1)==SparseMatrixCSC{Int8,Int64}
+		@test typeof(unsigned_coboundary_1)==SparseMatrixCSC{Int,Int64}
 
 		@test full(unsigned_coboundary_1)==[
 		 1  1  0  0  1  1  0  0  0  0  0  0;
@@ -84,7 +84,7 @@ using Base.Test
 		signed_coboundary_1 = LinearAlgebraicRepresentation.coboundary_1( FV,EV );
 
 		@test size(signed_coboundary_1)==(6,12)
-		@test typeof(signed_coboundary_1)==SparseMatrixCSC{Int8,Int64}
+		@test typeof(signed_coboundary_1)==SparseMatrixCSC{Int,Int64}
 		@test nnz(signed_coboundary_1)==24
 		@test signed_coboundary_1[1,1]==-1
 		@test signed_coboundary_1[6,12]==-1
@@ -117,11 +117,11 @@ using Base.Test
 		@test typeof(bases[2])==Array{Array{Int64,1},1} # faces 
 
 		@test size(coboundaries[1])==(24,16) # coboundary_1 
-		@test typeof(coboundaries[1])==SparseMatrixCSC{Int8,Int64} # coboundary_1 
+		@test typeof(coboundaries[1])==SparseMatrixCSC{Int,Int64} # coboundary_1 
 		@test nnz(coboundaries[1])==48 # coboundary_1 
 
 		@test size(coboundaries[2])==(9,24) # coboundary_2: oriented 2-cycles of faces
-		@test typeof(coboundaries[2])==SparseMatrixCSC{Int8,Int64} 
+		@test typeof(coboundaries[2])==SparseMatrixCSC{Int,Int64} 
 		@test nnz(coboundaries[2])==36 # coboundary_2: oriented 2-cycles of faces
 		@test full(coboundaries[2]) ==
 		[-1  0  0  1  0  0  0  0  0  0  0  0  1 -1  0  0  0  0  0  0  0  0  0  0;
@@ -159,15 +159,15 @@ using Base.Test
 		[2, 3, 5, 6, 11, 12, 13, 17],                
 		[1, 2, 3, 4, 6, 7, 8, 9, 10, 11, 12, 13, 17]]   
 	 
-		@test typeof(cscEV)==SparseMatrixCSC{Int8,Int64} # coboundaries[1]
+		@test typeof(cscEV)==SparseMatrixCSC{Int,Int64} # coboundaries[1]
 		@test size(cscEV)==(34,20) # coboundaries[1]
 		@test nnz(cscEV)==68 # coboundaries[1]
 
-		@test typeof(cscFE)==SparseMatrixCSC{Int8,Int64} # coboundaries[2]
+		@test typeof(cscFE)==SparseMatrixCSC{Int,Int64} # coboundaries[2]
 		@test size(cscFE)==(18,34) # coboundaries[2]
 		@test nnz(cscFE)==80 # coboundaries[2]
 	
-		@test typeof(cscCF)==SparseMatrixCSC{Int8,Int64} # coboundaries[3]
+		@test typeof(cscCF)==SparseMatrixCSC{Int,Int64} # coboundaries[3]
 		@test size(cscCF)==(4,18) # coboundaries[3]
 		@test nnz(cscCF)==36 # coboundaries[3]
 	end

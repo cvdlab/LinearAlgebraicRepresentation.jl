@@ -44,7 +44,7 @@ Then, we may see the characteristic matrix of 1-cells (edges), with two ones per
 
 ```julia
 julia> full(LinearAlgebraicRepresentation.characteristicMatrix(EV))
-12×8 Array{Int8,2}:
+12×8 Array{Int,2}:
  1  1  0  0  0  0  0  0
  0  0  1  1  0  0  0  0
  0  0  0  0  1  1  0  0
@@ -62,7 +62,7 @@ and of 2-cells (faces):
 
 ```julia
 julia> full(LinearAlgebraicRepresentation.characteristicMatrix(FV))
-6×8 Array{Int8,2}:
+6×8 Array{Int,2}:
  1  1  1  1  0  0  0  0
  0  0  0  0  1  1  1  1
  1  1  0  0  1  1  0  0
@@ -75,7 +75,7 @@ Finally, the boundary of the single 3-cell contains all the 0-cells (vertices). 
 
 ```julia
 julia> full(LinearAlgebraicRepresentation.characteristicMatrix(CV))
-1×8 Array{Int8,2}:
+1×8 Array{Int,2}:
  1  1  1  1  1  1  1  1
 ```
 
@@ -176,7 +176,7 @@ julia> EV
  [4, 8]
 
 julia> LinearAlgebraicRepresentation.boundary_1( EV::LinearAlgebraicRepresentation.Cells )
-8×12 SparseMatrixCSC{Int8,Int64} with 24 stored entries:
+8×12 SparseMatrixCSC{Int,Int64} with 24 stored entries:
   [1 ,  1]  =  -1
   [2 ,  1]  =  1
   [3 ,  2]  =  -1
@@ -186,7 +186,7 @@ julia> LinearAlgebraicRepresentation.boundary_1( EV::LinearAlgebraicRepresentati
   [8 , 12]  =  1
 
 julia> full(LinearAlgebraicRepresentation.boundary_1(EV::LinearAlgebraicRepresentation.Cells))
-8×12 Array{Int8,2}:
+8×12 Array{Int,2}:
  -1   0   0   0  -1   0   0   0  -1   0   0   0
   1   0   0   0   0  -1   0   0   0  -1   0   0
   0  -1   0   0   1   0   0   0   0   0  -1   0
@@ -243,14 +243,14 @@ julia> bases[1]	# edges
 julia> bases[2] # faces -- previously unknown !!
 9-element Array{Array{Int64,1},1}: ...
 ```
-Analogously, the `coboundaries` variable will contain the ``[\delta_1]`` and ``[\delta_2]`` matrices, of type `SparseMatrixCSC{Int8,Int64}`
+Analogously, the `coboundaries` variable will contain the ``[\delta_1]`` and ``[\delta_2]`` matrices, of type `SparseMatrixCSC{Int,Int64}`
 
 ```julia
 julia> coboundaries[1] # coboundary_1 
-24×16 SparseMatrixCSC{Int8,Int64} with 48 stored entries: ...
+24×16 SparseMatrixCSC{Int,Int64} with 48 stored entries: ...
 
 julia> full(coboundaries[2]) # coboundary_1: faces as oriented 1-cycles of edges
-9×24 Array{Int8,2}:
+9×24 Array{Int,2}:
  -1  0  0  1  0  0  0  0  0  0  0  0  1 -1  0  0  0  0  0  0  0  0  0  0
   0 -1  0  0  1  0  0  0  0  0  0  0  0  1 -1  0  0  0  0  0  0  0  0  0
   0  0 -1  0  0  1  0  0  0  0  0  0  0  0  1 -1  0  0  0  0  0  0  0  0
@@ -264,7 +264,7 @@ julia> full(coboundaries[2]) # coboundary_1: faces as oriented 1-cycles of edges
 Note that the last matrix contains by rows the 2-cycles corresponding to the (previously) unknown 2-basis `FV` that can now be easily computed.
 Notice also that columns corresponding to *interior edges* (1-cells) contain two non-zeros *of opposite sign*. Hence the computed 2-complex is **coherently oriented** by the matrix rows, actually by construction. 
 
-The 2-boundary operator matrix, i.e. `transpose(coboundaries[2])`, can be used to compute the boundary of every possible 2-chain, by matrix multiplication times the coordinate (binary) representation of the 2-chain, implemented by the type `Chain`, defined as `SparseVector{Int8, Int}`.
+The 2-boundary operator matrix, i.e. `transpose(coboundaries[2])`, can be used to compute the boundary of every possible 2-chain, by matrix multiplication times the coordinate (binary) representation of the 2-chain, implemented by the type `Chain`, defined as `SparseVector{Int, Int}`.
 
 
 
@@ -321,13 +321,13 @@ Let note that the LAR of `FV` includes faces with 5 and 6 vertices, even non con
 
 ```julia
 julia> cscEV # coboundaries[1]
-34×20 SparseMatrixCSC{Int8,Int64} with 68 stored entries: ...
+34×20 SparseMatrixCSC{Int,Int64} with 68 stored entries: ...
 
 julia> cscFE # coboundaries[2]
-18×34 SparseMatrixCSC{Int8,Int64} with 80 stored entries: ...
+18×34 SparseMatrixCSC{Int,Int64} with 80 stored entries: ...
 
 julia> cscCF # coboundaries[3]
-4×18 SparseMatrixCSC{Int8,Int64} with 36 stored entries: ...
+4×18 SparseMatrixCSC{Int,Int64} with 36 stored entries: ...
 ```	
 
 

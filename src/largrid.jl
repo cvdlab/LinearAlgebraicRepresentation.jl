@@ -243,7 +243,7 @@ end
 
 
 """
-	filterByOrder( n::Int )Array{Array{Array{Int8,1},1},1}
+	filterByOrder( n::Int )Array{Array{Array{Int,1},1},1}
 
 Filter the `array` of codes  (`Boolean` `String`) of *``n`` bits* depending on their integer value (*order*).
 
@@ -252,15 +252,15 @@ Filter the `array` of codes  (`Boolean` `String`) of *``n`` bits* depending on t
 ```julia
 julia> filterByOrder(3)
 # output
-4-element Array{Array{Array{Int8,1},1},1}:
- Array{Int8,1}[Int8[0, 0, 0]]                              
- Array{Int8,1}[Int8[0, 0, 1], Int8[0, 1, 0], Int8[1, 0, 0]]
- Array{Int8,1}[Int8[0, 1, 1], Int8[1, 0, 1], Int8[1, 1, 0]]
- Array{Int8,1}[Int8[1, 1, 1]]                              
+4-element Array{Array{Array{Int,1},1},1}:
+ Array{Int,1}[Int[0, 0, 0]]                              
+ Array{Int,1}[Int[0, 0, 1], Int[0, 1, 0], Int[1, 0, 0]]
+ Array{Int,1}[Int[0, 1, 1], Int[1, 0, 1], Int[1, 1, 0]]
+ Array{Int,1}[Int[1, 1, 1]]                              
 ```"""
-function filterByOrder(n::Int)::Array{Array{Array{Int8,1},1},1}
+function filterByOrder(n::Int)::Array{Array{Array{Int,1},1},1}
    binaryRange(n) = bin.(range(0,2^n),n)
-   terms = [[parse(Int8,bit) for bit in collect(term)] for term in binaryRange(n)]
+   terms = [[parse(Int,bit) for bit in collect(term)] for term in binaryRange(n)]
    return [[term for term in terms if sum(term) == k] for k in 0:n]
 end
 

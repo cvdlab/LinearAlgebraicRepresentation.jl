@@ -52,7 +52,7 @@ function face_int(V::Lar.Points, EV::Lar.ChainOp, face::Lar.Cell)
         j = i < length(vs) ? i+1 : 1
         d = V[vs[j],:] - o
 
-        err = 10e-8
+        err = LinearAlgebraicRepresentation.ERR
         if !(-err < d[3] < err)
 
             alpha = -o[3] / d[3]
@@ -81,7 +81,7 @@ function face_int(V::Lar.Points, EV::Lar.ChainOp, face::Lar.Cell)
         retV = Lar.Points(0, 3)
     end
     enum = Int(vnum / 2)
-    retEV = spzeros(Int8, enum, vnum)
+    retEV = spzeros(Int, enum, vnum)
 
     for i in 1:enum
         retEV[i, 2*i-1:2*i] = [-1, 1]
