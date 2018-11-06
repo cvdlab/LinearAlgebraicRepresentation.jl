@@ -44,7 +44,7 @@ function frag_face(V, EV, FE, sp_idx, sigma)
     return nV, nEV, nFE
 end
 
-function merge_vertices(V::Lar.Points, EV::Lar.ChainOp, FE::Lar.ChainOp, err=1e-8)
+function merge_vertices(V::Lar.Points, EV::Lar.ChainOp, FE::Lar.ChainOp, err=Lar.ERR)
     vertsnum = size(V, 1)
     edgenum = size(EV, 1)
     facenum = size(FE, 1)
@@ -101,7 +101,6 @@ function merge_vertices(V::Lar.Points, EV::Lar.ChainOp, FE::Lar.ChainOp, err=1e-
         map(x->newverts[x], FE[fi, ei] > 0 ? oedges[ei] : reverse(oedges[ei]))
         for ei in FE[fi, :].nzind
     ] for fi in 1:facenum]
-    #@show faces
     
     visited = []
     function filter_fn(face)
@@ -147,7 +146,6 @@ The function returns the full arranged complex as a list of vertices V and a cha
 """
 function spatial_arrangement(V::Lar.Points, EV::Lar.ChainOp, FV::Lar.Cells, FE::Lar.ChainOp, multiproc=false)
 
-		println("eccomi 1")
     fs_num = size(FE, 1)
     sp_idx = Lar.Arrangement.spatial_index(V, EV, FE)
 
@@ -181,29 +179,18 @@ function spatial_arrangement(V::Lar.Points, EV::Lar.ChainOp, FV::Lar.Cells, FE::
 		depot_V = Array{Array{Float64,2},1}(fs_num)
 		depot_EV = Array{Lar.ChainOp,1}(fs_num)
 		depot_FE = Array{Lar.ChainOp,1}(fs_num)
-		V, EV, FE, space_idx = Lar.preprocessing(V,EV,FV)
-@show V
-@show FV
-			println("eccomi 2")
+		#V, EV, FE, space_idx = Lar.preprocessing(V,EV,FV)
 
-soncells=Array{Int,1}[]
-stored = 0
 		for sigma in 1:fs_num
-		   println(sigma, "/", fs_num, "\r")
+		   print(sigma, "/", fs_num, "\r")
 		   #nV, nEV, nFE = Lar.computefragments(V, EV, FV, FE, space_idx, sigma)
-		   nV, nEV, nFE = Lar.Arrangement.frag_face(V, EV, FE, space_idx, sigma)
-			#@show nV
-			#@show Matrix(nEV)
-			#@show nFE
-push!(soncells, [indexs for indexs=stored+1:stored+size(nFE,1)])
-stored = stored+size(nFE,1)
-#if size(nFE,1)>2 Plasm.view(nV',[findnz(nEV[k,:])[1] for k=1:size(nEV,1)]) end 
+		   nV, nEV, nFE = Lar.Arrangement.frag_face(V, EV, FE, sp_idx, sigma)
+		   #@show nV
 		   depot_V[sigma] = nV
 		   depot_EV[sigma] = Matrix(nEV)
 		   depot_FE[sigma] = Matrix(nFE)
 		end
-			println("eccomi 3")
-@show soncells
+
 		rV = vcat(depot_V...)
 		rEV = Lar.blockdiag(depot_EV...)
 		rFE = Lar.blockdiag(depot_FE...)
@@ -211,22 +198,8 @@ stored = stored+size(nFE,1)
 
     #rV, rEV, rFE = Lar.merge_vertices(rV, rEV, rFE)
     rV, rEV, rFE = Lar.Arrangement.merge_vertices(rV, rEV, rFE)
-			println("eccomi 4")
-			
-	@show size(rFE)
-	
-	V = rV'
-	EV = [findnz(rEV[h,:])[1] for h=1:rEV.m]
-	FE = [findnz(rFE[h,:])[1] for h=1:rFE.m]
-	FV = [collect(Set(vcat([EV[e] for e in face]...))) for face in FE]
-	@show V
-	@show EV
-	@show FV
-	rEF = rFE'
-	EF = [findnz(rEF[h,:])[1] for h=1:rEF.m]
-
+				
     rCF = Lar.Arrangement.minimal_3cycles(rV, rEV, rFE)
-			println("eccomi 5")
 
     return rV, rEV, rFE, rCF
 end

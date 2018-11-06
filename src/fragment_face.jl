@@ -291,12 +291,7 @@ function merge_vertices(rV::Lar.Points, rEV::Lar.ChainOp, rFE::Lar.ChainOp, err=
 	verts = rV'
 	edges = [findnz(rEV[e,:])[1] for e=1:size(rEV,1)]
 	faces = [findnz(rFE[f,:])[1] for f=1:size(rFE,1)]
-	
-#	@show verts
-#	@show faces
-#	@show edges	
-	
-	
+		
     vertsnum = size(verts, 2)
     kdtree = KDTree(verts)
     todelete = []
@@ -348,9 +343,6 @@ function merge_vertices(rV::Lar.Points, rEV::Lar.ChainOp, rFE::Lar.ChainOp, err=
 	nfaces = collect(Set(nfaces))
 	nfaces = sort(nfaces, lt=lexless)
 	nfaces = convert(Cells, nfaces)
-	@show nverts
-	@show nfaces
-	@show nedges	
 	return nverts, build_copEV(nedges), build_copFE(nfaces, nedges)	
 end
 	

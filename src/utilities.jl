@@ -245,73 +245,94 @@ end
 
 
 """
-    build_copFE(FV::Cells, EV::Cells)
+   build_K(FV::Lar.Cells)::ChainOp
+
+The *characteristic matrix* of type `ChainOp` from 1-cells (edges) to 0-cells (vertices)
+"""
+function build_K(FV::Lar.Cells)
+	I = Int64[]; J = Int64[]; V = Int64[]
+	for (i,face) in enumerate(FV)
+		for v in face
+			push!(I,i)
+			push!(J,v)
+			push!(V,1)
+		end
+	end
+	kEV = sparse(I,J,V)
+end
+
+"""
+   build_copFE(FV::Lar.Cells, EV::Lar.Cells, signed=true)::ChainOp
 
 The signed `ChainOp` from 1-cells (edges) to 2-cells (faces)
 """
-function build_copFE(FV::Lar.Cells, EV::Lar.Cells)
-    faces = []
+function build_copFE(FV::Lar.Cells, EV::Lar.Cells, signed=true)
+	kEV = build_K(EV)
+	kFV = build_K(FV)
+	kFE = kFV * kEV'
 
-    for face in FV
-        f = []
-        for (i,v) in enumerate(face)
-            edge = [v, face[ i==length(face) ? 1 : i+1 ]]
-            ord_edge = sort(edge)
-
-            edge_idx = findfirst(e->e==ord_edge, EV)
-
-            push!(f, (edge_idx, sign(edge[2]-edge[1])))
-        end
-        
-        push!(faces, f)
-    end
-
-    FE = spzeros(Int, length(faces), length(EV))
-
-    for (i,f) in enumerate(faces)
-    @show (i,f)
-        for e in f
-            FE[i, e[1]] = e[2]
-        end
-    end
-
-    return FE
+	I = Int64[]; J = Int64[]; V = Int64[]
+	for (i,j,v) in zip(findnz(kFE)...)
+		if v == 2
+			push!(I,i); push!(J,j); push!(V,1)
+		end
+	end
+	copFE = sparse(I,J,V)
+	for e=1:size(copFE,2)
+		@assert length(findnz(copFE[:,e])[1])%2 == 0  "STOP: odd edeges in copFE column"
+	end
+	
+	if signed
+		kVE = kEV'
+		for (f,verts) in enumerate(FV)
+			edges = findnz(copFE[f,:])[1] # edges of face f
+			numedges = length(edges) 
+			@assert numedges==length(verts)  "STOP: different numbers of edges and verts"  
+			
+			# prepare dictionary
+			v2es = []
+			for v in verts
+				ve = intersect(findnz(kVE[v,:])[1], edges)
+				push!(v2es, (v,ve))
+			end
+			v2es = Dict(v2es)
+			
+			# walk the face and sign (-1) the counter-oriented edges
+			path = []
+			start = edges[1]
+			push!(path, start) # set the first path edge
+			v2 = EV[start][2]
+			for k = 2:numedges # for each face edge
+				edge = path[end]
+				nextedge = setdiff(v2es[v2],path)[1]
+				invertsign = (EV[edge][2] ≠ EV[nextedge][1])
+				if invertsign
+					copFE[f,nextedge] = -1 # get the edge vertex # continue
+					v2,_ = EV[nextedge]
+				else
+					_,v2 = EV[nextedge] # get the edge vertex # continue
+				end
+				push!(path,nextedge)
+			end
+		end
+	end
+	return copFE
 end
 
 """
-    build_copEV(EV::Cells, signed=true)
+   build_copEV(EV::Lar.Cells, signed=true)::ChainOp
 
 The signed (or not) `ChainOp` from 0-cells (vertices) to 1-cells (edges)
 """
-function build_copEV(EV::Cells, signed=true)
-    setValue = [-1, 1]
-    if signed == false
-        setValue = [1, 1]
-    end
-
-    maxv = max(map(x->max(x...), EV)...)
-    copEV = spzeros(Int, length(EV), maxv)
-
-    for (i,e) in enumerate(EV)
-        e = sort(collect(e))
-        copEV[i, e] = setValue
-    end
-
-    return copEV
+function build_copEV(EV::Lar.Cells, signed=true)
+	copEV = build_K(EV)
+	for e=1:SparseArrays.size(copEV,1)
+		h,_ = findnz(copEV[e,:])[1]
+		copEV[e,h] = -1
+	end
+	return copEV
 end
 
-"""
-    build_cops(edges::Cells, faces::Cells)
-
-The vertices-edges and edges-faces chain operators (`copEV::ChainOp`, `copFE::ChainOp`)
-"""
-function build_cops(edges::Cells, faces::Cells)
-    copEV = build_copEV(edges)
-    FV = Cells(map(x->buildFV(copEV,x), faces))
-    copFE = build_copFE(FV, edges)
-
-    return [copEV, copFE]
-end
 
 """
     vin(vertex, vertices_set)

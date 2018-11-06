@@ -92,7 +92,7 @@ function minimal_3cycles(V::Lar.Points, EV::Lar.ChainOp, FE::Lar.ChainOp)
 end
 
 
-function minimal_cycles(angles_fn::Function, verbose=false)
+function minimal_cycles(angles_fn::Function, verbose=true)
 
     function _minimal_cycles(V::Lar.Points, ld_bounds::Lar.ChainOp)
         lld_cellsnum, ld_cellsnum = size(ld_bounds)
@@ -140,7 +140,7 @@ function minimal_cycles(angles_fn::Function, verbose=false)
             as[ne]
         end
         
-        
+        println("\n")
         while (sigma = get_seed_cell()) > 0
         
             if verbose

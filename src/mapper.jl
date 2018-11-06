@@ -251,17 +251,17 @@ function sphere(radius=1., angle1=pi, angle2=2*pi, surface=triangled)
         W, CW = Lar.simplifyCells(V, CV)
         CW = [triangle for triangle in CW if length(triangle)==3]
         
-        if shape[2]>24
-			zmaxidx = findmax(W[3,:],1)[2][1]
-			zminidx = findmin(W[3,:],1)[2][1]
-			top = Set(vcat([triangle for triangle in CW if (zmaxidx in triangle) ]...))
-			bottom = Set(vcat([triangle for triangle in CW if (zminidx in triangle) ]...))
-			topface = [v for v in top if v!=zmaxidx]
-			bottomface = [v for v in bottom if v!=zminidx]
-			CW = [triangle for triangle in CW if 
-				!((zmaxidx in triangle) || (zminidx in triangle)) ]
-			push!(CW, topface, bottomface)
-		end
+#        if shape[2]>24
+#			zmaxidx = findmax(W[3,:],1)[2][1]
+#			zminidx = findmin(W[3,:],1)[2][1]
+#			top = Set(vcat([triangle for triangle in CW if (zmaxidx in triangle) ]...))
+#			bottom = Set(vcat([triangle for triangle in CW if (zminidx in triangle) ]...))
+#			topface = [v for v in top if v!=zmaxidx]
+#			bottomface = [v for v in bottom if v!=zminidx]
+#			CW = [triangle for triangle in CW if 
+#				!((zmaxidx in triangle) || (zminidx in triangle)) ]
+#			push!(CW, topface, bottomface)
+#		end
         
         if Int(surface)==1
         	return W, CW
