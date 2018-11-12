@@ -167,6 +167,7 @@ function simplexFacets(simplices)
     out = map(sort, collect(Set(out)))
     out = sort(out, by=x->(x[1],x[2]))
     return convert(Lar.Cells, out)
+    
 end
 
 

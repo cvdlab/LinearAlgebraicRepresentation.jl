@@ -299,20 +299,24 @@ function build_copFE(FV::Lar.Cells, EV::Lar.Cells, signed=true)
 			
 			# walk the face and sign (-1) the counter-oriented edges
 			path = []
-			start = edges[1]
-			push!(path, start) # set the first path edge
-			v2 = EV[start][2]
-			for k = 2:numedges # for each face edge
-				edge = path[end]
-				nextedge = setdiff(v2es[v2],path)[1]
-				invertsign = (EV[edge][2] ≠ EV[nextedge][1])
-				if invertsign
-					copFE[f,nextedge] = -1 # get the edge vertex # continue
-					v2,_ = EV[nextedge]
-				else
-					_,v2 = EV[nextedge] # get the edge vertex # continue
+			while edges ≠ []
+				start = edges[1]
+				push!(path, start) # set the first path edge
+				v2 = EV[start][2]
+				v0 = EV[start][1]
+				while v2 ≠ v0 # for each cycle edge
+					edge = path[end]
+					nextedge = setdiff(v2es[v2],path)[1]
+					invertsign = (EV[edge][2] ≠ EV[nextedge][1])
+					if invertsign
+						copFE[f,nextedge] = -1 # get the edge vertex # continue
+						v2,_ = EV[nextedge]
+					else
+						_,v2 = EV[nextedge] # get the edge vertex # continue
+					end
+					push!(path,nextedge)
 				end
-				push!(path,nextedge)
+				edges = setdiff(edges,path)
 			end
 		end
 	end
@@ -676,4 +680,13 @@ function obj2lar(path)
     end
 
     return vs, build_cops(edges, faces)
+end
+
+
+
+function chainop2cells(copEV,copFE)
+	EV = [findnz(copEV[e,:])[1] for e=1:size(copEV,1)]
+	FV = [collect(Set(vcat([EV[e] for e in findnz(copFE[f,:])[1]]...))) 
+			for f=1:size(copFE,1)]
+	return EV,FV
 end

@@ -383,7 +383,8 @@ end
 function preprocessing(V,copEV,FV)
 	EV = [findnz(copEV[e,:])[1] for e=1:size(copEV,1)]
 	#copEV = Lar.coboundary_0(EV)
-	copFE = Lar.build_copFE(FV,EV)
+	#copFE = build_copFE(FV, EV)
+	copFE = Lar.build_copFE(FV, EV)
 	copEF = copFE'
 	EF = [findnz(copEF[e,:])[1] for e=1:size(copEF,1)]
 	FE = [findnz(copFE[e,:])[1] for e=1:size(copFE,1)]

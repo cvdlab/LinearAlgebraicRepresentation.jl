@@ -185,7 +185,7 @@ function spatial_arrangement(V::Lar.Points, EV::Lar.ChainOp, FV::Lar.Cells, FE::
 		   print(sigma, "/", fs_num, "\r")
 		   #nV, nEV, nFE = Lar.computefragments(V, EV, FV, FE, space_idx, sigma)
 		   nV, nEV, nFE = Lar.Arrangement.frag_face(V, EV, FE, sp_idx, sigma)
-		   #@show nV
+		   ##@show nV
 		   depot_V[sigma] = nV
 		   depot_EV[sigma] = Matrix(nEV)
 		   depot_FE[sigma] = Matrix(nFE)
@@ -198,7 +198,7 @@ function spatial_arrangement(V::Lar.Points, EV::Lar.ChainOp, FV::Lar.Cells, FE::
 
     #rV, rEV, rFE = Lar.merge_vertices(rV, rEV, rFE)
     rV, rEV, rFE = Lar.Arrangement.merge_vertices(rV, rEV, rFE)
-				
+		
     rCF = Lar.Arrangement.minimal_3cycles(rV, rEV, rFE)
 
     return rV, rEV, rFE, rCF

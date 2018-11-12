@@ -23,6 +23,7 @@ end
 function minimal_3cycles(V::Lar.Points, EV::Lar.ChainOp, FE::Lar.ChainOp)
 
     triangulated_faces = Array{Any, 1}(FE.m)
+@show triangulated_faces
     
     function face_angle(e::Int, f::Int)
         if !isassigned(triangulated_faces, f)
@@ -86,7 +87,7 @@ function minimal_3cycles(V::Lar.Points, EV::Lar.ChainOp, FE::Lar.ChainOp)
     
 
     EF = FE'
-    FC = minimal_cycles(face_angle, true)(V, EF)
+    FC = Lar.Arrangement.minimal_cycles(face_angle, true)(V, EF)
 
     return -FC'
 end
@@ -95,7 +96,9 @@ end
 function minimal_cycles(angles_fn::Function, verbose=true)
 
     function _minimal_cycles(V::Lar.Points, ld_bounds::Lar.ChainOp)
+
         lld_cellsnum, ld_cellsnum = size(ld_bounds)
+@show lld_cellsnum, ld_cellsnum
         count_marks = zeros(Int, ld_cellsnum)
         dir_marks = zeros(Int, ld_cellsnum)
         d_bounds = spzeros(Int, ld_cellsnum, 0)
@@ -111,6 +114,7 @@ function minimal_cycles(angles_fn::Function, verbose=true)
                     s = i
                 end
             end
+@show s
             return s
         end
         for lld in 1:lld_cellsnum
@@ -121,6 +125,7 @@ function minimal_cycles(angles_fn::Function, verbose=true)
             sort!(as, lt=(a,b)->a[2]<b[2])
             as = map(a->a[1], as)
             angles[lld] = as
+@show as
         end
         function nextprev(lld::Int64, ld::Int64, norp)
             as = angles[lld]
@@ -137,6 +142,7 @@ function minimal_cycles(angles_fn::Function, verbose=true)
                     break
                 end
             end
+@show as,ne
             as[ne]
         end
         
@@ -154,6 +160,7 @@ function minimal_cycles(angles_fn::Function, verbose=true)
                 c_ld[sigma] = -dir_marks[sigma]
             end
             c_lld = ld_bounds*c_ld
+@show c_lld
             while c_lld.nzind != []
                 corolla = spzeros(Int, ld_cellsnum)
                 for tau in c_lld.nzind
@@ -166,7 +173,8 @@ function minimal_cycles(angles_fn::Function, verbose=true)
                     end
                 end
                 c_ld += corolla
-                c_lld = ld_bounds*c_ld
+ @show c_ld
+               c_lld = ld_bounds*c_ld
             end
             map(s->count_marks[s] += 1, c_ld.nzind)
             map(s->dir_marks[s] = c_ld[s], c_ld.nzind)
