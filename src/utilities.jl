@@ -261,64 +261,142 @@ function build_K(FV::Lar.Cells)
 	kEV = sparse(I,J,V)
 end
 
+function build_TE(TV, edge_dict)
+	global TE = []
+	for tria in TV
+		v1,v2,v3 = tria
+		e1 = get(edge_dict, [v2,v3], 0)
+		if e1 == 0 e1 = get(edge_dict, [v3,v2], 0) end
+		e2 = get(edge_dict, [v1,v3], 0)
+		if e2 == 0 e2 = get(edge_dict, [v3,v1], 0) end
+		e3 = get(edge_dict, [v1,v2], 0)
+		if e3 == 0 e3 = get(edge_dict, [v2,v1], 0) end
+		te = [e1,e2,e3]
+		append!(TE, [te])
+	end
+	return TE
+end
+
+function build_ET(TE)
+	edges = [[edge for edge in tria if edge≠0] for tria in TE]
+	edges = union(cat(edges))
+	global ET = Dict(zip(edges,[Int[] for k=1:length(edges)])) 
+	for (k,t) in enumerate(TE)
+		for h=1:3
+			if t[h]≠0 push!(ET[t[h]], k) end
+		end
+	end
+	return ET
+end
+
+function remove_interior_triangles(points2D, edges_list, points_map, 
+TV, edge_dict, edges)
+	# get interior boundary 1-cycles (s.t. |1-cell coboundary| = 2)
+	TE = build_TE(TV, edge_dict)
+	ET = build_ET(TE)
+	inv_point_map = Dict(zip(points_map,1:length(points_map)))
+	global triangles = []
+	for e ∈ edges
+		e_coboundary = ET[e]
+		if length(e_coboundary) == 1
+			t = e_coboundary[1]
+			push!(triangles, TV[t])
+		elseif length(e_coboundary) == 2
+			t1,t2 = e_coboundary
+			verts = [points2D[inv_point_map[v],:] for v in TV[t1]]
+			point = sum(verts)/length(verts)
+			ev = [edges_list[k,:] for k=1:size(edges_list,1)]
+			ew = [[inv_point_map[v1],inv_point_map[v2]] for (v1,v2) in ev]
+			if Lar.pointInPolygonClassification(points2D', ew)(point)=="p_in"
+				push!(triangles, TV[t1])
+			else
+				push!(triangles, TV[t2])
+			end
+		else
+			error("More then two coboundary 2-cells of a face edge")
+		end
+	end
+	return convert(Array{Array{Int,1},1}, triangles)
+end
+
+
+
 """
    build_copFE(FV::Lar.Cells, EV::Lar.Cells, signed=true)::ChainOp
 
 The signed `ChainOp` from 1-cells (edges) to 2-cells (faces)
 """
-function build_copFE(FV::Lar.Cells, EV::Lar.Cells, signed=true)
-	kEV = build_K(EV)
-	kFV = build_K(FV)
+function build_copFE(V::Lar.Points, FV::Lar.Cells, EV::Lar.Cells, signed=true)
+	kEV = Lar.build_K(EV)
+	kFV = Lar.build_K(FV)
 	kFE = kFV * kEV'
 
-	I = Int64[]; J = Int64[]; V = Int64[]
+	I = Int64[]; J = Int64[]; W = Int64[]
 	for (i,j,v) in zip(findnz(kFE)...)
 		if v == 2
-			push!(I,i); push!(J,j); push!(V,1)
+			push!(I,i); push!(J,j); push!(W,1)
 		end
 	end
-	copFE = sparse(I,J,V)
+	copFE = sparse(I,J,W)
 	for e=1:size(copFE,2)
 		@assert length(findnz(copFE[:,e])[1])%2 == 0  "STOP: odd edeges in copFE column"
 	end
 	
-	if signed
-		kVE = kEV'
-		for (f,verts) in enumerate(FV)
-			edges = findnz(copFE[f,:])[1] # edges of face f
-			numedges = length(edges) 
-			@assert numedges==length(verts)  "STOP: different numbers of edges and verts"  
-			
-			# prepare dictionary
-			v2es = []
-			for v in verts
-				ve = intersect(findnz(kVE[v,:])[1], edges)
-				push!(v2es, (v,ve))
-			end
-			v2es = Dict(v2es)
-			
-			# walk the face and sign (-1) the counter-oriented edges
-			path = []
-			while edges ≠ []
-				start = edges[1]
-				push!(path, start) # set the first path edge
-				v2 = EV[start][2]
-				v0 = EV[start][1]
-				while v2 ≠ v0 # for each cycle edge
-					edge = path[end]
-					nextedge = setdiff(v2es[v2],path)[1]
-					invertsign = (EV[edge][2] ≠ EV[nextedge][1])
-					if invertsign
-						copFE[f,nextedge] = -1 # get the edge vertex # continue
-						v2,_ = EV[nextedge]
-					else
-						_,v2 = EV[nextedge] # get the edge vertex # continue
-					end
-					push!(path,nextedge)
+	if !signed return copFE
+	else
+		FE = [findnz(copFE[k,:])[1] for k=1:size(copFE,1)]
+		
+		edge_dict = Dict([(EV[k],k) for k=1:size(EV,1)])
+		global signedFE = []
+		for f = 1:size(FE,1)
+			fe = []
+			# get the face triangulation
+			points_map = FV[f]
+		
+			# face mapping
+			T = Lar.face_mapping(V, FV, f)
+			points = [hcat([V[:,v] for v in points_map]...); ones(length(points_map))']
+			pts = T * points
+			points2D = [pts[r,:] for r = 1:size(pts,1) 
+							if !(all(pts[r,:].==0) || all(pts[r,:].==1) )]
+			points2D = hcat(points2D...)
+		
+			edges_list = hcat([EV[e] for e in FE[f]]...)'
+			edges = FE[f]
+			TV = Triangle.constrained_triangulation(points2D, points_map, edges_list)
+		
+			# removal of interior triangles
+			tv = remove_interior_triangles(points2D, edges_list, points_map, 
+					TV, edge_dict, edges)
+		
+			# interpretation of triangles to signed edge triples
+			function get_signed_edge(v1,v2,sign)
+				edge = get(edge_dict, [v1,v2], 0)
+				if edge==0 
+					edge = get(edge_dict, [v2,v1], 0)*-1
 				end
-				edges = setdiff(edges,path)
+				return edge*sign
+			end
+		
+			for tria in tv
+				v1,v2,v3 = tria
+				e1 = get_signed_edge(v2,v3,1)
+				e2 = get_signed_edge(v1,v3,-1)
+				e3 = get_signed_edge(v1,v2,1)
+				append!(fe,[e1,e2,e3])
+			end
+			push!(signedFE, union(fe))  #BAH ... !!
+		end
+		signedFE = [[e for e in face if e≠0] for face in signedFE]
+		m,n = size(copFE)
+		for i=1:m
+			for k=1:length(signedFE[i])
+				j = abs(signedFE[i][k])
+				val = sign(signedFE[i][k])
+				copFE[i,j] = val
 			end
 		end
+		
 	end
 	return copFE
 end
@@ -332,7 +410,11 @@ function build_copEV(EV::Lar.Cells, signed=true)
 	copEV = build_K(EV)
 	for e=1:SparseArrays.size(copEV,1)
 		h,_ = findnz(copEV[e,:])[1]
-		copEV[e,h] = -1
+		if signed 
+			copEV[e,h] = -1
+		else
+			copEV[e,h] = 1
+		end
 	end
 	return copEV
 end

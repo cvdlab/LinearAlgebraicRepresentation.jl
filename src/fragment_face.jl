@@ -95,7 +95,7 @@ end
 function face_mapping(V, FV, sigma, err=LinearAlgebraicRepresentation.ERR )
 	sigmavs = FV[sigma]; i = 1
 	# compute affinely independent triple
-	while -err < det(V[:, sigmavs[i:i+2]]) < err
+	while (-err < det(V[:, sigmavs[i:i+2]]) < err) && (i < length(sigmavs)-2)
 		i += 1
 	end
 	# sigma translation

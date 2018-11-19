@@ -414,7 +414,7 @@ function chaincomplex(W,FW,EW)
 	V = W'
 	EV = map(sort, EW)
 	EV = Lar.build_copEV(EV)
-	FE = Lar.build_copFE(FW,EW)
+	FE = Lar.build_copFE(W,FW,EW)
 
 	V,cscEV,cscFE,cscCF = Lar.Arrangement.spatial_arrangement(
 			V::Lar.Points, EV::Lar.ChainOp, FW::Lar.Cells, FE::Lar.ChainOp)
