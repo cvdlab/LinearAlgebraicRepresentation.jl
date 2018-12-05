@@ -413,29 +413,21 @@ julia> cscCF # coboundaries[3]
 function chaincomplex(W,FW,EW)
 	V = W'
 	EV = map(sort, EW)
-	EV = Lar.build_copEV(EV)
-	FE = Lar.build_copFE(W,FW,EW)
+	copEV = Lar.build_copEV(EV)
+	copFE = Lar.build_copFE(W,FW,EW)
 
-	V,cscEV,cscFE,cscCF = Lar.Arrangement.spatial_arrangement(
-			V::Lar.Points, EV::Lar.ChainOp, FW::Lar.Cells, FE::Lar.ChainOp)
+	V,FV,EV,copFE,copFC = Lar.Arrangement.spatial_arrangement(
+			V::Lar.Points, copEV::Lar.ChainOp, FW::Lar.Cells, copFE::Lar.ChainOp)
 
-	ne,nv = size(cscEV)
-	nf = size(cscFE,1)
-	nc = size(cscCF,1)
-	EV = [findn(cscEV[e,:]) for e=1:ne]
-	FV = [collect(Set(vcat([EV[e] for e in findn(cscFE[f,:])]...)))  for f=1:nf]
-	CV = [collect(Set(vcat([FV[f] for f in findn(cscCF[c,:])]...)))  for c=2:nc]
+	nc = size(copFC,2)
+	CV = [collect(Set(vcat([FV[f] for f in findn(copFC[:,c])]...)))  for c=2:nc]
 	function ord(cells)
 		return [sort(cell) for cell in cells]
 	end
-	temp = copy(cscEV')
-	for k=1:size(temp,2)
-		h = findn(temp[:,k])[1]
-		temp[h,k] = -1
-	end    
-	cscEV = temp'
-	bases, coboundaries = (ord(EV),ord(FV),ord(CV)), (cscEV,cscFE,cscCF)
-	return V',bases,coboundaries
+
+	copEV = Lar.build_copEV(EV)
+	bases, coboundaries = (ord(EV),ord(FV),ord(CV)), (copEV,copFE,copFC')
+	return V,bases,coboundaries
 end
 
 

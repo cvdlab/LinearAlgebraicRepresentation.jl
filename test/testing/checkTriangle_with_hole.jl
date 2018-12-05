@@ -55,12 +55,9 @@ function build_copFE(FV::Lar.Cells, EV::Lar.Cells, signed=true)
 					push!(path,nextedge)
 				end
 				edges = setdiff(edges,path)
-				@show path
 				append!(loops, [path])
-				@show loops
 			end
 			append!(cycles, [loops])
-			@show cycles
 		end
 	end
 	return copFE, cycles

@@ -338,13 +338,14 @@ function struct2lar(structure)
 	
 	topology = listOfModels[end]
 	if length(topology)==2
-		#FW = removeDups(FW)
+		FW = removeDups(FW)
 		larmodel = hcat(W...),FW
 		return larmodel
 	elseif length(topology)==3
+		W, FW, EW = make_quotients(hcat(W...), FW, EW)
 		#FW = removeDups(FW)
 		#EW = removeDups(EW)
-		larmodel = hcat(W...),FW,EW
+		larmodel = W,FW,EW
 		return larmodel
 	end
 end

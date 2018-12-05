@@ -1,10 +1,62 @@
-function area(v1,v2,v3)
-	u = V[:,v2]-V[:,v1]
-	v = V[:,v3]-V[:,v1]
-	norm(cross(u,v)) # actually, to be divided by two
+using LinearAlgebraicRepresentation
+Lar = LinearAlgebraicRepresentation
+
+function make_quotients(verts, faces, edges, err=Lar.ERR)
+	vertsnum = size(verts, 2)
+	kdtree = NearestNeighbors.KDTree(verts)
+	todelete = []
+	newverts = zeros(Int, vertsnum)
+	i = 1
+	for vi in 1:vertsnum
+		if !(vi in todelete)
+			nearvs = NearestNeighbors.inrange(kdtree, verts[:,vi], err)
+			newverts[nearvs] = i
+			nearvs = setdiff(nearvs, vi)
+			todelete = union(todelete, nearvs)
+			i = i + 1
+		end
+	end
+	nverts = verts[:,setdiff(collect(1:vertsnum), todelete)]
+	vertdict = DataStructures.OrderedDict()
+	for k=1:size(nverts,2)
+		key = map(Lar.approxVal(Lar.PRECISION), nverts[:,k])
+		vertdict[key] = k
+	end
+
+	nedges = Array{Array{Int},1}()
+	for (v1,v2) in edges
+		(w1,w2) = abs.((v1,v2))
+		key1 = map(Lar.approxVal(Lar.PRECISION), verts[:,w1])
+		key2 = map(Lar.approxVal(Lar.PRECISION), verts[:,w2])
+		push!(nedges, [vertdict[key1], vertdict[key2]])
+	end
+#	nedges = Set(map(sort,nedges))
+#	nedges = sort(collect(nedges), by=x->(x[1],x[2]))
+#	nedges = filter( x->x[1]!=x[2], nedges )	
+	nedges = sort(nedges, by=x->(x[1],x[2]))
+	nedges = sort(collect(Set(nedges)), by=x->(x[1],x[2]))
+	nedges = filter( x->x[1]!=x[2], nedges )
+	nedges = convert(Array{Array{Int64,1},1}, nedges)	
+
+	nfaces = Array{Array{Int},1}()
+	for (k,face) in enumerate(faces)
+		nface = Int64[]
+		for v in face
+			key = map(Lar.approxVal(Lar.PRECISION), nverts[:,v])
+			push!(nface, vertdict[key])
+		end
+		if nface ≠ [] 
+			nface = sort(collect(Set(nface)))
+			push!(nfaces,nface)
+		end
+	end
+	nfaces = collect(Set(nfaces))
+	nfaces = sort(nfaces, lt=lexless)
+	nfaces = convert(Lar.Cells, nfaces)
+	return nverts, nfaces, nedges
 end
 
-function interior_to_f(triangle,f,FE)
+function interior_to_f(triangle,f,V,FV,EV,FE)
 	v1,v2,v3 = triangle
 	u = V[:,v2]-V[:,v1]
 	v = V[:,v3]-V[:,v1]
@@ -38,7 +90,7 @@ function interior_to_f(triangle,f,FE)
 end
 
 
-function ordering(triangles)
+function ordering(triangles,V)
 	normals = []
 	v1,v2,v3 = triangles[1]
 	if v1>v2 v1,v2 = v2,v1 end
@@ -65,9 +117,18 @@ function ordering(triangles)
 	return order
 end
 
-function ord(hinge,bd1,V,FV,EV,FE)
+function ord(hinge::Int64, bd1::SparseVector{Int64,Int64}, V::Array{Float64,2},
+FV::Array{Array{Int64,1},1}, EV::Array{Array{Int64,1},1}, FE::Array{Array{Int64,1},1})
 	cells = findnz(bd1)[1]
 	triangles = []
+
+	function area(v1,v2,v3)
+		u = V[:,v2]-V[:,v1]
+		v = V[:,v3]-V[:,v1]
+		out = norm(cross(u,v)) # actually, to be divided by two
+		return out
+	end
+	
 	for f in cells
 		v1,v2 = EV[hinge]		
 		index = findfirst(v -> (area(v1,v2,v)≠0), FV[f])
@@ -75,7 +136,7 @@ function ord(hinge,bd1,V,FV,EV,FE)
 		
 		# test if [v1,v2,v3] interior to f
 		while true
-			if interior_to_f([v1, v2, v3],f,FE)
+			if interior_to_f([v1, v2, v3],f,V,FV,EV,FE)
 				push!(triangles, [v1,v2,v3])
 				break
 			else
@@ -84,24 +145,25 @@ function ord(hinge,bd1,V,FV,EV,FE)
 			end
 		end
 	end
-	order = ordering(triangles)
+	order = ordering(triangles,V)
 	return [cells[index] for index in order]
 end
 
 
-function next(cycle, pivot)
+function mynext(cycle, pivot)
 	len = length(cycle)
 	ind = find(x -> x==pivot, cycle)[1]
 	nextIndex = ind==len ? 1 : ind+1
 	return cycle[nextIndex][1]
 end
 
-function prev(cycle, pivot)
+function myprev(cycle, pivot)
 	len = length(cycle)
 	ind = find(x->x==pivot, cycle)[1]
 	nextIndex = ind==1 ? len : ind-1
 	return cycle[nextIndex][1]
 end
+
 
 function build_copFC(V,FV,EV,copFE)
 	copEF = copFE'
@@ -109,7 +171,7 @@ function build_copFC(V,FV,EV,copFE)
 	# Initializations
 	m,n = size(copEF)
 	marks = zeros(Int,n);
-	I = Int64[]; J = Int64[]; V = Int8[]; 
+	I = Int64[]; J = Int64[]; W = Int8[]; 
 	jcol = 0
 	choose(marks) = findfirst(x -> x<2, marks)
 
@@ -138,9 +200,9 @@ function build_copFC(V,FV,EV,copFE)
 				# compute the new adj cell
 				fan = ord(abs(τ),bd1,V,FV,EV,FE) # ord(pivot,bd1)
 				if τ > 0 
-					adj = next(fan,pivot)
+					adj = mynext(fan,pivot)
 				elseif τ < 0 
-					adj = prev(fan,pivot)
+					adj = myprev(fan,pivot)
 				end
 				# orient adj
 				if copEF[abs(τ),adj] ≠ copEF[abs(τ),pivot] 
@@ -166,9 +228,9 @@ function build_copFC(V,FV,EV,copFE)
 		jcol += 1
 		append!(I,rows)
 		append!(J,[ jcol for k=1:nnz(cd1) ])
-		append!(V,vals)
+		append!(W,vals)
 	end
-	copFC = sparse(I,J,V)
+	copFC = sparse(I,J,W)
 	return copFC
 end
 
@@ -443,8 +505,8 @@ function build_TE(TV, edge_dict)
 		v1,v2,v3 = tria
 		e1 = get(edge_dict, [v2,v3], 0)
 		if e1 == 0 e1 = get(edge_dict, [v3,v2], 0) end
-		e2 = get(edge_dict, [v1,v3], 0)
-		if e2 == 0 e2 = get(edge_dict, [v3,v1], 0) end
+		e2 = get(edge_dict, [v3,v1], 0)
+		if e2 == 0 e2 = get(edge_dict, [v1,v3], 0) end
 		e3 = get(edge_dict, [v1,v2], 0)
 		if e3 == 0 e3 = get(edge_dict, [v2,v1], 0) end
 		te = [e1,e2,e3]
@@ -470,7 +532,7 @@ TV, edge_dict, edges)
 	# get interior boundary 1-cycles (s.t. |1-cell coboundary| = 2)
 	TE = build_TE(TV, edge_dict)
 	ET = build_ET(TE)
-	inv_point_map = Dict(zip(points_map,1:length(points_map)))
+	inv_map = Dict(zip(points_map,1:length(points_map)))
 	global triangles = []
 	for e ∈ edges
 		e_coboundary = ET[e]
@@ -479,10 +541,10 @@ TV, edge_dict, edges)
 			push!(triangles, TV[t])
 		elseif length(e_coboundary) == 2
 			t1,t2 = e_coboundary
-			verts = [points2D[inv_point_map[v],:] for v in TV[t1]]
+			verts = [points2D[inv_map[v],:] for v in TV[t1]]
 			point = sum(verts)/length(verts)
 			ev = [edges_list[k,:] for k=1:size(edges_list,1)]
-			ew = [[inv_point_map[v1],inv_point_map[v2]] for (v1,v2) in ev]
+			ew = [[inv_map[v1],inv_map[v2]] for (v1,v2) in ev]
 			if Lar.pointInPolygonClassification(points2D', ew)(point)=="p_in"
 				push!(triangles, TV[t1])
 			else
@@ -495,18 +557,86 @@ TV, edge_dict, edges)
 	return convert(Array{Array{Int,1},1}, triangles)
 end
 
+function remove_interior_triangles(points2D, edges_list, points_map, 
+TV, edge_dict, edges,EV)
+	# get interior boundary 1-cycles (s.t. |1-cell coboundary| = 2)
+	TE = build_TE(TV, edge_dict)
+	ET = build_ET(TE)
+	inv_map = Dict(zip(points_map, 1:length(points_map)))
+	global triangles = []
+	for e ∈ edges
+		v1,v2 = EV[e]
+		e_coboundary = ET[e]
+		if length(e_coboundary) == 1
+			t = e_coboundary[1]
+			push!(triangles, TV[t])
+		elseif length(e_coboundary) == 2
+			t1,t2 = e_coboundary
+			v = setdiff(Set(TV[t1]),[v1,v2])[1]
+			w1,w2,w3 = map(x->inv_map[x],[v1,v2,v])
+			point = 0.49*points2D'[:,w1]+0.49*points2D'[:,w2]+0.02*points2D'[:,w3]
+			ev = [edges_list[k,:] for k=1:size(edges_list,1)]
+			ew = [[inv_map[v1],inv_map[v2]] for (v1,v2) in ev]
+			
+			if Lar.pointInPolygonClassification(points2D', ew)(point)=="p_out"
+				push!(triangles, TV[t1])
+			else
+				push!(triangles, TV[t2])
+			end
+		else
+			error("More then two coboundary 2-cells of a face edge")
+		end
+	end
+	return triangles
+end
+
+function fix_copFE(copFE,kFV,kEV)
+	for f=1:size(copFE,1)
+		face_edges = sparsevec( findnz(copFE[f,:])... )
+		face_verts = sparsevec( findnz(kFV[f,:])... )
+		if nnz(face_edges) ≠ nnz(face_verts)
+			triples = []
+			for e in findnz(face_edges)[1]
+				vert_edges = sparsevec( findnz(kEV[e,:])... )
+				v1,v2 = findnz(vert_edges)[1]
+				push!(triples, [e,v1,1])
+				push!(triples, [e,v2,1])
+			end
+			I,J,Val = collect(zip(triples...))
+			I = [i for i in I]
+			J = [j for j in J]
+			Val = Int8[v for v in Val]
+			m,n = size(kEV)
+			copev = sparse(I,J,Val, m,n)
+			oddverts = Set([v for v in J if nnz(copev[:,v])>2])
+			for e in findnz(face_edges)[1] 
+				v1,v2 = findnz(kEV[e,:])[1]
+				if intersect( [v1,v2],oddverts )==[v1,v2]
+					copFE[f,e] = 0
+				end
+			end
+		end
+	end
+	return dropzeros!(copFE)
+end
 
 
 """
-   build_copFE(FV::Lar.Cells, EV::Lar.Cells, signed=true)::ChainOp
+   build_copFE(V::Lar.Points, FV::Lar.Cells, EV::Lar.Cells, signed=true)::ChainOp
 
 The signed `ChainOp` from 1-cells (edges) to 2-cells (faces)
 """
 function build_copFE(V::Lar.Points, FV::Lar.Cells, EV::Lar.Cells, signed=true)
+	#compute some usigned characteristic matrices
 	kEV = Lar.build_K(EV)
 	kFV = Lar.build_K(FV)
 	kFE = kFV * kEV'
+	@show V
+	@show FV
+	@show EV
+	
 
+	# compute the unsigned operator cobuondary_1 (copFE)
 	I = Int64[]; J = Int64[]; W = Int64[]
 	for (i,j,v) in zip(findnz(kFE)...)
 		if v == 2
@@ -514,19 +644,24 @@ function build_copFE(V::Lar.Points, FV::Lar.Cells, EV::Lar.Cells, signed=true)
 		end
 	end
 	copFE = sparse(I,J,W)
-	for e=1:size(copFE,2)
-		@assert length(findnz(copFE[:,e])[1])%2 == 0  "STOP: odd edeges in copFE column"
-	end
+	copFE = fix_copFE(copFE,kFV,kEV)
+#	for e=1:size(copFE,2)
+#		@assert length(findnz(copFE[:,e])[1])%2 == 0  "STOP: odd edeges in copFE column"
+#	end
 	
 	if !signed return copFE
 	else
+		# compute the signed operator cobuondary_1 (signed copFE)
 		FE = [findnz(copFE[k,:])[1] for k=1:size(copFE,1)]
 		
+		# make dictionary (vi,vj)=>k  (i.e. fk)
 		edge_dict = Dict([(EV[k],k) for k=1:size(EV,1)])
 		global signedFE = []
+		
+		# main loop on faces
 		for f = 1:size(FE,1)
 			fe = []
-			# get the face triangulation
+			# prepare the face triangulation
 			points_map = FV[f]
 		
 			# face mapping
@@ -539,26 +674,27 @@ function build_copFE(V::Lar.Points, FV::Lar.Cells, EV::Lar.Cells, signed=true)
 		
 			edges_list = hcat([EV[e] for e in FE[f]]...)'
 			edges = FE[f]
+			# get the face triangulation
 			TV = Triangle.constrained_triangulation(points2D, points_map, edges_list)
 		
 			# removal of interior triangles
-			tv = remove_interior_triangles(points2D, edges_list, points_map, 
-					TV, edge_dict, edges)
+			tv = Lar.remove_interior_triangles(points2D, edges_list, points_map, 
+					TV, edge_dict, edges,EV)
 		
 			# interpretation of triangles to signed edge triples
-			function get_signed_edge(v1,v2,sign)
+			function get_signed_edge(v1,v2)
 				edge = get(edge_dict, [v1,v2], 0)
 				if edge==0 
 					edge = get(edge_dict, [v2,v1], 0)*-1
 				end
-				return edge*sign
+				return edge
 			end
 		
 			for tria in tv
 				v1,v2,v3 = tria
-				e1 = get_signed_edge(v2,v3,1)
-				e2 = get_signed_edge(v1,v3,-1)
-				e3 = get_signed_edge(v1,v2,1)
+				e1 = get_signed_edge(v2,v3)
+				e2 = get_signed_edge(v3,v1)
+				e3 = get_signed_edge(v1,v2)
 				append!(fe,[e1,e2,e3])
 			end
 			push!(signedFE, union(fe))  #BAH ... !!

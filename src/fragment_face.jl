@@ -110,6 +110,35 @@ function face_mapping(V, FV, sigma, err=LinearAlgebraicRepresentation.ERR )
 	return mapping
 end
 
+
+# transform sigma and related faces in space_idx
+function face_mapping(V, FV, sigma, err=LinearAlgebraicRepresentation.ERR )
+	vs = FV[sigma]; i = 1
+	# compute affinely independent triple
+	n = length(vs)
+	succ(i) = i % n + 1
+	a = V[:,vs[succ(i)]] - V[:,vs[i]]
+	b = V[:,vs[succ(succ(i))]] - V[:,vs[i]]
+	c = cross(a,b)
+	while (-err < det([a b c]) < err) 
+		i += 1
+		a = V[:,vs[succ(i)]] - V[:,vs[i]]
+		b = V[:,vs[succ(succ(i))]] - V[:,vs[i]]
+		c = cross(a,b)
+	end
+	# sigma translation
+	T = Lar.t(-V[:,vs[succ(i)]]...)
+	W = T * [V[:,vs] ; ones(1,length(vs))]
+	t_vs = W[1:3,:]
+	# translated sigma rotation
+	r1,r2,r3 = t_vs[:,i], t_vs[:,succ(succ(i))], cross(t_vs[:,i], t_vs[:,succ(succ(i))])
+	R = eye(4)
+	R[1:3,1:3] = inv([r1 r2 r3])
+	mapping = R * T
+	return mapping
+end
+
+
 function polyline(V::Lar.Points)::Lar.LAR
 	return V,[[k,k+1] for k=1:size(V,2)-1]
 end
@@ -287,63 +316,80 @@ function removevertices(verts, edges, err=LinearAlgebraicRepresentation.ERR)
 	return cells0D, cells1D
 end
 	
-function merge_vertices(rV::Lar.Points, rEV::Lar.ChainOp, rFE::Lar.ChainOp, err=LinearAlgebraicRepresentation.ERR)
+function merge_vertices(rV::Lar.Points, rEV::Lar.ChainOp, rFE::Lar.ChainOp, 
+err=Lar.ERR)
 	verts = rV'
 	edges = [findnz(rEV[e,:])[1] for e=1:size(rEV,1)]
 	faces = [findnz(rFE[f,:])[1] for f=1:size(rFE,1)]
-		
-    vertsnum = size(verts, 2)
-    kdtree = KDTree(verts)
-    todelete = []
-    newverts = zeros(Int, vertsnum)
-    i = 1
-    for vi in 1:vertsnum
-        if !(vi in todelete)
-            nearvs = inrange(kdtree, verts[:,vi], err)
-            newverts[nearvs] = i
-            nearvs = setdiff(nearvs, vi)
-            todelete = union(todelete, nearvs)
-            i = i + 1
-        end
-    end
-	nverts = verts[:,setdiff(collect(1:vertsnum), todelete)]
-	vertdict = DataStructures.OrderedDict()
-	for k=1:size(nverts,2)
-		key = map(Lar.approxVal(PRECISION), nverts[:,k])
-		vertdict[key] = k
-	end
-	
-	nedges = Array{Array{Int},1}()
-	for (v1,v2) in edges
-		(w1,w2) = abs.((v1,v2))
-		key1 = map(Lar.approxVal(PRECISION), verts[:,w1])
-		key2 = map(Lar.approxVal(PRECISION), verts[:,w2])
-		push!(nedges, [vertdict[key1], vertdict[key2]])
-	end
-	nedges = Set(map(sort,nedges))
-	nedges = sort(collect(nedges), by=x->(x[1],x[2]))
-	nedges = filter( x->x[1]!=x[2], nedges )	
-	
-	nfaces = Array{Array{Int},1}()
-	for (k,face) in enumerate(faces)
-		nface = Int64[]
-		for edge in face
-			(v1,v2) = edges[edge]
+
+
+	function make_quotients(verts, faces, edges, err=Lar.ERR)
+print("&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&")
+@show verts
+@show edges
+@show faces
+
+		vertsnum = size(verts, 2)
+		kdtree = NearestNeighbors.KDTree(verts)
+		todelete = []
+		newverts = zeros(Int, vertsnum)
+		i = 1
+		for vi in 1:vertsnum
+			if !(vi in todelete)
+				nearvs = NearestNeighbors.inrange(kdtree, verts[:,vi], err)
+				newverts[nearvs] = i
+				nearvs = setdiff(nearvs, vi)
+				todelete = union(todelete, nearvs)
+				i = i + 1
+			end
+		end
+		nverts = verts[:,setdiff(collect(1:vertsnum), todelete)]
+		vertdict = DataStructures.OrderedDict()
+		for k=1:size(nverts,2)
+			key = map(Lar.approxVal(Lar.PRECISION), nverts[:,k])
+			vertdict[key] = k
+		end
+
+		nedges = Array{Array{Int},1}()
+		for (v1,v2) in edges
 			(w1,w2) = abs.((v1,v2))
-			key1 = map(Lar.approxVal(PRECISION), verts[:,w1])
-			key2 = map(Lar.approxVal(PRECISION), verts[:,w2])
-			push!(nface, vertdict[key1])
-			push!(nface, vertdict[key2])
+			key1 = map(Lar.approxVal(Lar.PRECISION), verts[:,w1])
+			key2 = map(Lar.approxVal(Lar.PRECISION), verts[:,w2])
+			push!(nedges, [vertdict[key1], vertdict[key2]])
 		end
-		if nface ≠ [] 
-			nface = sort(collect(Set(nface)))
-			push!(nfaces,nface)
+		nedges = Set(map(sort,nedges))
+		nedges = sort(collect(nedges), by=x->(x[1],x[2]))
+		nedges = filter( x->x[1]!=x[2], nedges )	
+#		nedges = sort(nedges, by=x->(x[1],x[2]))
+#		nedges = sort(collect(Set(nedges)), by=x->(x[1],x[2]))
+#		nedges = filter( x->x[1]!=x[2], nedges )
+#		nedges = convert(Array{Array{Int64,1},1}, nedges)	
+
+		nfaces = Array{Array{Int},1}()
+		for (k,face) in enumerate(faces)
+			nface = Int64[]
+			for edge in face
+				(v1,v2) = edges[edge]
+				(w1,w2) = abs.((v1,v2))
+				key1 = map(Lar.approxVal(Lar.PRECISION), verts[:,w1])
+				key2 = map(Lar.approxVal(Lar.PRECISION), verts[:,w2])
+				push!(nface, vertdict[key1])
+				push!(nface, vertdict[key2])
+			end
+			if nface ≠ [] 
+				nface = sort(collect(Set(nface)))
+				push!(nfaces,nface)
+			end
 		end
+		nfaces = collect(Set(nfaces))
+		nfaces = sort(nfaces, lt=lexless)
+		nfaces = convert(Lar.Cells, nfaces)
+		return nverts, nfaces, nedges
 	end
-	nfaces = collect(Set(nfaces))
-	nfaces = sort(nfaces, lt=lexless)
-	nfaces = convert(Cells, nfaces)
-	return nverts, build_copEV(nedges), build_copFE(nfaces, nedges)	
+
+print("before make_quotients ^^^^^^^^^^^^^^^^^^^")
+	V,FV,EV = make_quotients(verts, faces, edges, err)
+	return V,FV,EV	
 end
 	
 function mergevertices(verts, edges, err=LinearAlgebraicRepresentation.ERR)

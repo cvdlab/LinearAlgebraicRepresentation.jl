@@ -185,7 +185,6 @@ function spatial_arrangement(V::Lar.Points, EV::Lar.ChainOp, FV::Lar.Cells, FE::
 		   print(sigma, "/", fs_num, "\r")
 		   #nV, nEV, nFE = Lar.computefragments(V, EV, FV, FE, space_idx, sigma)
 		   nV, nEV, nFE = Lar.Arrangement.frag_face(V, EV, FE, sp_idx, sigma)
-		   ##@show nV
 		   depot_V[sigma] = nV
 		   depot_EV[sigma] = Matrix(nEV)
 		   depot_FE[sigma] = Matrix(nFE)
@@ -196,12 +195,19 @@ function spatial_arrangement(V::Lar.Points, EV::Lar.ChainOp, FV::Lar.Cells, FE::
 		rFE = Lar.blockdiag(depot_FE...)
     end
 
-    #rV, rEV, rFE = Lar.merge_vertices(rV, rEV, rFE)
-    rV, rEV, rFE = Lar.Arrangement.merge_vertices(rV, rEV, rFE)
-		
-    rCF = Lar.Arrangement.minimal_3cycles(rV, rEV, rFE)
+    V,FV,EV = Lar.merge_vertices(rV, rEV, rFE)    
+    @show "ECCOMI *************\n\n\n\n"
+@show V
+@show FV
+@show EV
 
-    return rV, rEV, rFE, rCF
+    copFE = Lar.build_copFE(V,FV,EV)
+    copFC = Lar.build_copFC(V,FV,EV,copFE)
+    
+    #rV, rEV, rFE = Lar.Arrangement.merge_vertices(rV, rEV, rFE)
+    #rCF = Lar.Arrangement.minimal_3cycles(rV, rEV, rFE)
+
+    return V,FV,EV,copFE,copFC
 end
 
 function blockdiag(X::SparseMatrixCSC...)
