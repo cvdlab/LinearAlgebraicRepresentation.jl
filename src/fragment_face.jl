@@ -91,39 +91,40 @@ function pointInPolygonClassification(V,EV)
 end
 
 
-# transform sigma and related faces in space_idx
-function face_mapping(V, FV, sigma, err=LinearAlgebraicRepresentation.ERR )
-	sigmavs = FV[sigma]; i = 1
-	# compute affinely independent triple
-	while (-err < det(V[:, sigmavs[i:i+2]]) < err) && (i < length(sigmavs)-2)
-		i += 1
-	end
-	# sigma translation
-	T = Lar.t(-V[:,sigmavs[i+1]]...)
-	W = T * [V[:,sigmavs] ; ones(1,length(sigmavs))]
-	t_vs = W[1:3,:]
-	# translated sigma rotation
-	r1,r2,r3 = t_vs[:,i], t_vs[:,i+2], cross(t_vs[:,i], t_vs[:,i+2])
-	R = eye(4)
-	R[1:3,1:3] = inv([r1 r2 r3])
-	mapping = R * T
-	return mapping
-end
+#	transform sigma and related faces in space_idx
+#	function face_mapping(V, FV, sigma, err=LinearAlgebraicRepresentation.ERR )
+#		sigmavs = FV[sigma]; i = 1
+#		compute affinely independent triple
+#		while (-err < det(V[:, sigmavs[i:i+2]]) < err) && (i < length(sigmavs)-2)
+#			i += 1
+#		end
+#		sigma translation
+#		T = Lar.t(-V[:,sigmavs[i+1]]...)
+#		W = T * [V[:,sigmavs] ; ones(1,length(sigmavs))]
+#		t_vs = W[1:3,:]
+#		translated sigma rotation
+#		r1,r2,r3 = t_vs[:,i], t_vs[:,i+2], cross(t_vs[:,i], t_vs[:,i+2])
+#		R = eye(4)
+#		R[1:3,1:3] = inv([r1 r2 r3])
+#		mapping = R * T
+#		return mapping
+#	end
 
 
 # transform sigma and related faces in space_idx
 function face_mapping(V, FV, sigma, err=LinearAlgebraicRepresentation.ERR )
+@show sigma
 	vs = FV[sigma]; i = 1
 	# compute affinely independent triple
 	n = length(vs)
 	succ(i) = i % n + 1
-	a = V[:,vs[succ(i)]] - V[:,vs[i]]
-	b = V[:,vs[succ(succ(i))]] - V[:,vs[i]]
+	a = normalize(V[:,vs[succ(i)]] - V[:,vs[i]])
+	b = normalize(V[:,vs[succ(succ(i))]] - V[:,vs[i]])
 	c = cross(a,b)
 	while (-err < det([a b c]) < err) 
 		i += 1
-		a = V[:,vs[succ(i)]] - V[:,vs[i]]
-		b = V[:,vs[succ(succ(i))]] - V[:,vs[i]]
+		a = normalize(V[:,vs[succ(i)]] - V[:,vs[i]])
+		b = normalize(V[:,vs[succ(succ(i))]] - V[:,vs[i]])
 		c = cross(a,b)
 	end
 	# sigma translation
@@ -328,6 +329,7 @@ print("&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&")
 @show verts
 @show edges
 @show faces
+PRECISION = 5.0
 
 		vertsnum = size(verts, 2)
 		kdtree = NearestNeighbors.KDTree(verts)
@@ -346,15 +348,15 @@ print("&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&")
 		nverts = verts[:,setdiff(collect(1:vertsnum), todelete)]
 		vertdict = DataStructures.OrderedDict()
 		for k=1:size(nverts,2)
-			key = map(Lar.approxVal(Lar.PRECISION), nverts[:,k])
+			key = map(Lar.approxVal(PRECISION), nverts[:,k])
 			vertdict[key] = k
 		end
 
 		nedges = Array{Array{Int},1}()
 		for (v1,v2) in edges
 			(w1,w2) = abs.((v1,v2))
-			key1 = map(Lar.approxVal(Lar.PRECISION), verts[:,w1])
-			key2 = map(Lar.approxVal(Lar.PRECISION), verts[:,w2])
+			key1 = map(Lar.approxVal(PRECISION), verts[:,w1])
+			key2 = map(Lar.approxVal(PRECISION), verts[:,w2])
 			push!(nedges, [vertdict[key1], vertdict[key2]])
 		end
 		nedges = Set(map(sort,nedges))
@@ -371,8 +373,8 @@ print("&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&")
 			for edge in face
 				(v1,v2) = edges[edge]
 				(w1,w2) = abs.((v1,v2))
-				key1 = map(Lar.approxVal(Lar.PRECISION), verts[:,w1])
-				key2 = map(Lar.approxVal(Lar.PRECISION), verts[:,w2])
+				key1 = map(Lar.approxVal(PRECISION), verts[:,w1])
+				key2 = map(Lar.approxVal(PRECISION), verts[:,w2])
 				push!(nface, vertdict[key1])
 				push!(nface, vertdict[key2])
 			end

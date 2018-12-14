@@ -21,7 +21,7 @@ julia> model = (V,FV);
 
 julia> W,FW = extrudeSimplicial(model, pattern);
 
-julia> LARVIEW.view(W,FW)
+julia> Plasm.view(W,FW)
 ```
 """
 function extrudeSimplicial(model::Lar.LAR, pattern)
@@ -100,11 +100,11 @@ julia> V
  0  0  0  0  0  0  0  0  0  0   0  1  1  1  1     10  10  10  10  10  10  10  10  10  10
  0  0  0  0  0  0  0  0  0  0   0  0  0  0  0      1   1   1   1   1   1   1   1   1   1
 
-julia> using LARVIEW
+julia> using Plasm
 
-julia> hpc = LARVIEW.lar2exploded_hpc(V,CV) # exploded visualization of the grid
+julia> hpc = Plasm.lar2exploded_hpc(V,CV) # exploded visualization of the grid
 
-julia> LARVIEW.view(hpc)
+julia> Plasm.view(hpc)
 
 julia> V,HV = simplexGrid([1,1,1,1]) # 4-dim cellular complex from the 4D simplex
 # output
@@ -136,7 +136,7 @@ julia> V,FV = simplexGrid([1,1]) # 2-dimensional complex
 # output
 ([0 1 0 1; 0 0 1 1], Array{Int64,1}[[1, 2, 3], [2, 3, 4]])
 
-julia> LARVIEW.view(V,FV)
+julia> Plasm.view(V,FV)
 
 julia> W,CW = extrudeSimplicial((V,FV), [1])
 ([0.0 1.0 … 0.0 1.0; 0.0 0.0 … 1.0 1.0; 0.0 0.0 … 1.0 1.0], 
@@ -148,7 +148,7 @@ julia> FW = simplexFacets(CW)
 [6,7,8],[3,5,6],[2,3,5],[2,3,4],[3,4,7],[1,2,3],[2,4,6],[2,5,6],
 [1,2,5],[2,3,6],[3,4,6]]
 
-julia> LARVIEW.view(W,FW)
+julia> Plasm.view(W,FW)
 ```
 """
 function simplexFacets(simplices)

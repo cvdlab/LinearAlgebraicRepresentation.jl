@@ -70,7 +70,7 @@ function interior_to_f(triangle,f,V,FV,EV,FE)
 	points2D = [pts[r,:] for r = 1:size(pts,1) 
 				if !(all(pts[r,:].==0) || all(pts[r,:].==1) )]
 	p2D = hcat(points2D...)'
-	checkpoint = 0.9 .* p2D[:,1] + 0.05 .* p2D[:,2] + 0.05 .* p2D[:,3]
+	checkpoint = 0.4995 .* p2D[:,1] + 0.4995 .* p2D[:,2] + 0.001 .* p2D[:,3]
 	
 	cellpoints = [V[:,FV[f]]; ones(length(FV[f]))' ]
 	points = mapping * cellpoints
@@ -119,7 +119,7 @@ end
 
 function ord(hinge::Int64, bd1::SparseVector{Int64,Int64}, V::Array{Float64,2},
 FV::Array{Array{Int64,1},1}, EV::Array{Array{Int64,1},1}, FE::Array{Array{Int64,1},1})
-	cells = findnz(bd1)[1]
+	cells = SparseArrays.findnz(bd1)[1]
 	triangles = []
 
 	function area(v1,v2,v3)
@@ -166,8 +166,9 @@ end
 
 
 function build_copFC(V,FV,EV,copFE)
+@show V,FV,EV,SparseArrays.findnz(copFE)
 	copEF = copFE'
-	FE = [findnz(copFE[k,:])[1] for k=1:size(copFE,1)]
+	FE = [SparseArrays.findnz(copFE[k,:])[1] for k=1:size(copFE,1)]
 	# Initializations
 	m,n = size(copEF)
 	marks = zeros(Int,n);
@@ -179,6 +180,8 @@ function build_copFC(V,FV,EV,copFE)
 	while sum(marks) < 2n
 		# select a (d−1)-cell, "seed" of the column extraction
 		σ = choose(marks)
+		@show σ
+		@show marks
 		if marks[σ] == 0 
 			cd1 = sparsevec([σ], Int8[1], n)
 		elseif marks[σ] == 1
@@ -190,13 +193,13 @@ function build_copFC(V,FV,EV,copFE)
 		while nnz(cd2)≠0
 			corolla = sparsevec([], Int8[], n)
 			# for each “hinge” τ cell
-			for τ ∈ (.*)(findnz(cd2)...)
+			for τ ∈ (.*)(SparseArrays.findnz(cd2)...)
 				#compute the  coboundary
 				tau = sparsevec([abs(τ)], [sign(τ)], m)
 				bd1 = transpose(transpose(tau) * copEF)
-				cells2D = findnz(bd1)[1]
+				cells2D = SparseArrays.findnz(bd1)[1]
 				# compute the  support
-				pivot = intersect(cells2D, findnz(cd1)[1])[1] # check for sign?
+				pivot = intersect(cells2D, SparseArrays.findnz(cd1)[1])[1] 
 				# compute the new adj cell
 				fan = ord(abs(τ),bd1,V,FV,EV,FE) # ord(pivot,bd1)
 				if τ > 0 
@@ -212,19 +215,19 @@ function build_copFC(V,FV,EV,copFE)
 				end
 			end
 			# insert corolla cells in current cd1
-			for (k,val) in zip(findnz(corolla)...) 
+			for (k,val) in zip(SparseArrays.findnz(corolla)...) 
 				cd1[k] = val 
 			end 
 			# compute again the boundary of cd1
 			cd2 = copEF * cd1
 		end
-		for σ ∈ findnz(cd1)[1]
+		for σ ∈ SparseArrays.findnz(cd1)[1]
 			# update the counters of used cells
 			marks[σ] += 1
 		end
 		# append a new column to [∂d+]
 		# copFC += cd1
-		rows, vals = findnz(cd1)
+		rows, vals = SparseArrays.findnz(cd1)
 		jcol += 1
 		append!(I,rows)
 		append!(J,[ jcol for k=1:nnz(cd1) ])
@@ -527,35 +530,6 @@ function build_ET(TE)
 	return ET
 end
 
-function remove_interior_triangles(points2D, edges_list, points_map, 
-TV, edge_dict, edges)
-	# get interior boundary 1-cycles (s.t. |1-cell coboundary| = 2)
-	TE = build_TE(TV, edge_dict)
-	ET = build_ET(TE)
-	inv_map = Dict(zip(points_map,1:length(points_map)))
-	global triangles = []
-	for e ∈ edges
-		e_coboundary = ET[e]
-		if length(e_coboundary) == 1
-			t = e_coboundary[1]
-			push!(triangles, TV[t])
-		elseif length(e_coboundary) == 2
-			t1,t2 = e_coboundary
-			verts = [points2D[inv_map[v],:] for v in TV[t1]]
-			point = sum(verts)/length(verts)
-			ev = [edges_list[k,:] for k=1:size(edges_list,1)]
-			ew = [[inv_map[v1],inv_map[v2]] for (v1,v2) in ev]
-			if Lar.pointInPolygonClassification(points2D', ew)(point)=="p_in"
-				push!(triangles, TV[t1])
-			else
-				push!(triangles, TV[t2])
-			end
-		else
-			error("More then two coboundary 2-cells of a face edge")
-		end
-	end
-	return convert(Array{Array{Int,1},1}, triangles)
-end
 
 function remove_interior_triangles(points2D, edges_list, points_map, 
 TV, edge_dict, edges,EV)
@@ -578,7 +552,7 @@ TV, edge_dict, edges,EV)
 			ev = [edges_list[k,:] for k=1:size(edges_list,1)]
 			ew = [[inv_map[v1],inv_map[v2]] for (v1,v2) in ev]
 			
-			if Lar.pointInPolygonClassification(points2D', ew)(point)=="p_out"
+			if Lar.pointInPolygonClassification(points2D', ew)(point)=="p_in"
 				push!(triangles, TV[t1])
 			else
 				push!(triangles, TV[t2])
@@ -592,13 +566,13 @@ end
 
 function fix_copFE(copFE,kFV,kEV)
 	for f=1:size(copFE,1)
-		face_edges = sparsevec( findnz(copFE[f,:])... )
-		face_verts = sparsevec( findnz(kFV[f,:])... )
-		if nnz(face_edges) ≠ nnz(face_verts)
+		face_edges = sparsevec( SparseArrays.findnz(copFE[f,:])... )
+		face_verts = sparsevec( SparseArrays.findnz(kFV[f,:])... )
+		if nnz(face_edges) > nnz(face_verts)
 			triples = []
-			for e in findnz(face_edges)[1]
-				vert_edges = sparsevec( findnz(kEV[e,:])... )
-				v1,v2 = findnz(vert_edges)[1]
+			for e in SparseArrays.findnz(face_edges)[1]
+				vert_edges = sparsevec( SparseArrays.findnz(kEV[e,:])... )
+				v1,v2 = SparseArrays.findnz(vert_edges)[1]
 				push!(triples, [e,v1,1])
 				push!(triples, [e,v2,1])
 			end
@@ -609,9 +583,11 @@ function fix_copFE(copFE,kFV,kEV)
 			m,n = size(kEV)
 			copev = sparse(I,J,Val, m,n)
 			oddverts = Set([v for v in J if nnz(copev[:,v])>2])
-			for e in findnz(face_edges)[1] 
-				v1,v2 = findnz(kEV[e,:])[1]
+			for e in SparseArrays.findnz(face_edges)[1] 
+				v1,v2 = SparseArrays.findnz(kEV[e,:])[1]
+				@show e,v1,v2
 				if intersect( [v1,v2],oddverts )==[v1,v2]
+					@show f,e
 					copFE[f,e] = 0
 				end
 			end
@@ -631,28 +607,24 @@ function build_copFE(V::Lar.Points, FV::Lar.Cells, EV::Lar.Cells, signed=true)
 	kEV = Lar.build_K(EV)
 	kFV = Lar.build_K(FV)
 	kFE = kFV * kEV'
-	@show V
-	@show FV
-	@show EV
+#	@show V
+#	@show FV
+#	@show EV
 	
-
 	# compute the unsigned operator cobuondary_1 (copFE)
 	I = Int64[]; J = Int64[]; W = Int64[]
-	for (i,j,v) in zip(findnz(kFE)...)
+	for (i,j,v) in zip(SparseArrays.findnz(kFE)...)
 		if v == 2
 			push!(I,i); push!(J,j); push!(W,1)
 		end
 	end
-	copFE = sparse(I,J,W)
-	copFE = fix_copFE(copFE,kFV,kEV)
-#	for e=1:size(copFE,2)
-#		@assert length(findnz(copFE[:,e])[1])%2 == 0  "STOP: odd edeges in copFE column"
-#	end
+	copFe = sparse(I,J,W)
+	copFE = Lar.fix_copFE(copFe,kFV,kEV)
 	
 	if !signed return copFE
+	# compute the signed operator cobuondary_1 (signed copFE)
 	else
-		# compute the signed operator cobuondary_1 (signed copFE)
-		FE = [findnz(copFE[k,:])[1] for k=1:size(copFE,1)]
+		FE = [SparseArrays.findnz(copFE[k,:])[1] for k=1:size(copFE,1)]
 		
 		# make dictionary (vi,vj)=>k  (i.e. fk)
 		edge_dict = Dict([(EV[k],k) for k=1:size(EV,1)])
@@ -665,6 +637,7 @@ function build_copFE(V::Lar.Points, FV::Lar.Cells, EV::Lar.Cells, signed=true)
 			points_map = FV[f]
 		
 			# face mapping
+			@show f
 			T = Lar.face_mapping(V, FV, f)
 			points = [hcat([V[:,v] for v in points_map]...); ones(length(points_map))']
 			pts = T * points
@@ -678,7 +651,7 @@ function build_copFE(V::Lar.Points, FV::Lar.Cells, EV::Lar.Cells, signed=true)
 			TV = Triangle.constrained_triangulation(points2D, points_map, edges_list)
 		
 			# removal of interior triangles
-			tv = Lar.remove_interior_triangles(points2D, edges_list, points_map, 
+			tv = remove_interior_triangles(points2D, edges_list, points_map, 
 					TV, edge_dict, edges,EV)
 		
 			# interpretation of triangles to signed edge triples
@@ -721,7 +694,7 @@ The signed (or not) `ChainOp` from 0-cells (vertices) to 1-cells (edges)
 function build_copEV(EV::Lar.Cells, signed=true)
 	copEV = build_K(EV)
 	for e=1:SparseArrays.size(copEV,1)
-		h,_ = findnz(copEV[e,:])[1]
+		h,_ = SparseArrays.findnz(copEV[e,:])[1]
 		if signed 
 			copEV[e,h] = -1
 		else
@@ -1079,8 +1052,8 @@ end
 
 
 function chainop2cells(copEV,copFE)
-	EV = [findnz(copEV[e,:])[1] for e=1:size(copEV,1)]
-	FV = [collect(Set(vcat([EV[e] for e in findnz(copFE[f,:])[1]]...))) 
+	EV = [SparseArrays.findnz(copEV[e,:])[1] for e=1:size(copEV,1)]
+	FV = [collect(Set(vcat([EV[e] for e in SparseArrays.findnz(copFE[f,:])[1]]...))) 
 			for f=1:size(copFE,1)]
 	return EV,FV
 end

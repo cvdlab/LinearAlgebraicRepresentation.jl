@@ -198,9 +198,9 @@ Lar.Struct(Any[([0.0 -0.173648 … -0.336824 -0.17101; 0.0 0.0 … 0.0593912 0.0
 5, 6], [7, 5, 6], [7, 8, 6], … , [71, 2, 72, 1]])], Array{Float64,2}[[-1.0; -1.0; -1.0],
 [3.5; 1.0; 1.0]], "simple example", 3, "feature")
 
-julia> using LARVIEW
+julia> using Plasm
 
-julia> LARVIEW.view(assembly)
+julia> Plasm.view(assembly)
 ```
 """
 type Struct
