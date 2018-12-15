@@ -2,11 +2,12 @@ language: julia
 
 os:
   - linux
-  - osx
 
 branches:
   only:
-  - master
+    - master
+    - bugfix
+    - /^bugfix-.*$/
   
 julia:
   - 0.6
