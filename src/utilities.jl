@@ -564,12 +564,19 @@ TV, edge_dict, edges,EV)
 	return triangles
 end
 
-function fix_copFE(copFE,kFV,kEV)
+function fix_copFE(copFE,kFV,kEV,V,FV,EV,copEF)
+println("eccomi 4")
 	for f=1:size(copFE,1)
+		# compare the numbers of incident edges and vertices (on the f face)
 		face_edges = sparsevec( SparseArrays.findnz(copFE[f,:])... )
 		face_verts = sparsevec( SparseArrays.findnz(kFV[f,:])... )
-		if nnz(face_edges) > nnz(face_verts)
-			triples = []
+		if nnz(face_edges) == nnz(face_verts)
+			# standard case: go ahead
+			copFE,V,FV,EV = build_kFE(V,FV,EV,false)
+			return copFE,V,FV,EV
+		elseif nnz(face_edges) > nnz(face_verts)
+			# compute "external" edges (may exist iff non-convex f)
+			triples = []; extern = []
 			for e in SparseArrays.findnz(face_edges)[1]
 				vert_edges = sparsevec( SparseArrays.findnz(kEV[e,:])... )
 				v1,v2 = SparseArrays.findnz(vert_edges)[1]
@@ -587,13 +594,64 @@ function fix_copFE(copFE,kFV,kEV)
 				v1,v2 = SparseArrays.findnz(kEV[e,:])[1]
 				@show e,v1,v2
 				if intersect( [v1,v2],oddverts )==[v1,v2]
-					@show f,e
-					copFE[f,e] = 0
+					@show f,e,v1,v2
+					push!(extern, [f,e,v1,v2])
 				end
 			end
+
+			# insert a new vertex in all external edges
+			nverts = size(V,2)
+			nedges = length(EV)
+			for (k,quadruple) in enumerate(extern)
+				f,e,v1,v2 = quadruple
+				# insert new vert in V
+				last_v = nverts + k
+				newvert = 0.5 * V[:,v1] + 0.5 * V[:,v2]
+				V = [V newvert]
+				# insert new edge
+				EV[e] = [v1, last_v]
+				push!(EV, [v2, last_v])
+				# insert new vertex in incident faces
+				incfaces = setdiff(findnz(copEF[e,:])[1], [f])
+				for k=1:length(incfaces)
+					push!(FV[incfaces[k]],last_v)
+				end
+			end
+		else
+			# non-manifold face (wrong case: unfits cell definition)
+			@assert numedges<length(verts)  "STOP: non manifold $f face"  
+ 		end
+	end # main loop on faces
+	# recompute copFE via kFV and kEV product (no external edges now possible)
+println("eccomi 5")
+	copFE,V,FV,EV = build_kFE(V,FV,EV,false)
+println("eccomi 6")
+	return copFE,V,FV,EV
+end
+
+
+
+function build_kFE(V::Lar.Points, FV::Lar.Cells, EV::Lar.Cells, fix=true::Bool)
+	#compute some usigned characteristic matrices
+println("eccomi 2")
+	kEV = Lar.build_K(EV)
+	kFV = Lar.build_K(FV)
+	kFE = kFV * kEV'	
+	# compute the unsigned operator cobuondary_1 (copFE)
+	I = Int64[]; J = Int64[]; W = Int64[]
+	for (i,j,v) in zip(SparseArrays.findnz(kFE)...)
+		if v == 2
+			push!(I,i); push!(J,j); push!(W,1)
 		end
 	end
-	return dropzeros!(copFE)
+	copFE = sparse(I,J,W)
+	copEF = copFE'
+	if fix==true
+println("eccomi 3")
+		copFE,V,FV,EV = fix_copFE(copFE,kFV,kEV,V,FV,EV,copEF)
+println("eccomi 7")
+	end
+	return copFE,V,FV,EV
 end
 
 
@@ -603,24 +661,9 @@ end
 The signed `ChainOp` from 1-cells (edges) to 2-cells (faces)
 """
 function build_copFE(V::Lar.Points, FV::Lar.Cells, EV::Lar.Cells, signed=true)
-	#compute some usigned characteristic matrices
-	kEV = Lar.build_K(EV)
-	kFV = Lar.build_K(FV)
-	kFE = kFV * kEV'
-#	@show V
-#	@show FV
-#	@show EV
-	
-	# compute the unsigned operator cobuondary_1 (copFE)
-	I = Int64[]; J = Int64[]; W = Int64[]
-	for (i,j,v) in zip(SparseArrays.findnz(kFE)...)
-		if v == 2
-			push!(I,i); push!(J,j); push!(W,1)
-		end
-	end
-	copFe = sparse(I,J,W)
-	copFE = Lar.fix_copFE(copFe,kFV,kEV)
-	
+println("eccomi 1")
+	copFE,V,FV,EV = build_kFE(V,FV,EV)
+println("eccomi 8")
 	if !signed return copFE
 	# compute the signed operator cobuondary_1 (signed copFE)
 	else
@@ -683,7 +726,7 @@ function build_copFE(V::Lar.Points, FV::Lar.Cells, EV::Lar.Cells, signed=true)
 		end
 		
 	end
-	return copFE
+	return copFE,V,FV,EV
 end
 
 """

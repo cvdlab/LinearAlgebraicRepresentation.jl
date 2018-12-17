@@ -15,7 +15,11 @@ for k=1:10
 	α = π * rand()
 	m = [(m1+M2)/2, (m2+M2)/2, (m3+M3)/2]
 	V,(VV,EV,FV,CV) = Lar.cuboid([M1+δ,M2+δ,M3+δ],true,[m1-δ,m2-δ,m3-δ])
-	push!(assembly, Lar.Struct([Lar.t(m...)*Lar.r(0,0,α)*Lar.t(-m...), (V,FV,EV)]))
+	push!(assembly, #Lar.Struct([
+		Lar.t(m...)*Lar.r(0,0,α)*Lar.t(-m...), 
+		(V,FV,EV)
+		#])
+		)
 end
 assembly = Lar.struct2lar(Lar.Struct(assembly))
 Plasm.view(assembly[1:2])

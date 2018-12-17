@@ -411,13 +411,15 @@ julia> cscCF # coboundaries[3]
 ```	
 """
 function chaincomplex(W,FW,EW)
+@show (W,FW,EW)
 	V = W'
 	EV = map(sort, EW)
+	copFE,V,FV,EV = Lar.build_copFE(W,FW,EW)
 	copEV = Lar.build_copEV(EV)
-	copFE = Lar.build_copFE(W,FW,EW)
 
+@show (V,FV,EV)
 	V,FV,EV,copFE,copFC = Lar.Arrangement.spatial_arrangement(
-			V::Lar.Points, copEV::Lar.ChainOp, FW::Lar.Cells, copFE::Lar.ChainOp)
+			V::Lar.Points, copEV::Lar.ChainOp, FV::Lar.Cells, copFE::Lar.ChainOp)
 
 	nc = size(copFC,2)
 	CV = [collect(Set(vcat([FV[f] for f in findn(copFC[:,c])]...)))  for c=2:nc]
