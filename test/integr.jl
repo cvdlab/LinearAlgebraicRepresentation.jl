@@ -1,5 +1,5 @@
-using LinearAlgebraicRepresentation
 using Test
+using LinearAlgebraicRepresentation
 Lar = LinearAlgebraicRepresentation
 
 @testset "Integration Tests" begin

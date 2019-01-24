@@ -1,7 +1,7 @@
-using LinearAlgebraicRepresentation
-Lar = LinearAlgebraicRepresentation
 using Test
 using SparseArrays
+using LinearAlgebraicRepresentation
+Lar = LinearAlgebraicRepresentation
 
 @testset "interface.jl file Tests" begin
 	@testset "characteristicMatrix Tests" begin

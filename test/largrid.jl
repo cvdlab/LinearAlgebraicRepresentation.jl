@@ -1,6 +1,6 @@
+using Test
 using LinearAlgebraicRepresentation
 Lar = LinearAlgebraicRepresentation
-using Test
 
 @testset "LarGrid-0-1 Tests" begin
    @testset "grid_0" begin

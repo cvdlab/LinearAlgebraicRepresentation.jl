@@ -1,4 +1,5 @@
 #using LinearAlgebraicRepresentation
+#Lar = LinearAlgebraicRepresentation
 
 include("./utilities.jl")
 include("./planar_arrangement.jl")

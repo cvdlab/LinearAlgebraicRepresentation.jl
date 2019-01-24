@@ -1,5 +1,5 @@
-using LinearAlgebra
 using Test
+using LinearAlgebra
 using LinearAlgebraicRepresentation
 Lar = LinearAlgebraicRepresentation
 

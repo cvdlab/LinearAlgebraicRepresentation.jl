@@ -1,6 +1,6 @@
 using Test
-using LinearAlgebraicRepresentation
 using SparseArrays
+using LinearAlgebraicRepresentation
 Lar = LinearAlgebraicRepresentation
 
 @testset "Bounding boxes building test" begin

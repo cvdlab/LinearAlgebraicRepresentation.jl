@@ -1,9 +1,9 @@
 using Test
-using LinearAlgebraicRepresentation
-Lar = LinearAlgebraicRepresentation
 using SparseArrays
 using LinearAlgebra
-using Lar.Arrangement
+using LinearAlgebraicRepresentation
+using LinearAlgebraicRepresentation.Arrangement
+Lar = LinearAlgebraicRepresentation
 
 @testset "Edge fragmentation tests" begin
     V = [2 2; 4 2; 3 3.5; 1 3; 5 3; 1 2; 5 2]

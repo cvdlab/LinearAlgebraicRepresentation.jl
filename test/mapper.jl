@@ -1,6 +1,6 @@
+using Test
 using LinearAlgebraicRepresentation
 Lar = LinearAlgebraicRepresentation
-using Test
 
 function BoxCalculation(Vertices)
 	Minx=minimum(Vertices[1,:])
