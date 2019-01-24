@@ -102,7 +102,7 @@ julia> FW
  [98, 99, 105, 107] 
  [99, 105, 107, 108]
 
-julia> LARVIEW.view(W,FW)
+julia> Plasm.view(W,FW)
 ```
 
 
@@ -135,11 +135,11 @@ julia> V
  0  0  0  0  0  0  0  0  0  0   0  0  0  0  0      1   1   1   1   1   1   1   1   1   1
 
 
-julia> using LARVIEW
+julia> using Plasm
 
-julia> hpc = LARVIEW.hpc_exploded(V,CV) # exploded visualization of the simplicial grid
+julia> hpc = Plasm.hpc_exploded(V,CV) # exploded visualization of the simplicial grid
 
-julia> LARVIEW.view(hpc)
+julia> Plasm.view(hpc)
 
 julia> V,HV = simplexGrid([1,1,1,1]) # 4-dim simplicial complex
 # output
@@ -158,7 +158,7 @@ julia> V,FV = LinearAlgebraicRepresentation.simplexGrid([1,1]) # 2-dimensional c
 # output
 ([0 1 0 1; 0 0 1 1], Array{Int64,1}[[1, 2, 3], [2, 3, 4]])
 
-julia> LARVIEW.view(V,FV)
+julia> Plasm.view(V,FV)
 
 julia> W,CW = LinearAlgebraicRepresentation.extrudeSimplicial((V,FV), [1])
 ([0.0 1.0 … 0.0 1.0; 0.0 0.0 … 1.0 1.0; 0.0 0.0 … 1.0 1.0], 
@@ -170,7 +170,7 @@ julia> FW = LinearAlgebraicRepresentation.simplexFacets(CW)
 [6,7,8],[3,5,6],[2,3,5],[2,3,4],[3,4,7],[1,2,3],[2,4,6],[2,5,6],
 [1,2,5],[2,3,6],[3,4,6]]
 
-julia> LARVIEW.view(W,FW)
+julia> Plasm.view(W,FW)
 ```
 
 

@@ -1,3 +1,5 @@
+Lar = LinearAlgebraicRepresentation
+
 """
     bbox(vertices::Points)
 
@@ -478,11 +480,11 @@ Use this function to export LAR models into OBJ
 	[[1,2,3,4],[5,6,7,8],[1,2,5,6],[3,4,7,8],[1,3,5,7],[2,4,6,8]], 
 	[[1,2],[3,4],[5,6],[7,8],[1,3],[2,4],[5,7],[6,8],[1,5],[2,6],[3,7],[4,8]] )
 	
-	julia> cube_2 = LinearAlgebraicRepresentation.Struct([LinearAlgebraicRepresentation.t(0,0,0.5), LinearAlgebraicRepresentation.r(0,0,pi/3), cube_1])
+	julia> cube_2 = Lar.Struct([Lar.t(0,0,0.5), Lar.r(0,0,pi/3), cube_1])
 	
-	julia> V, FV, EV = LinearAlgebraicRepresentation.struct2lar(LinearAlgebraicRepresentation.Struct([ cube_1, cube_2 ]))
+	julia> V, FV, EV = Lar.struct2lar(Lar.Struct([ cube_1, cube_2 ]))
 	
-	julia> V, bases, coboundaries = LinearAlgebraicRepresentation.chaincomplex(V,FV,EV)
+	julia> V, bases, coboundaries = Lar.chaincomplex(V,FV,EV)
 	
 	julia> (EV, FV, CV), (copEV, copFE, copCF) = bases, coboundaries
 
@@ -522,7 +524,7 @@ Use this function to export LAR models into OBJ
 	julia> copCF # coboundaries[3]
 	4×18 SparseMatrixCSC{Int8,Int64} with 36 stored entries: ...
 	
-	objs = LinearAlgebraicRepresentation.lar2obj(V'::LinearAlgebraicRepresentation.Points, [coboundaries...])
+	objs = Lar.lar2obj(V'::Lar.Points, [coboundaries...])
 			
 	open("./two_cubes.obj", "w") do f
     	write(f, objs)
@@ -626,9 +628,9 @@ end
 function space_arrangement(V::Points, EV::ChainOp, FE::ChainOp, multiproc::Bool=false)
 
     fs_num = size(FE, 1)
-    sp_idx = LinearAlgebraicRepresentation.Arrangement.spatial_index(V, EV, FE)
+    sp_idx = Lar.Arrangement.spatial_index(V, EV, FE)
 
-    global rV = LinearAlgebraicRepresentation.Points(undef, 0,3)
+    global rV = Lar.Points(undef, 0,3)
     global rEV = SparseArrays.spzeros(Int8,0,0)
     global rFE = SparseArrays.spzeros(Int8,0,0)
     
@@ -658,9 +660,9 @@ function space_arrangement(V::Points, EV::ChainOp, FE::ChainOp, multiproc::Bool=
 
        for sigma in 1:fs_num
            # print(sigma, "/", fs_num, "\r")
-           nV, nEV, nFE = LinearAlgebraicRepresentation.Arrangement.frag_face(
+           nV, nEV, nFE = Lar.Arrangement.frag_face(
            	V, EV, FE, sp_idx, sigma)
-           a,b,c = LinearAlgebraicRepresentation.skel_merge(
+           a,b,c = Lar.skel_merge(
            	rV, rEV, rFE, nV, nEV, nFE)
            global rV=a; global rEV=b; global rFE=c
        end
@@ -681,7 +683,7 @@ function space_arrangement(V::Points, EV::ChainOp, FE::ChainOp, multiproc::Bool=
     
     end
 
-    rV, rEV, rFE = LinearAlgebraicRepresentation.Arrangement.merge_vertices(rV, rEV, rFE)
+    rV, rEV, rFE = Lar.Arrangement.merge_vertices(rV, rEV, rFE)
     
     rCF = Arrangement.minimal_3cycles(rV, rEV, rFE)
 
@@ -693,11 +695,11 @@ end
 ###  2D triangulation
 Lar = LinearAlgebraicRepresentation
 """ 
-	obj2lar2D(path::AbstractString)::LinearAlgebraicRepresentation.LARmodel
+	obj2lar2D(path::AbstractString)::Lar.LARmodel
 
 Read a *triangulation* from file, given its `path`. Return a `LARmodel` object
 """
-function obj2lar2D(path::AbstractString)::LinearAlgebraicRepresentation.LARmodel
+function obj2lar2D(path::AbstractString)::Lar.LARmodel
     vs = Array{Float64, 2}(undef, 0, 3)
     edges = Array{Array{Int, 1}, 1}()
     faces = Array{Array{Int, 1}, 1}()
@@ -705,6 +707,7 @@ function obj2lar2D(path::AbstractString)::LinearAlgebraicRepresentation.LARmodel
     open(path, "r") do fd
 		for line in eachline(fd)
 			elems = split(line)
+			@show elems
 			if length(elems) > 0
 				if elems[1] == "v"
 					x = parse(Float64, elems[2])
@@ -713,7 +716,9 @@ function obj2lar2D(path::AbstractString)::LinearAlgebraicRepresentation.LARmodel
 					vs = [vs; x y z]
 				elseif elems[1] == "f"
 					# Ignore the vertex tangents and normals
-					_,v1,v2,v3 = map(parse, elems)
+					v1 = parse(Int, elems[2])
+					v2 = parse(Int, elems[3])
+					v3 = parse(Int, elems[4])
 					append!(edges, map(sort,[[v1,v2],[v2,v3],[v3,v1]]))
 					push!(faces, [v1, v2, v3])
 				end
@@ -721,27 +726,27 @@ function obj2lar2D(path::AbstractString)::LinearAlgebraicRepresentation.LARmodel
 			end
 		end
 	end
-    return (vs, [edges,faces])::LinearAlgebraicRepresentation.LARmodel
+    return (vs, [edges,faces])::Lar.LARmodel
 end
 
 
 """ 
-	lar2obj2D(V::LinearAlgebraicRepresentation.Points, 
-			cc::LinearAlgebraicRepresentation.ChainComplex)::String
+	lar2obj2D(V::Lar.Points, 
+			cc::Lar.ChainComplex)::String
 
 Produce a *triangulation* from a `LARmodel`. Return a `String` object
 """
-function lar2obj2D(V::LinearAlgebraicRepresentation.Points, cc::LinearAlgebraicRepresentation.ChainComplex)::String
-    assert(length(cc) == 2)
+function lar2obj2D(V::Lar.Points, cc::Lar.ChainComplex)::String
+    @assert length(cc) == 2
     copEV, copFE = cc
     V = [V zeros(size(V, 1))]
 
-    obj = ""
+    global obj = ""
     for v in 1:size(V, 1)
-        obj = string(obj, "v ", 
-        	round(V[v, 1], 6), " ", 
-        	round(V[v, 2], 6), " ", 
-        	round(V[v, 3], 6), "\n")
+        	global obj = string(obj, "v ", 
+        	round(V[v, 1]; digits=6), " ", 
+        	round(V[v, 2]; digits=6), " ", 
+        	round(V[v, 3]; digits=6), "\n")
     end
 
     triangulated_faces = triangulate2D(V, cc)
@@ -761,21 +766,21 @@ end
 
 
 """ 
-	triangulate2D(V::LinearAlgebraicRepresentation.Points, 
-			cc::LinearAlgebraicRepresentation.ChainComplex)::Array{Any, 1}
+	triangulate2D(V::Lar.Points, 
+			cc::Lar.ChainComplex)::Array{Any, 1}
 
 Compute a *CDT* for each face of a `ChainComplex`. Return an `Array` of triangles.
 """
-function triangulate2D(V::LinearAlgebraicRepresentation.Points, cc::LinearAlgebraicRepresentation.ChainComplex)::Array{Any, 1}
+function triangulate2D(V::Lar.Points, cc::Lar.ChainComplex)::Array{Any, 1}
     copEV, copFE = cc
-    triangulated_faces = Array{Any, 1}(copFE.m)
+    triangulated_faces = Array{Any, 1}(undef, copFE.m)
 	
     for f in 1:copFE.m       
         edges_idxs = copFE[f, :].nzind
         edge_num = length(edges_idxs)
         edges = Array{Int64,1}[] #zeros(Int64, edge_num, 2)
 
-        fv = LinearAlgebraicRepresentation.buildFV(copEV, copFE[f, :])
+        fv = Lar.buildFV(copEV, copFE[f, :])
         vs = V[fv, :]
         
         for i in 1:length(fv)
@@ -785,12 +790,13 @@ function triangulate2D(V::LinearAlgebraicRepresentation.Points, cc::LinearAlgebr
             push!(edges,edge::Array{Int64,1})
         end
         edges = hcat(edges...)'
+        edges = convert(Array{Int64,2}, edges)
         
         triangulated_faces[f] = Triangle.constrained_triangulation(
         vs, fv, edges, fill(true, edge_num))
         tV = V[:, 1:2]
         
-        area = LinearAlgebraicRepresentation.face_area(tV, copEV, copFE[f, :])
+        area = Lar.face_area(tV, copEV, copFE[f, :])
         if area < 0 
             for i in 1:length(triangulated_faces[f])
                 triangulated_faces[f][i] = triangulated_faces[f][i][end:-1:1]

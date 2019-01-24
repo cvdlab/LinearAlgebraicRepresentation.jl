@@ -69,9 +69,9 @@ With default values, i.e. `circle()()`, return the whole circonference of unit r
 ```julia 
 julia> W,CW = LinearAlgebraicRepresentation.circle()();
 
-julia> using LARVIEW
+julia> using Plasm
 
-julia> LARVIEW.view(W, CW)
+julia> Plasm.view(W, CW)
 ```
 """
 function circle(radius=1., angle=2*pi)
@@ -97,9 +97,9 @@ julia> V, CV = LinearAlgebraicRepresentation.helix(.1, .1, 10)()
 # output
 ([0.1 0.0984808 … 0.0984808 0.1; 0.0 0.0173648 … -0.0173648 0.0; 0.0 0.0027778 … 0.997222 1.0], Array{Int64,1}[[1, 2], [2, 3], [3, 4], [4, 5], [5, 6], [6, 7], [7, 8], [8, 9], [9, 10], [10, 11]  …  [351, 352], [352, 353], [353, 354], [354, 355], [355, 356], [356, 357], [357, 358], [358, 359], [359, 360], [360, 361]])
 
-julia> using LARVIEW
+julia> using Plasm
 
-julia> LARVIEW.view(V, CV)
+julia> Plasm.view(V, CV)
 ```
 """
 function helix(radius=1., pitch=1., nturns=2)
@@ -126,9 +126,9 @@ julia> LinearAlgebraicRepresentation.disk()()
 # output
 ([0.0 0.5 … 0.939693 0.984808; 0.0 0.0 … -0.34202 -0.173648], Array{Int64,1}[[1, 2, 3], [1, 3, 4], [1, 4, 5], [1, 5, 6], [1, 6, 7], [1, 7, 8], [1, 8, 9], [1, 9, 10], [1, 10, 11], [1, 11, 12]  …  [33, 34, 69], [34, 69, 70], [34, 35, 70], [35, 70, 71], [35, 36, 71], [36, 71, 72], [36, 37, 72], [37, 72, 73], [37, 2, 73], [2, 73, 38]])
 
-julia> using LARVIEW
+julia> using Plasm
 
-julia> LARVIEW.view(LinearAlgebraicRepresentation.disk()())
+julia> Plasm.view(LinearAlgebraicRepresentation.disk()())
 ```
 """
 function disk(radius=1., angle=2*pi)
@@ -152,9 +152,9 @@ Compute an approximation of the helicoid surface in 3D, with basis on ``z=0`` pl
 
 # Example
 ```julia
-julia> using LARVIEW
+julia> using Plasm
 
-julia>  LARVIEW.view(LinearAlgebraicRepresentation.helicoid()())
+julia>  Plasm.view(LinearAlgebraicRepresentation.helicoid()())
 ```
 """
 function helicoid(R=1., r=0.5, pitch=1., nturns=2)
@@ -179,9 +179,9 @@ Compute the cellular 2-complex approximating a (possibly full) sector of a non-c
 
 # Example
 ```julia
-julia> using LARVIEW
+julia> using Plasm
 
-julia> LARVIEW.view(LinearAlgebraicRepresentation.ring()())
+julia> Plasm.view(LinearAlgebraicRepresentation.ring()())
 ```
 """
 function ring(r=1., R=2., angle=2*pi)
@@ -205,9 +205,9 @@ Compute a cellular 2-complex, approximation of a right circular cylindrical surf
 
 # Example
 ```julia
-julia> using LARVIEW
+julia> using Plasm
 
-julia> LARVIEW.view(LinearAlgebraicRepresentation.cylinder()())
+julia> Plasm.view(LinearAlgebraicRepresentation.cylinder()())
 ```
 """
 function cylinder(radius=.5, height=2., angle=2*pi)
@@ -232,9 +232,9 @@ Compute a cellular 2-complex, approximation of the two-dimensional closed surfac
 
 # Example
 ```julia
-julia> using LARVIEW
+julia> using Plasm
 
-julia> LARVIEW.view(LinearAlgebraicRepresentation.sphere()())
+julia> Plasm.view(LinearAlgebraicRepresentation.sphere()())
 ```
 """
 @enum surface triangled=1 single=2
@@ -268,9 +268,9 @@ It can be constructed from a rectangle by gluing both pairs of opposite edges to
 
 # Example
 ```julia
-julia> using LARVIEW
+julia> using Plasm
 
-julia> LARVIEW.view(LinearAlgebraicRepresentation.toroidal()())
+julia> Plasm.view(LinearAlgebraicRepresentation.toroidal()())
 ```
 """
 function toroidal(r=1., R=2., angle1=2*pi, angle2=2*pi)
@@ -296,9 +296,9 @@ This open surface is generated as an "half-torus", providing only the external s
 
 # Example
 ```julia
-julia> using LARVIEW
+julia> using Plasm
 
-julia> LARVIEW.view(LinearAlgebraicRepresentation.crown()())
+julia> Plasm.view(LinearAlgebraicRepresentation.crown()())
 ```
 """
 function crown(r=1., R=2., angle=2*pi)
@@ -341,9 +341,9 @@ julia> V, (VV, EV, FV, CV) = LinearAlgebraicRepresentation.cuboid([1,1,1], true)
 
 julia> assemby = LinearAlgebraicRepresentation.Struct([ (V, EV), LinearAlgebraicRepresentation.t(1,0,0), (V, CV) ])
 
-julia> using LARVIEW
+julia> using Plasm
 
-julia> LARVIEW.view(LinearAlgebraicRepresentation.struct2lar(assemby))
+julia> Plasm.view(LinearAlgebraicRepresentation.struct2lar(assemby))
 ```
 """
 function cuboid(maxpoint::Array, full=false, 	
@@ -365,9 +365,9 @@ Generate a cell decomposition of a *solid 3-sphere* in ``R^3``.
 The variable `shape` provides the domain decomposition. Empty cells are removed after the *Cartesian -> Polar* coordinate mapping.
 # Example
 ```julia
-julia> using LARVIEW
+julia> using Plasm
 
-julia> LARVIEW.view(LinearAlgebraicRepresentation.ball()())
+julia> Plasm.view(LinearAlgebraicRepresentation.ball()())
 ```
 """
 function ball(radius=1, angle1=pi, angle2=2*pi)
@@ -405,9 +405,9 @@ julia> LinearAlgebraicRepresentation.rod()()[2]
 1-element Array{Array{Int64, 1}, 1}:
  [0, 1, 2, 3, 4, 5, 6, 7, 8, 9  …  64, 65, 66, 67, 68, 69, 70, 71, 72, 73]
 
-julia> using LARVIEW
+julia> using Plasm
 
-julia> LARVIEW.view(LinearAlgebraicRepresentation.rod()())
+julia> Plasm.view(LinearAlgebraicRepresentation.rod()())
 ```
 """
 function rod(radius=1., height=3., angle=2*pi)
@@ -428,9 +428,9 @@ internal axial hole. The model is meshed with cubical 3-cells.
 
 # Example
 ```julia
-julia> using LARVIEW
+julia> using Plasm
 
-julia> LARVIEW.view(LinearAlgebraicRepresentation.hollowCyl()())
+julia> Plasm.view(LinearAlgebraicRepresentation.hollowCyl()())
 ```
 """
 function hollowCyl(r=1., R=2., height=6., angle=2*pi)
@@ -457,9 +457,9 @@ Compute the cellular 3-complex approximating a 3-sphere. The model is meshed wit
 ```julia
 julia> V, CV = LinearAlgebraicRepresentation.hollowBall(1, 2, pi/2, pi/2)([6, 12, 4]);
 
-julia> using LARVIEW
+julia> using Plasm
 
-julia> LARVIEW.view(V, CV)
+julia> Plasm.view(V, CV)
 ...
 ```
 
@@ -487,9 +487,9 @@ Compute the cellular 3-complex approximating the solid torus in 3D. The model is
 
 # Example
 ```julia
-julia> using LARVIEW
+julia> using Plasm
 
-julia> LARVIEW.view(LinearAlgebraicRepresentation.torus(1., 2., .5, pi, pi)())
+julia> Plasm.view(LinearAlgebraicRepresentation.torus(1., 2., .5, pi, pi)())
 ```
 """
 function torus(r=1., R=2., h=.5, angle1=2*pi, angle2=2*pi)
@@ -527,9 +527,9 @@ end
 #1-element Array{Array{Int64,1},1}:
 # [1, 2, 3, 4, 5, 6, 7, 8, 9, 10  …  240, 241, 242, 243, 244, 245, 246, 247, 248, 249]
 #
-#julia> using LARVIEW
+#julia> using Plasm
 #
-#julia> LARVIEW.view(model)
+#julia> Plasm.view(model)
 #```
 #"""
 #function pizza(r=.1, R=1., angle=pi)

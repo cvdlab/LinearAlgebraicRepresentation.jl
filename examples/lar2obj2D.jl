@@ -1,7 +1,7 @@
 
 using DataStructures
 using LinearAlgebraicRepresentation
-using LARVIEW
+using Plasm
 Lar = LinearAlgebraicRepresentation
 
 ###	Data:  1D complex embedded in 2D 
@@ -15,23 +15,26 @@ EV = Array{Int64,1}[[1, 2], [3, 4], [5, 6], [7, 8], [9, 10], [11, 12], [13, 14],
 ###	execution 
 #####################################################################
 
-using LARVIEW
+using Plasm
 
 V,bases,coboundaries = Lar.chaincomplex(V,EV)
-LARVIEW.view(V,bases[1])
+V = convert(Lar.Points,V)
+Plasm.view(V,bases[1])
+Plasm.view(V,bases[2])
 
 ev,fv=bases
 VV = [[k] for k=1:size(V,2)]
 model = (V, [VV,ev,fv])
-LARVIEW.view(LARVIEW.numbering(80.)(model))
+Plasm.view(Plasm.numbering(80.)(model))
 
-objs = lar2obj2D(V'::Lar.Points, [coboundaries...])  #va in errore
+objs = Lar.lar2obj2D(convert(Lar.Points,V'), [coboundaries...])  
 open("./villa.obj", "w") do f
 	write(f, objs)
 end
 
-V,(EV,FV) = obj2lar2D("./villa.obj")
+V,(EV,FV) = Lar.obj2lar2D("./villa.obj")
 
-LARVIEW.view(V',EV)
-LARVIEW.view(V',FV)
+V = convert(Lar.Points,V')
+Plasm.view(V,EV)
+Plasm.view(V,FV)
 

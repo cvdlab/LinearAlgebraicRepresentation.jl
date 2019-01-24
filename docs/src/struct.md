@@ -148,23 +148,23 @@ struct01 = L.struct2lar(L.Struct( repeat([ struct0, L.t(0,2.5) ], outer = 10) ))
 scene = L.struct2lar(L.Struct( repeat([ struct01, L.t(3,0) ], outer = 10) ));
 ```
 
-To see the generated 2D scene you need the `LARVIEW` module.
+To see the generated 2D scene you need the `Plasm` module.
 
 ```julia
-using LARVIEW
-LARVIEW.view(scene[1],scene[2])
-LARVIEW.view(scene[1],scene[3])
+using Plasm
+Plasm.view(scene[1],scene[2])
+Plasm.view(scene[1],scene[3])
 ```
 
 A different example provides a `sphere`, and a `cylinder` instance suitably translated, within the same `Struct` container. Of course, we could define a hierarchical assembly of any size and deep, containing any number of `Struct` nodes.
 
 !!! warning
-    2D surfaces embedded in 3D are normally displayed in `LARVIEW` as made of unoriented 2-cells. In order to get a better dispaly, the user should press the `t` or `T` keys on the keyboard.
+    2D surfaces embedded in 3D are normally displayed in `Plasm` as made of unoriented 2-cells. In order to get a better dispaly, the user should press the `t` or `T` keys on the keyboard.
 
 ```julia
 assembly = L.Struct([L.sphere()(), L.t(3,0,-1), L.cylinder()()])
-using LARVIEW
-LARVIEW.view(L.struct2lar(assembly))
+using Plasm
+Plasm.view(L.struct2lar(assembly))
 ```
 
 
@@ -175,14 +175,14 @@ LARVIEW.view(L.struct2lar(assembly))
 
 ### Coding of 3D `refectory` assembly
 
-The `refectory` model shown in Figure 1 is stepwise developed here. Of course, in order to display the various *geometric models*, the `LARVIEW` package is needed.
+The `refectory` model shown in Figure 1 is stepwise developed here. Of course, in order to display the various *geometric models*, the `Plasm` package is needed.
 
 ```julia
 using LinearAlgebraicRepresentation
 L = LinearAlgebraicRepresentation
 
-using LARVIEW
-View = LARVIEW.view
+using Plasm
+View = Plasm.view
 ```
 ![](./images/parts.png)
 > **Figure 4:** The generation process of the `refectory` assembly shown in Figure 1.

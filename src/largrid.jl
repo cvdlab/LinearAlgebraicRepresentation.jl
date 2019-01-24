@@ -227,9 +227,9 @@ julia> cellGrid = larCellProd([c1, c1, c0])
 julia> grid3D = vertGrid,cellGrid
 ([0.0 0.0 … 3.0 3.0; 0.0 0.0 … 3.0 3.0; 0.0 1.0 … 1.0 2.0], Array{Int64,1}[[1, 4, 13, 16], [2, 5, 14, 17], … [32, 35, 44, 47], [33, 36, 45, 48]])
 
-julia> using LARVIEW
+julia> using Plasm
 
-julia> LARVIEW.view(grid3D)
+julia> Plasm.view(grid3D)
 ```
 """
 function larCellProd(cellLists::Array{Cells,1})::Cells
