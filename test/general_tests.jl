@@ -1,4 +1,5 @@
 using Test
+using LinearAlgebraicRepresentation
 Lar = LinearAlgebraicRepresentation
 include("../src/LinearAlgebraicRepresentation.jl")
 
