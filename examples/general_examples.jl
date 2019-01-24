@@ -1,4 +1,5 @@
 using LinearAlgebraicRepresentation
+Lar = LinearAlgebraicRepresentation
 
 function generate_perpendicular_lines(steps::Int, minlen, maxlen)
     V = zeros(0,2)
@@ -87,48 +88,48 @@ function rubiks_example(ncubes = 3)
         0  0  0  1 -1  0  0  1  0  0  0 -1;
     ])
 
-    cube = [LinearAlgebraicRepresentation.Points(V), EV, FE]
-    cubesRow = [LinearAlgebraicRepresentation.Points(zeros(0,3)),spzeros(Int8,0,0),spzeros(Int8,0,0)]
+    cube = [Lar.Points(V), EV, FE]
+    cubesRow = [Lar.Points(zeros(0,3)),spzeros(Int8,0,0),spzeros(Int8,0,0)]
 
     println(map(typeof, cube))
     println(map(typeof, cubesRow))
 
 
     for i in 1:ncubes
-        cubesRow = LinearAlgebraicRepresentation.skel_merge(cubesRow..., cube...)
-        cube[1] = LinearAlgebraicRepresentation.Points(cube[1] + [zeros(8) zeros(8) ones(8)])
+        cubesRow = Lar.skel_merge(cubesRow..., cube...)
+        cube[1] = Lar.Points(cube[1] + [zeros(8) zeros(8) ones(8)])
     end
 
     cubesRow = collect(cubesRow)
     cubesPlane = cubesRow
     num = size(cubesRow[1], 1)
     for i in 1:ncubes
-        cubesPlane = LinearAlgebraicRepresentation.skel_merge(cubesPlane..., cubesRow...)
-        cubesRow[1] = LinearAlgebraicRepresentation.Points(cubesRow[1] + [zeros(num) ones(num) zeros(num)])
+        cubesPlane = Lar.skel_merge(cubesPlane..., cubesRow...)
+        cubesRow[1] = Lar.Points(cubesRow[1] + [zeros(num) ones(num) zeros(num)])
     end
 
     cubesPlane = collect(cubesPlane)
     cubesCube = cubesPlane
     num = size(cubesPlane[1], 1)
     for i in 1:ncubes
-        cubesCube = LinearAlgebraicRepresentation.skel_merge(cubesCube..., cubesPlane...)
-        cubesPlane[1] = LinearAlgebraicRepresentation.Points(cubesPlane[1] + [ones(num) zeros(num) zeros(num)])
+        cubesCube = Lar.skel_merge(cubesCube..., cubesPlane...)
+        cubesPlane[1] = Lar.Points(cubesPlane[1] + [ones(num) zeros(num) zeros(num)])
     end
 
     println("Arranging a cube of ", ncubes^3," cubes...")
-    rubik = LinearAlgebraicRepresentation.spatial_arrangement(cubesCube...)
+    rubik = Lar.spatial_arrangement(cubesCube...)
     println("DONE")
 
-    rubik = LinearAlgebraicRepresentation.Points(rubik[1] - (.5*ncubes)), rubik[2:3]...
+    rubik = Lar.Points(rubik[1] - (.5*ncubes)), rubik[2:3]...
     c = cos(pi/6); s = sin(pi/6)
     M1 = [1  0 0; 0 c -s; 0 s c]
     M2 = [c -s 0; s c  0; 0 0 1]
-    rot_rubik = LinearAlgebraicRepresentation.Points(rubik[1]*M1*M2), rubik[2:3]...
+    rot_rubik = Lar.Points(rubik[1]*M1*M2), rubik[2:3]...
 
     println("Arranging two rubik cubes...")
-    two_rubiks = LinearAlgebraicRepresentation.skel_merge(rubik..., rot_rubik...)
+    two_rubiks = Lar.skel_merge(rubik..., rot_rubik...)
     println("DONE")
 
-    arranged_rubiks = LinearAlgebraicRepresentation.spatial_arrangement(two_rubiks...)
+    arranged_rubiks = Lar.spatial_arrangement(two_rubiks...)
 end
 

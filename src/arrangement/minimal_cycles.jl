@@ -1,4 +1,6 @@
-function minimal_2cycles(V::LinearAlgebraicRepresentation.Points, EV::LinearAlgebraicRepresentation.ChainOp)
+Lar = LinearAlgebraicRepresentation
+
+function minimal_2cycles(V::Lar.Points, EV::Lar.ChainOp)
 
     function edge_angle(v::Int, e::Int)
         edge = EV[e, :]
@@ -11,14 +13,14 @@ function minimal_2cycles(V::LinearAlgebraicRepresentation.Points, EV::LinearAlge
         j = min(EV[i,:].nzind...)
         EV[i, j] = -1
     end
-    VE = convert(LinearAlgebraicRepresentation.ChainOp, SparseArrays.transpose(EV))
+    VE = convert(Lar.ChainOp, SparseArrays.transpose(EV))
 
-    EF = LinearAlgebraicRepresentation.Arrangement.minimal_cycles(edge_angle)(V, VE)
+    EF = Lar.Arrangement.minimal_cycles(edge_angle)(V, VE)
 
-    return convert(LinearAlgebraicRepresentation.ChainOp, SparseArrays.transpose(EF))
+    return convert(Lar.ChainOp, SparseArrays.transpose(EF))
 end
 
-function minimal_3cycles(V::LinearAlgebraicRepresentation.Points, EV::LinearAlgebraicRepresentation.ChainOp, FE::LinearAlgebraicRepresentation.ChainOp)
+function minimal_3cycles(V::Lar.Points, EV::Lar.ChainOp, FE::Lar.ChainOp)
 
     triangulated_faces = Array{Any, 1}(undef, FE.m)
     
@@ -85,19 +87,19 @@ function minimal_3cycles(V::LinearAlgebraicRepresentation.Points, EV::LinearAlge
     
 
     #EF = FE'
-    EF = convert(LinearAlgebraicRepresentation.ChainOp, LinearAlgebra.transpose(FE))
+    EF = convert(Lar.ChainOp, LinearAlgebra.transpose(FE))
 
-    FC = LinearAlgebraicRepresentation.Arrangement.minimal_cycles(face_angle, true)(V, EF)
+    FC = Lar.Arrangement.minimal_cycles(face_angle, true)(V, EF)
 
 	#FC'
-    return -convert(LinearAlgebraicRepresentation.ChainOp, LinearAlgebra.transpose(FC))
+    return -convert(Lar.ChainOp, LinearAlgebra.transpose(FC))
 end
 
 
 function minimal_cycles(angles_fn::Function, verbose=false)
 
-    function _minimal_cycles(V::LinearAlgebraicRepresentation.Points, 
-    ld_bounds::LinearAlgebraicRepresentation.ChainOp)
+    function _minimal_cycles(V::Lar.Points, 
+    ld_bounds::Lar.ChainOp)
     
         lld_cellsnum, ld_cellsnum = size(ld_bounds)
         count_marks = zeros(Int8, ld_cellsnum)

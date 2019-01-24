@@ -63,6 +63,8 @@ This one can be applied to 0-, 1-, 2-, ... simplicial `model`, to get a 1-, 2-, 
 The input and output `model` are a LAR model, i.e. a pair `(vertices, cells)`, whereas `pattern` is an array of `Int64`, to be used as lateral measures of the *extruded* model. Note that `pattern` elements are assumed as either *solid* or *empty* measures, according to their (+/-) sign.
 
 ```julia
+julia> Lar = LinearAlgebraicRepresentation
+
 julia> V = [[0,0] [1,0] [2,0] [0,1] [1,1] [2,1] [0,2] [1,2] [2,2]]
 2×9 Array{Int64,2}:
  0  1  2  0  1  2  0  1  2
@@ -85,7 +87,7 @@ julia> model = (V,FV)
 ([0 1 2 0 1 2 0 1 2; 0 0 0 1 1 1 2 2 2], 
 Array{Int64,1}[[1, 2, 4], [2, 3, 5], [3, 5, 6], [4, 5, 7], [5, 7, 8], [6, 8, 9]])
 
-julia> W,FW = LinearAlgebraicRepresentation.extrudeSimplicial(model, pattern)
+julia> W,FW = Lar.extrudeSimplicial(model, pattern)
 
 julia> W
 3×117 Array{Int64,2}:
@@ -111,19 +113,19 @@ julia> Plasm.view(W,FW)
 Generate a simplicial complex decomposition of a cubical grid of ``d``-cuboids, where ``d`` is the length of `shape=[``n_1, n_2, ..., n_d``]` array, so that `shape` defines the grid dimension ``d`` and size ``n_1 \times n_2 \times ... \times n_d``  as a ``d``-dimensional array of *cubes*. Vertices (0-cells) of the grid have `Int64` coordinates.
 
 ```julia
-julia> LinearAlgebraicRepresentation.simplexGrid([0]) # 0-dimensional simplicial complex
+julia> Lar.simplexGrid([0]) # 0-dimensional simplicial complex
 # output
 ([0], Array{Int64,1}[])
 
-julia> V,EV = LinearAlgebraicRepresentation.simplexGrid([1]) # 1-dimensional simplicial complex
+julia> V,EV = Lar.simplexGrid([1]) # 1-dimensional simplicial complex
 # output
 ([0 1], Array{Int64,1}[[1, 2]])
 
-julia> V,FV = LinearAlgebraicRepresentation.simplexGrid([1,1]) # 2-dimensional simplicial complex
+julia> V,FV = Lar.simplexGrid([1,1]) # 2-dimensional simplicial complex
 # output
 ([0 1 0 1; 0 0 1 1], Array{Int64,1}[[1, 2, 3], [2, 3, 4]])
 
-julia> V,CV = LinearAlgebraicRepresentation.simplexGrid([10,10,1]) # 3-dimensional simplicial complex
+julia> V,CV = Lar.simplexGrid([10,10,1]) # 3-dimensional simplicial complex
 # output
 ([0 1 … 9 10; 0 0 … 10 10; 0 0 … 1 1], Array{Int64,1}[[1, 2, 12, 122], [2, 12, 122, 123], [12, 122, 123, 133], [2, 12, 13, 123], [12, 13, 123, 133], [13, 123, 133, 134], [2, 3, 13, 123], [3, 13, 123, 124], [13, 123, 124, 134], [3, 13, 14, 124]  …  [119, 229, 230, 240], [109, 119, 120, 230], [119, 120, 230, 240], [120, 230, 240, 241], [109, 110, 120, 230], [110, 120, 230, 231], [120, 230, 231, 241], [110, 120, 121, 231], [120, 121, 231, 241], [121, 231, 241, 242]])
 
@@ -154,17 +156,17 @@ Each of the ``d+1`` facets of of a ``d``-simplex ``\sigma^d``, obtained by remov
 
 
 ```julia
-julia> V,FV = LinearAlgebraicRepresentation.simplexGrid([1,1]) # 2-dimensional complex
+julia> V,FV = Lar.simplexGrid([1,1]) # 2-dimensional complex
 # output
 ([0 1 0 1; 0 0 1 1], Array{Int64,1}[[1, 2, 3], [2, 3, 4]])
 
 julia> Plasm.view(V,FV)
 
-julia> W,CW = LinearAlgebraicRepresentation.extrudeSimplicial((V,FV), [1])
+julia> W,CW = Lar.extrudeSimplicial((V,FV), [1])
 ([0.0 1.0 … 0.0 1.0; 0.0 0.0 … 1.0 1.0; 0.0 0.0 … 1.0 1.0], 
 Array{Int64,1}[[1,2,3,5],[2,3,5,6],[3,5,6,7],[2,3,4,6],[3,4,6,7],[4,6,7,8]])
 
-julia> FW = LinearAlgebraicRepresentation.simplexFacets(CW)
+julia> FW = Lar.simplexFacets(CW)
 18-element Array{Any,1}:
 [[1,3,5],[5,6,7],[3,5,7],[3,6,7],[4,6,7],[4,7,8],[4,6,8],
 [6,7,8],[3,5,6],[2,3,5],[2,3,4],[3,4,7],[1,2,3],[2,4,6],[2,5,6],
@@ -178,13 +180,13 @@ julia> Plasm.view(W,FW)
 ## Main Interface
 
 ```@docs
-LinearAlgebraicRepresentation.simplexGrid
+Lar.simplexGrid
 ```
 
 ```@docs
-LinearAlgebraicRepresentation.simplexFacets
+Lar.simplexFacets
 ```
 
 ```@docs
-LinearAlgebraicRepresentation.extrudeSimplicial
+Lar.extrudeSimplicial
 ```

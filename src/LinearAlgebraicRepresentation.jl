@@ -7,6 +7,7 @@ module LinearAlgebraicRepresentation
 	using SparseArrays
 	using LinearAlgebra
 	using Distributed
+	Lar = LinearAlgebraicRepresentation
    
 	"""
 		Points = Array{Number,2}

@@ -1,20 +1,21 @@
 using LinearAlgebraicRepresentation
+Lar = LinearAlgebraicRepresentation
 using Test
 using SparseArrays
 
 @testset "interface.jl file Tests" begin
 	@testset "characteristicMatrix Tests" begin
-		V,(VV,EV,FV,CV) = LinearAlgebraicRepresentation.cuboid([1.,1.,1.], true); 
-		@test Matrix(LinearAlgebraicRepresentation.characteristicMatrix(FV)) == [
+		V,(VV,EV,FV,CV) = Lar.cuboid([1.,1.,1.], true); 
+		@test Matrix(Lar.characteristicMatrix(FV)) == [
 		 1  1  1  1  0  0  0  0;
 		 0  0  0  0  1  1  1  1;
 		 1  1  0  0  1  1  0  0;
 		 0  0  1  1  0  0  1  1;
 		 1  0  1  0  1  0  1  0;
 		 0  1  0  1  0  1  0  1]
-		@test size(LinearAlgebraicRepresentation.characteristicMatrix(CV))==(1,8)
-		@test typeof(LinearAlgebraicRepresentation.characteristicMatrix(CV))==SparseMatrixCSC{Int8,Int64}
-		@test Matrix(LinearAlgebraicRepresentation.characteristicMatrix(EV)) == [
+		@test size(Lar.characteristicMatrix(CV))==(1,8)
+		@test typeof(Lar.characteristicMatrix(CV))==SparseMatrixCSC{Int8,Int64}
+		@test Matrix(Lar.characteristicMatrix(EV)) == [
 		 1  1  0  0  0  0  0  0;
 		 0  0  1  1  0  0  0  0;
 		 0  0  0  0  1  1  0  0;
@@ -27,13 +28,13 @@ using SparseArrays
 		 0  1  0  0  0  1  0  0;
 		 0  0  1  0  0  0  1  0;
 		 0  0  0  1  0  0  0  1]
-		@test size(LinearAlgebraicRepresentation.characteristicMatrix(EV))==(12,8)
-		@test typeof(LinearAlgebraicRepresentation.characteristicMatrix(EV))==SparseMatrixCSC{Int8,Int64}
+		@test size(Lar.characteristicMatrix(EV))==(12,8)
+		@test typeof(Lar.characteristicMatrix(EV))==SparseMatrixCSC{Int8,Int64}
 	end
 
 	@testset "signed_boundary_1 Tests" begin
-		V,(VV,EV,FV,CV) = LinearAlgebraicRepresentation.cuboid([1.,1.,1.], true);
-		signed_boundary_1 = LinearAlgebraicRepresentation.boundary_1( EV::LinearAlgebraicRepresentation.Cells )
+		V,(VV,EV,FV,CV) = Lar.cuboid([1.,1.,1.], true);
+		signed_boundary_1 = Lar.boundary_1( EV::Lar.Cells )
 
 		@test EV==[[1, 2], [3, 4], [5, 6], [7, 8], [1, 3], [2, 4], [5, 7], 
 			[6, 8], [1, 5], [2, 6], [3, 7], [4, 8]]
@@ -43,7 +44,7 @@ using SparseArrays
 		@test typeof(signed_boundary_1)==SparseMatrixCSC{Int8,Int64}
 		@test nnz(signed_boundary_1)==24
 
-		@test Matrix(LinearAlgebraicRepresentation.boundary_1(EV::LinearAlgebraicRepresentation.Cells))==[
+		@test Matrix(Lar.boundary_1(EV::Lar.Cells))==[
 		 -1   0   0   0  -1   0   0   0  -1   0   0   0;
 		  1   0   0   0   0  -1   0   0   0  -1   0   0;
 		  0  -1   0   0   1   0   0   0   0   0  -1   0;
@@ -55,8 +56,8 @@ using SparseArrays
 	end
 
 	@testset "unsigned_coboundary_1 Tests" begin
-		V,(VV,EV,FV,CV) = LinearAlgebraicRepresentation.cuboid([1.,1.,1.], true);
-		unsigned_coboundary_1 = LinearAlgebraicRepresentation.u_coboundary_1(FV,EV)
+		V,(VV,EV,FV,CV) = Lar.cuboid([1.,1.,1.], true);
+		unsigned_coboundary_1 = Lar.u_coboundary_1(FV,EV)
 
 		@test size(unsigned_coboundary_1)==(6,12)
 		@test nnz(unsigned_coboundary_1)==24
@@ -72,8 +73,8 @@ using SparseArrays
 	 end
 
 	@testset "signed_coboundary_1 Tests" begin
-		V,(VV,EV,FV,CV) = LinearAlgebraicRepresentation.cuboid([1.,1.,1.], true);
-		signed_coboundary_1 = LinearAlgebraicRepresentation.coboundary_1( FV,EV );
+		V,(VV,EV,FV,CV) = Lar.cuboid([1.,1.,1.], true);
+		signed_coboundary_1 = Lar.coboundary_1( FV,EV );
 
 		@test size(signed_coboundary_1)==(6,12)
 		@test typeof(signed_coboundary_1)==SparseMatrixCSC{Int8,Int64}
@@ -97,7 +98,7 @@ using SparseArrays
 	[[1, 2],[2, 3],[3, 4],[5, 6],[6, 7],[7, 8],[9, 10],[10, 11],[11, 12],[13, 14],
 	 [14, 15],[15, 16],[1, 5],[2, 6],[3, 7],[4, 8],[5, 9],[6, 10],[7, 11],[8, 12],
 	 [9, 13],[10, 14],[11, 15],[12, 16]]
-	V,bases,coboundaries = LinearAlgebraicRepresentation.chaincomplex(W,EW)
+	V,bases,coboundaries = Lar.chaincomplex(W,EW)
 
 	@test length(bases[1])==24	# edges
 	@test typeof(bases[1])==Array{Array{Int64,1},1}	# edges
@@ -131,13 +132,13 @@ end
 #		[[1,2,3,4],[5,6,7,8],[1,2,5,6],[3,4,7,8],[1,3,5,7],[2,4,6,8]], 
 #		[[1,2],[3,4],[5,6],[7,8],[1,3],[2,4],[5,7],[6,8],[1,5],[2,6],[3,7],[4,8]] )
 #	
-#		cube_2 = LinearAlgebraicRepresentation.Struct(
-#			[LinearAlgebraicRepresentation.t(
-#			0,0,0.5), LinearAlgebraicRepresentation.r(0,0,pi/3), cube_1])
-#		V,FV,EV = LinearAlgebraicRepresentation.struct2lar(
-#			LinearAlgebraicRepresentation.Struct([ cube_1, cube_2 ]))
+#		cube_2 = Lar.Struct(
+#			[Lar.t(
+#			0,0,0.5), Lar.r(0,0,pi/3), cube_1])
+#		V,FV,EV = Lar.struct2lar(
+#			Lar.Struct([ cube_1, cube_2 ]))
 #			
-#		V,bases,coboundaries = LinearAlgebraicRepresentation.chaincomplex(V,FV,EV)
+#		V,bases,coboundaries = Lar.chaincomplex(V,FV,EV)
 #		(EV, FV, CV), (cscEV, cscFE, cscCF) = bases,coboundaries
 #
 #		@test typeof(FV)==Array{Array{Int64,1},1} # bases[2]

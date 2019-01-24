@@ -1,3 +1,4 @@
+Lar = LinearAlgebraicRepresentation
 using DataStructures
 
 
@@ -120,11 +121,11 @@ julia> larVertProd([ larGrid(3)(0), larGrid(4)(0) ])
 ```
 """
 function larVertProd(vertLists::Array{Array{Int64,2},1})::Array{Int64,2}
-   coords = [[x[1] for x in v] for v in LinearAlgebraicRepresentation.cart(vertLists)]
+   coords = [[x[1] for x in v] for v in Lar.cart(vertLists)]
    return sortslices(hcat(coords...), dims=2)
 end
 function larVertProd(vertLists::Array{Array{Float64,2},1})::Array{Float64,2}
-   coords = [[x[1] for x in v] for v in LinearAlgebraicRepresentation.cart(vertLists)]
+   coords = [[x[1] for x in v] for v in Lar.cart(vertLists)]
    return sortslices(hcat(coords...), dims=2)
 end
 
@@ -263,7 +264,7 @@ julia> filterByOrder(3)
  Array{Int8,1}[Int8[1, 1, 1]]                              
 ```"""
 function filterByOrder(n::Int)Array{Array{Array{Int8,1},1},1}
-   terms = [[parse(Int8,bit) for bit in collect(term)] for term in LinearAlgebraicRepresentation.binaryRange(n)]
+   terms = [[parse(Int8,bit) for bit in collect(term)] for term in Lar.binaryRange(n)]
    return [[term for term in terms if sum(term) == k] for k in 0:n]
 end
 
@@ -279,22 +280,22 @@ Produce the `d`-dimensional skeleton (set of `d`-cells) of a cuboidal grid of gi
 A `shape=[1,1,1]` parameter refers to a *grid* with a single step on the three axes, i.e. to a single *3D unit cube*. Below all *skeletons* of such simplest grid are generated.
 
 ```julia
-julia> LinearAlgebraicRepresentation.larGridSkeleton([1,1,1])(0)
+julia> Lar.larGridSkeleton([1,1,1])(0)
 # output
 8-element Array{Array{Int64,1},1}:
 [[1], [2], [3], [4], [5], [6], [7], [8]]
 
-julia> LinearAlgebraicRepresentation.larGridSkeleton([1,1,1])(1)
+julia> Lar.larGridSkeleton([1,1,1])(1)
 # output
 12-element Array{Array{Int64,1},1}:
 [[1,2],[3,4],[5,6],[7,8],[1,3],[2,4],[5,7],[6,8],[1,5],[2,6],[3,7],[4,8]]
 
-julia> LinearAlgebraicRepresentation.larGridSkeleton([1,1,1])(2)
+julia> Lar.larGridSkeleton([1,1,1])(2)
 # output
 6-element Array{Array{Int64,1},1}:
 [[1,2,3,4], [5,6,7,8], [1,2,5,6], [3,4,7,8], [1,3,5,7], [2,4,6,8]]
 
-julia> LinearAlgebraicRepresentation.larGridSkeleton([1,1,1])(3)
+julia> Lar.larGridSkeleton([1,1,1])(3)
 # output
 1-element Array{Array{Int64,1},1}:
  [1, 2, 3, 4, 5, 6, 7, 8]

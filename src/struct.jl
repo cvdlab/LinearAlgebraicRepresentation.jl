@@ -1,3 +1,5 @@
+Lar = LinearAlgebraicRepresentation
+
 """
 	t(args::Array{Number,1}...)::Matrix
 
@@ -13,7 +15,7 @@ julia> t(1,2)			# 2D translation
  0.0  1.0  2.0
  0.0  0.0  1.0
 
-julia> LinearAlgebraicRepresentation.t(1.,2,3)		# 3D translation
+julia> Lar.t(1.,2,3)		# 3D translation
 # return
 4×4 Array{Float64,2}:
  1.0  0.0  0.0  1.0
@@ -40,14 +42,14 @@ Return an *affine transformation Matrix* in homogeneous coordinates. Such `scali
 # Examples
 
 ```julia
-julia> LinearAlgebraicRepresentation.s(2,3)			# 2D scaling
+julia> Lar.s(2,3)			# 2D scaling
 # return
 3×3 Array{Float64,2}:
  2.0  0.0  0.0
  0.0  3.0  0.0
  0.0  0.0  1.0
 
-julia> LinearAlgebraicRepresentation.s(2.,3.,4.)		# 3D scaling
+julia> Lar.s(2.,3.,4.)		# 3D scaling
 # return
 4×4 Array{Float64,2}:
  2.0  0.0  0.0  0.0
@@ -74,14 +76,14 @@ The `{Number,1}` of `args` either contain a single `angle` parameter in *radiant
 # Examples
 
 ```julia
-julia> LinearAlgebraicRepresentation.r(pi/6)				# 2D rotation of ``π/6`` angle
+julia> Lar.r(pi/6)				# 2D rotation of ``π/6`` angle
 # return
 3×3 Array{Float64,2}:
  0.866025  -0.5       0.0
  0.5        0.866025  0.0
  0.0        0.0       1.0
 
-julia> LinearAlgebraicRepresentation.r(0,0,pi/4)
+julia> Lar.r(0,0,pi/4)
 # return
 4×4 Array{Float64,2}:		# 3D rotation about the ``z`` axis, with ``π/6`` angle
  0.707107  -0.707107  0.0  0.0
@@ -89,7 +91,7 @@ julia> LinearAlgebraicRepresentation.r(0,0,pi/4)
  0.0        0.0       1.0  0.0
  0.0        0.0       0.0  1.0
  
-julia> LinearAlgebraicRepresentation.r(1,1,1)		# 3D rotation about the ``x=y=z`` axis, with angle ``1.7320508`` angle
+julia> Lar.r(1,1,1)		# 3D rotation about the ``x=y=z`` axis, with angle ``1.7320508`` angle
 # return
 4×4 Array{Float64,2}:
   0.226296  -0.183008   0.956712  0.0
@@ -167,7 +169,7 @@ julia> L = LinearAlgebraicRepresentation;
 
 julia> assembly = L.Struct([L.sphere()(), L.t(3,0,-1), L.cylinder()()])
 # return
-LinearAlgebraicRepresentation.Struct(Any[([0.0 -0.173648 … -0.336824 -0.17101; 0.0 0.0 … 0.0593912 0.0301537;
+Lar.Struct(Any[([0.0 -0.173648 … -0.336824 -0.17101; 0.0 0.0 … 0.0593912 0.0301537;
 -1.0 -0.984808 … 0.939693 0.984808], Array{Int64,1}[[2, 3, 1], [4, 2, 3], [4, 3, 5], [4,
 5, 6], [7, 5, 6], [7, 8, 6], [7, 9, 8], … , [1.0 0.0 0.0 3.0; 0.0 1.0 0.0 0.0; 0.0 0.0 1.0
 -1.0; 0.0 0.0 0.0 1.0], ([0.5 0.5 … 0.492404 0.492404; 0.0 0.0 … -0.0868241 -0.0868241;
@@ -182,7 +184,7 @@ julia> assembly.name = "simple example"
 
 julia> assembly
 # return
-LinearAlgebraicRepresentation.Struct(Any[([0.0 -0.173648 … -0.336824 -0.17101; 0.0 0.0 … 0.0593912 0.0301537;
+Lar.Struct(Any[([0.0 -0.173648 … -0.336824 -0.17101; 0.0 0.0 … 0.0593912 0.0301537;
 -1.0 -0.984808 … 0.939693 0.984808], Array{Int64,1}[[2, 3, 1], [4, 2, 3], [4, 3, 5], [4,
 5, 6], [7, 5, 6], [7, 8, 6], … , [71, 2, 72, 1]])], Array{Float64,2}[[-1.0; -1.0; -1.0],
 [3.5; 1.0; 1.0]], "simple example", 3, "feature")
@@ -273,7 +275,7 @@ end
 
 """
 function struct2lar(structure)
-	listOfModels = LinearAlgebraicRepresentation.evalStruct(structure)
+	listOfModels = Lar.evalStruct(structure)
 	vertDict= Dict()
 	index,defaultValue,W,FW,EW = 0,0,Array{Float64,1}[],Array{Int64,1}[],Array{Int64,1}[]
 	
@@ -287,7 +289,7 @@ function struct2lar(structure)
 		for incell in FV
 			outcell=[]
 			for v in incell
-				key = map(LinearAlgebraicRepresentation.approxVal(7), V[:,v])
+				key = map(Lar.approxVal(7), V[:,v])
 				if get(vertDict,key,defaultValue)==defaultValue
 					index += 1
                    	vertDict[key]=index
@@ -306,7 +308,7 @@ function struct2lar(structure)
 			for incell in EV
 				outcell=[]
 				for v in incell
-					key = map(LinearAlgebraicRepresentation.approxVal(7), V[:,v])
+					key = map(Lar.approxVal(7), V[:,v])
 					if get(vertDict,key,defaultValue)==defaultValue
 						index += 1
 						vertDict[key]=index

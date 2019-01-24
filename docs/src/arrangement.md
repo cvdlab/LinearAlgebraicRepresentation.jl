@@ -11,13 +11,13 @@ This operation can be seen as a boolean union of two cellular complexes. Here an
 
 ## API
 
-Every function strictly relative to the arrangement has been collected in the `LinearAlgebraicRepresentation.Arrangement` sub-module but the two main functions are accessible directly from the `LinearAlgebraicRepresentation` namespace.
+Every function strictly relative to the arrangement has been collected in the `Lar.Arrangement` sub-module but the two main functions are accessible directly from the `LinearAlgebraicRepresentation` namespace.
 !!! warning
-    `LinearAlgebraicRepresentation.Arrangement` is the only place in `LinearAlgebraicRepresentation` where `Point` matrices store points per row and not per column as described in the documentation of `LinearAlgebraicRepresentation.Points`
+    `Lar.Arrangement` is the only place in `LinearAlgebraicRepresentation` where `Point` matrices store points per row and not per column as described in the documentation of `Lar.Points`
 
 ```@docs
-LinearAlgebraicRepresentation.spatial_arrangement
-LinearAlgebraicRepresentation.planar_arrangement
+Lar.spatial_arrangement
+Lar.planar_arrangement
 ```
 
 !!! note

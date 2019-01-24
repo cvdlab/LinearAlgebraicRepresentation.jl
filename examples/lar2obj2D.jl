@@ -1,8 +1,7 @@
-
 using DataStructures
 using LinearAlgebraicRepresentation
-using Plasm
 Lar = LinearAlgebraicRepresentation
+using Plasm
 
 ###	Data:  1D complex embedded in 2D 
 #####################################################################
@@ -37,4 +36,6 @@ V,(EV,FV) = Lar.obj2lar2D("./villa.obj")
 V = convert(Lar.Points,V')
 Plasm.view(V,EV)
 Plasm.view(V,FV)
+
+
 

@@ -1,4 +1,5 @@
 using DataStructures
+Lar = LinearAlgebraicRepresentation
 
 cuboidGrid = larCuboids
 
@@ -67,7 +68,7 @@ With default values, i.e. `circle()()`, return the whole circonference of unit r
 
 # Example
 ```julia 
-julia> W,CW = LinearAlgebraicRepresentation.circle()();
+julia> W,CW = Lar.circle()();
 
 julia> using Plasm
 
@@ -93,7 +94,7 @@ Compute the approximate elix curve in three-dimensional space, with basis on ``z
 
 # Example
 ```julia
-julia> V, CV = LinearAlgebraicRepresentation.helix(.1, .1, 10)()
+julia> V, CV = Lar.helix(.1, .1, 10)()
 # output
 ([0.1 0.0984808 … 0.0984808 0.1; 0.0 0.0173648 … -0.0173648 0.0; 0.0 0.0027778 … 0.997222 1.0], Array{Int64,1}[[1, 2], [2, 3], [3, 4], [4, 5], [5, 6], [6, 7], [7, 8], [8, 9], [9, 10], [10, 11]  …  [351, 352], [352, 353], [353, 354], [354, 355], [355, 356], [356, 357], [357, 358], [358, 359], [359, 360], [360, 361]])
 
@@ -122,13 +123,13 @@ Compute the cellular complex approximating a circular sector of 2D disk centered
 
 # Example
 ```julia
-julia> LinearAlgebraicRepresentation.disk()()
+julia> Lar.disk()()
 # output
 ([0.0 0.5 … 0.939693 0.984808; 0.0 0.0 … -0.34202 -0.173648], Array{Int64,1}[[1, 2, 3], [1, 3, 4], [1, 4, 5], [1, 5, 6], [1, 6, 7], [1, 7, 8], [1, 8, 9], [1, 9, 10], [1, 10, 11], [1, 11, 12]  …  [33, 34, 69], [34, 69, 70], [34, 35, 70], [35, 70, 71], [35, 36, 71], [36, 71, 72], [36, 37, 72], [37, 72, 73], [37, 2, 73], [2, 73, 38]])
 
 julia> using Plasm
 
-julia> Plasm.view(LinearAlgebraicRepresentation.disk()())
+julia> Plasm.view(Lar.disk()())
 ```
 """
 function disk(radius=1., angle=2*pi)
@@ -154,7 +155,7 @@ Compute an approximation of the helicoid surface in 3D, with basis on ``z=0`` pl
 ```julia
 julia> using Plasm
 
-julia>  Plasm.view(LinearAlgebraicRepresentation.helicoid()())
+julia>  Plasm.view(Lar.helicoid()())
 ```
 """
 function helicoid(R=1., r=0.5, pitch=1., nturns=2)
@@ -181,7 +182,7 @@ Compute the cellular 2-complex approximating a (possibly full) sector of a non-c
 ```julia
 julia> using Plasm
 
-julia> Plasm.view(LinearAlgebraicRepresentation.ring()())
+julia> Plasm.view(Lar.ring()())
 ```
 """
 function ring(r=1., R=2., angle=2*pi)
@@ -207,7 +208,7 @@ Compute a cellular 2-complex, approximation of a right circular cylindrical surf
 ```julia
 julia> using Plasm
 
-julia> Plasm.view(LinearAlgebraicRepresentation.cylinder()())
+julia> Plasm.view(Lar.cylinder()())
 ```
 """
 function cylinder(radius=.5, height=2., angle=2*pi)
@@ -234,7 +235,7 @@ Compute a cellular 2-complex, approximation of the two-dimensional closed surfac
 ```julia
 julia> using Plasm
 
-julia> Plasm.view(LinearAlgebraicRepresentation.sphere()())
+julia> Plasm.view(Lar.sphere()())
 ```
 """
 @enum surface triangled=1 single=2
@@ -270,7 +271,7 @@ It can be constructed from a rectangle by gluing both pairs of opposite edges to
 ```julia
 julia> using Plasm
 
-julia> Plasm.view(LinearAlgebraicRepresentation.toroidal()())
+julia> Plasm.view(Lar.toroidal()())
 ```
 """
 function toroidal(r=1., R=2., angle1=2*pi, angle2=2*pi)
@@ -298,7 +299,7 @@ This open surface is generated as an "half-torus", providing only the external s
 ```julia
 julia> using Plasm
 
-julia> Plasm.view(LinearAlgebraicRepresentation.crown()())
+julia> Plasm.view(Lar.crown()())
 ```
 """
 function crown(r=1., R=2., angle=2*pi)
@@ -325,11 +326,11 @@ Return a ``d``-dimensional cube, where ``d`` is the common length of arrays `min
 If `flag=true` the cells of all dimensions (between 1 and ``d``) are generated.
 
 ```julia
-julia> LinearAlgebraicRepresentation.cuboid([-0.5, -0.5])
+julia> Lar.cuboid([-0.5, -0.5])
 # output
 ([0.0 0.0 -0.5 -0.5; 0.0 -0.5 0.0 -0.5], Array{Int64,1}[[1, 2, 3, 4]])
 
-julia> LinearAlgebraicRepresentation.cuboid([-0.5, -0.5, 0], true)
+julia> Lar.cuboid([-0.5, -0.5, 0], true)
 # output
 ([0.0 0.0 … -0.5 -0.5; 0.0 0.0 … -0.5 -0.5; 0.0 0.0 … 0.0 0.0],
 Array{Array{Int64,1},1}[Array{Int64,1}[[1], [2], [3], [4], [5], [6], [7], [8]],
@@ -337,13 +338,13 @@ Array{Int64,1}[[1, 2], [3, 4], [5, 6], [7, 8], [1, 3], [2, 4], [5, 7], [6, 8], [
 6], [3, 7], [4, 8]], Array{Int64,1}[[1, 2, 3, 4], [5, 6, 7, 8], [1, 2, 5, 6], [3, 4, 7,
 8], [1, 3, 5, 7], [2, 4, 6, 8]], Array{Int64,1}[[1, 2, 3, 4, 5, 6, 7, 8]]])
 
-julia> V, (VV, EV, FV, CV) = LinearAlgebraicRepresentation.cuboid([1,1,1], true);
+julia> V, (VV, EV, FV, CV) = Lar.cuboid([1,1,1], true);
 
-julia> assemby = LinearAlgebraicRepresentation.Struct([ (V, EV), LinearAlgebraicRepresentation.t(1,0,0), (V, CV) ])
+julia> assemby = Lar.Struct([ (V, EV), Lar.t(1,0,0), (V, CV) ])
 
 julia> using Plasm
 
-julia> Plasm.view(LinearAlgebraicRepresentation.struct2lar(assemby))
+julia> Plasm.view(Lar.struct2lar(assemby))
 ```
 """
 function cuboid(maxpoint::Array, full=false, 	
@@ -367,7 +368,7 @@ The variable `shape` provides the domain decomposition. Empty cells are removed 
 ```julia
 julia> using Plasm
 
-julia> Plasm.view(LinearAlgebraicRepresentation.ball()())
+julia> Plasm.view(Lar.ball()())
 ```
 """
 function ball(radius=1, angle1=pi, angle2=2*pi)
@@ -393,21 +394,21 @@ Compute a cellular 3-complex with a *single* 3-cell starting from a cyclindrical
 
 # Example
 ```julia
-julia> LinearAlgebraicRepresentation.rod()()[1]
+julia> Lar.rod()()[1]
 # output
 3×74 Array{Float64, 2}:
  -0.34202   0.984808   1.0          1.0  …   0.984808  -0.866025  -1.0           0.766044
   0.939693  0.173648  -2.44929e-16  0.0     -0.173648  -0.5        1.22465e-16  -0.642788
   3.0       3.0        0.0          0.0      0.0        3.0        3.0           0.0     
 
-julia> LinearAlgebraicRepresentation.rod()()[2]
+julia> Lar.rod()()[2]
 # output
 1-element Array{Array{Int64, 1}, 1}:
  [0, 1, 2, 3, 4, 5, 6, 7, 8, 9  …  64, 65, 66, 67, 68, 69, 70, 71, 72, 73]
 
 julia> using Plasm
 
-julia> Plasm.view(LinearAlgebraicRepresentation.rod()())
+julia> Plasm.view(Lar.rod()())
 ```
 """
 function rod(radius=1., height=3., angle=2*pi)
@@ -430,7 +431,7 @@ internal axial hole. The model is meshed with cubical 3-cells.
 ```julia
 julia> using Plasm
 
-julia> Plasm.view(LinearAlgebraicRepresentation.hollowCyl()())
+julia> Plasm.view(Lar.hollowCyl()())
 ```
 """
 function hollowCyl(r=1., R=2., height=6., angle=2*pi)
@@ -455,7 +456,7 @@ Compute the cellular 3-complex approximating a 3-sphere. The model is meshed wit
 
 # Example
 ```julia
-julia> V, CV = LinearAlgebraicRepresentation.hollowBall(1, 2, pi/2, pi/2)([6, 12, 4]);
+julia> V, CV = Lar.hollowBall(1, 2, pi/2, pi/2)([6, 12, 4]);
 
 julia> using Plasm
 
@@ -489,7 +490,7 @@ Compute the cellular 3-complex approximating the solid torus in 3D. The model is
 ```julia
 julia> using Plasm
 
-julia> Plasm.view(LinearAlgebraicRepresentation.torus(1., 2., .5, pi, pi)())
+julia> Plasm.view(Lar.torus(1., 2., .5, pi, pi)())
 ```
 """
 function torus(r=1., R=2., h=.5, angle1=2*pi, angle2=2*pi)

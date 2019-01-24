@@ -67,46 +67,46 @@ julia> FV = [[1,2,3]]
 julia> P = V,FV
 ([0.0 1.0 0.0; 0.0 0.0 1.0; 0.0 0.0 0.0], Array{Int64,1}[[1, 2, 3]])
 
-julia> LinearAlgebraicRepresentation.II(P, 0,0,0)
+julia> Lar.II(P, 0,0,0)
 0.5
 ```
 Then, more interesting examples are given. First, the surface of the affinely transformed (rotated and translated) unit square:
 
 ```julia
-julia> V,FV = LinearAlgebraicRepresentation.simplexGrid([1,1])
+julia> V,FV = Lar.simplexGrid([1,1])
 ([0.0 1.0 0.0 1.0; 0.0 0.0 1.0 1.0], Array{Int64,1}[[1, 2, 3], [2, 3, 4]])
 
 julia> P = [V;[0 0 0 0]], FV
 ([0.0 1.0 0.0 1.0; 0.0 0.0 1.0 1.0; 0.0 0.0 0.0 0.0], 
 Array{Int64,1}[[1, 2, 3], [2, 3, 4]])
 
-julia> LinearAlgebraicRepresentation.surface(P)
+julia> Lar.surface(P)
 1.0
 
-julia> p = LinearAlgebraicRepresentation.Struct([LinearAlgebraicRepresentation.t(0.5,0.5,0), LinearAlgebraicRepresentation.r(0,0,pi/4), P]);
+julia> p = Lar.Struct([Lar.t(0.5,0.5,0), Lar.r(0,0,pi/4), P]);
 
-julia> q = LinearAlgebraicRepresentation.struct2lar(p);
+julia> q = Lar.struct2lar(p);
 
-julia> LinearAlgebraicRepresentation.surface(q)
+julia> Lar.surface(q)
 1.0000000532124802
 ```
 Then, the surface and the barycenter  of the simplicial grid `3 x 4` of unit 2-cells on the ``z=0`` plane is computed. Notice that the  `centroid` function cannot be used, since `P` is two-dimensional (flat) and embedded in 3-space. So, we use directly the centroid definition as first surface moments divided by area. Remember that the grid domain is ``3 x 4``.
 
 ```julia
-julia> V,FV = LinearAlgebraicRepresentation.simplexGrid([3,4]);
+julia> V,FV = Lar.simplexGrid([3,4]);
 
 julia> P = [V; zeros(size(V,2))'], FV;
 
-julia> LinearAlgebraicRepresentation.surface(P)
+julia> Lar.surface(P)
 12.0
 
-julia> LinearAlgebraicRepresentation.II(P,1,0,0)/LinearAlgebraicRepresentation.II(P,0,0,0)
+julia> Lar.II(P,1,0,0)/Lar.II(P,0,0,0)
 1.5
 
-julia> LinearAlgebraicRepresentation.II(P,0,1,0)/LinearAlgebraicRepresentation.II(P,0,0,0)
+julia> Lar.II(P,0,1,0)/Lar.II(P,0,0,0)
 2.0
 
-julia> LinearAlgebraicRepresentation.II(P,0,0,1)/LinearAlgebraicRepresentation.II(P,0,0,0)
+julia> Lar.II(P,0,0,1)/Lar.II(P,0,0,0)
 0.0
 ```
 
@@ -133,7 +133,7 @@ julia> P = V,FV
 ([0.0 1.0 0.0 0.0; 0.0 0.0 1.0 0.0; 0.0 0.0 0.0 1.0], 
 Array{Int64,1}[[1, 2, 4], [1, 3, 2], [4, 3, 1], [2, 3, 4]])
 
-julia> LinearAlgebraicRepresentation.volume(P)
+julia> Lar.volume(P)
 0.16666666666666674
 ```
 
@@ -144,13 +144,13 @@ and apply the 3D integration functions on the LAR of such models.
 ## Main Interface
 
 ```@docs
-LinearAlgebraicRepresentation.surface
+Lar.surface
 ```
 
 ```@docs
-LinearAlgebraicRepresentation.volume
+Lar.volume
 ```
 
 ```@docs
-LinearAlgebraicRepresentation.centroid
+Lar.centroid
 ```

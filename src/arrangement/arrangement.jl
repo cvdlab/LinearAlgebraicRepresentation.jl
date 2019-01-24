@@ -6,6 +6,7 @@ module Arrangement
 	using SparseArrays
 	using LinearAlgebra    
 	using Distributed    
+	Lar = LinearAlgebraicRepresentation
 
     include("./minimal_cycles.jl")
     include("./dimension_travel.jl")
