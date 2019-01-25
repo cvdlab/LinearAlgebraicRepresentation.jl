@@ -87,13 +87,13 @@ module LinearAlgebraicRepresentation
 
 
 	"""
-		LAR = Tuple{Points,Cells}
+		LAR = Union{ Tuple{Points, Cells},Tuple{Points, Cells, Cells} }
 	
 	Alias declation of LAR-specific data structure.
 	`LAR` is a pair (*Geometry*, *Topology*), where *Geometry* is stored as 
 	`Points`, and *Topology* is stored as `Cells`. 
 	"""
-	const LAR = Tuple{Points,Cells}
+	const LAR = Union{ Tuple{Points, Cells},Tuple{Points, Cells, Cells} }
    
    
    include("./interface.jl")
