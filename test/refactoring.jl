@@ -1,6 +1,7 @@
 using LinearAlgebraicRepresentation
 using Plasm
 Lar = LinearAlgebraicRepresentation
+using IntervalTrees
 
 """
 	input_collection(data::Array)::Tuple
@@ -116,17 +117,77 @@ end
 
 
 """
+	spaceindex()::
+	
+Generation of *space indexes* for all ``(d-1)``-dim members of `model`.
+
+# Example 3D
+
+```julia
+V,FV,EV = model3d
+
+
+```
+"""
+function spaceindex(model::Lar.LAR)
+	V,CV = model[1:2]
+	dim = size(V,1)
+	@assert length(model) == dim  #n. chains == dim space
+	
+	if dim == 3 
+		xs,ys,zs = indexing(model)
+	elseif dim == 2 
+		xs,ys = indexing(model)
+	end
+	
+	function bbox(vertices::Lar.Points)
+	   minimum = mapslices(x->min(x...), vertices, dims=2)
+	   maximum = mapslices(x->max(x...), vertices, dims=2)
+	   return minimum, maximum
+	end
+	
+	spatialindex = []
+	for (k,sigma) in enumerate(CV)
+		Sigma = [k]
+		facepoints = V[:,sigma]
+		vmin, vmax = bbox(facepoints)
+		
+		xquery = intersect( xs::IntervalTree, (vmin[1], vmax[1]) )
+		xqs = [xint.value for xint in xquery]
+		yquery = intersect( ys::IntervalTree, (vmin[2], vmax[2]) )
+		yqs = [yint.value for yint in yquery]
+		
+		if dim == 3 
+			zquery = intersect( zs::IntervalTree, (vmin[3], vmax[3]) )
+			zqs = [zint.value for zint in zquery]
+			xyzs = intersect(xqs,yqs,zqs)
+		elseif dim == 2 
+			xyzs = intersect(xqs,yqs)
+		end
+		
+		I_sigma = sort(xyzs)
+		append!(Sigma, I_sigma)		
+		push!(spatialindex,Sigma)
+	end
+	return spatialindex
+end
+
+
+
+"""
 	decomposition()::
 	
 Pairwise z = 0 *intersection* of *line segments* in ``σ ∪ I(σ)``, for each ``σ ∈ Sd−1``.
 
-# Example
+# Example 3D
 
 ```julia
-julia> 
+V,FV,EV = model3d
+
+
 ```
 """
-function decomposition(model2d::Lar.LAR)::Array{Lar.LAR}
+function decomposition(model::Lar.LAR)
 
 end
 
