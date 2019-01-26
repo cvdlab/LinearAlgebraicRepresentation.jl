@@ -117,19 +117,30 @@ end
 
 
 """
-	spaceindex()::
+	spaceindex(model::Lar.LAR)::Array{Array{Int,1},1}
 	
 Generation of *space indexes* for all ``(d-1)``-dim members of `model`.
+`model` input must be a pair for 2d LAR, and a triple for 3d LAR.
+The return value is an array of arrays if int indexes of 2-, 3-cells, possibly
+intersecting the first one.
+
+# Example 2D
+
+```julia
+model = model2d
+Sigma =  spaceindex(model2d);
+typeof(Sigma) = Array{Array{Int,1},1}
+```
 
 # Example 3D
 
 ```julia
-V,FV,EV = model3d
-
-
+model = model3d
+Sigma =  spaceindex(model3d);
+typeof(Sigma) = Array{Array{Int,1},1}
 ```
 """
-function spaceindex(model::Lar.LAR)
+function spaceindex(model::Lar.LAR)::Array{Array{Int,1},1}
 	V,CV = model[1:2]
 	dim = size(V,1)
 	@assert length(model) == dim  #n. chains == dim space
