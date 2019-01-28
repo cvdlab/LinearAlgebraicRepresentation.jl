@@ -1,8 +1,7 @@
 # LinearAlgebraicRepresentation.jl
-
-[![Build Status](https://img.shields.io/travis/cvdlab/LinearAlgebraicRepresentation.jl/master.svg?label=Linux+/+macOS)](https://travis-ci.org/cvdlab/LinearAlgebraicRepresentation.jl)
-[![Window build status](https://ci.appveyor.com/api/projects/status/6hjh8qx2u4asr73a/branch/master?svg=true)](https://ci.appveyor.com/project/furio/linearalgebraicrepresentation-jl/branch/master)
-[![Coverage Status](https://coveralls.io/repos/github/cvdlab/LinearAlgebraicRepresentation.jl/badge.svg?branch=master)](https://coveralls.io/github/cvdlab/LinearAlgebraicRepresentation.jl?branch=master)
+[![Build Status](https://travis-ci.org/cvdlab/LinearAlgebraicRepresentation.jl.svg?branch=julia-0.6)](https://travis-ci.org/cvdlab/LinearAlgebraicRepresentation.jl)
+[![Window build status](https://ci.appveyor.com/api/projects/status/6hjh8qx2u4asr73a/branch/julia-0.6?svg=true)](https://ci.appveyor.com/project/furio/linearalgebraicrepresentation-jl/branch/julia-0.6)
+[![Coverage Status](https://coveralls.io/repos/github/cvdlab/LinearAlgebraicRepresentation.jl/badge.svg?branch=julia-0.6)](https://coveralls.io/github/cvdlab/LinearAlgebraicRepresentation.jl?branch=julia-0.6)
 [![Read the Docs](https://img.shields.io/readthedocs/pip.svg)](https://cvdlab.github.io/LinearAlgebraicRepresentation.jl/)
 [![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fcvdlab%2FLinearAlgebraicRepresentation.jl.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2Fcvdlab%2FLinearAlgebraicRepresentation.jl?ref=badge_shield)
 
@@ -15,7 +14,7 @@ Official Julia implementation of [LAR](http://dx.doi.org/10.1016/j.cad.2013.08.0
 
 ## Installing
 
-Just run `Pkg.clone("https://github.com/cvdlab/LinearAlgebraicRepresentation.jl")` within a Julia console, and then run `Pkg.build("LinearAlgebraicRepresentation.jl")`.
+Just run `Pkg.add("LinearAlgebraicRepresentation.jl")`.
 
 ## Documentation
 
