@@ -1,4 +1,4 @@
-# Lar.jl
+# LinearAlgebraicRepresentation.jl
 
 [![Build Status](https://travis-ci.org/cvdlab/LinearAlgebraicRepresentation.jl.svg?branch=master)](https://travis-ci.org/cvdlab/LinearAlgebraicRepresentation.jl)
 [![Window build status](https://ci.appveyor.com/api/projects/status/6hjh8qx2u4asr73a/branch/master?svg=true)](https://ci.appveyor.com/project/furio/linearalgebraicrepresentation-jl/branch/master)
@@ -28,5 +28,5 @@ Go to [the documentation page](https://cvdlab.github.io/LinearAlgebraicRepresent
 
 ## Authors
 * [Giulio Martella](https://github.com/giuliom95)
-* [Francesco Furiani](https://github.com/furio)
 * [Alberto Paoluzzi](https://github.com/apaoluzzi)
+* [Francesco Furiani](https://github.com/furio)
