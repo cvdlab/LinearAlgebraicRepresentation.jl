@@ -159,11 +159,11 @@ function u_coboundary_1( FV::Lar.Cells, EV::Lar.Cells)::Lar.ChainOp
 	I,J,V = Int64[],Int64[],Int8[]
 	for j=1:size(temp,2)
 		for i=1:size(temp,1)
-		if temp[i,j] == 2
-			push!(I,i)
-			push!(J,j)
-			push!(V,1)
-		end
+			if temp[i,j] == 2
+				push!(I,i)
+				push!(J,j)
+				push!(V,1)
+			end
 		end
 	end
 	sp_u_coboundary_1 = sparse(I,J,V)

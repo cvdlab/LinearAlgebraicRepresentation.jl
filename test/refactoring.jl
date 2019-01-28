@@ -119,10 +119,12 @@ end
 """
 	spaceindex(model::Lar.LAR)::Array{Array{Int,1},1}
 	
-Generation of *space indexes* for all ``(d-1)``-dim members of `model`.
+Generation of *space indexes* for all ``(d-1)``-dim cell members of `model`.
 `model` input must be a pair for 2d LAR, and a triple for 3d LAR.
-The return value is an array of arrays if int indexes of 2-, 3-cells, possibly
-intersecting the first one.
+The return value is an array of arrays of `int`s, indexing 2-, 3-cells whose 
+containment boxes are intersecting the containment box of the first cell. 
+According to Hoffmann, Hopcroft, and Karasick (1989) the worst-case complexity of
+Boolean ops on such complexes equates the total sum of such numbers. 
 
 # Example 2D
 
@@ -194,12 +196,41 @@ Pairwise z = 0 *intersection* of *line segments* in ``σ ∪ I(σ)``, for each `
 
 ```julia
 V,FV,EV = model3d
-
+model = model3d
 
 ```
 """
 function decomposition(model::Lar.LAR)
+	V,FV,EV = model
+	dim = size(V,1)
+	spatialindex = spaceindex(model)
+	
+	function submanifoldmap(vs)
+		centroid = [sum(vs[k,:]) for k=1:size(vs,1)]/size(vs,2)
+		# u1, u2 always independent
+		u1 = normalize( centroid - vs[:,1] )
+		u2 = normalize( vs[:,2] - vs[:,1] )
+		u3 = normalize(cross(u1, u2))
+		# u1, u2, u3 orthonormal
+		u1 = cross(u2, u3)
+		T = Matrix{Float64}(LinearAlgebra.I, 4, 4)
+		T[1:3,4] = - vs[:,1]
+		R = Matrix{Float64}(LinearAlgebra.I, 4, 4)
+		R[1:3, 1:3] = [u1 u2 u3]'
+		return R*T  # roto-translation matrix
+	end
 
+	for Sigma in spatialindex
+		sigma = Sigma[1]
+		if dim == 3
+			# transform Sigma s.t. Sigma[1], i.e. sigma, -> z=0
+			vs = V[:, CV[sigma]]
+			Q = submanifoldmap(vs)
+			vq = Q * [vs; ones(1, size(vs,2))]
+			v2d = vq[1:2,:]
+	
+		end
+	end
 end
 
 
