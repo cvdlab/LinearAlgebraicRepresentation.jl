@@ -1,10 +1,12 @@
 push!(LOAD_PATH,"../src/")
 
 using Documenter, LinearAlgebraicRepresentation
+Lar = LinearAlgebraicRepresentation
+
 
 makedocs(
 	format = :html,
-	sitename = "LinearAlgebraicRepresentation.jl",
+	sitename = "Lar.jl",
 	assets = ["assets/lar.css", "assets/logo.png"],
 	pages = [
 		"Home" => "index.md",

@@ -1,3 +1,5 @@
+Lar = LinearAlgebraicRepresentation
+
 function frag_face_channel(in_chan, out_chan, V, EV, FE, sp_idx)
     run_loop = true
     while run_loop
@@ -24,7 +26,7 @@ function frag_face(V, EV, FE, sp_idx, sigma)
     for i in sp_idx[sigma]
         tmpV, tmpEV = face_int(tV, EV, FE[i, :])
         
-        sV, sEV = LinearAlgebraicRepresentation.skel_merge(sV, sEV, tmpV, tmpEV)
+        sV, sEV = Lar.skel_merge(sV, sEV, tmpV, tmpEV)
     end
     
     sV = sV[:, 1:2]
@@ -41,23 +43,24 @@ function frag_face(V, EV, FE, sp_idx, sigma)
     return nV, nEV, nFE
 end
 
-function merge_vertices(V::LinearAlgebraicRepresentation.Points, EV::LinearAlgebraicRepresentation.ChainOp, FE::LinearAlgebraicRepresentation.ChainOp, err=1e-4)
+function merge_vertices(V::Lar.Points, EV::Lar.ChainOp, FE::Lar.ChainOp, err=1e-4)
     vertsnum = size(V, 1)
     edgenum = size(EV, 1)
     facenum = size(FE, 1)
     newverts = zeros(Int, vertsnum)
     # KDTree constructor needs an explicit array of Float64
     V = Array{Float64,2}(V)
-    kdtree = KDTree(V')
+    W = convert(Lar.Points, LinearAlgebra.transpose(V))
+    kdtree = KDTree(W)
 
-    todelete = []
+    global todelete = []
     
     i = 1
     for vi in 1:vertsnum
         if !(vi in todelete)
-            nearvs = LinearAlgebraicRepresentation.inrange(kdtree, V[vi, :], err)
+            nearvs = Lar.inrange(kdtree, V[vi, :], err)
     
-            newverts[nearvs] = i
+            newverts[nearvs] .= i
     
             nearvs = setdiff(nearvs, vi)
             todelete = union(todelete, nearvs)
@@ -68,8 +71,8 @@ function merge_vertices(V::LinearAlgebraicRepresentation.Points, EV::LinearAlgeb
     
     nV = V[setdiff(collect(1:vertsnum), todelete), :]
     
-    edges = Array{Tuple{Int, Int}, 1}(edgenum)
-    oedges = Array{Tuple{Int, Int}, 1}(edgenum)
+    edges = Array{Tuple{Int, Int}, 1}(undef, edgenum)
+    oedges = Array{Tuple{Int, Int}, 1}(undef, edgenum)
     
     for ei in 1:edgenum
         v1, v2 = EV[ei, :].nzind
@@ -87,7 +90,10 @@ function merge_vertices(V::LinearAlgebraicRepresentation.Points, EV::LinearAlgeb
     etuple2idx = Dict{Tuple{Int, Int}, Int}()
     
     for ei in 1:nedgenum
-        nEV[ei, collect(nedges[ei])] = 1
+    	begin
+        	nEV[ei, collect(nedges[ei])] .= 1
+        	nEV
+        end
         etuple2idx[nedges[ei]] = ei
     end
     
@@ -123,7 +129,7 @@ function merge_vertices(V::LinearAlgebraicRepresentation.Points, EV::LinearAlgeb
         end
     end
     
-    return LinearAlgebraicRepresentation.Points(nV), nEV, nFE
+    return Lar.Points(nV), nEV, nFE
 end
 
 
@@ -139,42 +145,48 @@ The function returns the full arranged complex as a list of vertices V and a cha
 ## Additional arguments:
 - `multiproc::Bool`: Runs the computation in parallel mode. Defaults to `false`.
 """
-function spatial_arrangement(V::LinearAlgebraicRepresentation.Points, EV::LinearAlgebraicRepresentation.ChainOp, FE::LinearAlgebraicRepresentation.ChainOp, multiproc::Bool=false)
+function spatial_arrangement(
+V::Lar.Points, 
+EV::Lar.ChainOp, 
+FE::Lar.ChainOp, multiproc::Bool=false)
 
     fs_num = size(FE, 1)
-    sp_idx = spatial_index(V, EV, FE)
+    sp_idx = Lar.Arrangement.spatial_index(V, EV, FE)
 
-    rV = LinearAlgebraicRepresentation.Points(0,3)
-    rEV = spzeros(Int8,0,0)
-    rFE = spzeros(Int8,0,0)
+    global rV = Lar.Points(undef, 0,3)
+    global rEV = SparseArrays.spzeros(Int8,0,0)
+    global rFE = SparseArrays.spzeros(Int8,0,0)
 
     if (multiproc == true)
-        in_chan = RemoteChannel(()->Channel{Int64}(0))
-        out_chan = RemoteChannel(()->Channel{Tuple}(0))
+        in_chan = Distributed.RemoteChannel(()->Channel{Int64}(0))
+        out_chan = Distributed.RemoteChannel(()->Channel{Tuple}(0))
         
-        @schedule begin
+        @async begin
             for sigma in 1:fs_num
                 put!(in_chan, sigma)
             end
-            for p in workers()
+            for p in Distributed.workers()
                 put!(in_chan, -1)
             end
         end
         
-        for p in workers()
+        for p in Distributed.workers()
             @async Base.remote_do(
                 frag_face_channel, p, in_chan, out_chan, V, EV, FE, sp_idx)
         end
         
         for sigma in 1:fs_num
-            rV, rEV, rFE = LinearAlgebraicRepresentation.skel_merge(rV, rEV, rFE, take!(out_chan)...)
+            rV, rEV, rFE = Lar.skel_merge(rV, rEV, rFE, take!(out_chan)...)
         end
         
     else
         for sigma in 1:fs_num
             # print(sigma, "/", fs_num, "\r")
-            nV, nEV, nFE = frag_face(V, EV, FE, sp_idx, sigma)
-            rV, rEV, rFE = LinearAlgebraicRepresentation.skel_merge(rV, rEV, rFE, nV, nEV, nFE)
+            nV, nEV, nFE = Lar.Arrangement.frag_face(
+            	V, EV, FE, sp_idx, sigma)
+            a,b,c = Lar.skel_merge(
+            	rV, rEV, rFE, nV, nEV, nFE)
+            global rV=a; global rEV=b; global rFE=c
         end
         
     end

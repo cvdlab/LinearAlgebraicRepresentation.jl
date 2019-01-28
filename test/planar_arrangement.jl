@@ -1,9 +1,13 @@
-using Base.Test
+using Test
+using SparseArrays
+using LinearAlgebra
 using LinearAlgebraicRepresentation
+using LinearAlgebraicRepresentation.Arrangement
+Lar = LinearAlgebraicRepresentation
 
 @testset "Edge fragmentation tests" begin
     V = [2 2; 4 2; 3 3.5; 1 3; 5 3; 1 2; 5 2]
-    EV = sparse(Array{Int8, 2}([
+    EV = SparseArrays.sparse(Array{Int8, 2}([
         [1 1 0 0 0 0 0] #1->1,2
         [0 1 1 0 0 0 0] #2->2,3
         [1 0 1 0 0 0 0] #3->1,3
@@ -12,22 +16,23 @@ using LinearAlgebraicRepresentation
     ]))
 
     @testset "intersect_edges" begin
-        inters1 = LinearAlgebraicRepresentation.Arrangement.intersect_edges(V, EV[5, :], EV[1, :])
-        inters2 = LinearAlgebraicRepresentation.Arrangement.intersect_edges(V, EV[1, :], EV[4, :])
-        inters3 = LinearAlgebraicRepresentation.Arrangement.intersect_edges(V, EV[1, :], EV[2, :])
+        inters1 = Lar.Arrangement.intersect_edges(V, EV[5, :], EV[1, :])
+        inters2 = Lar.Arrangement.intersect_edges(V, EV[1, :], EV[4, :])
+        inters3 = Lar.Arrangement.intersect_edges(V, EV[1, :], EV[2, :])
         @test inters1 == [([2. 2.], 1/4),([4. 2.], 3/4)]
         @test inters2 == []
         @test inters3 == [([4. 2.], 1)]
     end
 
     @testset "frag_edge" begin
-        rV, rEV = LinearAlgebraicRepresentation.Arrangement.frag_edge(V, EV, 5)
+        rV, rEV = Lar.Arrangement.frag_edge(V, EV, 5)
         @test rV == [1.0 2.0; 5.0 2.0; 2.0 2.0; 4.0 2.0; 4.0 2.0; 2.0 2.0]
-        @test full(rEV) == [1 0 0 0 0 1;
+        @test Matrix(rEV) == [1 0 0 0 0 1;
                              0 0 0 0 1 1; 
                              0 1 0 0 1 0]
     end
 end
+
 @testset "merge_vertices test set" begin
     n0 = 1e-12
     n1l = 1-1e-12
@@ -53,14 +58,15 @@ end
               0 0 1 0 0 0 0 0 0 0 0 0 0 0 1 0;
               0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 1]
     EV = sparse(EV)
-    V, EV = LinearAlgebraicRepresentation.Arrangement.merge_vertices!(V, EV, [])
+    V, EV = Lar.Arrangement.merge_vertices!(V, EV, [])
 
     @test V == [n0 n0; n0 n1u; n1u n1u; n1u n0]
-    @test full(EV) == [1 1 0 0;
+    @test Matrix(EV) == [1 1 0 0;
                        0 1 1 0;
                        0 0 1 1;
                        1 0 0 1]
 end
+
 @testset "biconnected_components test set" begin
     EV = Int8[0 0 0 1 0 0 0 0 0 0 1 0; #1
               0 0 1 0 0 1 0 0 0 0 0 0; #2
@@ -77,11 +83,12 @@ end
               0 0 0 0 1 0 0 0 1 0 0 0] #13
     EV = sparse(EV)
 
-    bc = LinearAlgebraicRepresentation.Arrangement.biconnected_components(EV)
+    bc = Lar.Arrangement.biconnected_components(EV)
     bc = Set(map(Set, bc))
 
     @test bc == Set([Set([1,5,9]), Set([2,6,10]), Set([3,7,11])])
 end
+
 @testset "Face creation" begin
     @testset "External cell individuation" begin
         V = [ .5 .5;  1.5   1;  1.5  2; 
@@ -105,8 +112,9 @@ end
                   -1  0  0  0 -1 -1 -1 -1  1 -1]
         FE = sparse(FE)
     
-        @test LinearAlgebraicRepresentation.Arrangement.get_external_cycle(V, EV, FE) == 3
+        @test Lar.Arrangement.get_external_cycle(V, EV, FE) == 3
     end
+
     @testset "Containment test" begin
         V = [  0   0;    4   0;    4   2;   2   4;  0 4;
               .5  .5;  2.5  .5;  2.5 2.5;  .5 2.5;
@@ -144,20 +152,22 @@ end
         n = 5
         for i in 1:n
             vs_indexes = (abs.(EVs[i]')*abs.(shells[i])).nzind
-            push!(shell_bboxes, LinearAlgebraicRepresentation.bbox(V[vs_indexes, :]))
+            push!(shell_bboxes, Lar.bbox(V[vs_indexes, :]))
         end
     
-        graph = LinearAlgebraicRepresentation.Arrangement.pre_containment_test(shell_bboxes)
+        graph = Lar.Arrangement.pre_containment_test(shell_bboxes)
         @test graph == [0 0 1 1 0; 0 0 1 1 0; 0 0 0 1 0; 0 0 0 0 0; 0 0 0 1 0]
     
-        graph = LinearAlgebraicRepresentation.Arrangement.prune_containment_graph(n, V, EVs, shells, graph)
+        graph = Lar.Arrangement.prune_containment_graph(n, V, EVs, shells, graph)
         @test graph == [0 0 1 1 0; 0 0 1 1 0; 0 0 0 1 0; 0 0 0 0 0; 0 0 0 0 0]
     end
+
     @testset "Transitive reduction" begin
         graph = [0 0 1 1 0; 0 0 1 1 0; 0 0 0 1 0; 0 0 0 0 0; 0 0 0 0 0]
-        LinearAlgebraicRepresentation.Arrangement.transitive_reduction!(graph)
+        Lar.Arrangement.transitive_reduction!(graph)
         @test graph == [0 0 1 0 0; 0 0 1 0 0; 0 0 0 1 0; 0 0 0 0 0; 0 0 0 0 0]
     end
+
     @testset "Cell merging" begin
         graph = [0 1; 0 0]
         V = [.25 .25; .75 .25; .75 .75; .25 .75;
@@ -186,15 +196,13 @@ end
         n = 2
         for i in 1:n
             vs_indexes = (abs.(EVs[i]')*abs.(shells[i])).nzind
-            push!(shell_bboxes, LinearAlgebraicRepresentation.bbox(V[vs_indexes, :]))
+            push!(shell_bboxes, Lar.bbox(V[vs_indexes, :]))
         end
     
-        EV, FE = LinearAlgebraicRepresentation.Arrangement.cell_merging(2, graph, V, EVs, boundaries, shells, shell_bboxes)
+        EV, FE = Lar.Arrangement.cell_merging(2, graph, V, EVs, boundaries, shells, shell_bboxes)
     
         selector = sparse(ones(Int8, 1, 3))
     
         @test selector*FE == [0  0  0  0  0  1  1  1 -1]
     end
-    
 end
-

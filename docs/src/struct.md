@@ -99,19 +99,21 @@ the resulting geometrical value is often associated with a variable name.
 
 Affine transformations or tensor matrices, of type `Arra{Float64, 2}`, are created by functions
 
-	LinearAlgebraicRepresentation.t(args...)	# for translation
-	LinearAlgebraicRepresentation.s(args...)	# for scaling
-	LinearAlgebraicRepresentation.r(args...)	# for rotation
+	Lar.t(args...)	# for translation
+	Lar.s(args...)	# for scaling
+	Lar.r(args...)	# for rotation
 
 An affine $3\times 3$ transformation matrix, generated in homogeneous normalized coordinates by the function call `t(-0.5,-0.5)`, can be *applied* to a LAR object `obj` both *explicitly* by using the function `apply(Matrix, obj)` or *implicitly* by creating a `Struct` hierarchical object, as shown by the following examples:
 
 ```julia  
-julia> table = LinearAlgebraicRepresentation.apply( LinearAlgebraicRepresentation.t(-0.5,-0.5), square )
+julia> Lar = LinearAlgebraicRepresentation
+
+julia> table = Lar.apply( Lar.t(-0.5,-0.5), square )
 # output
 ([-0.5 -0.5 0.5 0.5; -0.5 0.5 -0.5 0.5], Array{Int64,1}[[1, 2, 3, 4]],
 Array{Int64,1}[[1, 2], [1, 3], [2, 4], [3, 4]])
 
-julia> table = LinearAlgebraicRepresentation.Struct([ LinearAlgebraicRepresentation.t(-0.5,-0.5), square ])
+julia> table = Lar.Struct([ Lar.t(-0.5,-0.5), square ])
 # output
 Struct(Any[[1.0 0.0 -0.5; 0.0 1.0 -0.5; 0.0 0.0 1.0], ([0 0 1 1; 0 1 0 1],
 Array{Int64,1}[[1, 2, 3, 4]], Array{Int64,1}[[1, 2], [1, 3], [2, 4], [3, 4]])],
@@ -120,7 +122,7 @@ Array[[-0.5; -0.5], [0.5; 0.5]], "10234090646332247690", 2, "feature")
 The generation of container nodes may continue hierarchically by suitably applying `Struct`. Notice that each LAR object in a `Struct` container is transformed by each matrix before it *within the container*, going from right to left. The action of a transformation (tensor) extends to each object on its right within its own container. Whereas,  the action of a tensor does not extend outside its container, according to the semantics of *PHIGS* structures.
 
 ```julia 
-chair = LinearAlgebraicRepresentation.Struct([ LinearAlgebraicRepresentation.t(0.75,0), LinearAlgebraicRepresentation.s(0.35,0.35), table ])
+chair = Lar.Struct([ Lar.t(0.75,0), Lar.s(0.35,0.35), table ])
 ```
 
 
@@ -132,8 +134,8 @@ The function `evalStruct`, when applied to a `Struct` value, generates an `Array
 Conversely, the `struct2lar` function generates a *single* LAR model (cellular complex), whose components are here assigned respectively to variables `W` (coordinates of vertices), `FW` faces (2-cells), and `EW` edges (1-cells). Notice that the whole model is *embedded in 2D*, since the `W` array (coordinates by columns) has *two rows*
 
 ```julia 
-scene = LinearAlgebraicRepresentation.evalStruct(struct02)	# array of LAR models
-W,FW,EW = LinearAlgebraicRepresentation.struct2lar(struct02)	# single LAR model
+scene = Lar.evalStruct(struct02)	# array of LAR models
+W,FW,EW = Lar.struct2lar(struct02)	# single LAR model
 ```
 
 
@@ -148,23 +150,23 @@ struct01 = L.struct2lar(L.Struct( repeat([ struct0, L.t(0,2.5) ], outer = 10) ))
 scene = L.struct2lar(L.Struct( repeat([ struct01, L.t(3,0) ], outer = 10) ));
 ```
 
-To see the generated 2D scene you need the `LARVIEW` module.
+To see the generated 2D scene you need the `Plasm` module.
 
 ```julia
-using LARVIEW
-LARVIEW.view(scene[1],scene[2])
-LARVIEW.view(scene[1],scene[3])
+using Plasm
+Plasm.view(scene[1],scene[2])
+Plasm.view(scene[1],scene[3])
 ```
 
 A different example provides a `sphere`, and a `cylinder` instance suitably translated, within the same `Struct` container. Of course, we could define a hierarchical assembly of any size and deep, containing any number of `Struct` nodes.
 
 !!! warning
-    2D surfaces embedded in 3D are normally displayed in `LARVIEW` as made of unoriented 2-cells. In order to get a better dispaly, the user should press the `t` or `T` keys on the keyboard.
+    2D surfaces embedded in 3D are normally displayed in `Plasm` as made of unoriented 2-cells. In order to get a better dispaly, the user should press the `t` or `T` keys on the keyboard.
 
 ```julia
 assembly = L.Struct([L.sphere()(), L.t(3,0,-1), L.cylinder()()])
-using LARVIEW
-LARVIEW.view(L.struct2lar(assembly))
+using Plasm
+Plasm.view(L.struct2lar(assembly))
 ```
 
 
@@ -175,14 +177,14 @@ LARVIEW.view(L.struct2lar(assembly))
 
 ### Coding of 3D `refectory` assembly
 
-The `refectory` model shown in Figure 1 is stepwise developed here. Of course, in order to display the various *geometric models*, the `LARVIEW` package is needed.
+The `refectory` model shown in Figure 1 is stepwise developed here. Of course, in order to display the various *geometric models*, the `Plasm` package is needed.
 
 ```julia
 using LinearAlgebraicRepresentation
 L = LinearAlgebraicRepresentation
 
-using LARVIEW
-View = LARVIEW.view
+using Plasm
+View = Plasm.view
 ```
 ![](./images/parts.png)
 > **Figure 4:** The generation process of the `refectory` assembly shown in Figure 1.
@@ -248,18 +250,18 @@ View(refectory)
 ## Main Interface
 
 ```@docs
-LinearAlgebraicRepresentation.Struct
+Lar.Struct
 ```
 
 ```@docs
-LinearAlgebraicRepresentation.apply
+Lar.apply
 ```
 
 ```@docs
-LinearAlgebraicRepresentation.struct2lar
+Lar.struct2lar
 ```
 
 ```@docs
-LinearAlgebraicRepresentation.evalStruct
+Lar.evalStruct
 ```
 

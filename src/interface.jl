@@ -1,19 +1,20 @@
+Lar = LinearAlgebraicRepresentation
 
 """
-	characteristicMatrix( FV::Cells )::ChainOp
+		characteristicMatrix( FV::Cells )::ChainOp
 
-Binary matrix representing by rows the `p`-cells of a cellular complex.
-The input parameter must be of `Cells` type. Return a sparse binary matrix, 
-providing the basis of a ``Chain`` space of given dimension. Notice that the 
-number of columns is equal to the number of vertices (0-cells). 
+	Binary matrix representing by rows the `p`-cells of a cellular complex.
+	The input parameter must be of `Cells` type. Return a sparse binary matrix, 
+	providing the basis of a ``Chain`` space of given dimension. Notice that the 
+	number of columns is equal to the number of vertices (0-cells). 
 
-# Example
+	# Example
 
-```julia
-V,(VV,EV,FV,CV) = cuboid([1.,1.,1.], true); 
+	```julia
+	V,(VV,EV,FV,CV) = cuboid([1.,1.,1.], true); 
 
-julia> full(characteristicMatrix(FV))
-6×8 Array{Int8,2}:
+	julia> Matrix(characteristicMatrix(FV))
+	6×8 Array{Int8,2}:
 	1  1  1  1  0  0  0  0
 	0  0  0  0  1  1  1  1
 	1  1  0  0  1  1  0  0
@@ -21,12 +22,12 @@ julia> full(characteristicMatrix(FV))
 	1  0  1  0  1  0  1  0
 	0  1  0  1  0  1  0  1
 
-julia> full(characteristicMatrix(CV))
-1×8 Array{Int8,2}:
+	julia> Matrix(characteristicMatrix(CV))
+	1×8 Array{Int8,2}:
 	1  1  1  1  1  1  1  1
 
-julia> full(characteristicMatrix(EV))
-12×8 Array{Int8,2}:
+	julia> Matrix(characteristicMatrix(EV))
+	12×8 Array{Int8,2}:
 	1  1  0  0  0  0  0  0
 	0  0  1  1  0  0  0  0
 	0  0  0  0  1  1  0  0
@@ -39,7 +40,7 @@ julia> full(characteristicMatrix(EV))
 	0  1  0  0  0  1  0  0
 	0  0  1  0  0  0  1  0
 	0  0  0  1  0  0  0  1
-```
+	```
 """
 function characteristicMatrix( FV::Cells )::ChainOp
 	I,J,V = Int64[],Int64[],Int8[] 
@@ -56,16 +57,16 @@ end
 
 
 """
-	boundary_1( EV::Cells )::ChainOp
+		boundary_1( EV::Cells )::ChainOp
 
-Computation of sparse signed boundary operator ``C_1 -> C_0``.
+	Computation of sparse signed boundary operator ``C_1 -> C_0``.
 
-# Example
-```julia
-julia> V,(VV,EV,FV,CV) = cuboid([1.,1.,1.], true);
+	# Example
+	```julia
+	julia> V,(VV,EV,FV,CV) = cuboid([1.,1.,1.], true);
 
-julia> EV
-12-element Array{Array{Int64,1},1}:
+	julia> EV
+	12-element Array{Array{Int64,1},1}:
 	[1, 2]
 	[3, 4]
 	...
@@ -73,8 +74,8 @@ julia> EV
 	[3, 7]
 	[4, 8]
 
-julia> boundary_1( EV::Cells )
-8×12 SparseMatrixCSC{Int8,Int64} with 24 stored entries:
+	julia> boundary_1( EV::Cells )
+	8×12 SparseMatrixCSC{Int8,Int64} with 24 stored entries:
 	[1 ,  1]  =  -1
 	[2 ,  1]  =  1
 	[3 ,  2]  =  -1
@@ -83,8 +84,8 @@ julia> boundary_1( EV::Cells )
 	[4 , 12]  =  -1
 	[8 , 12]  =  1
 
-julia> full(boundary_1(EV::Cells))
-8×12 Array{Int8,2}:
+	julia> Matrix(boundary_1(EV::Cells))
+	8×12 Array{Int8,2}:
 	-1   0   0   0  -1   0   0   0  -1   0   0   0
 	1   0   0   0   0  -1   0   0   0  -1   0   0
 	0  -1   0   0   1   0   0   0   0   0  -1   0
@@ -93,7 +94,7 @@ julia> full(boundary_1(EV::Cells))
 	0   0   1   0   0   0   0  -1   0   1   0   0
 	0   0   0  -1   0   0   1   0   0   0   1   0
 	0   0   0   1   0   0   0   1   0   0   0   1
-```
+	```
 """
 function boundary_1( EV::Cells )::ChainOp
 	sp_boundary_1 = characteristicMatrix(EV)'
@@ -107,28 +108,28 @@ end
 
 
 """
-	coboundary_0(EV::LinearAlgebraicRepresentation.Cells)
-	
-Return the `coboundary_0` signed operator `C_0` -> `C_1`.
+		coboundary_0(EV::Lar.Cells)
+
+	Return the `coboundary_0` signed operator `C_0` -> `C_1`.
 """
 coboundary_0(EV::Cells) = boundary_1(EV::Cells)'
 
 
 
 """
-	u_coboundary_1( FV::Cells, EV::::Cells)::ChainOp
+		u_coboundary_1( FV::Cells, EV::::Cells)::ChainOp
 
-Compute the sparse *unsigned* coboundary_1 operator ``C_1 -> C_2``.
-Notice that the output matrix is `m x n`, where `m` is the number of faces, and `n` 
-is the number of edges.
+	Compute the sparse *unsigned* coboundary_1 operator ``C_1 -> C_2``.
+	Notice that the output matrix is `m x n`, where `m` is the number of faces, and `n` 
+	is the number of edges.
 
-# Example
+	# Example
 
-```julia
-julia> V,(VV,EV,FV,CV) = LinearAlgebraicRepresentation.cuboid([1.,1.,1.], true);
+	```julia
+	julia> V,(VV,EV,FV,CV) = Lar.cuboid([1.,1.,1.], true);
 
-julia> u_coboundary_1(FV,EV)
-6×12 SparseMatrixCSC{Int8,Int64} with 24 stored entries:
+	julia> u_coboundary_1(FV,EV)
+	6×12 SparseMatrixCSC{Int8,Int64} with 24 stored entries:
 	[1 ,  1]  =  1
 	[3 ,  1]  =  1
 	[1 ,  2]  =  1
@@ -139,52 +140,52 @@ julia> u_coboundary_1(FV,EV)
 	[4 , 12]  =  1
 	[6 , 12]  =  1
 
-julia> full(u_coboundary_1(FV,EV))
-6×12 Array{Int8,2}:
+	julia> Matrix(u_coboundary_1(FV,EV))
+	6×12 Array{Int8,2}:
 	1  1  0  0  1  1  0  0  0  0  0  0
 	0  0  1  1  0  0  1  1  0  0  0  0
 	1  0  1  0  0  0  0  0  1  1  0  0
 	0  1  0  1  0  0  0  0  0  0  1  1
 	0  0  0  0  1  0  1  0  1  0  1  0
 	0  0  0  0  0  1  0  1  0  1  0  1
-	
-julia> unsigned_boundary_2 = u_coboundary_1(FV,EV)';
-```
+
+	julia> unsigned_boundary_2 = u_coboundary_1(FV,EV)';
+	```
 """
-function u_coboundary_1( FV::LinearAlgebraicRepresentation.Cells, EV::LinearAlgebraicRepresentation.Cells)::LinearAlgebraicRepresentation.ChainOp
-	cscFV = LinearAlgebraicRepresentation.characteristicMatrix(FV)
-	cscEV = LinearAlgebraicRepresentation.characteristicMatrix(EV)
+function u_coboundary_1( FV::Lar.Cells, EV::Lar.Cells)::Lar.ChainOp
+	cscFV = Lar.characteristicMatrix(FV)
+	cscEV = Lar.characteristicMatrix(EV)
 	temp = cscFV * cscEV'
 	I,J,V = Int64[],Int64[],Int8[]
 	for j=1:size(temp,2)
 		for i=1:size(temp,1)
-		if temp[i,j] == 2
-			push!(I,i)
-			push!(J,j)
-			push!(V,1)
-		end
+			if temp[i,j] == 2
+				push!(I,i)
+				push!(J,j)
+				push!(V,1)
+			end
 		end
 	end
 	sp_u_coboundary_1 = sparse(I,J,V)
 	return sp_u_coboundary_1
 end
-	
-
-
-
-"""
-	u_boundary_2(FV::LinearAlgebraicRepresentation.Cells, EV::LinearAlgebraicRepresentation.Cells)::LinearAlgebraicRepresentation.ChainOp
-	
-Return the unsigned `boundary_2` operator `C_2` -> `C_1`.
-"""
-u_boundary_2(EV, FV) = (LinearAlgebraicRepresentation.u_coboundary_1(FV, EV))'
-
 
 
 
 
 """
-Local utility function. Storage of information need to build face cycles.
+		u_boundary_2(FV::Lar.Cells, EV::Lar.Cells)::Lar.ChainOp
+
+	Return the unsigned `boundary_2` operator `C_2` -> `C_1`.
+"""
+u_boundary_2(EV, FV) = (Lar.u_coboundary_1(FV, EV))'
+
+
+
+
+
+"""
+	Local utility function. Storage of information need to build face cycles.
 """
 function columninfo(infos,EV,next,col)
 	infos[1,col] = 1
@@ -196,14 +197,14 @@ end
 
 
 """
-	coboundary_1( FV::Cells, EV::Cells)::ChainOp
+		coboundary_1( FV::Cells, EV::Cells)::ChainOp
 
-Compute the sparse *signed* coboundary_1 operator ``C_1 -> C_2``.
-The sparse matrix generated by `coboundary_1` contains by row a representation 
-of faces as oriented cycles of edges. The orientation of cycles is arbitrary.
-```	
-julia> coboundary_1( FV,EV )
-6×12 SparseMatrixCSC{Int8,Int64} with 24 stored entries:
+	Compute the sparse *signed* coboundary_1 operator ``C_1 -> C_2``.
+	The sparse matrix generated by `coboundary_1` contains by row a representation 
+	of faces as oriented cycles of edges. The orientation of cycles is arbitrary.
+	```	
+	julia> coboundary_1( FV,EV )
+	6×12 SparseMatrixCSC{Int8,Int64} with 24 stored entries:
 	[1 ,  1]  =  -1
 	[3 ,  1]  =  -1
 	[1 ,  2]  =  1
@@ -214,18 +215,18 @@ julia> coboundary_1( FV,EV )
 	[4 , 12]  =  -1
 	[6 , 12]  =  -1
 
-julia> full(coboundary_1( FV,EV ))
-6×12 Array{Int8,2}:
+	julia> Matrix(coboundary_2( FV,EV ))
+	6×12 Array{Int8,2}:
 	-1   1   0  0   1  -1  0   0  0   0   0   0
 	0   0  -1  1   0   0  1  -1  0   0   0   0
 	-1   0   1  0   0   0  0   0  1  -1   0   0
 	0  -1   0  1   0   0  0   0  0   0   1  -1
 	0   0   0  0  -1   0  1   0  1   0  -1   0
 	0   0   0  0   0  -1  0   1  0   1   0  -1
-	
+
 		
-julia> boundary_2(FV,EV) = coboundary_1(FV,EV)'
-12×6 Array{Int8,2}:
+	julia> boundary_2(FV,EV) = coboundary_1(FV,EV)'
+	12×6 Array{Int8,2}:
 	-1   0  -1   0   0   0
 	1   0   0  -1   0   0
 	0  -1   1   0   0   0
@@ -233,15 +234,15 @@ julia> boundary_2(FV,EV) = coboundary_1(FV,EV)'
 	0   0  -1   0   0   1
 	0   0   0   1  -1   0
 	0   0   0  -1   0  -1
-```	
+	```	
 """
 function coboundary_1( FV::Cells, EV::Cells)::ChainOp
 	sp_u_coboundary_1 = u_coboundary_1(FV,EV)
 	larEV = characteristicMatrix(EV)
 	# unsigned incidence relation
-	FE = [findn(sp_u_coboundary_1[f,:]) for f=1:size(sp_u_coboundary_1,1) ]
+	FE = [findall(!iszero, sp_u_coboundary_1[f,:]) for f=1:size(sp_u_coboundary_1,1) ]
 	I,J,V = Int64[],Int64[],Int8[]
-	vedges = [findn(larEV[:,v]) for v=1:size(larEV,2)]
+	vedges = [findall(!iszero, larEV[:,v]) for v=1:size(larEV,2)]
 
 	# Loop on faces
 	for f=1:length(FE)
@@ -269,7 +270,7 @@ function coboundary_1( FV::Cells, EV::Cells)::ChainOp
 			push!(V, infos[1,j])
 		end
 	end
-	
+
 	sp_coboundary_1 = sparse(I,J,V)
 	return sp_coboundary_1
 end
@@ -278,43 +279,43 @@ end
 
 
 """
-	chaincomplex( W::Points, EW::Cells )::Tuple{Array{Cells,1},Array{ChainOp,1}}
+		chaincomplex( W::Points, EW::Cells )::Tuple{Array{Cells,1},Array{ChainOp,1}}
 
-Chain 2-complex construction from basis of 1-cells. 
+	Chain 2-complex construction from basis of 1-cells. 
 
-From the minimal input, construct the whole
-two-dimensional chain complex, i.e. the bases for linear spaces C_1 and 
-C_2 of 1-chains and  2-chains, and the signed coboundary operators from 
-C_0 to C_1 and from C_1 to C_2.
+	From the minimal input, construct the whole
+	two-dimensional chain complex, i.e. the bases for linear spaces C_1 and 
+	C_2 of 1-chains and  2-chains, and the signed coboundary operators from 
+	C_0 to C_1 and from C_1 to C_2.
 
-# Example
-```julia
-julia> W = 
+	# Example
+	```julia
+	julia> W = 
 	[0.0  0.0  0.0  0.0  1.0  1.0  1.0  1.0  2.0  2.0  2.0  2.0  3.0  3.0  3.0  3.0
 	0.0  1.0  2.0  3.0  0.0  1.0  2.0  3.0  0.0  1.0  2.0  3.0  0.0  1.0  2.0  3.0]
-# output  
+	# output  
 	2×16 Array{Float64,2}: ...
 
-julia> EW = 
-[[1, 2],[2, 3],[3, 4],[5, 6],[6, 7],[7, 8],[9, 10],[10, 11],[11, 12],[13, 14],
+	julia> EW = 
+	[[1, 2],[2, 3],[3, 4],[5, 6],[6, 7],[7, 8],[9, 10],[10, 11],[11, 12],[13, 14],
 	[14, 15],[15, 16],[1, 5],[2, 6],[3, 7],[4, 8],[5, 9],[6, 10],[7, 11],[8, 12],
 	[9, 13],[10, 14],[11, 15],[12, 16]]
-# output  
-24-element Array{Array{Int64,1},1}: ...
+	# output  
+	24-element Array{Array{Int64,1},1}: ...
 
-julia> V,bases,coboundaries = chaincomplex(W,EW)
+	julia> V,bases,coboundaries = chaincomplex(W,EW)
 
-julia> bases[1]	# edges
-24-element Array{Array{Int64,1},1}: ...
+	julia> bases[1]	# edges
+	24-element Array{Array{Int64,1},1}: ...
 
-julia> bases[2] # faces -- previously unknown !!
-9-element Array{Array{Int64,1},1}: ...
+	julia> bases[2] # faces -- previously unknown !!
+	9-element Array{Array{Int64,1},1}: ...
 
-julia> coboundaries[1] # coboundary_1 
-24×16 SparseMatrixCSC{Int8,Int64} with 48 stored entries: ...
+	julia> coboundaries[1] # coboundary_1 
+	24×16 SparseMatrixCSC{Int8,Int64} with 48 stored entries: ...
 
-julia> full(coboundaries[2]) # coboundary_1: faces as oriented 1-cycles of edges
-9×24 Array{Int8,2}:
+	julia> Matrix(coboundaries[2]) # coboundary_1: faces as oriented 1-cycles of edges
+	9×24 Array{Int8,2}:
 	-1  0  0  1  0  0  0  0  0  0  0  0  1 -1  0  0  0  0  0  0  0  0  0  0
 	0 -1  0  0  1  0  0  0  0  0  0  0  0  1 -1  0  0  0  0  0  0  0  0  0
 	0  0 -1  0  0  1  0  0  0  0  0  0  0  0  1 -1  0  0  0  0  0  0  0  0
@@ -324,56 +325,59 @@ julia> full(coboundaries[2]) # coboundary_1: faces as oriented 1-cycles of edges
 	0  0  0  0  0  0  0 -1  0  0  1  0  0  0  0  0  0  0  0  0  0  1 -1  0
 	0  0  0  0  0  0 -1  0  0  1  0  0  0  0  0  0  0  0  0  0  1 -1  0  0
 	0  0  0  0  0  0  0  0 -1  0  0  1  0  0  0  0  0  0  0  0  0  0  1 -1
-```
+	```
 """
 function chaincomplex( W, EW )
-	V = W'
-	EV = LinearAlgebraicRepresentation.boundary_1(EW)'
-	V,cscEV,cscFE = LinearAlgebraicRepresentation.planar_arrangement(V,EV)
+	V = convert(Array{Float64,2},LinearAlgebra.transpose(W))
+	EV = convert(ChainOp, SparseArrays.transpose(boundary_1(EW)))
+
+	V,cscEV,cscFE = Lar.planar_arrangement(V,EV)
+
 	ne,nv = size(cscEV)
 	nf = size(cscFE,1)
-	EV = [findn(cscEV[e,:]) for e=1:ne]
-	FV = [collect(Set(vcat([EV[e] for e in findn(cscFE[f,:])]...)))  for f=1:nf]
+	EV = [findall(!iszero, cscEV[e,:]) for e=1:ne]
+	FV = [collect(Set(vcat([EV[e] for e in findall(!iszero, cscFE[f,:])]...)))  for f=1:nf]
+
 	function ord(cells)
 		return [sort(cell) for cell in cells]
 	end
-	temp = copy(cscEV')
+	temp = copy(convert(ChainOp, LinearAlgebra.transpose(cscEV)))
 	for k=1:size(temp,2)
-		h = findn(temp[:,k])[1]
+		h = findall(!iszero, temp[:,k])[1]
 		temp[h,k] = -1
 	end    
-	cscEV = temp'
+	cscEV = convert(ChainOp, LinearAlgebra.transpose(temp))
 	bases, coboundaries = (ord(EV),ord(FV)), (cscEV,cscFE)
 	return V',bases,coboundaries
 end
 
 """
-	chaincomplex( W::Points, FW::Cells, EW::Cells )
-		::Tuple{ Array{Cells,1}, Array{ChainOp,1} }
+		chaincomplex( W::Points, FW::Cells, EW::Cells )
+			::Tuple{ Array{Cells,1}, Array{ChainOp,1} }
 
-Chain 3-complex construction from bases of 2- and 1-cells. 
+	Chain 3-complex construction from bases of 2- and 1-cells. 
 
-From the minimal input, construct the whole
-two-dimensional chain complex, i.e. the bases for linear spaces C_1 and 
-C_2 of 1-chains and  2-chains, and the signed coboundary operators from 
-C_0 to C_1  and from C_1 to C_2.
+	From the minimal input, construct the whole
+	two-dimensional chain complex, i.e. the bases for linear spaces C_1 and 
+	C_2 of 1-chains and  2-chains, and the signed coboundary operators from 
+	C_0 to C_1  and from C_1 to C_2.
 
-# Example
-```julia
-julia> cube_1 = ([0 0 0 0 1 1 1 1; 0 0 1 1 0 0 1 1; 0 1 0 1 0 1 0 1], 
-[[1,2,3,4],[5,6,7,8],[1,2,5,6],[3,4,7,8],[1,3,5,7],[2,4,6,8]], 
-[[1,2],[3,4],[5,6],[7,8],[1,3],[2,4],[5,7],[6,8],[1,5],[2,6],[3,7],[4,8]] )
+	# Example
+	```julia
+	julia> cube_1 = ([0 0 0 0 1 1 1 1; 0 0 1 1 0 0 1 1; 0 1 0 1 0 1 0 1], 
+	[[1,2,3,4],[5,6,7,8],[1,2,5,6],[3,4,7,8],[1,3,5,7],[2,4,6,8]], 
+	[[1,2],[3,4],[5,6],[7,8],[1,3],[2,4],[5,7],[6,8],[1,5],[2,6],[3,7],[4,8]] )
 
-julia> cube_2 = LinearAlgebraicRepresentation.Struct([LinearAlgebraicRepresentation.t(0,0,0.5), LinearAlgebraicRepresentation.r(0,0,pi/3), cube_1])
+	julia> cube_2 = Lar.Struct([Lar.t(0,0,0.5), Lar.r(0,0,pi/3), cube_1])
 
-julia> V,FV,EV = LinearAlgebraicRepresentation.struct2lar(LinearAlgebraicRepresentation.Struct([ cube_1, cube_2 ]))
+	julia> V,FV,EV = Lar.struct2lar(Lar.Struct([ cube_1, cube_2 ]))
 
-julia> V,bases,coboundaries = LinearAlgebraicRepresentation.chaincomplex(V,FV,EV)
+	julia> V,bases,coboundaries = Lar.chaincomplex(V,FV,EV)
 
-julia> (EV, FV, CV), (cscEV, cscFE, cscCF) = bases,coboundaries
+	julia> (EV, FV, CV), (cscEV, cscFE, cscCF) = bases,coboundaries
 
-julia> FV # bases[2]
-18-element Array{Array{Int64,1},1}:
+	julia> FV # bases[2]
+	18-element Array{Array{Int64,1},1}:
 	[1, 3, 4, 6]            
 	[2, 3, 5, 6]            
 	[7, 8, 9, 10]           
@@ -393,44 +397,47 @@ julia> FV # bases[2]
 	[3, 6, 12, 17]          
 	[14, 16, 18, 20]        
 
-julia> CV # bases[3]
-3-element Array{Array{Int64,1},1}:
+	julia> CV # bases[3]
+	3-element Array{Array{Int64,1},1}:
 	[2, 3, 5, 6, 11, 12, 13, 14, 15, 16, 18, 19, 20]
 	[2, 3, 5, 6, 11, 12, 13, 17]                    
 	[1, 2, 3, 4, 6, 7, 8, 9, 10, 11, 12, 13, 17]    
-	
-julia> cscEV # coboundaries[1]
-34×20 SparseMatrixCSC{Int8,Int64} with 68 stored entries: ...
 
-julia> cscFE # coboundaries[2]
-18×34 SparseMatrixCSC{Int8,Int64} with 80 stored entries: ...
+	julia> cscEV # coboundaries[1]
+	34×20 SparseMatrixCSC{Int8,Int64} with 68 stored entries: ...
 
-julia> cscCF # coboundaries[3]
-4×18 SparseMatrixCSC{Int8,Int64} with 36 stored entries: ...
-```	
+	julia> cscFE # coboundaries[2]
+	18×34 SparseMatrixCSC{Int8,Int64} with 80 stored entries: ...
+
+	julia> cscCF # coboundaries[3]
+	4×18 SparseMatrixCSC{Int8,Int64} with 36 stored entries: ...
+	```	
 """
 function chaincomplex(W,FW,EW)
-	V = W'
-	EV = LinearAlgebraicRepresentation.build_copEV(EW)
-	FE = LinearAlgebraicRepresentation.coboundary_1(FW,EW)
-	V,cscEV,cscFE,cscCF = LinearAlgebraicRepresentation.spatial_arrangement(V,EV,FE)
+	V = convert(Points, LinearAlgebra.transpose(W))
+	EW = map(sort, EW)
+	EV = build_copEV(EW)
+	FE = build_copFE(FW,EW)
+	V,cscEV,cscFE,cscCF = space_arrangement(V,EV,FE)
+
 	ne,nv = size(cscEV)
 	nf = size(cscFE,1)
 	nc = size(cscCF,1)
-	EV = [findn(cscEV[e,:]) for e=1:ne]
-	FV = [collect(Set(vcat([EV[e] for e in findn(cscFE[f,:])]...)))  for f=1:nf]
-	CV = [collect(Set(vcat([FV[f] for f in findn(cscCF[c,:])]...)))  for c=2:nc]
+	EV = [findall(!iszero, cscEV[e,:]) for e=1:ne]
+	FV = [collect(Set(vcat([EV[e] for e in findall(!iszero, cscFE[f,:])]...)))  for f=1:nf]
+	CV = [collect(Set(vcat([FV[f] for f in findall(!iszero, cscCF[c,:])]...)))  for c=2:nc]
 	function ord(cells)
 		return [sort(cell) for cell in cells]
 	end
-	temp = copy(cscEV')
+	temp = copy(convert(ChainOp, LinearAlgebra.transpose(cscEV)))
 	for k=1:size(temp,2)
-		h = findn(temp[:,k])[1]
+		h = findall(!iszero, temp[:,k])[1]
 		temp[h,k] = -1
 	end    
-	cscEV = temp'
+	cscEV = convert(ChainOp, LinearAlgebra.transpose(temp))
 	bases, coboundaries = (ord(EV),ord(FV),ord(CV)), (cscEV,cscFE,cscCF)
-	return V',bases,coboundaries
+	W = convert(Points, (LinearAlgebra.transpose(V')))
+	return W,bases,coboundaries
 end
 
 
@@ -447,25 +454,25 @@ function collection2model(collection)
 	end
 	return W,FW,EW
 end
-   
-   
+
+
 
 # 	"""
 # 		facetriangulation(V::Points, FV::Cells, EV::Cells, cscFE::ChainOp, cscCF::ChainOp)
 
 # 	Triangulation of a single facet of a 3-complex.
-	
+
 # 	# Example
 # 	```julia
 # 	julia> cube_1 = ([0 0 0 0 1 1 1 1; 0 0 1 1 0 0 1 1; 0 1 0 1 0 1 0 1], 
 # 	[[1,2,3,4],[5,6,7,8],[1,2,5,6],[3,4,7,8],[1,3,5,7],[2,4,6,8]], 
 # 	[[1,2],[3,4],[5,6],[7,8],[1,3],[2,4],[5,7],[6,8],[1,5],[2,6],[3,7],[4,8]] )
-	
-# 	julia> cube_2 = LinearAlgebraicRepresentation.Struct([LinearAlgebraicRepresentation.t(0,0,0.5), LinearAlgebraicRepresentation.r(0,0,pi/3), cube_1])
-	
-# 	julia> W,FW,EW = LinearAlgebraicRepresentation.struct2lar(LinearAlgebraicRepresentation.Struct([ cube_1, cube_2 ]))
 
-# 	julia> V,(EV,FV,EV),(cscEV,cscFE,cscCF) = LinearAlgebraicRepresentation.chaincomplex(W,FW,EW)
+# 	julia> cube_2 = Lar.Struct([Lar.t(0,0,0.5), Lar.r(0,0,pi/3), cube_1])
+
+# 	julia> W,FW,EW = Lar.struct2lar(Lar.Struct([ cube_1, cube_2 ]))
+
+# 	julia> V,(EV,FV,EV),(cscEV,cscFE,cscCF) = Lar.chaincomplex(W,FW,EW)
 # 	```	
 # 	"""
 #    function facetriangulation(V,FV,EV,cscFE,cscCF)
@@ -474,10 +481,10 @@ end
 #          vs_indices = [v for v in FV[f]]
 #          vdict = Dict([(i,index) for (i,index) in enumerate(vs_indices)])
 #          dictv = Dict([(index,i) for (i,index) in enumerate(vs_indices)])
-#          es = findn(cscFE[f,:])
-      
+#          es = findall(!iszero, cscFE[f,:])
+  
 #          vts = [v-vs[1] for v in vs]
-      
+  
 #          v1 = vts[2]
 #          v2 = vts[3]
 #          v3 = cross(v1,v2)
@@ -487,16 +494,16 @@ end
 #             i += 1
 #             v3 = cross(v1,v2)
 #          end   
-      
+  
 #          M = [v1 v2 v3]
-   
+
 #          vs_2D = hcat([(inv(M)*v)[1:2] for v in vts]...)'
 #          pointdict = Dict([(vs_2D[k,:],k) for k=1:size(vs_2D,1)])
 #          edges = hcat([[dictv[v] for v in EV[e]]  for e in es]...)'
-      
+  
 #          trias = Triangle.constrained_triangulation_vertices(
 #             vs_2D, collect(1:length(vs)), edges)
-   
+
 #          triangles = [[pointdict[t[1,:]],pointdict[t[2,:]],pointdict[t[3,:]]] 
 #             for t in trias]
 #          mktriangles = [[vdict[t[1]],vdict[t[2]],vdict[t[3]]] for t in triangles]
@@ -504,7 +511,7 @@ end
 #       end
 #       return facetrias
 #    end
-   
+
 #    # Triangulation of the 2-skeleton
 # 	"""
 
@@ -522,7 +529,7 @@ end
 #       end
 #       return TV
 #    end
-   
+
 #    # Map 3-cells to local bases
 # 	"""
 
@@ -541,4 +548,3 @@ end
 #       end
 #       return local3cells
 #    end
-   
