@@ -1,7 +1,7 @@
 var documenterSearchIndex = {"docs": [
 
 {
-    "location": "index.html#",
+    "location": "#",
     "page": "Home",
     "title": "Home",
     "category": "page",
@@ -9,47 +9,47 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "index.html#LinearAlgebraicRepresentation.jl-1",
+    "location": "#Lar.jl-1",
     "page": "Home",
-    "title": "LinearAlgebraicRepresentation.jl",
+    "title": "Lar.jl",
     "category": "section",
-    "text": "LinearAlgebraicRepresentation.jl is a Julia library to perform geometrical computations on cellular complexes expressed through the Linear Algebraic Representation (LAR). This library is developed and maintained by the Computational Visual Design Laboratory (CVDLAB) of Università degli Studi di Roma Tre."
+    "text": "Lar.jl is a Julia library to perform geometrical computations on cellular complexes expressed through the Linear Algebraic Representation (LAR). This library is developed and maintained by the Computational Visual Design Laboratory (CVDLAB) of Università degli Studi di Roma Tre."
 },
 
 {
-    "location": "index.html#Dependencies-1",
+    "location": "#Dependencies-1",
     "page": "Home",
     "title": "Dependencies",
     "category": "section",
-    "text": "LinearAlgebraicRepresentation.jl has several Julia dependencies:NearestNeighbors\nDataStructures\nIntervalTrees\nTriangle"
+    "text": "Lar.jl has several Julia dependencies:NearestNeighbors\nDataStructures\nIntervalTrees\nTriangle"
 },
 
 {
-    "location": "index.html#LinearAlgebraicRepresentation.skel_merge-Tuple{Array{T,2} where T,SparseMatrixCSC{Int8,Int64},Array{T,2} where T,SparseMatrixCSC{Int8,Int64}}",
+    "location": "#LinearAlgebraicRepresentation.skel_merge-Tuple{Array{T,2} where T,SparseArrays.SparseMatrixCSC{Int8,Int64},Array{T,2} where T,SparseArrays.SparseMatrixCSC{Int8,Int64}}",
     "page": "Home",
     "title": "LinearAlgebraicRepresentation.skel_merge",
     "category": "method",
-    "text": "skel_merge(V1::Points, EV1::ChainOp, V2::Points, EV2::ChainOp)\n\nMerge two 1-skeletons\n\n\n\n"
+    "text": "skel_merge(V1::Points, EV1::ChainOp, V2::Points, EV2::ChainOp)\n\nMerge two 1-skeletons\n\n\n\n\n\n"
 },
 
 {
-    "location": "index.html#LinearAlgebraicRepresentation.bbox_contains",
+    "location": "#LinearAlgebraicRepresentation.bbox_contains",
     "page": "Home",
     "title": "LinearAlgebraicRepresentation.bbox_contains",
     "category": "function",
-    "text": "bbox_contains(container, contained)\n\nCheck if the axis aligned bounding box container contains contained.\n\nEach input box must be passed as the couple of Points standing on the opposite corners of the box.\n\n\n\n"
+    "text": "bbox_contains(container, contained)\n\nCheck if the axis aligned bounding box container contains contained.\n\nEach input box must be passed as the couple of Points standing on the opposite corners of the box.\n\n\n\n\n\n"
 },
 
 {
-    "location": "index.html#Docstrings-conventions-1",
+    "location": "#Docstrings-conventions-1",
     "page": "Home",
     "title": "Docstrings conventions",
     "category": "section",
-    "text": "Bold is used to point out theory concepts. For example, look at the  \"1-skeletons\" word in the docstring of LinearAlgebraicRepresentation.skel_merge:LinearAlgebraicRepresentation.skel_merge(V1::LinearAlgebraicRepresentation.Points, EV1::LinearAlgebraicRepresentation.ChainOp, V2::LinearAlgebraicRepresentation.Points, EV2::LinearAlgebraicRepresentation.ChainOp)Monospace is used for everything code related. Look this time at \"container\", \"contained\" and \"Points\" in the docstring of LinearAlgebraicRepresentation.bbox_contains:LinearAlgebraicRepresentation.bbox_containsnote: Note\nIn Julia REPL the monospace text is the one colored differently. In a terminal you will see something like:   (Image: Julia REPL monospace exaple)"
+    "text": "Bold is used to point out theory concepts. For example, look at the  \"1-skeletons\" word in the docstring of Lar.skel_merge:Lar.skel_merge(V1::Lar.Points, EV1::Lar.ChainOp, V2::Lar.Points, EV2::Lar.ChainOp)Monospace is used for everything code related. Look this time at \"container\", \"contained\" and \"Points\" in the docstring of Lar.bbox_contains:Lar.bbox_containsnote: Note\nIn Julia REPL the monospace text is the one colored differently. In a terminal you will see something like:   (Image: Julia REPL monospace exaple)"
 },
 
 {
-    "location": "lar.html#",
+    "location": "lar/#",
     "page": "L.A.R. Intro",
     "title": "L.A.R. Intro",
     "category": "page",
@@ -57,7 +57,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "lar.html#LAR-1",
+    "location": "lar/#LAR-1",
     "page": "L.A.R. Intro",
     "title": "LAR",
     "category": "section",
@@ -65,7 +65,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "lar.html#LAR-model-1",
+    "location": "lar/#LAR-model-1",
     "page": "L.A.R. Intro",
     "title": "LAR model",
     "category": "section",
@@ -73,7 +73,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "lar.html#Chains-as-arrays-1",
+    "location": "lar/#Chains-as-arrays-1",
     "page": "L.A.R. Intro",
     "title": "Chains as arrays",
     "category": "section",
@@ -81,7 +81,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "lar.html#Characteristic-matrices-1",
+    "location": "lar/#Characteristic-matrices-1",
     "page": "L.A.R. Intro",
     "title": "Characteristic matrices",
     "category": "section",
@@ -89,7 +89,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "lar.html#Boundary-and-coboundary-matrices-1",
+    "location": "lar/#Boundary-and-coboundary-matrices-1",
     "page": "L.A.R. Intro",
     "title": "Boundary and coboundary matrices",
     "category": "section",
@@ -97,7 +97,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "lar.html#Incidence-matrices-1",
+    "location": "lar/#Incidence-matrices-1",
     "page": "L.A.R. Intro",
     "title": "Incidence matrices",
     "category": "section",
@@ -105,7 +105,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "lar.html#Validity-test-of-a-representation-1",
+    "location": "lar/#Validity-test-of-a-representation-1",
     "page": "L.A.R. Intro",
     "title": "Validity test of a representation",
     "category": "section",
@@ -113,15 +113,15 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "lar.html#Space-arrangments-1",
+    "location": "lar/#Space-arrangments-1",
     "page": "L.A.R. Intro",
     "title": "Space arrangments",
     "category": "section",
-    "text": "Given a finite collection mathcalS of cellular complexes in mathbbE^d, d in 23, the \\emph{arrangement} mathcalA(mathcalS) is the decomposition of mathbbE^d into connected cells of dimensions 0 1 ldots d  induced by mathcalS. In LinearAlgebraicRepresentation.jl, we provide an efficient computation of the arrangement produced by a given set of cellular complexes in either 2D or 3D.  The goal here is to provide a complete description of the plane or space decomposition  induced by the input, into cells of dimensions 0, 1, 2 or 3. This computation is based  on the algorithms introduced in \\cite{DBLP:journals/corr/PaoluzziSD17} which describe how  to compute the d-space arrangement generated by a collection of (d-1)-complexes.  A general description of both the motivations and the features of the space arrangement  and LinearAlgebraicRepresentation.jl in general are given in~\\cite{DBLP:journals/corr/abs-1710-07819}.With abuse of language, we consider a finite cellular complex X as generated by a discrete  partition of an Euclidean space. In computing a cellular complex as the space arrangement of  a collection of geometric objects mathcalS, i.e. when  X = mathcalA(mathcalS),  we actually compute the whole chain complex C_bullet generated by X, i.e.:(Image: chains)where C_p (0geq pgeq 3) is a linear space of \\emph{p-chains} (subsets of p-cells  with algebraic structure). The linear operators partial_p and delta_p are the boundary  and coboundary operators as described before, respectively withpartial_p-1circpartial_p  = emptyset = delta_pcircdelta_p-1and where delta_p-1 = partial_p^top quad 1leq pleq 3"
+    "text": "Given a finite collection mathcalS of cellular complexes in mathbbE^d, d in 23, the \\emph{arrangement} mathcalA(mathcalS) is the decomposition of mathbbE^d into connected cells of dimensions 0 1 ldots d  induced by mathcalS. In Lar.jl, we provide an efficient computation of the arrangement produced by a given set of cellular complexes in either 2D or 3D.  The goal here is to provide a complete description of the plane or space decomposition  induced by the input, into cells of dimensions 0, 1, 2 or 3. This computation is based  on the algorithms introduced in \\cite{DBLP:journals/corr/PaoluzziSD17} which describe how  to compute the d-space arrangement generated by a collection of (d-1)-complexes.  A general description of both the motivations and the features of the space arrangement  and Lar.jl in general are given in~\\cite{DBLP:journals/corr/abs-1710-07819}.With abuse of language, we consider a finite cellular complex X as generated by a discrete  partition of an Euclidean space. In computing a cellular complex as the space arrangement of  a collection of geometric objects mathcalS, i.e. when  X = mathcalA(mathcalS),  we actually compute the whole chain complex C_bullet generated by X, i.e.:(Image: chains)where C_p (0geq pgeq 3) is a linear space of \\emph{p-chains} (subsets of p-cells  with algebraic structure). The linear operators partial_p and delta_p are the boundary  and coboundary operators as described before, respectively withpartial_p-1circpartial_p  = emptyset = delta_pcircdelta_p-1and where delta_p-1 = partial_p^top quad 1leq pleq 3"
 },
 
 {
-    "location": "interface.html#",
+    "location": "interface/#",
     "page": "Interface",
     "title": "Interface",
     "category": "page",
@@ -129,7 +129,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "interface.html#Interface-to-cell-and-chain-complexes-1",
+    "location": "interface/#Interface-to-cell-and-chain-complexes-1",
     "page": "Interface",
     "title": "Interface to cell and chain complexes",
     "category": "section",
@@ -137,7 +137,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "interface.html#Introduction-1",
+    "location": "interface/#Introduction-1",
     "page": "Interface",
     "title": "Introduction",
     "category": "section",
@@ -145,7 +145,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "interface.html#Data-structures-1",
+    "location": "interface/#Data-structures-1",
     "page": "Interface",
     "title": "Data structures",
     "category": "section",
@@ -153,7 +153,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "interface.html#Characteristic-matrices-1",
+    "location": "interface/#Characteristic-matrices-1",
     "page": "Interface",
     "title": "Characteristic matrices",
     "category": "section",
@@ -161,15 +161,15 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "interface.html#Examples-1",
+    "location": "interface/#Examples-1",
     "page": "Interface",
     "title": "Examples",
     "category": "section",
-    "text": "Binary matrix representing by rows the p-cells of a cellular complex. The input parameter must be of Cells type. Return a sparse binary matrix,  providing the basis of a Chain space of given dimension. Notice that the  number of columns is equal to the number of vertices (0-cells). First the cellular complex describing the 0-, 1-, 2-, anf 3-faces of a single unit cube is generated. V,(VV,EV,FV,CV) = LinearAlgebraicRepresentation.cuboid([1.,1.,1.], true); Then, we may see the characteristic matrix of 1-cells (edges), with two ones per row:julia> full(LinearAlgebraicRepresentation.characteristicMatrix(EV))\n12×8 Array{Int8,2}:\n 1  1  0  0  0  0  0  0\n 0  0  1  1  0  0  0  0\n 0  0  0  0  1  1  0  0\n 0  0  0  0  0  0  1  1\n 1  0  1  0  0  0  0  0\n 0  1  0  1  0  0  0  0\n 0  0  0  0  1  0  1  0\n 0  0  0  0  0  1  0  1\n 1  0  0  0  1  0  0  0\n 0  1  0  0  0  1  0  0\n 0  0  1  0  0  0  1  0\n 0  0  0  1  0  0  0  1and of 2-cells (faces):julia> full(LinearAlgebraicRepresentation.characteristicMatrix(FV))\n6×8 Array{Int8,2}:\n 1  1  1  1  0  0  0  0\n 0  0  0  0  1  1  1  1\n 1  1  0  0  1  1  0  0\n 0  0  1  1  0  0  1  1\n 1  0  1  0  1  0  1  0\n 0  1  0  1  0  1  0  1Finally, the boundary of the single 3-cell contains all the 0-cells (vertices). Of course, the 3D cube has 12 edges in EV, 6 faces in FV, and one 3-cell in CV:julia> full(LinearAlgebraicRepresentation.characteristicMatrix(CV))\n1×8 Array{Int8,2}:\n 1  1  1  1  1  1  1  1"
+    "text": "Binary matrix representing by rows the p-cells of a cellular complex. The input parameter must be of Cells type. Return a sparse binary matrix,  providing the basis of a Chain space of given dimension. Notice that the  number of columns is equal to the number of vertices (0-cells). First the cellular complex describing the 0-, 1-, 2-, anf 3-faces of a single unit cube is generated. V,(VV,EV,FV,CV) = Lar.cuboid([1.,1.,1.], true); Then, we may see the characteristic matrix of 1-cells (edges), with two ones per row:julia> Lar = LinearAlgebraicRepresentation\n\njulia> Matrix(Lar.characteristicMatrix(EV))\n12×8 Array{Int8,2}:\n 1  1  0  0  0  0  0  0\n 0  0  1  1  0  0  0  0\n 0  0  0  0  1  1  0  0\n 0  0  0  0  0  0  1  1\n 1  0  1  0  0  0  0  0\n 0  1  0  1  0  0  0  0\n 0  0  0  0  1  0  1  0\n 0  0  0  0  0  1  0  1\n 1  0  0  0  1  0  0  0\n 0  1  0  0  0  1  0  0\n 0  0  1  0  0  0  1  0\n 0  0  0  1  0  0  0  1and of 2-cells (faces):julia> Matrix(Lar.characteristicMatrix(FV))\n6×8 Array{Int8,2}:\n 1  1  1  1  0  0  0  0\n 0  0  0  0  1  1  1  1\n 1  1  0  0  1  1  0  0\n 0  0  1  1  0  0  1  1\n 1  0  1  0  1  0  1  0\n 0  1  0  1  0  1  0  1Finally, the boundary of the single 3-cell contains all the 0-cells (vertices). Of course, the 3D cube has 12 edges in EV, 6 faces in FV, and one 3-cell in CV:julia> Matrix(Lar.characteristicMatrix(CV))\n1×8 Array{Int8,2}:\n 1  1  1  1  1  1  1  1"
 },
 
 {
-    "location": "interface.html#Chain-bases-1",
+    "location": "interface/#Chain-bases-1",
     "page": "Interface",
     "title": "Chain bases",
     "category": "section",
@@ -177,15 +177,15 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "interface.html#Examples-2",
+    "location": "interface/#Examples-2",
     "page": "Interface",
     "title": "Examples",
     "category": "section",
-    "text": "A compact representation of bases of p-cells is provided by Cells type, defined as Array{Array{Int,1}}, where each element codifies a cell as the array of indices to vertices on the boundary of the cell:julia> V,(VV,EV,FV,CV) = LinearAlgebraicRepresentation.cuboid([1.,1.,1.], true);\n\njulia> FV\n6-element Array{Array{Int64,1},1}:\n [1, 2, 3, 4]\n [5, 6, 7, 8]\n [1, 2, 5, 6]\n [3, 4, 7, 8]\n [1, 3, 5, 7]\n [2, 4, 6, 8]A simplicial decomposition of the unit cube with six 3-cells (tetrahedra), and a simplicial decomposition of the domain 05 times 01 with ten 2-cells (triangles) follows:julia> V,CV = LinearAlgebraicRepresentation.simplexGrid([1,1,1]);\n\njulia> V\n3×8 Array{Float64,2}:\n 0.0  1.0  0.0  1.0  0.0  1.0  0.0  1.0\n 0.0  0.0  1.0  1.0  0.0  0.0  1.0  1.0\n 0.0  0.0  0.0  0.0  1.0  1.0  1.0  1.0\n\njulia> CV   # bases of tetrahedra\n6-element Array{Array{Int64,1},1}:\n [1, 2, 3, 5]\n [2, 3, 5, 6]\n [3, 5, 6, 7]\n [2, 3, 4, 6]\n [3, 4, 6, 7]\n [4, 6, 7, 8]\n\njulia> W,FW = LinearAlgebraicRepresentation.simplexGrid([5,1]);\n\njulia> W\n2×12 Array{Float64,2}:\n 0.0  1.0  2.0  3.0  4.0  5.0  0.0  1.0  2.0  3.0  4.0  5.0\n 0.0  0.0  0.0  0.0  0.0  0.0  1.0  1.0  1.0  1.0  1.0  1.0\n\njulia> FW   # bases of triangles\n10-element Array{Array{Int64,1},1}:\n [1, 2, 7]  \n [2, 7, 8]  \n [2, 3, 8]  \n [3, 8, 9]  \n [3, 4, 9]  \n [4, 9, 10] \n [4, 5, 10] \n [5, 10, 11]\n [5, 6, 11] \n [6, 11, 12]It is worthwhile to note that the above examples provide p-bases of suitable dimensions, equal to the number of p-cells,  for the corresponding chain complexes.   "
+    "text": "A compact representation of bases of p-cells is provided by Cells type, defined as Array{Array{Int,1}}, where each element codifies a cell as the array of indices to vertices on the boundary of the cell:julia> V,(VV,EV,FV,CV) = Lar.cuboid([1.,1.,1.], true);\n\njulia> FV\n6-element Array{Array{Int64,1},1}:\n [1, 2, 3, 4]\n [5, 6, 7, 8]\n [1, 2, 5, 6]\n [3, 4, 7, 8]\n [1, 3, 5, 7]\n [2, 4, 6, 8]A simplicial decomposition of the unit cube with six 3-cells (tetrahedra), and a simplicial decomposition of the domain 05 times 01 with ten 2-cells (triangles) follows:julia> V,CV = Lar.simplexGrid([1,1,1]);\n\njulia> V\n3×8 Array{Float64,2}:\n 0.0  1.0  0.0  1.0  0.0  1.0  0.0  1.0\n 0.0  0.0  1.0  1.0  0.0  0.0  1.0  1.0\n 0.0  0.0  0.0  0.0  1.0  1.0  1.0  1.0\n\njulia> CV   # bases of tetrahedra\n6-element Array{Array{Int64,1},1}:\n [1, 2, 3, 5]\n [2, 3, 5, 6]\n [3, 5, 6, 7]\n [2, 3, 4, 6]\n [3, 4, 6, 7]\n [4, 6, 7, 8]\n\njulia> W,FW = Lar.simplexGrid([5,1]);\n\njulia> W\n2×12 Array{Float64,2}:\n 0.0  1.0  2.0  3.0  4.0  5.0  0.0  1.0  2.0  3.0  4.0  5.0\n 0.0  0.0  0.0  0.0  0.0  0.0  1.0  1.0  1.0  1.0  1.0  1.0\n\njulia> FW   # bases of triangles\n10-element Array{Array{Int64,1},1}:\n [1, 2, 7]  \n [2, 7, 8]  \n [2, 3, 8]  \n [3, 8, 9]  \n [3, 4, 9]  \n [4, 9, 10] \n [4, 5, 10] \n [5, 10, 11]\n [5, 6, 11] \n [6, 11, 12]It is worthwhile to note that the above examples provide p-bases of suitable dimensions, equal to the number of p-cells,  for the corresponding chain complexes.   "
 },
 
 {
-    "location": "interface.html#(Co)boundary-operators-1",
+    "location": "interface/#(Co)boundary-operators-1",
     "page": "Interface",
     "title": "(Co)boundary operators",
     "category": "section",
@@ -193,15 +193,15 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "interface.html#Examples-3",
+    "location": "interface/#Examples-3",
     "page": "Interface",
     "title": "Examples",
     "category": "section",
-    "text": "julia> V,(VV,EV,FV,CV) = LinearAlgebraicRepresentation.cuboid([1.,1.,1.], true);\n\njulia> EV\n12-element Array{Array{Int64,1},1}:\n [1, 2]\n [3, 4]\n   ...\n [3, 7]\n [4, 8]\n\njulia> LinearAlgebraicRepresentation.boundary_1( EV::LinearAlgebraicRepresentation.Cells )\n8×12 SparseMatrixCSC{Int8,Int64} with 24 stored entries:\n  [1 ,  1]  =  -1\n  [2 ,  1]  =  1\n  [3 ,  2]  =  -1\n	...       ...\n  [7 , 11]  =  1\n  [4 , 12]  =  -1\n  [8 , 12]  =  1\n\njulia> full(LinearAlgebraicRepresentation.boundary_1(EV::LinearAlgebraicRepresentation.Cells))\n8×12 Array{Int8,2}:\n -1   0   0   0  -1   0   0   0  -1   0   0   0\n  1   0   0   0   0  -1   0   0   0  -1   0   0\n  0  -1   0   0   1   0   0   0   0   0  -1   0\n  0   1   0   0   0   1   0   0   0   0   0  -1\n  0   0  -1   0   0   0  -1   0   1   0   0   0\n  0   0   1   0   0   0   0  -1   0   1   0   0\n  0   0   0  -1   0   0   1   0   0   0   1   0\n  0   0   0   1   0   0   0   1   0   0   0   1Notice that the matrix partial_1,  generated by the function boundary_1 applied to the 1-cell basis EV, contains two non-zero elements per column, where the associated edge (1-cell) is oriented from the vertex (row) of lesser index, towards the vertex of greater index, according to our numbering convention."
+    "text": "julia> V,(VV,EV,FV,CV) = Lar.cuboid([1.,1.,1.], true);\n\njulia> EV\n12-element Array{Array{Int64,1},1}:\n [1, 2]\n [3, 4]\n   ...\n [3, 7]\n [4, 8]\n\njulia> Lar.boundary_1( EV::Lar.Cells )\n8×12 SparseMatrixCSC{Int8,Int64} with 24 stored entries:\n  [1 ,  1]  =  -1\n  [2 ,  1]  =  1\n  [3 ,  2]  =  -1\n	...       ...\n  [7 , 11]  =  1\n  [4 , 12]  =  -1\n  [8 , 12]  =  1\n\njulia> Matrix(Lar.boundary_1(EV::Cells))\n8×12 Array{Int8,2}:\n -1   0   0   0  -1   0   0   0  -1   0   0   0\n  1   0   0   0   0  -1   0   0   0  -1   0   0\n  0  -1   0   0   1   0   0   0   0   0  -1   0\n  0   1   0   0   0   1   0   0   0   0   0  -1\n  0   0  -1   0   0   0  -1   0   1   0   0   0\n  0   0   1   0   0   0   0  -1   0   1   0   0\n  0   0   0  -1   0   0   1   0   0   0   1   0\n  0   0   0   1   0   0   0   1   0   0   0   1Notice that the matrix partial_1,  generated by the function boundary_1 applied to the 1-cell basis EV, contains two non-zero elements per column, where the associated edge (1-cell) is oriented from the vertex (row) of lesser index, towards the vertex of greater index, according to our numbering convention."
 },
 
 {
-    "location": "interface.html#Chain-complexes-1",
+    "location": "interface/#Chain-complexes-1",
     "page": "Interface",
     "title": "Chain complexes",
     "category": "section",
@@ -209,95 +209,95 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "interface.html#Examples-4",
+    "location": "interface/#Examples-4",
     "page": "Interface",
     "title": "Examples",
     "category": "section",
-    "text": "From the minimal possible input, construct the whole two-dimensional chain complex, i.e. the bases for linear spaces C_1 and  C_2, of 1-chains and  2-chains, and the signed coboundary operators from  C_0 to C_1 and from C_1 to C_2."
+    "text": "From the minimal possible input, construct the whole two-dimensional chain complex, i.e. the bases for linear spaces C1 and  C2, of 1-chains and  2-chains, and the signed coboundary operators from  C0 to C1 and from C1 to C2."
 },
 
 {
-    "location": "interface.html#D-Chain-complex-1",
+    "location": "interface/#D-Chain-complex-1",
     "page": "Interface",
     "title": "2D Chain complex",
     "category": "section",
-    "text": "Start with the 1-skeleton (set of 1-cells) of a 2D small cuboidal grid (made of squares); in other words, suppose we only know the edges of the grid:julia> W = \n [0.0  0.0  0.0  0.0  1.0  1.0  1.0  1.0  2.0  2.0  2.0  2.0  3.0  3.0  3.0  3.0\n  0.0  1.0  2.0  3.0  0.0  1.0  2.0  3.0  0.0  1.0  2.0  3.0  0.0  1.0  2.0  3.0]\n# output  \n 2×16 Array{Float64,2}: ...\n\njulia> EW = \n[[1, 2],[2, 3],[3, 4],[5, 6],[6, 7],[7, 8],[9, 10],[10, 11],[11, 12],[13, 14],\n [14, 15],[15, 16],[1, 5],[2, 6],[3, 7],[4, 8],[5, 9],[6, 10],[7, 11],[8, 12],\n [9, 13],[10, 14],[11, 15],[12, 16]]\n# output  \n24-element Array{Array{Int64,1},1}: ...We go to compute the arrangement of the 2D space induced by the above, i.e. the full chain complex generated by (W,EW). This one is returned by the evaluation of the expression chaincomplex(W,EW). The output variable bases  will contain the meaningful cell bases, i.e. those of dimension 1 and 2, since dimension 0 – isolated 0-cells – is not so.julia> V,bases,coboundaries = LinearAlgebraicRepresentation.chaincomplex(W,EW)\n\njulia> bases[1]	# edges\n24-element Array{Array{Int64,1},1}: ...\n\njulia> bases[2] # faces -- previously unknown !!\n9-element Array{Array{Int64,1},1}: ...Analogously, the coboundaries variable will contain the delta_1 and delta_2 matrices, of type SparseMatrixCSC{Int8,Int64}julia> coboundaries[1] # coboundary_1 \n24×16 SparseMatrixCSC{Int8,Int64} with 48 stored entries: ...\n\njulia> full(coboundaries[2]) # coboundary_1: faces as oriented 1-cycles of edges\n9×24 Array{Int8,2}:\n -1  0  0  1  0  0  0  0  0  0  0  0  1 -1  0  0  0  0  0  0  0  0  0  0\n  0 -1  0  0  1  0  0  0  0  0  0  0  0  1 -1  0  0  0  0  0  0  0  0  0\n  0  0 -1  0  0  1  0  0  0  0  0  0  0  0  1 -1  0  0  0  0  0  0  0  0\n  0  0  0 -1  0  0  1  0  0  0  0  0  0  0  0  0  1 -1  0  0  0  0  0  0\n  0  0  0  0 -1  0  0  1  0  0  0  0  0  0  0  0  0  1 -1  0  0  0  0  0\n  0  0  0  0  0 -1  0  0  1  0  0  0  0  0  0  0  0  0  1 -1  0  0  0  0\n  0  0  0  0  0  0  0 -1  0  0  1  0  0  0  0  0  0  0  0  0  0  1 -1  0\n  0  0  0  0  0  0 -1  0  0  1  0  0  0  0  0  0  0  0  0  0  1 -1  0  0\n  0  0  0  0  0  0  0  0 -1  0  0  1  0  0  0  0  0  0  0  0  0  0  1 -1Note that the last matrix contains by rows the 2-cycles corresponding to the (previously) unknown 2-basis FV that can now be easily computed. Notice also that columns corresponding to interior edges (1-cells) contain two non-zeros of opposite sign. Hence the computed 2-complex is coherently oriented by the matrix rows, actually by construction. The 2-boundary operator matrix, i.e. transpose(coboundaries[2]), can be used to compute the boundary of every possible 2-chain, by matrix multiplication times the coordinate (binary) representation of the 2-chain, implemented by the type Chain, defined as SparseVector{Int8, Int}."
+    "text": "Start with the 1-skeleton (set of 1-cells) of a 2D small cuboidal grid (made of squares); in other words, suppose we only know the edges of the grid:julia> W = \n [0.0  0.0  0.0  0.0  1.0  1.0  1.0  1.0  2.0  2.0  2.0  2.0  3.0  3.0  3.0  3.0\n  0.0  1.0  2.0  3.0  0.0  1.0  2.0  3.0  0.0  1.0  2.0  3.0  0.0  1.0  2.0  3.0]\n# output  \n 2×16 Array{Float64,2}: ...\n\njulia> EW = \n[[1, 2],[2, 3],[3, 4],[5, 6],[6, 7],[7, 8],[9, 10],[10, 11],[11, 12],[13, 14],\n [14, 15],[15, 16],[1, 5],[2, 6],[3, 7],[4, 8],[5, 9],[6, 10],[7, 11],[8, 12],\n [9, 13],[10, 14],[11, 15],[12, 16]]\n# output  \n24-element Array{Array{Int64,1},1}: ...We go to compute the arrangement of the 2D space induced by the above, i.e. the full chain complex generated by (W,EW). This one is returned by the evaluation of the expression chaincomplex(W,EW). The output variable bases  will contain the meaningful cell bases, i.e. those of dimension 1 and 2, since dimension 0 – isolated 0-cells – is not so.julia> V,bases,coboundaries = Lar.chaincomplex(W,EW)\n\njulia> bases[1]	# edges\n24-element Array{Array{Int64,1},1}: ...\n\njulia> bases[2] # faces -- previously unknown !!\n9-element Array{Array{Int64,1},1}: ...Analogously, the coboundaries variable will contain the delta_1 and delta_2 matrices, of type SparseMatrixCSC{Int8,Int64}julia> coboundaries[1] # coboundary_1 \n24×16 SparseMatrixCSC{Int8,Int64} with 48 stored entries: ...\n\njulia> Matrix(coboundaries[2]) # coboundary_1: faces as oriented 1-cycles of edges\n9×24 Array{Int8,2}:\n -1  0  0  1  0  0  0  0  0  0  0  0  1 -1  0  0  0  0  0  0  0  0  0  0\n  0 -1  0  0  1  0  0  0  0  0  0  0  0  1 -1  0  0  0  0  0  0  0  0  0\n  0  0 -1  0  0  1  0  0  0  0  0  0  0  0  1 -1  0  0  0  0  0  0  0  0\n  0  0  0 -1  0  0  1  0  0  0  0  0  0  0  0  0  1 -1  0  0  0  0  0  0\n  0  0  0  0 -1  0  0  1  0  0  0  0  0  0  0  0  0  1 -1  0  0  0  0  0\n  0  0  0  0  0 -1  0  0  1  0  0  0  0  0  0  0  0  0  1 -1  0  0  0  0\n  0  0  0  0  0  0  0 -1  0  0  1  0  0  0  0  0  0  0  0  0  0  1 -1  0\n  0  0  0  0  0  0 -1  0  0  1  0  0  0  0  0  0  0  0  0  0  1 -1  0  0\n  0  0  0  0  0  0  0  0 -1  0  0  1  0  0  0  0  0  0  0  0  0  0  1 -1Note that the last matrix contains by rows the 2-cycles corresponding to the (previously) unknown 2-basis FV that can now be easily computed. Notice also that columns corresponding to interior edges (1-cells) contain two non-zeros of opposite sign. Hence the computed 2-complex is coherently oriented by the matrix rows, actually by construction. The 2-boundary operator matrix, i.e. transpose(coboundaries[2]), can be used to compute the boundary of every possible 2-chain, by matrix multiplication times the coordinate (binary) representation of the 2-chain, implemented by the type Chain, defined as SparseVector{Int8, Int}."
 },
 
 {
-    "location": "interface.html#D-Chain-complex-2",
+    "location": "interface/#D-Chain-complex-2",
     "page": "Interface",
     "title": "3D Chain complex",
     "category": "section",
-    "text": "The example discussed here concerns two unit cubes in 3D, where the second is rotated and translated, up to intersect only partially the firat cube. First we prepare our data, using a very simple hierarchical aggregation via a Struct object, to get a representation of faces and edges of both cubes in two Cells arrays FV and EV.julia> cube_1 = ([0 0 0 0 1 1 1 1; 0 0 1 1 0 0 1 1; 0 1 0 1 0 1 0 1], \n[[1,2,3,4],[5,6,7,8],[1,2,5,6],[3,4,7,8],[1,3,5,7],[2,4,6,8]], \n[[1,2],[3,4],[5,6],[7,8],[1,3],[2,4],[5,7],[6,8],[1,5],[2,6],[3,7],[4,8]] )\n\njulia> cube_2 = LinearAlgebraicRepresentation.Struct([LinearAlgebraicRepresentation.t(0,0,0.5), LinearAlgebraicRepresentation.r(0,0,pi/3), cube_1])\n\njulia> V,FV,EV = LinearAlgebraicRepresentation.struct2lar(LinearAlgebraicRepresentation.Struct([ cube_1, cube_2 ]))Then we compute the 3D space arrangement induced by FV, providing the auxiliary information in EV, and getting back V,bases,coboundaries. Both bases and coboundaries are then disassembled into their component data structures. The actual discoveries computed by the arrangement algorithms, called by the chaincomplex function, are the NEW EV, FV, CV basis and the cscEV, cscFE, cscCF operators, which stands  for delta_0,delta_1, anddelta_2, i.e. the computations of the solid 3D cells generated by the arrangement of space, including their full topology.julia> V,bases,coboundaries = LinearAlgebraicRepresentation.chaincomplex(V,FV,EV)\n\njulia> (EV, FV, CV), (cscEV, cscFE, cscCF) = bases,coboundaries\n\njulia> FV # bases[2]\n18-element Array{Array{Int64,1},1}:\n [1, 3, 4, 6]            \n [2, 3, 5, 6]            \n [7, 8, 9, 10]           \n [1, 2, 3, 7, 8]         \n [4, 6, 9, 10, 11, 12]   \n [5, 6, 11, 12]          \n [1, 4, 7, 9]            \n [2, 5, 11, 13]          \n [2, 8, 10, 11, 13]      \n [2, 3, 14, 15, 16]      \n [11, 12, 13, 17]        \n [11, 12, 13, 18, 19, 20]\n [2, 3, 13, 17]          \n [2, 13, 14, 18]         \n [15, 16, 19, 20]        \n [3, 6, 12, 15, 19]      \n [3, 6, 12, 17]          \n [14, 16, 18, 20]        \n\njulia> CV # bases[3]\n3-element Array{Array{Int64,1},1}:\n [2, 3, 5, 6, 11, 12, 13, 14, 15, 16, 18, 19, 20]\n [2, 3, 5, 6, 11, 12, 13, 17]                    \n [1, 2, 3, 4, 6, 7, 8, 9, 10, 11, 12, 13, 17]    Let note that the LAR of FV includes faces with 5 and 6 vertices, even non convex.  Also, the CV variable contains the LAR of the three solid parts the two cubes are split into. julia> cscEV # coboundaries[1]\n34×20 SparseMatrixCSC{Int8,Int64} with 68 stored entries: ...\n\njulia> cscFE # coboundaries[2]\n18×34 SparseMatrixCSC{Int8,Int64} with 80 stored entries: ...\n\njulia> cscCF # coboundaries[3]\n4×18 SparseMatrixCSC{Int8,Int64} with 36 stored entries: ..."
+    "text": "The example discussed here concerns two unit cubes in 3D, where the second is rotated and translated, up to intersect only partially the firat cube. First we prepare our data, using a very simple hierarchical aggregation via a Struct object, to get a representation of faces and edges of both cubes in two Cells arrays FV and EV.julia> cube_1 = ([0 0 0 0 1 1 1 1; 0 0 1 1 0 0 1 1; 0 1 0 1 0 1 0 1], \n[[1,2,3,4],[5,6,7,8],[1,2,5,6],[3,4,7,8],[1,3,5,7],[2,4,6,8]], \n[[1,2],[3,4],[5,6],[7,8],[1,3],[2,4],[5,7],[6,8],[1,5],[2,6],[3,7],[4,8]] )\n\njulia> cube_2 = Lar.Struct([Lar.t(0,0,0.5), Lar.r(0,0,pi/3), cube_1])\n\njulia> V,FV,EV = Lar.struct2lar(Lar.Struct([ cube_1, cube_2 ]))Then we compute the 3D space arrangement induced by FV, providing the auxiliary information in EV, and getting back V,bases,coboundaries. Both bases and coboundaries are then disassembled into their component data structures. The actual discoveries computed by the arrangement algorithms, called by the chaincomplex function, are the NEW EV, FV, CV basis and the cscEV, cscFE, cscCF operators, which stands  for delta_0,delta_1, anddelta_2, i.e. the computations of the solid 3D cells generated by the arrangement of space, including their full topology.julia> V,bases,coboundaries = Lar.chaincomplex(V,FV,EV)\n\njulia> (EV, FV, CV), (cscEV, cscFE, cscCF) = bases,coboundaries\n\njulia> FV # bases[2]\n18-element Array{Array{Int64,1},1}:\n [1, 3, 4, 6]            \n [2, 3, 5, 6]            \n [7, 8, 9, 10]           \n [1, 2, 3, 7, 8]         \n [4, 6, 9, 10, 11, 12]   \n [5, 6, 11, 12]          \n [1, 4, 7, 9]            \n [2, 5, 11, 13]          \n [2, 8, 10, 11, 13]      \n [2, 3, 14, 15, 16]      \n [11, 12, 13, 17]        \n [11, 12, 13, 18, 19, 20]\n [2, 3, 13, 17]          \n [2, 13, 14, 18]         \n [15, 16, 19, 20]        \n [3, 6, 12, 15, 19]      \n [3, 6, 12, 17]          \n [14, 16, 18, 20]        \n\njulia> CV # bases[3]\n3-element Array{Array{Int64,1},1}:\n [2, 3, 5, 6, 11, 12, 13, 14, 15, 16, 18, 19, 20]\n [2, 3, 5, 6, 11, 12, 13, 17]                    \n [1, 2, 3, 4, 6, 7, 8, 9, 10, 11, 12, 13, 17]    Let note that the LAR of FV includes faces with 5 and 6 vertices, even non convex.  Also, the CV variable contains the LAR of the three solid parts the two cubes are split into. julia> cscEV # coboundaries[1]\n34×20 SparseMatrixCSC{Int8,Int64} with 68 stored entries: ...\n\njulia> cscFE # coboundaries[2]\n18×34 SparseMatrixCSC{Int8,Int64} with 80 stored entries: ...\n\njulia> cscCF # coboundaries[3]\n4×18 SparseMatrixCSC{Int8,Int64} with 36 stored entries: ..."
 },
 
 {
-    "location": "interface.html#LinearAlgebraicRepresentation.characteristicMatrix",
+    "location": "interface/#LinearAlgebraicRepresentation.characteristicMatrix",
     "page": "Interface",
     "title": "LinearAlgebraicRepresentation.characteristicMatrix",
     "category": "function",
-    "text": "characteristicMatrix( FV::Cells )::ChainOp\n\nBinary matrix representing by rows the p-cells of a cellular complex. The input parameter must be of Cells type. Return a sparse binary matrix,  providing the basis of a Chain space of given dimension. Notice that the  number of columns is equal to the number of vertices (0-cells). \n\nExample\n\nV,(VV,EV,FV,CV) = cuboid([1.,1.,1.], true); \n\njulia> full(characteristicMatrix(FV))\n6×8 Array{Int8,2}:\n	1  1  1  1  0  0  0  0\n	0  0  0  0  1  1  1  1\n	1  1  0  0  1  1  0  0\n	0  0  1  1  0  0  1  1\n	1  0  1  0  1  0  1  0\n	0  1  0  1  0  1  0  1\n\njulia> full(characteristicMatrix(CV))\n1×8 Array{Int8,2}:\n	1  1  1  1  1  1  1  1\n\njulia> full(characteristicMatrix(EV))\n12×8 Array{Int8,2}:\n	1  1  0  0  0  0  0  0\n	0  0  1  1  0  0  0  0\n	0  0  0  0  1  1  0  0\n	0  0  0  0  0  0  1  1\n	1  0  1  0  0  0  0  0\n	0  1  0  1  0  0  0  0\n	0  0  0  0  1  0  1  0\n	0  0  0  0  0  1  0  1\n	1  0  0  0  1  0  0  0\n	0  1  0  0  0  1  0  0\n	0  0  1  0  0  0  1  0\n	0  0  0  1  0  0  0  1\n\n\n\n"
+    "text": "	characteristicMatrix( FV::Cells )::ChainOp\n\nBinary matrix representing by rows the `p`-cells of a cellular complex.\nThe input parameter must be of `Cells` type. Return a sparse binary matrix, \nproviding the basis of a ``Chain`` space of given dimension. Notice that the \nnumber of columns is equal to the number of vertices (0-cells). \n\n# Example\n\n```julia\nV,(VV,EV,FV,CV) = cuboid([1.,1.,1.], true); \n\njulia> Matrix(characteristicMatrix(FV))\n6×8 Array{Int8,2}:\n1  1  1  1  0  0  0  0\n0  0  0  0  1  1  1  1\n1  1  0  0  1  1  0  0\n0  0  1  1  0  0  1  1\n1  0  1  0  1  0  1  0\n0  1  0  1  0  1  0  1\n\njulia> Matrix(characteristicMatrix(CV))\n1×8 Array{Int8,2}:\n1  1  1  1  1  1  1  1\n\njulia> Matrix(characteristicMatrix(EV))\n12×8 Array{Int8,2}:\n1  1  0  0  0  0  0  0\n0  0  1  1  0  0  0  0\n0  0  0  0  1  1  0  0\n0  0  0  0  0  0  1  1\n1  0  1  0  0  0  0  0\n0  1  0  1  0  0  0  0\n0  0  0  0  1  0  1  0\n0  0  0  0  0  1  0  1\n1  0  0  0  1  0  0  0\n0  1  0  0  0  1  0  0\n0  0  1  0  0  0  1  0\n0  0  0  1  0  0  0  1\n```\n\n\n\n\n\n"
 },
 
 {
-    "location": "interface.html#LinearAlgebraicRepresentation.boundary_1",
+    "location": "interface/#LinearAlgebraicRepresentation.boundary_1",
     "page": "Interface",
     "title": "LinearAlgebraicRepresentation.boundary_1",
     "category": "function",
-    "text": "boundary_1( EV::Cells )::ChainOp\n\nComputation of sparse signed boundary operator C_1 - C_0.\n\nExample\n\njulia> V,(VV,EV,FV,CV) = cuboid([1.,1.,1.], true);\n\njulia> EV\n12-element Array{Array{Int64,1},1}:\n	[1, 2]\n	[3, 4]\n	...\n	[2, 6]\n	[3, 7]\n	[4, 8]\n\njulia> boundary_1( EV::Cells )\n8×12 SparseMatrixCSC{Int8,Int64} with 24 stored entries:\n	[1 ,  1]  =  -1\n	[2 ,  1]  =  1\n	[3 ,  2]  =  -1\n	...       ...\n	[7 , 11]  =  1\n	[4 , 12]  =  -1\n	[8 , 12]  =  1\n\njulia> full(boundary_1(EV::Cells))\n8×12 Array{Int8,2}:\n	-1   0   0   0  -1   0   0   0  -1   0   0   0\n	1   0   0   0   0  -1   0   0   0  -1   0   0\n	0  -1   0   0   1   0   0   0   0   0  -1   0\n	0   1   0   0   0   1   0   0   0   0   0  -1\n	0   0  -1   0   0   0  -1   0   1   0   0   0\n	0   0   1   0   0   0   0  -1   0   1   0   0\n	0   0   0  -1   0   0   1   0   0   0   1   0\n	0   0   0   1   0   0   0   1   0   0   0   1\n\n\n\n"
+    "text": "	boundary_1( EV::Cells )::ChainOp\n\nComputation of sparse signed boundary operator ``C_1 -> C_0``.\n\n# Example\n```julia\njulia> V,(VV,EV,FV,CV) = cuboid([1.,1.,1.], true);\n\njulia> EV\n12-element Array{Array{Int64,1},1}:\n[1, 2]\n[3, 4]\n...\n[2, 6]\n[3, 7]\n[4, 8]\n\njulia> boundary_1( EV::Cells )\n8×12 SparseMatrixCSC{Int8,Int64} with 24 stored entries:\n[1 ,  1]  =  -1\n[2 ,  1]  =  1\n[3 ,  2]  =  -1\n...       ...\n[7 , 11]  =  1\n[4 , 12]  =  -1\n[8 , 12]  =  1\n\njulia> Matrix(boundary_1(EV::Cells))\n8×12 Array{Int8,2}:\n-1   0   0   0  -1   0   0   0  -1   0   0   0\n1   0   0   0   0  -1   0   0   0  -1   0   0\n0  -1   0   0   1   0   0   0   0   0  -1   0\n0   1   0   0   0   1   0   0   0   0   0  -1\n0   0  -1   0   0   0  -1   0   1   0   0   0\n0   0   1   0   0   0   0  -1   0   1   0   0\n0   0   0  -1   0   0   1   0   0   0   1   0\n0   0   0   1   0   0   0   1   0   0   0   1\n```\n\n\n\n\n\n"
 },
 
 {
-    "location": "interface.html#LinearAlgebraicRepresentation.coboundary_0",
+    "location": "interface/#LinearAlgebraicRepresentation.coboundary_0",
     "page": "Interface",
     "title": "LinearAlgebraicRepresentation.coboundary_0",
     "category": "function",
-    "text": "coboundary_0(EV::LinearAlgebraicRepresentation.Cells)\n\nReturn the coboundary_0 signed operator C_0 -> C_1.\n\n\n\n"
+    "text": "	coboundary_0(EV::Lar.Cells)\n\nReturn the `coboundary_0` signed operator `C_0` -> `C_1`.\n\n\n\n\n\n"
 },
 
 {
-    "location": "interface.html#LinearAlgebraicRepresentation.u_coboundary_1",
+    "location": "interface/#LinearAlgebraicRepresentation.u_coboundary_1",
     "page": "Interface",
     "title": "LinearAlgebraicRepresentation.u_coboundary_1",
     "category": "function",
-    "text": "u_coboundary_1( FV::Cells, EV::::Cells)::ChainOp\n\nCompute the sparse unsigned coboundary_1 operator C_1 - C_2. Notice that the output matrix is m x n, where m is the number of faces, and n  is the number of edges.\n\nExample\n\njulia> V,(VV,EV,FV,CV) = LinearAlgebraicRepresentation.cuboid([1.,1.,1.], true);\n\njulia> u_coboundary_1(FV,EV)\n6×12 SparseMatrixCSC{Int8,Int64} with 24 stored entries:\n	[1 ,  1]  =  1\n	[3 ,  1]  =  1\n	[1 ,  2]  =  1\n	[4 ,  2]  =  1\n	...		...\n	[4 , 11]  =  1\n	[5 , 11]  =  1\n	[4 , 12]  =  1\n	[6 , 12]  =  1\n\njulia> full(u_coboundary_1(FV,EV))\n6×12 Array{Int8,2}:\n	1  1  0  0  1  1  0  0  0  0  0  0\n	0  0  1  1  0  0  1  1  0  0  0  0\n	1  0  1  0  0  0  0  0  1  1  0  0\n	0  1  0  1  0  0  0  0  0  0  1  1\n	0  0  0  0  1  0  1  0  1  0  1  0\n	0  0  0  0  0  1  0  1  0  1  0  1\n	\njulia> unsigned_boundary_2 = u_coboundary_1(FV,EV)\';\n\n\n\n"
+    "text": "	u_coboundary_1( FV::Cells, EV::::Cells)::ChainOp\n\nCompute the sparse *unsigned* coboundary_1 operator ``C_1 -> C_2``.\nNotice that the output matrix is `m x n`, where `m` is the number of faces, and `n` \nis the number of edges.\n\n# Example\n\n```julia\njulia> V,(VV,EV,FV,CV) = Lar.cuboid([1.,1.,1.], true);\n\njulia> u_coboundary_1(FV,EV)\n6×12 SparseMatrixCSC{Int8,Int64} with 24 stored entries:\n[1 ,  1]  =  1\n[3 ,  1]  =  1\n[1 ,  2]  =  1\n[4 ,  2]  =  1\n...		...\n[4 , 11]  =  1\n[5 , 11]  =  1\n[4 , 12]  =  1\n[6 , 12]  =  1\n\njulia> Matrix(u_coboundary_1(FV,EV))\n6×12 Array{Int8,2}:\n1  1  0  0  1  1  0  0  0  0  0  0\n0  0  1  1  0  0  1  1  0  0  0  0\n1  0  1  0  0  0  0  0  1  1  0  0\n0  1  0  1  0  0  0  0  0  0  1  1\n0  0  0  0  1  0  1  0  1  0  1  0\n0  0  0  0  0  1  0  1  0  1  0  1\n\njulia> unsigned_boundary_2 = u_coboundary_1(FV,EV)\';\n```\n\n\n\n\n\n"
 },
 
 {
-    "location": "interface.html#LinearAlgebraicRepresentation.u_boundary_2",
+    "location": "interface/#LinearAlgebraicRepresentation.u_boundary_2",
     "page": "Interface",
     "title": "LinearAlgebraicRepresentation.u_boundary_2",
     "category": "function",
-    "text": "u_boundary_2(FV::LinearAlgebraicRepresentation.Cells, EV::LinearAlgebraicRepresentation.Cells)::LinearAlgebraicRepresentation.ChainOp\n\nReturn the unsigned boundary_2 operator C_2 -> C_1.\n\n\n\n"
+    "text": "	u_boundary_2(FV::Lar.Cells, EV::Lar.Cells)::Lar.ChainOp\n\nReturn the unsigned `boundary_2` operator `C_2` -> `C_1`.\n\n\n\n\n\n"
 },
 
 {
-    "location": "interface.html#LinearAlgebraicRepresentation.coboundary_1",
+    "location": "interface/#LinearAlgebraicRepresentation.coboundary_1",
     "page": "Interface",
     "title": "LinearAlgebraicRepresentation.coboundary_1",
     "category": "function",
-    "text": "coboundary_1( FV::Cells, EV::Cells)::ChainOp\n\nCompute the sparse signed coboundary_1 operator C_1 - C_2. The sparse matrix generated by coboundary_1 contains by row a representation  of faces as oriented cycles of edges. The orientation of cycles is arbitrary.\n\njulia> coboundary_1( FV,EV )\n6×12 SparseMatrixCSC{Int8,Int64} with 24 stored entries:\n	[1 ,  1]  =  -1\n	[3 ,  1]  =  -1\n	[1 ,  2]  =  1\n	[4 ,  2]  =  -1\n	...		  ...	\n	[4 , 11]  =  1\n	[5 , 11]  =  -1\n	[4 , 12]  =  -1\n	[6 , 12]  =  -1\n\njulia> full(coboundary_1( FV,EV ))\n6×12 Array{Int8,2}:\n	-1   1   0  0   1  -1  0   0  0   0   0   0\n	0   0  -1  1   0   0  1  -1  0   0   0   0\n	-1   0   1  0   0   0  0   0  1  -1   0   0\n	0  -1   0  1   0   0  0   0  0   0   1  -1\n	0   0   0  0  -1   0  1   0  1   0  -1   0\n	0   0   0  0   0  -1  0   1  0   1   0  -1\n	\n		\njulia> boundary_2(FV,EV) = coboundary_1(FV,EV)\'\n12×6 Array{Int8,2}:\n	-1   0  -1   0   0   0\n	1   0   0  -1   0   0\n	0  -1   1   0   0   0\n	...			...\n	0   0  -1   0   0   1\n	0   0   0   1  -1   0\n	0   0   0  -1   0  -1\n\n\n\n"
+    "text": "	coboundary_1( FV::Cells, EV::Cells)::ChainOp\n\nCompute the sparse *signed* coboundary_1 operator ``C_1 -> C_2``.\nThe sparse matrix generated by `coboundary_1` contains by row a representation \nof faces as oriented cycles of edges. The orientation of cycles is arbitrary.\n```	\njulia> coboundary_1( FV,EV )\n6×12 SparseMatrixCSC{Int8,Int64} with 24 stored entries:\n[1 ,  1]  =  -1\n[3 ,  1]  =  -1\n[1 ,  2]  =  1\n[4 ,  2]  =  -1\n...		  ...	\n[4 , 11]  =  1\n[5 , 11]  =  -1\n[4 , 12]  =  -1\n[6 , 12]  =  -1\n\njulia> Matrix(coboundary_2( FV,EV ))\n6×12 Array{Int8,2}:\n-1   1   0  0   1  -1  0   0  0   0   0   0\n0   0  -1  1   0   0  1  -1  0   0   0   0\n-1   0   1  0   0   0  0   0  1  -1   0   0\n0  -1   0  1   0   0  0   0  0   0   1  -1\n0   0   0  0  -1   0  1   0  1   0  -1   0\n0   0   0  0   0  -1  0   1  0   1   0  -1\n\n	\njulia> boundary_2(FV,EV) = coboundary_1(FV,EV)\'\n12×6 Array{Int8,2}:\n-1   0  -1   0   0   0\n1   0   0  -1   0   0\n0  -1   1   0   0   0\n...			...\n0   0  -1   0   0   1\n0   0   0   1  -1   0\n0   0   0  -1   0  -1\n```\n\n\n\n\n\n"
 },
 
 {
-    "location": "interface.html#LinearAlgebraicRepresentation.chaincomplex",
+    "location": "interface/#LinearAlgebraicRepresentation.chaincomplex",
     "page": "Interface",
     "title": "LinearAlgebraicRepresentation.chaincomplex",
     "category": "function",
-    "text": "chaincomplex( W::Points, EW::Cells )::Tuple{Array{Cells,1},Array{ChainOp,1}}\n\nChain 2-complex construction from basis of 1-cells. \n\nFrom the minimal input, construct the whole two-dimensional chain complex, i.e. the bases for linear spaces C_1 and  C_2 of 1-chains and  2-chains, and the signed coboundary operators from  C_0 to C_1 and from C_1 to C_2.\n\nExample\n\njulia> W = \n	[0.0  0.0  0.0  0.0  1.0  1.0  1.0  1.0  2.0  2.0  2.0  2.0  3.0  3.0  3.0  3.0\n	0.0  1.0  2.0  3.0  0.0  1.0  2.0  3.0  0.0  1.0  2.0  3.0  0.0  1.0  2.0  3.0]\n# output  \n	2×16 Array{Float64,2}: ...\n\njulia> EW = \n[[1, 2],[2, 3],[3, 4],[5, 6],[6, 7],[7, 8],[9, 10],[10, 11],[11, 12],[13, 14],\n	[14, 15],[15, 16],[1, 5],[2, 6],[3, 7],[4, 8],[5, 9],[6, 10],[7, 11],[8, 12],\n	[9, 13],[10, 14],[11, 15],[12, 16]]\n# output  \n24-element Array{Array{Int64,1},1}: ...\n\njulia> V,bases,coboundaries = chaincomplex(W,EW)\n\njulia> bases[1]	# edges\n24-element Array{Array{Int64,1},1}: ...\n\njulia> bases[2] # faces -- previously unknown !!\n9-element Array{Array{Int64,1},1}: ...\n\njulia> coboundaries[1] # coboundary_1 \n24×16 SparseMatrixCSC{Int8,Int64} with 48 stored entries: ...\n\njulia> full(coboundaries[2]) # coboundary_1: faces as oriented 1-cycles of edges\n9×24 Array{Int8,2}:\n	-1  0  0  1  0  0  0  0  0  0  0  0  1 -1  0  0  0  0  0  0  0  0  0  0\n	0 -1  0  0  1  0  0  0  0  0  0  0  0  1 -1  0  0  0  0  0  0  0  0  0\n	0  0 -1  0  0  1  0  0  0  0  0  0  0  0  1 -1  0  0  0  0  0  0  0  0\n	0  0  0 -1  0  0  1  0  0  0  0  0  0  0  0  0  1 -1  0  0  0  0  0  0\n	0  0  0  0 -1  0  0  1  0  0  0  0  0  0  0  0  0  1 -1  0  0  0  0  0\n	0  0  0  0  0 -1  0  0  1  0  0  0  0  0  0  0  0  0  1 -1  0  0  0  0\n	0  0  0  0  0  0  0 -1  0  0  1  0  0  0  0  0  0  0  0  0  0  1 -1  0\n	0  0  0  0  0  0 -1  0  0  1  0  0  0  0  0  0  0  0  0  0  1 -1  0  0\n	0  0  0  0  0  0  0  0 -1  0  0  1  0  0  0  0  0  0  0  0  0  0  1 -1\n\n\n\nchaincomplex( W::Points, FW::Cells, EW::Cells )\n	::Tuple{ Array{Cells,1}, Array{ChainOp,1} }\n\nChain 3-complex construction from bases of 2- and 1-cells. \n\nFrom the minimal input, construct the whole two-dimensional chain complex, i.e. the bases for linear spaces C_1 and  C_2 of 1-chains and  2-chains, and the signed coboundary operators from  C_0 to C_1  and from C_1 to C_2.\n\nExample\n\njulia> cube_1 = ([0 0 0 0 1 1 1 1; 0 0 1 1 0 0 1 1; 0 1 0 1 0 1 0 1], \n[[1,2,3,4],[5,6,7,8],[1,2,5,6],[3,4,7,8],[1,3,5,7],[2,4,6,8]], \n[[1,2],[3,4],[5,6],[7,8],[1,3],[2,4],[5,7],[6,8],[1,5],[2,6],[3,7],[4,8]] )\n\njulia> cube_2 = LinearAlgebraicRepresentation.Struct([LinearAlgebraicRepresentation.t(0,0,0.5), LinearAlgebraicRepresentation.r(0,0,pi/3), cube_1])\n\njulia> V,FV,EV = LinearAlgebraicRepresentation.struct2lar(LinearAlgebraicRepresentation.Struct([ cube_1, cube_2 ]))\n\njulia> V,bases,coboundaries = LinearAlgebraicRepresentation.chaincomplex(V,FV,EV)\n\njulia> (EV, FV, CV), (cscEV, cscFE, cscCF) = bases,coboundaries\n\njulia> FV # bases[2]\n18-element Array{Array{Int64,1},1}:\n	[1, 3, 4, 6]            \n	[2, 3, 5, 6]            \n	[7, 8, 9, 10]           \n	[1, 2, 3, 7, 8]         \n	[4, 6, 9, 10, 11, 12]   \n	[5, 6, 11, 12]          \n	[1, 4, 7, 9]            \n	[2, 5, 11, 13]          \n	[2, 8, 10, 11, 13]      \n	[2, 3, 14, 15, 16]      \n	[11, 12, 13, 17]        \n	[11, 12, 13, 18, 19, 20]\n	[2, 3, 13, 17]          \n	[2, 13, 14, 18]         \n	[15, 16, 19, 20]        \n	[3, 6, 12, 15, 19]      \n	[3, 6, 12, 17]          \n	[14, 16, 18, 20]        \n\njulia> CV # bases[3]\n3-element Array{Array{Int64,1},1}:\n	[2, 3, 5, 6, 11, 12, 13, 14, 15, 16, 18, 19, 20]\n	[2, 3, 5, 6, 11, 12, 13, 17]                    \n	[1, 2, 3, 4, 6, 7, 8, 9, 10, 11, 12, 13, 17]    \n	\njulia> cscEV # coboundaries[1]\n34×20 SparseMatrixCSC{Int8,Int64} with 68 stored entries: ...\n\njulia> cscFE # coboundaries[2]\n18×34 SparseMatrixCSC{Int8,Int64} with 80 stored entries: ...\n\njulia> cscCF # coboundaries[3]\n4×18 SparseMatrixCSC{Int8,Int64} with 36 stored entries: ...\n\n\n\n"
+    "text": "	chaincomplex( W::Points, EW::Cells )::Tuple{Array{Cells,1},Array{ChainOp,1}}\n\nChain 2-complex construction from basis of 1-cells. \n\nFrom the minimal input, construct the whole\ntwo-dimensional chain complex, i.e. the bases for linear spaces C_1 and \nC_2 of 1-chains and  2-chains, and the signed coboundary operators from \nC_0 to C_1 and from C_1 to C_2.\n\n# Example\n```julia\njulia> W = \n[0.0  0.0  0.0  0.0  1.0  1.0  1.0  1.0  2.0  2.0  2.0  2.0  3.0  3.0  3.0  3.0\n0.0  1.0  2.0  3.0  0.0  1.0  2.0  3.0  0.0  1.0  2.0  3.0  0.0  1.0  2.0  3.0]\n# output  \n2×16 Array{Float64,2}: ...\n\njulia> EW = \n[[1, 2],[2, 3],[3, 4],[5, 6],[6, 7],[7, 8],[9, 10],[10, 11],[11, 12],[13, 14],\n[14, 15],[15, 16],[1, 5],[2, 6],[3, 7],[4, 8],[5, 9],[6, 10],[7, 11],[8, 12],\n[9, 13],[10, 14],[11, 15],[12, 16]]\n# output  \n24-element Array{Array{Int64,1},1}: ...\n\njulia> V,bases,coboundaries = chaincomplex(W,EW)\n\njulia> bases[1]	# edges\n24-element Array{Array{Int64,1},1}: ...\n\njulia> bases[2] # faces -- previously unknown !!\n9-element Array{Array{Int64,1},1}: ...\n\njulia> coboundaries[1] # coboundary_1 \n24×16 SparseMatrixCSC{Int8,Int64} with 48 stored entries: ...\n\njulia> Matrix(coboundaries[2]) # coboundary_1: faces as oriented 1-cycles of edges\n9×24 Array{Int8,2}:\n-1  0  0  1  0  0  0  0  0  0  0  0  1 -1  0  0  0  0  0  0  0  0  0  0\n0 -1  0  0  1  0  0  0  0  0  0  0  0  1 -1  0  0  0  0  0  0  0  0  0\n0  0 -1  0  0  1  0  0  0  0  0  0  0  0  1 -1  0  0  0  0  0  0  0  0\n0  0  0 -1  0  0  1  0  0  0  0  0  0  0  0  0  1 -1  0  0  0  0  0  0\n0  0  0  0 -1  0  0  1  0  0  0  0  0  0  0  0  0  1 -1  0  0  0  0  0\n0  0  0  0  0 -1  0  0  1  0  0  0  0  0  0  0  0  0  1 -1  0  0  0  0\n0  0  0  0  0  0  0 -1  0  0  1  0  0  0  0  0  0  0  0  0  0  1 -1  0\n0  0  0  0  0  0 -1  0  0  1  0  0  0  0  0  0  0  0  0  0  1 -1  0  0\n0  0  0  0  0  0  0  0 -1  0  0  1  0  0  0  0  0  0  0  0  0  0  1 -1\n```\n\n\n\n\n\n	chaincomplex( W::Points, FW::Cells, EW::Cells )\n		::Tuple{ Array{Cells,1}, Array{ChainOp,1} }\n\nChain 3-complex construction from bases of 2- and 1-cells. \n\nFrom the minimal input, construct the whole\ntwo-dimensional chain complex, i.e. the bases for linear spaces C_1 and \nC_2 of 1-chains and  2-chains, and the signed coboundary operators from \nC_0 to C_1  and from C_1 to C_2.\n\n# Example\n```julia\njulia> cube_1 = ([0 0 0 0 1 1 1 1; 0 0 1 1 0 0 1 1; 0 1 0 1 0 1 0 1], \n[[1,2,3,4],[5,6,7,8],[1,2,5,6],[3,4,7,8],[1,3,5,7],[2,4,6,8]], \n[[1,2],[3,4],[5,6],[7,8],[1,3],[2,4],[5,7],[6,8],[1,5],[2,6],[3,7],[4,8]] )\n\njulia> cube_2 = Lar.Struct([Lar.t(0,0,0.5), Lar.r(0,0,pi/3), cube_1])\n\njulia> V,FV,EV = Lar.struct2lar(Lar.Struct([ cube_1, cube_2 ]))\n\njulia> V,bases,coboundaries = Lar.chaincomplex(V,FV,EV)\n\njulia> (EV, FV, CV), (cscEV, cscFE, cscCF) = bases,coboundaries\n\njulia> FV # bases[2]\n18-element Array{Array{Int64,1},1}:\n[1, 3, 4, 6]            \n[2, 3, 5, 6]            \n[7, 8, 9, 10]           \n[1, 2, 3, 7, 8]         \n[4, 6, 9, 10, 11, 12]   \n[5, 6, 11, 12]          \n[1, 4, 7, 9]            \n[2, 5, 11, 13]          \n[2, 8, 10, 11, 13]      \n[2, 3, 14, 15, 16]      \n[11, 12, 13, 17]        \n[11, 12, 13, 18, 19, 20]\n[2, 3, 13, 17]          \n[2, 13, 14, 18]         \n[15, 16, 19, 20]        \n[3, 6, 12, 15, 19]      \n[3, 6, 12, 17]          \n[14, 16, 18, 20]        \n\njulia> CV # bases[3]\n3-element Array{Array{Int64,1},1}:\n[2, 3, 5, 6, 11, 12, 13, 14, 15, 16, 18, 19, 20]\n[2, 3, 5, 6, 11, 12, 13, 17]                    \n[1, 2, 3, 4, 6, 7, 8, 9, 10, 11, 12, 13, 17]    \n\njulia> cscEV # coboundaries[1]\n34×20 SparseMatrixCSC{Int8,Int64} with 68 stored entries: ...\n\njulia> cscFE # coboundaries[2]\n18×34 SparseMatrixCSC{Int8,Int64} with 80 stored entries: ...\n\njulia> cscCF # coboundaries[3]\n4×18 SparseMatrixCSC{Int8,Int64} with 36 stored entries: ...\n```\n\n\n\n\n\n"
 },
 
 {
-    "location": "interface.html#Main-Interface-1",
+    "location": "interface/#Main-Interface-1",
     "page": "Interface",
     "title": "Main Interface",
     "category": "section",
-    "text": "LinearAlgebraicRepresentation.characteristicMatrixLinearAlgebraicRepresentation.boundary_1LinearAlgebraicRepresentation.coboundary_0LinearAlgebraicRepresentation.u_coboundary_1LinearAlgebraicRepresentation.u_boundary_2LinearAlgebraicRepresentation.coboundary_1LinearAlgebraicRepresentation.chaincomplex"
+    "text": "Lar.characteristicMatrixLar.boundary_1Lar.coboundary_0Lar.u_coboundary_1Lar.u_boundary_2Lar.coboundary_1Lar.chaincomplex"
 },
 
 {
-    "location": "arrangement.html#",
+    "location": "arrangement/#",
     "page": "Arrangement",
     "title": "Arrangement",
     "category": "page",
@@ -305,7 +305,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "arrangement.html#Arrangement-of-cellular-complexes-1",
+    "location": "arrangement/#Arrangement-of-cellular-complexes-1",
     "page": "Arrangement",
     "title": "Arrangement of cellular complexes",
     "category": "section",
@@ -313,39 +313,39 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "arrangement.html#LinearAlgebraicRepresentation.spatial_arrangement",
+    "location": "arrangement/#LinearAlgebraicRepresentation.spatial_arrangement",
     "page": "Arrangement",
     "title": "LinearAlgebraicRepresentation.spatial_arrangement",
     "category": "function",
-    "text": "spatial_arrangement(V::Points, EV::ChainOp, FE::ChainOp; [multiproc::Bool])\n\nCompute the arrangement on the given cellular complex 2-skeleton in 3D.\n\nA cellular complex is arranged when the intersection of every possible pair of cell  of the complex is empty and the union of all the cells is the whole Euclidean space. The function returns the full arranged complex as a list of vertices V and a chain of borders EV, FE, CF.\n\nAdditional arguments:\n\nmultiproc::Bool: Runs the computation in parallel mode. Defaults to false.\n\n\n\n"
+    "text": "spatial_arrangement(V::Points, EV::ChainOp, FE::ChainOp; [multiproc::Bool])\n\nCompute the arrangement on the given cellular complex 2-skeleton in 3D.\n\nA cellular complex is arranged when the intersection of every possible pair of cell  of the complex is empty and the union of all the cells is the whole Euclidean space. The function returns the full arranged complex as a list of vertices V and a chain of borders EV, FE, CF.\n\nAdditional arguments:\n\nmultiproc::Bool: Runs the computation in parallel mode. Defaults to false.\n\n\n\n\n\n"
 },
 
 {
-    "location": "arrangement.html#LinearAlgebraicRepresentation.planar_arrangement",
+    "location": "arrangement/#LinearAlgebraicRepresentation.planar_arrangement",
     "page": "Arrangement",
     "title": "LinearAlgebraicRepresentation.planar_arrangement",
     "category": "function",
-    "text": "planar_arrangement(V::Points, EV::ChainOp, [sigma::Chain], [return_edge_map::Bool], [multiproc::Bool])\n\nCompute the arrangement on the given cellular complex 1-skeleton in 2D.\n\nA cellular complex is arranged when the intersection of every possible pair of cell  of the complex is empty and the union of all the cells is the whole Euclidean space. The basic method of the function without the sigma, return_edge_map and multiproc arguments  returns the full arranged complex V, EV and FE.\n\nAdditional arguments:\n\nsigma::Chain: if specified, planar_arrangement will delete from the output every edge and face outside this cell. Defaults to an empty cell.\nreturn_edge_map::Bool: makes the function return also an edge_map which maps the edges of the imput to the one of the output. Defaults to false.\nmultiproc::Bool: Runs the computation in parallel mode. Defaults to false.\n\n\n\n"
+    "text": "planar_arrangement(V::Points, EV::ChainOp, [sigma::Chain], [return_edge_map::Bool], [multiproc::Bool])\n\nCompute the arrangement on the given cellular complex 1-skeleton in 2D.\n\nA cellular complex is arranged when the intersection of every possible pair of cell  of the complex is empty and the union of all the cells is the whole Euclidean space. The basic method of the function without the sigma, return_edge_map and multiproc arguments  returns the full arranged complex V, EV and FE.\n\nAdditional arguments:\n\nsigma::Chain: if specified, planar_arrangement will delete from the output every edge and face outside this cell. Defaults to an empty cell.\nreturn_edge_map::Bool: makes the function return also an edge_map which maps the edges of the imput to the one of the output. Defaults to false.\nmultiproc::Bool: Runs the computation in parallel mode. Defaults to false.\n\n\n\n\n\n"
 },
 
 {
-    "location": "arrangement.html#API-1",
+    "location": "arrangement/#API-1",
     "page": "Arrangement",
     "title": "API",
     "category": "section",
-    "text": "Every function strictly relative to the arrangement has been collected in the LinearAlgebraicRepresentation.Arrangement sub-module but the two main functions are accessible directly from the LinearAlgebraicRepresentation namespace.warning: Warning\nLinearAlgebraicRepresentation.Arrangement is the only place in LinearAlgebraicRepresentation where Point matrices store points per row and not per column as described in the documentation of LinearAlgebraicRepresentation.PointsLinearAlgebraicRepresentation.spatial_arrangement\nLinearAlgebraicRepresentation.planar_arrangementnote: Note\nEven if the arrangement algorithm is theoretically dimension independent, we implemented \"only\" the d=2 and d=3 version of it."
+    "text": "Every function strictly relative to the arrangement has been collected in the Lar.Arrangement sub-module but the two main functions are accessible directly from the LinearAlgebraicRepresentation namespace.warning: Warning\nLar.Arrangement is the only place in LinearAlgebraicRepresentation where Point matrices store points per row and not per column as described in the documentation of Lar.PointsLar.spatial_arrangement\nLar.planar_arrangementnote: Note\nEven if the arrangement algorithm is theoretically dimension independent, we implemented \"only\" the d=2 and d=3 version of it."
 },
 
 {
-    "location": "arrangement.html#Theoretical-basis-1",
+    "location": "arrangement/#Theoretical-basis-1",
     "page": "Arrangement",
     "title": "Theoretical basis",
     "category": "section",
-    "text": "The algorithm is based on the concept of recursive problem simplification  (a sort of divide et impera philosophy); if we have a d-complex, for every (d-1)-cell embedded into the mathbbE^d euclidean space, we bring the cell, and every other cell that could intersect it, down into mathbbE^d-1. We do this until we reach the d=1 in mathbbE^1 case; in here, we fragment all the 1-cells. Then, we travel back to the original d-dimension, and, for each dimensional step, we build correct complexes from cells provided by the  fragmentation of the lower dimension. (Image: Arrangement steps)Figure 2: Algorithm overviewWe have in input two cellular complexes [fig. 2, a],  given as 2-skeletons, which are the sets of 2-cells  [fig. 2, b, exploded]. Once we merged the skeletons,  we individuate for each 2-cell (that we will call sigma) all the other cells that could intersect it. We do this by computing the spatial index: it is a mapping mathcalI(sigma) from a cell  sigma to every other cell tau of which box(sigma) cap box(tau) neq emptyset, where the box function provides the axis aligned bounding box (AABB) of a cell [fig. 2, c,  sigma in red and mathcalI(sigma) in blue]. The spatial arrangement calculation is speeded up by storing the AABBs as dimensional wise intervals into an interval tree \\cite{interval_trees}.  Now for each cell sigma we transform sigma cup mathcalI(sigma)  in a way that sigma lays on the x_3=0 plane [fig. 2, d] and we find the intersections  of the mathcalI(sigma) cells with x_3=0 plane. So we have a \"soup\" of 1-cells in mathbbE^2 [fig. 2, e], and we fragment each 1-cell  with every other cell obtaining a valid 1-skeleton [fig. 2, f]. From this data it is possible to build the 2-cells using the ALGORITHM 1 presented and explored by Paoluzzi et al. \\cite{Paoluzzi} [fig. 2, g, exploded]. The procedure to fragment 1-cells on a plane and return a 2-complex is called planar arrangement. When the planar arrangement  is complete, fragmented sigma can be transformed back to its original position in mathbbE^3. With every 2-cell correctly fragmented, we can use the  already cited ALGORITHM 1 again to build a full 3-complex [fig. 2, h, exploded]. This is possible because ALGORITHM 1 is (almost) dimension independent."
+    "text": "The algorithm is based on the concept of recursive problem simplification  (a sort of divide et impera philosophy); if we have a d-complex, for every (d-1)-cell embedded into the mathbbE^d euclidean space, we bring the cell, and every other cell that could intersect it, down into mathbbE^d-1. We do this until we reach the d=1 in mathbbE^1 case; in here, we fragment all the 1-cells. Then, we travel back to the original d-dimension, and, for each dimensional step, we build correct complexes from cells provided by the  fragmentation of the lower dimension. (Image: Arrangement steps)Figure 2: Algorithm overviewWe have in input two cellular complexes [fig. 2, a],  given as 2-skeletons, which are the sets of 2-cells  [fig. 2, b, exploded]. Once we merged the skeletons,  we individuate for each 2-cell (that we will call sigma) all the other cells that could intersect it. We do this by computing the spatial index: it is a mapping mathcalI(sigma) from a cell  sigma to every other cell tau of which box(sigma) cap box(tau) neq emptyset, where the box function provides the axis aligned bounding box (AABB) of a cell [fig. 2, c,  sigma in red and mathcalI(sigma) in blue]. The spatial arrangement calculation is speeded up by storing the AABBs as dimensional wise intervals into an interval tree \\cite{intervaltrees}.  Now for each cell sigma we transform sigma cup mathcalI(sigma)  in a way that sigma lays on the ``x3=0plane fig 2 d and we find the intersections  of the\\mathcal{I}(\\sigma)cells withx_3=0plane So we have a soup of 1-cells in\\mathbb{E}^2fig 2 e and we fragment each 1-cell  with every other cell obtaining a valid 1-skeleton fig 2 f From this data it is possible to build the 2-cells using the ALGORITHM 1 presented and explored by Paoluzzi et al citePaoluzzi fig 2 g exploded The procedure to fragment 1-cells on a plane and return a 2-complex is called *planar arrangement* When the planar arrangement  is complete fragmented\\sigmacan be transformed back to its original position in\\mathbb{E}^3``. With every 2-cell correctly fragmented, we can use the  already cited ALGORITHM 1 again to build a full 3-complex [fig. 2, h, exploded]. This is possible because ALGORITHM 1 is (almost) dimension independent."
 },
 
 {
-    "location": "arrangement.html#The-\"1-cells-in-\\mathbb{E}2\"-base-case-1",
+    "location": "arrangement/#The-\"1-cells-in-\\mathbb{E}2\"-base-case-1",
     "page": "Arrangement",
     "title": "The \"1-cells in mathbbE^2\" base case",
     "category": "section",
@@ -353,7 +353,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "mapper.html#",
+    "location": "mapper/#",
     "page": "Mapper",
     "title": "Mapper",
     "category": "page",
@@ -361,7 +361,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "mapper.html#Solid-primitives-by-domain-mapping-1",
+    "location": "mapper/#Solid-primitives-by-domain-mapping-1",
     "page": "Mapper",
     "title": "Solid primitives by domain mapping",
     "category": "section",
@@ -369,23 +369,23 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "mapper.html#Basics-of-LAR-models-1",
+    "location": "mapper/#Basics-of-LAR-models-1",
     "page": "Mapper",
     "title": "Basics of LAR models",
     "category": "section",
-    "text": "A very simple LAR model is a 2D square with a vertex on the origin: julia> square=([[0.; 0] [0; 1] [1; 0] [1; 1]], [[1,2,3,4]], [[1,2], [1,3], [2,4], [3,4]])\n([0.0 0.0 1.0 1.0; 0.0 1.0 0.0 1.0], Array{Int64,1}[[1, 2, 3, 4]], Array{Int64,1}[[1, 2],\n[1, 3], [2, 4], [3, 4]])\nConventional names for the arrays of vertices, faces and edges:julia> V,FV,EV = square\n([0.0 0.0 1.0 1.0; 0.0 1.0 0.0 1.0], Array{Int64,1}[[1, 2, 3, 4]], Array{Int64,1}[[1, 2],\n[1, 3], [2, 4], [3, 4]])V may be either of type Array{Float64,2} or Array{Int64,2}julia> V::LinearAlgebraicRepresentation.Points\n2×4 Array{Float64,2}:\n 0.0  0.0  1.0  1.0\n 0.0  1.0  0.0  1.0The arrays containing the p-dimensional (2leq pleq d) cells of a d-complex must be of type Array{Array{Int64,1},1}, where each element contains the unordered array of indices of vertices on the boundary of the cell:julia> EV::LinearAlgebraicRepresentation.Cells\n4-element Array{Array{Int64,1},1}:\n [1, 2]\n [1, 3]\n [2, 4]\n [3, 4]"
+    "text": "A very simple LAR model is a 2D square with a vertex on the origin: julia> square=([[0.; 0] [0; 1] [1; 0] [1; 1]], [[1,2,3,4]], [[1,2], [1,3], [2,4], [3,4]])\n([0.0 0.0 1.0 1.0; 0.0 1.0 0.0 1.0], Array{Int64,1}[[1, 2, 3, 4]], Array{Int64,1}[[1, 2],\n[1, 3], [2, 4], [3, 4]])\nConventional names for the arrays of vertices, faces and edges:julia> V,FV,EV = square\n([0.0 0.0 1.0 1.0; 0.0 1.0 0.0 1.0], Array{Int64,1}[[1, 2, 3, 4]], Array{Int64,1}[[1, 2],\n[1, 3], [2, 4], [3, 4]])V may be either of type Array{Float64,2} or Array{Int64,2}julia> Lar = LinearAlgebraicRepresentation\n\njulia> V::Lar.Points\n2×4 Array{Float64,2}:\n 0.0  0.0  1.0  1.0\n 0.0  1.0  0.0  1.0The arrays containing the p-dimensional (2leq pleq d) cells of a d-complex must be of type Array{Array{Int64,1},1}, where each element contains the unordered array of indices of vertices on the boundary of the cell:julia> EV::Lar.Cells\n4-element Array{Array{Int64,1},1}:\n [1, 2]\n [1, 3]\n [2, 4]\n [3, 4]"
 },
 
 {
-    "location": "mapper.html#*Cuboidal*-and-*simplicial*-grids-1",
+    "location": "mapper/#*Cuboidal*-and-*simplicial*-grids-1",
     "page": "Mapper",
     "title": "Cuboidal and simplicial grids",
     "category": "section",
-    "text": "LinearAlgebraicRepresentation, as its ancestor geometric language PLaSM and its father library pyplasm aims to be multidimensional. Hence some functions generate geometric models of varying dimensions. Important examples are cuboidGrid and simplexGrid, whose unique parameter is the shape of the generated mesh, i.e. the number of d-dimensional cells in each dimension, with d = length(shape). The vertices of the mesh stay on the integer grid of suitable dimension and size.julia> shape = [1,1,1]\n\njulia> LinearAlgebraicRepresentation.cuboidGrid(shape)\n([0.0 0.0 … 1.0 1.0; 0.0 0.0 … 1.0 1.0; 0.0 1.0 … 0.0 1.0], \nArray{Int64,1}[[1, 2, 3, 4, 5, 6, 7, 8]])Hence we have, for single-cell 1-, 2-, 3-, and 4-dimensional LAR models:julia> LinearAlgebraicRepresentation.cuboidGrid([1])\n([0.0 1.0], Array{Int64,1}[[1, 2]])\n\njulia> LinearAlgebraicRepresentation.cuboidGrid([1,1])\n([0.0 0.0 1.0 1.0; 0.0 1.0 0.0 1.0], Array{Int64,1}[[1, 2, 3, 4]])\n\njulia> LinearAlgebraicRepresentation.cuboidGrid([1,1,1])\n([0.0 0.0 … 1.0 1.0; 0.0 0.0 … 1.0 1.0; 0.0 1.0 … 0.0 1.0], \nArray{Int64,1}[[1, 2, 3, 4, 5, 6, 7, 8]])\n\njulia> LinearAlgebraicRepresentation.cuboidGrid([1,1,1,1])\n([0.0 0.0 … 1.0 1.0; 0.0 0.0 … 1.0 1.0; 0.0 0.0 … 1.0 1.0; 0.0 1.0 … 0.0 1.0],\nArray{Int64,1}[[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16]])Two examples follows for a  20times 20  mesh in 2D, and a 20times 20times 20   mesh in 3D. Of course, their highest dimensional cells (quads and hexs) have 4 and 8 vertices, respectively.julia> LinearAlgebraicRepresentation.cuboidGrid([20,20])\n([0.0 0.0 … 20.0 20.0; 0.0 1.0 … 19.0 20.0], Array{Int64,1}[[1, 2, 22, 23], [2, 3, 23,\n24], [3, 4, 24, 25], [4, 5, 25, 26], [5, 6, 26, 27], [6, 7, 27, 28], [7, 8, 28, 29], [8,\n9, 29, 30], [9, 10, 30, 31]  …  [415, 416, 436, 437], [416, 417, 437, 438], [417, 418,\n438, 439], [418, 419, 439, 440], [419, 420, 440, 441]])\n\njulia> LinearAlgebraicRepresentation.cuboidGrid([20,20,20])\n([0.0 0.0 … 20.0 20.0; 0.0 0.0 … 20.0 20.0; 0.0 1.0 … 19.0 20.0], Array{Int64,1}[[1, 2,\n22, 23, 442, 443, 463, 464], [2, 3, 23, 24, 443, 444, 464, 465], [3, 4, 24, 25, 444, 445,\n465, 466]  …   [8797, 8798, 8818, 8819, 9238, 9239, 9259, 9260], [8798, 8799, 8819, 8820,\n9239, 9240, 9260, 9261]])(Image: )Figure 2: Cellular 3-complexes: (a) cuboidal mesh, with  0-, 1-, 2-, and 3-cells numbered with different colors; (b) exploded simplicial mesh, with 6 tetrahedra (3-cells) per mesh cube.Similarly, you can generate a multidimensional mesh of d-simplexes (d=123dots) with the simplexGrid function, having as single parameter the (cuboidal) shape of the mesh.Let us generate d (increasing in dimension) simplicial complexes partitioning a single hypercube 01^d:julia> LinearAlgebraicRepresentation.simplexGrid([1]) # one segment in [0,1] \n# output\n([0.0 1.0], Array{Int64,1}[[1, 2]])\n\njulia> LinearAlgebraicRepresentation.simplexGrid([1,1]) # two triangles in [0,1]^2 \n# output\n([0.0 1.0 0.0 1.0; 0.0 0.0 1.0 1.0], Array{Int64,1}[[1, 2, 3], [2, 3, 4]])\n\njulia> LinearAlgebraicRepresentation.simplexGrid([1,1,1])  # six tetrahedra in [0,1]^3 \n# output\n([0.0 1.0 … 0.0 1.0; 0.0 0.0 … 1.0 1.0; 0.0 0.0 … 1.0 1.0], Array{Int64,1}[[1, 2, 3, 5],\n[2, 3, 5, 6], [3, 5, 6, 7], [2, 3, 4, 6], [3, 4, 6, 7], [4, 6, 7, 8]])\n\njulia> LinearAlgebraicRepresentation.simplexGrid([1,1,1,1])  # 24 pentatopes in [0,1]^4 \n# output\n([0.0 1.0 … 0.0 1.0; 0.0 0.0 … 1.0 1.0; 0.0 0.0 … 1.0 1.0; 0.0 0.0 … 1.0 1.0],\nArray{Int64,1}[[1, 2, 3, 5, 9], [2, 3, 5, 9, 10], [3, 5, 9, 10, 11], [5, 9, 10, 11, 13],\n[2, 3, 5, 6, 10]  …  [4, 6, 7, 11, 12], [6, 7, 11, 12, 14], [7, 11, 12, 14, 15], [4, 6, 7,\n8, 12], [6, 7, 8, 12, 14], [7, 8, 12, 14, 15], [8, 12, 14, 15, 16]]) Then look at the simplicial partition (3D triangulation) of the domain 020times020times020 subset mathbfR^3 shown in Figure 1b, and generated by the Julia expression below:julia> LinearAlgebraicRepresentation.simplexGrid([20,20,20]) \n# output\n([0.0 1.0 … 19.0 20.0; 0.0 0.0 … 20.0 20.0], Array{Int64,1}[[1, 2, 22], [2, 22, 23], [2,\n3, 23], [3, 23, 24], [3, 4, 24], [4, 24, 25], [4, 5, 25], [5, 25, 26], [5, 6, 26], [6, 26,\n27]  …  [415, 416, 436], [416, 436, 437], [416, 417, 437], [417, 437, 438], [417, 418,\n438], [418, 438, 439], [418, 419, 439], [419, 439, 440], [419, 420, 440], [420, 440,\n441]]) "
+    "text": "LinearAlgebraicRepresentation, as its ancestor geometric language PLaSM and its father library pyplasm aims to be multidimensional. Hence some functions generate geometric models of varying dimensions. Important examples are cuboidGrid and simplexGrid, whose unique parameter is the shape of the generated mesh, i.e. the number of d-dimensional cells in each dimension, with d = length(shape). The vertices of the mesh stay on the integer grid of suitable dimension and size.julia> shape = [1,1,1]\n\njulia> Lar.cuboidGrid(shape)\n([0.0 0.0 … 1.0 1.0; 0.0 0.0 … 1.0 1.0; 0.0 1.0 … 0.0 1.0], \nArray{Int64,1}[[1, 2, 3, 4, 5, 6, 7, 8]])Hence we have, for single-cell 1-, 2-, 3-, and 4-dimensional LAR models:julia> Lar.cuboidGrid([1])\n([0.0 1.0], Array{Int64,1}[[1, 2]])\n\njulia> Lar.cuboidGrid([1,1])\n([0.0 0.0 1.0 1.0; 0.0 1.0 0.0 1.0], Array{Int64,1}[[1, 2, 3, 4]])\n\njulia> Lar.cuboidGrid([1,1,1])\n([0.0 0.0 … 1.0 1.0; 0.0 0.0 … 1.0 1.0; 0.0 1.0 … 0.0 1.0], \nArray{Int64,1}[[1, 2, 3, 4, 5, 6, 7, 8]])\n\njulia> Lar.cuboidGrid([1,1,1,1])\n([0.0 0.0 … 1.0 1.0; 0.0 0.0 … 1.0 1.0; 0.0 0.0 … 1.0 1.0; 0.0 1.0 … 0.0 1.0],\nArray{Int64,1}[[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16]])Two examples follows for a  20times 20  mesh in 2D, and a 20times 20times 20   mesh in 3D. Of course, their highest dimensional cells (quads and hexs) have 4 and 8 vertices, respectively.julia> Lar.cuboidGrid([20,20])\n([0.0 0.0 … 20.0 20.0; 0.0 1.0 … 19.0 20.0], Array{Int64,1}[[1, 2, 22, 23], [2, 3, 23,\n24], [3, 4, 24, 25], [4, 5, 25, 26], [5, 6, 26, 27], [6, 7, 27, 28], [7, 8, 28, 29], [8,\n9, 29, 30], [9, 10, 30, 31]  …  [415, 416, 436, 437], [416, 417, 437, 438], [417, 418,\n438, 439], [418, 419, 439, 440], [419, 420, 440, 441]])\n\njulia> Lar.cuboidGrid([20,20,20])\n([0.0 0.0 … 20.0 20.0; 0.0 0.0 … 20.0 20.0; 0.0 1.0 … 19.0 20.0], Array{Int64,1}[[1, 2,\n22, 23, 442, 443, 463, 464], [2, 3, 23, 24, 443, 444, 464, 465], [3, 4, 24, 25, 444, 445,\n465, 466]  …   [8797, 8798, 8818, 8819, 9238, 9239, 9259, 9260], [8798, 8799, 8819, 8820,\n9239, 9240, 9260, 9261]])(Image: )Figure 2: Cellular 3-complexes: (a) cuboidal mesh, with  0-, 1-, 2-, and 3-cells numbered with different colors; (b) exploded simplicial mesh, with 6 tetrahedra (3-cells) per mesh cube.Similarly, you can generate a multidimensional mesh of d-simplexes (d=123dots) with the simplexGrid function, having as single parameter the (cuboidal) shape of the mesh.Let us generate d (increasing in dimension) simplicial complexes partitioning a single hypercube 01^d:julia> Lar.simplexGrid([1]) # one segment in [0,1] \n# output\n([0.0 1.0], Array{Int64,1}[[1, 2]])\n\njulia> Lar.simplexGrid([1,1]) # two triangles in [0,1]^2 \n# output\n([0.0 1.0 0.0 1.0; 0.0 0.0 1.0 1.0], Array{Int64,1}[[1, 2, 3], [2, 3, 4]])\n\njulia> Lar.simplexGrid([1,1,1])  # six tetrahedra in [0,1]^3 \n# output\n([0.0 1.0 … 0.0 1.0; 0.0 0.0 … 1.0 1.0; 0.0 0.0 … 1.0 1.0], Array{Int64,1}[[1, 2, 3, 5],\n[2, 3, 5, 6], [3, 5, 6, 7], [2, 3, 4, 6], [3, 4, 6, 7], [4, 6, 7, 8]])\n\njulia> Lar.simplexGrid([1,1,1,1])  # 24 pentatopes in [0,1]^4 \n# output\n([0.0 1.0 … 0.0 1.0; 0.0 0.0 … 1.0 1.0; 0.0 0.0 … 1.0 1.0; 0.0 0.0 … 1.0 1.0],\nArray{Int64,1}[[1, 2, 3, 5, 9], [2, 3, 5, 9, 10], [3, 5, 9, 10, 11], [5, 9, 10, 11, 13],\n[2, 3, 5, 6, 10]  …  [4, 6, 7, 11, 12], [6, 7, 11, 12, 14], [7, 11, 12, 14, 15], [4, 6, 7,\n8, 12], [6, 7, 8, 12, 14], [7, 8, 12, 14, 15], [8, 12, 14, 15, 16]]) Then look at the simplicial partition (3D triangulation) of the domain 020times020times020 subset mathbfR^3 shown in Figure 1b, and generated by the Julia expression below:julia> Lar.simplexGrid([20,20,20]) \n# output\n([0.0 1.0 … 19.0 20.0; 0.0 0.0 … 20.0 20.0], Array{Int64,1}[[1, 2, 22], [2, 22, 23], [2,\n3, 23], [3, 23, 24], [3, 4, 24], [4, 24, 25], [4, 5, 25], [5, 25, 26], [5, 6, 26], [6, 26,\n27]  …  [415, 416, 436], [416, 436, 437], [416, 417, 437], [417, 437, 438], [417, 418,\n438], [418, 438, 439], [418, 419, 439], [419, 439, 440], [419, 420, 440], [420, 440,\n441]]) "
 },
 
 {
-    "location": "mapper.html#List-of-currently-available-primitives-1",
+    "location": "mapper/#List-of-currently-available-primitives-1",
     "page": "Mapper",
     "title": "List of currently available primitives",
     "category": "section",
@@ -393,7 +393,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "mapper.html#Curves-1",
+    "location": "mapper/#Curves-1",
     "page": "Mapper",
     "title": "Curves",
     "category": "section",
@@ -401,7 +401,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "mapper.html#Surfaces-1",
+    "location": "mapper/#Surfaces-1",
     "page": "Mapper",
     "title": "Surfaces",
     "category": "section",
@@ -409,7 +409,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "mapper.html#Solids-1",
+    "location": "mapper/#Solids-1",
     "page": "Mapper",
     "title": "Solids",
     "category": "section",
@@ -417,7 +417,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "mapper.html#Implementation-1",
+    "location": "mapper/#Implementation-1",
     "page": "Mapper",
     "title": "Implementation",
     "category": "section",
@@ -425,7 +425,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "mapper.html#Main-Interface-1",
+    "location": "mapper/#Main-Interface-1",
     "page": "Mapper",
     "title": "Main Interface",
     "category": "section",
@@ -433,127 +433,127 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "mapper.html#LinearAlgebraicRepresentation.circle",
+    "location": "mapper/#LinearAlgebraicRepresentation.circle",
     "page": "Mapper",
     "title": "LinearAlgebraicRepresentation.circle",
     "category": "function",
-    "text": "circle(radius=1.; angle=2*pi)(shape=36)\n\nCompute an approximation of the circunference curve in 2D, centered on the origin.\n\nWith default values, i.e. circle()(), return the whole circonference of unit radius, approximated with a shape=36 number of 1-cells.\n\nExample\n\njulia> W,CW = LinearAlgebraicRepresentation.circle()();\n\njulia> using LARVIEW\n\njulia> LARVIEW.view(W, CW)\n\n\n\n"
+    "text": "circle(radius=1.; angle=2*pi)(shape=36)\n\nCompute an approximation of the circunference curve in 2D, centered on the origin.\n\nWith default values, i.e. circle()(), return the whole circonference of unit radius, approximated with a shape=36 number of 1-cells.\n\nExample\n\njulia> W,CW = Lar.circle()();\n\njulia> using Plasm\n\njulia> Plasm.view(W, CW)\n\n\n\n\n\n"
 },
 
 {
-    "location": "mapper.html#LinearAlgebraicRepresentation.helix",
+    "location": "mapper/#LinearAlgebraicRepresentation.helix",
     "page": "Mapper",
     "title": "LinearAlgebraicRepresentation.helix",
     "category": "function",
-    "text": "helix(radius=1., pitch=1., nturns=2)(shape=36*nturns)\n\nCompute the approximate elix curve in three-dimensional space, with basis on z=0 plane and centered around the z axis. The pitch of a helix is the height of one complete helix turn, measured parallel to the axis of the helix.\n\nExample\n\njulia> V, CV = LinearAlgebraicRepresentation.helix(.1, .1, 10)()\n# output\n([0.1 0.0984808 … 0.0984808 0.1; 0.0 0.0173648 … -0.0173648 0.0; 0.0 0.0027778 … 0.997222 1.0], Array{Int64,1}[[1, 2], [2, 3], [3, 4], [4, 5], [5, 6], [6, 7], [7, 8], [8, 9], [9, 10], [10, 11]  …  [351, 352], [352, 353], [353, 354], [354, 355], [355, 356], [356, 357], [357, 358], [358, 359], [359, 360], [360, 361]])\n\njulia> using LARVIEW\n\njulia> LARVIEW.view(V, CV)\n\n\n\n"
+    "text": "helix(radius=1., pitch=1., nturns=2)(shape=36*nturns)\n\nCompute the approximate elix curve in three-dimensional space, with basis on z=0 plane and centered around the z axis. The pitch of a helix is the height of one complete helix turn, measured parallel to the axis of the helix.\n\nExample\n\njulia> V, CV = Lar.helix(.1, .1, 10)()\n# output\n([0.1 0.0984808 … 0.0984808 0.1; 0.0 0.0173648 … -0.0173648 0.0; 0.0 0.0027778 … 0.997222 1.0], Array{Int64,1}[[1, 2], [2, 3], [3, 4], [4, 5], [5, 6], [6, 7], [7, 8], [8, 9], [9, 10], [10, 11]  …  [351, 352], [352, 353], [353, 354], [354, 355], [355, 356], [356, 357], [357, 358], [358, 359], [359, 360], [360, 361]])\n\njulia> using Plasm\n\njulia> Plasm.view(V, CV)\n\n\n\n\n\n"
 },
 
 {
-    "location": "mapper.html#Curve-primitives-1",
+    "location": "mapper/#Curve-primitives-1",
     "page": "Mapper",
     "title": "Curve primitives",
     "category": "section",
-    "text": "LinearAlgebraicRepresentation.circleLinearAlgebraicRepresentation.helix"
+    "text": "Lar.circleLar.helix"
 },
 
 {
-    "location": "mapper.html#LinearAlgebraicRepresentation.disk",
+    "location": "mapper/#LinearAlgebraicRepresentation.disk",
     "page": "Mapper",
     "title": "LinearAlgebraicRepresentation.disk",
     "category": "function",
-    "text": "disk(radius=1., angle=2*pi)(shape=[36, 1])\n\nCompute the cellular complex approximating a circular sector of 2D disk centered on the origin. In geometry, a disk is the region in a plane bounded by a circle. The shape array provides the number of approximating 2-cells.\n\nExample\n\njulia> LinearAlgebraicRepresentation.disk()()\n# output\n([0.0 0.5 … 0.939693 0.984808; 0.0 0.0 … -0.34202 -0.173648], Array{Int64,1}[[1, 2, 3], [1, 3, 4], [1, 4, 5], [1, 5, 6], [1, 6, 7], [1, 7, 8], [1, 8, 9], [1, 9, 10], [1, 10, 11], [1, 11, 12]  …  [33, 34, 69], [34, 69, 70], [34, 35, 70], [35, 70, 71], [35, 36, 71], [36, 71, 72], [36, 37, 72], [37, 72, 73], [37, 2, 73], [2, 73, 38]])\n\njulia> using LARVIEW\n\njulia> LARVIEW.view(LinearAlgebraicRepresentation.disk()())\n\n\n\n"
+    "text": "disk(radius=1., angle=2*pi)(shape=[36, 1])\n\nCompute the cellular complex approximating a circular sector of 2D disk centered on the origin. In geometry, a disk is the region in a plane bounded by a circle. The shape array provides the number of approximating 2-cells.\n\nExample\n\njulia> Lar.disk()()\n# output\n([0.0 0.5 … 0.939693 0.984808; 0.0 0.0 … -0.34202 -0.173648], Array{Int64,1}[[1, 2, 3], [1, 3, 4], [1, 4, 5], [1, 5, 6], [1, 6, 7], [1, 7, 8], [1, 8, 9], [1, 9, 10], [1, 10, 11], [1, 11, 12]  …  [33, 34, 69], [34, 69, 70], [34, 35, 70], [35, 70, 71], [35, 36, 71], [36, 71, 72], [36, 37, 72], [37, 72, 73], [37, 2, 73], [2, 73, 38]])\n\njulia> using Plasm\n\njulia> Plasm.view(Lar.disk()())\n\n\n\n\n\n"
 },
 
 {
-    "location": "mapper.html#LinearAlgebraicRepresentation.helicoid",
+    "location": "mapper/#LinearAlgebraicRepresentation.helicoid",
     "page": "Mapper",
     "title": "LinearAlgebraicRepresentation.helicoid",
     "category": "function",
-    "text": "helicoid(R=1., r=0.5, pitch=1., nturns=2)(shape=[36*nturns, 2])\n\nCompute an approximation of the helicoid surface in 3D, with basis on z=0 plane and centered around the z axis.\n\nExample\n\njulia> using LARVIEW\n\njulia>  LARVIEW.view(LinearAlgebraicRepresentation.helicoid()())\n\n\n\n"
+    "text": "helicoid(R=1., r=0.5, pitch=1., nturns=2)(shape=[36*nturns, 2])\n\nCompute an approximation of the helicoid surface in 3D, with basis on z=0 plane and centered around the z axis.\n\nExample\n\njulia> using Plasm\n\njulia>  Plasm.view(Lar.helicoid()())\n\n\n\n\n\n"
 },
 
 {
-    "location": "mapper.html#LinearAlgebraicRepresentation.ring",
+    "location": "mapper/#LinearAlgebraicRepresentation.ring",
     "page": "Mapper",
     "title": "LinearAlgebraicRepresentation.ring",
     "category": "function",
-    "text": "ring(r=1., R=2., angle=2*pi)(shape=[36, 1])\n\nCompute the cellular 2-complex approximating a (possibly full) sector of a non-contractible disk. R and r are the external and the internal radiuses, respectively.\n\nExample\n\njulia> using LARVIEW\n\njulia> LARVIEW.view(LinearAlgebraicRepresentation.ring()())\n\n\n\n"
+    "text": "ring(r=1., R=2., angle=2*pi)(shape=[36, 1])\n\nCompute the cellular 2-complex approximating a (possibly full) sector of a non-contractible disk. R and r are the external and the internal radiuses, respectively.\n\nExample\n\njulia> using Plasm\n\njulia> Plasm.view(Lar.ring()())\n\n\n\n\n\n"
 },
 
 {
-    "location": "mapper.html#LinearAlgebraicRepresentation.cylinder",
+    "location": "mapper/#LinearAlgebraicRepresentation.cylinder",
     "page": "Mapper",
     "title": "LinearAlgebraicRepresentation.cylinder",
     "category": "function",
-    "text": "cylinder(radius=.5, height=2., angle=2*pi)(shape=[36, 1])\n\nCompute a cellular 2-complex, approximation of a right circular cylindrical surface in 3D. The open surface has basis on z=0 plane and is centered around the z axis.\n\nExample\n\njulia> using LARVIEW\n\njulia> LARVIEW.view(LinearAlgebraicRepresentation.cylinder()())\n\n\n\n"
+    "text": "cylinder(radius=.5, height=2., angle=2*pi)(shape=[36, 1])\n\nCompute a cellular 2-complex, approximation of a right circular cylindrical surface in 3D. The open surface has basis on z=0 plane and is centered around the z axis.\n\nExample\n\njulia> using Plasm\n\njulia> Plasm.view(Lar.cylinder()())\n\n\n\n\n\n"
 },
 
 {
-    "location": "mapper.html#LinearAlgebraicRepresentation.toroidal",
+    "location": "mapper/#LinearAlgebraicRepresentation.toroidal",
     "page": "Mapper",
     "title": "LinearAlgebraicRepresentation.toroidal",
     "category": "function",
-    "text": "toroidal(r=1., R=2., angle1=2*pi, angle2=2*pi)(shape=[24, 36])\n\nCompute a cellular 2-complex, approximation of the two-dimensional surface, embedded in a three-dimensional Euclidean space.  Toroidal is a closed surface having genus one, and therefore possessing a single \"hole\".  It can be constructed from a rectangle by gluing both pairs of opposite edges together with no twists.\n\nExample\n\njulia> using LARVIEW\n\njulia> LARVIEW.view(LinearAlgebraicRepresentation.toroidal()())\n\n\n\n"
+    "text": "toroidal(r=1., R=2., angle1=2*pi, angle2=2*pi)(shape=[24, 36])\n\nCompute a cellular 2-complex, approximation of the two-dimensional surface, embedded in a three-dimensional Euclidean space.  Toroidal is a closed surface having genus one, and therefore possessing a single \"hole\".  It can be constructed from a rectangle by gluing both pairs of opposite edges together with no twists.\n\nExample\n\njulia> using Plasm\n\njulia> Plasm.view(Lar.toroidal()())\n\n\n\n\n\n"
 },
 
 {
-    "location": "mapper.html#Surface-primitives-1",
+    "location": "mapper/#Surface-primitives-1",
     "page": "Mapper",
     "title": "Surface primitives",
     "category": "section",
-    "text": "LinearAlgebraicRepresentation.diskLinearAlgebraicRepresentation.helicoidLinearAlgebraicRepresentation.ringLinearAlgebraicRepresentation.cylinderLinearAlgebraicRepresentation.sphereLinearAlgebraicRepresentation.toroidal"
+    "text": "Lar.diskLar.helicoidLar.ringLar.cylinderLar.sphereLar.toroidal"
 },
 
 {
-    "location": "mapper.html#LinearAlgebraicRepresentation.cuboid",
+    "location": "mapper/#LinearAlgebraicRepresentation.cuboid",
     "page": "Mapper",
     "title": "LinearAlgebraicRepresentation.cuboid",
     "category": "function",
-    "text": "cuboid(maxpoint::Array, full=false, minpoint::Array=zeros(length(maxpoint)))\n\nReturn a d-dimensional cube, where d is the common length of arrays minpoint and maxpoint.  If flag=true the cells of all dimensions (between 1 and d) are generated.\n\njulia> LinearAlgebraicRepresentation.cuboid([-0.5, -0.5])\n# output\n([0.0 0.0 -0.5 -0.5; 0.0 -0.5 0.0 -0.5], Array{Int64,1}[[1, 2, 3, 4]])\n\njulia> LinearAlgebraicRepresentation.cuboid([-0.5, -0.5, 0], true)\n# output\n([0.0 0.0 … -0.5 -0.5; 0.0 0.0 … -0.5 -0.5; 0.0 0.0 … 0.0 0.0],\nArray{Array{Int64,1},1}[Array{Int64,1}[[1], [2], [3], [4], [5], [6], [7], [8]],\nArray{Int64,1}[[1, 2], [3, 4], [5, 6], [7, 8], [1, 3], [2, 4], [5, 7], [6, 8], [1, 5], [2,\n6], [3, 7], [4, 8]], Array{Int64,1}[[1, 2, 3, 4], [5, 6, 7, 8], [1, 2, 5, 6], [3, 4, 7,\n8], [1, 3, 5, 7], [2, 4, 6, 8]], Array{Int64,1}[[1, 2, 3, 4, 5, 6, 7, 8]]])\n\njulia> V, (VV, EV, FV, CV) = LinearAlgebraicRepresentation.cuboid([1,1,1], true);\n\njulia> assemby = LinearAlgebraicRepresentation.Struct([ (V, EV), LinearAlgebraicRepresentation.t(1,0,0), (V, CV) ])\n\njulia> using LARVIEW\n\njulia> LARVIEW.view(LinearAlgebraicRepresentation.struct2lar(assemby))\n\n\n\n"
+    "text": "cuboid(maxpoint::Array, full=false, minpoint::Array=zeros(length(maxpoint)))\n\nReturn a d-dimensional cube, where d is the common length of arrays minpoint and maxpoint.  If flag=true the cells of all dimensions (between 1 and d) are generated.\n\njulia> Lar.cuboid([-0.5, -0.5])\n# output\n([0.0 0.0 -0.5 -0.5; 0.0 -0.5 0.0 -0.5], Array{Int64,1}[[1, 2, 3, 4]])\n\njulia> Lar.cuboid([-0.5, -0.5, 0], true)\n# output\n([0.0 0.0 … -0.5 -0.5; 0.0 0.0 … -0.5 -0.5; 0.0 0.0 … 0.0 0.0],\nArray{Array{Int64,1},1}[Array{Int64,1}[[1], [2], [3], [4], [5], [6], [7], [8]],\nArray{Int64,1}[[1, 2], [3, 4], [5, 6], [7, 8], [1, 3], [2, 4], [5, 7], [6, 8], [1, 5], [2,\n6], [3, 7], [4, 8]], Array{Int64,1}[[1, 2, 3, 4], [5, 6, 7, 8], [1, 2, 5, 6], [3, 4, 7,\n8], [1, 3, 5, 7], [2, 4, 6, 8]], Array{Int64,1}[[1, 2, 3, 4, 5, 6, 7, 8]]])\n\njulia> V, (VV, EV, FV, CV) = Lar.cuboid([1,1,1], true);\n\njulia> assemby = Lar.Struct([ (V, EV), Lar.t(1,0,0), (V, CV) ])\n\njulia> using Plasm\n\njulia> Plasm.view(Lar.struct2lar(assemby))\n\n\n\n\n\n"
 },
 
 {
-    "location": "mapper.html#LinearAlgebraicRepresentation.ball",
+    "location": "mapper/#LinearAlgebraicRepresentation.ball",
     "page": "Mapper",
     "title": "LinearAlgebraicRepresentation.ball",
     "category": "function",
-    "text": "ball(radius=1, angle1=pi, angle2=2*pi)(shape=[18, 36,4])\n\nGenerate a cell decomposition of a solid 3-sphere in R^3. The variable shape provides the domain decomposition. Empty cells are removed after the Cartesian -> Polar coordinate mapping.\n\nExample\n\njulia> using LARVIEW\n\njulia> LARVIEW.view(LinearAlgebraicRepresentation.ball()())\n\n\n\n"
+    "text": "ball(radius=1, angle1=pi, angle2=2*pi)(shape=[18, 36,4])\n\nGenerate a cell decomposition of a solid 3-sphere in R^3. The variable shape provides the domain decomposition. Empty cells are removed after the Cartesian -> Polar coordinate mapping.\n\nExample\n\njulia> using Plasm\n\njulia> Plasm.view(Lar.ball()())\n\n\n\n\n\n"
 },
 
 {
-    "location": "mapper.html#LinearAlgebraicRepresentation.hollowCyl",
+    "location": "mapper/#LinearAlgebraicRepresentation.hollowCyl",
     "page": "Mapper",
     "title": "LinearAlgebraicRepresentation.hollowCyl",
     "category": "function",
-    "text": "hollowCyl(r=1., R=2., height=6., angle=2*pi)(shape=[36, 1, 1])\n\nCompute the cellular 3-complex approximating a solid cylinder with a   internal axial hole. The model is meshed with cubical 3-cells.\n\nExample\n\njulia> using LARVIEW\n\njulia> LARVIEW.view(LinearAlgebraicRepresentation.hollowCyl()())\n\n\n\n"
+    "text": "hollowCyl(r=1., R=2., height=6., angle=2*pi)(shape=[36, 1, 1])\n\nCompute the cellular 3-complex approximating a solid cylinder with a   internal axial hole. The model is meshed with cubical 3-cells.\n\nExample\n\njulia> using Plasm\n\njulia> Plasm.view(Lar.hollowCyl()())\n\n\n\n\n\n"
 },
 
 {
-    "location": "mapper.html#LinearAlgebraicRepresentation.hollowBall",
+    "location": "mapper/#LinearAlgebraicRepresentation.hollowBall",
     "page": "Mapper",
     "title": "LinearAlgebraicRepresentation.hollowBall",
     "category": "function",
-    "text": "hollowBall(r=1., R=2., angle1=pi, angle2=2*pi)(shape=[36, 1, 1])\n\nCompute the cellular 3-complex approximating a 3-sphere. The model is meshed with cubical 3-cells, where the mesh has default decomposition size [24, 36, 8].\n\nExample\n\njulia> V, CV = LinearAlgebraicRepresentation.hollowBall(1, 2, pi/2, pi/2)([6, 12, 4]);\n\njulia> using LARVIEW\n\njulia> LARVIEW.view(V, CV)\n...\n\n\n\n"
+    "text": "hollowBall(r=1., R=2., angle1=pi, angle2=2*pi)(shape=[36, 1, 1])\n\nCompute the cellular 3-complex approximating a 3-sphere. The model is meshed with cubical 3-cells, where the mesh has default decomposition size [24, 36, 8].\n\nExample\n\njulia> V, CV = Lar.hollowBall(1, 2, pi/2, pi/2)([6, 12, 4]);\n\njulia> using Plasm\n\njulia> Plasm.view(V, CV)\n...\n\n\n\n\n\n"
 },
 
 {
-    "location": "mapper.html#LinearAlgebraicRepresentation.torus",
+    "location": "mapper/#LinearAlgebraicRepresentation.torus",
     "page": "Mapper",
     "title": "LinearAlgebraicRepresentation.torus",
     "category": "function",
-    "text": "torus(r=1., R=2., h=.5, angle1=2*pi, angle2=2*pi)(shape=[24, 36, 4])\n\nCompute the cellular 3-complex approximating the solid torus in 3D. The model is meshed with cubical 3-cells, where the mesh has default decomposition size [24, 36, 4]. See also: toroidal. h is radius of the circular hole inside the solid.\n\nExample\n\njulia> using LARVIEW\n\njulia> LARVIEW.view(LinearAlgebraicRepresentation.torus(1., 2., .5, pi, pi)())\n\n\n\n"
+    "text": "torus(r=1., R=2., h=.5, angle1=2*pi, angle2=2*pi)(shape=[24, 36, 4])\n\nCompute the cellular 3-complex approximating the solid torus in 3D. The model is meshed with cubical 3-cells, where the mesh has default decomposition size [24, 36, 4]. See also: toroidal. h is radius of the circular hole inside the solid.\n\nExample\n\njulia> using Plasm\n\njulia> Plasm.view(Lar.torus(1., 2., .5, pi, pi)())\n\n\n\n\n\n"
 },
 
 {
-    "location": "mapper.html#Solid-primitives-1",
+    "location": "mapper/#Solid-primitives-1",
     "page": "Mapper",
     "title": "Solid primitives",
     "category": "section",
-    "text": "LinearAlgebraicRepresentation.cuboidLinearAlgebraicRepresentation.ballLinearAlgebraicRepresentation.hollowCylLinearAlgebraicRepresentation.hollowBallLinearAlgebraicRepresentation.torus"
+    "text": "Lar.cuboidLar.ballLar.hollowCylLar.hollowBallLar.torus"
 },
 
 {
-    "location": "struct.html#",
+    "location": "struct/#",
     "page": "Assemblies",
     "title": "Assemblies",
     "category": "page",
@@ -561,7 +561,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "struct.html#Assemblies-of-cellular-complexes-1",
+    "location": "struct/#Assemblies-of-cellular-complexes-1",
     "page": "Assemblies",
     "title": "Assemblies of cellular complexes",
     "category": "section",
@@ -569,7 +569,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "struct.html#Hierarchical-graphs-1",
+    "location": "struct/#Hierarchical-graphs-1",
     "page": "Assemblies",
     "title": "Hierarchical graphs",
     "category": "section",
@@ -577,7 +577,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "struct.html#Acyclic-directed-multigraph-1",
+    "location": "struct/#Acyclic-directed-multigraph-1",
     "page": "Assemblies",
     "title": "Acyclic directed-multigraph",
     "category": "section",
@@ -585,7 +585,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "struct.html#Hierarchical-structures-1",
+    "location": "struct/#Hierarchical-structures-1",
     "page": "Assemblies",
     "title": "Hierarchical structures",
     "category": "section",
@@ -593,7 +593,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "struct.html#Examples-1",
+    "location": "struct/#Examples-1",
     "page": "Assemblies",
     "title": "Examples",
     "category": "section",
@@ -601,7 +601,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "struct.html#Containers-of-geometric-objects-1",
+    "location": "struct/#Containers-of-geometric-objects-1",
     "page": "Assemblies",
     "title": "Containers of geometric objects",
     "category": "section",
@@ -609,79 +609,79 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "struct.html#Affine-transformations-and-containers-1",
+    "location": "struct/#Affine-transformations-and-containers-1",
     "page": "Assemblies",
     "title": "Affine transformations and containers",
     "category": "section",
-    "text": "Affine transformations or tensor matrices, of type Arra{Float64, 2}, are created by functionsLinearAlgebraicRepresentation.t(args...)	# for translation\nLinearAlgebraicRepresentation.s(args...)	# for scaling\nLinearAlgebraicRepresentation.r(args...)	# for rotationAn affine 3times 3 transformation matrix, generated in homogeneous normalized coordinates by the function call t(-0.5,-0.5), can be applied to a LAR object obj both explicitly by using the function apply(Matrix, obj) or implicitly by creating a Struct hierarchical object, as shown by the following examples:julia> table = LinearAlgebraicRepresentation.apply( LinearAlgebraicRepresentation.t(-0.5,-0.5), square )\n# output\n([-0.5 -0.5 0.5 0.5; -0.5 0.5 -0.5 0.5], Array{Int64,1}[[1, 2, 3, 4]],\nArray{Int64,1}[[1, 2], [1, 3], [2, 4], [3, 4]])\n\njulia> table = LinearAlgebraicRepresentation.Struct([ LinearAlgebraicRepresentation.t(-0.5,-0.5), square ])\n# output\nStruct(Any[[1.0 0.0 -0.5; 0.0 1.0 -0.5; 0.0 0.0 1.0], ([0 0 1 1; 0 1 0 1],\nArray{Int64,1}[[1, 2, 3, 4]], Array{Int64,1}[[1, 2], [1, 3], [2, 4], [3, 4]])],\nArray[[-0.5; -0.5], [0.5; 0.5]], \"10234090646332247690\", 2, \"feature\") The generation of container nodes may continue hierarchically by suitably applying Struct. Notice that each LAR object in a Struct container is transformed by each matrix before it within the container, going from right to left. The action of a transformation (tensor) extends to each object on its right within its own container. Whereas,  the action of a tensor does not extend outside its container, according to the semantics of PHIGS structures.chair = LinearAlgebraicRepresentation.Struct([ LinearAlgebraicRepresentation.t(0.75,0), LinearAlgebraicRepresentation.s(0.35,0.35), table ])"
+    "text": "Affine transformations or tensor matrices, of type Arra{Float64, 2}, are created by functionsLar.t(args...)	# for translation\nLar.s(args...)	# for scaling\nLar.r(args...)	# for rotationAn affine 3times 3 transformation matrix, generated in homogeneous normalized coordinates by the function call t(-0.5,-0.5), can be applied to a LAR object obj both explicitly by using the function apply(Matrix, obj) or implicitly by creating a Struct hierarchical object, as shown by the following examples:julia> Lar = LinearAlgebraicRepresentation\n\njulia> table = Lar.apply( Lar.t(-0.5,-0.5), square )\n# output\n([-0.5 -0.5 0.5 0.5; -0.5 0.5 -0.5 0.5], Array{Int64,1}[[1, 2, 3, 4]],\nArray{Int64,1}[[1, 2], [1, 3], [2, 4], [3, 4]])\n\njulia> table = Lar.Struct([ Lar.t(-0.5,-0.5), square ])\n# output\nStruct(Any[[1.0 0.0 -0.5; 0.0 1.0 -0.5; 0.0 0.0 1.0], ([0 0 1 1; 0 1 0 1],\nArray{Int64,1}[[1, 2, 3, 4]], Array{Int64,1}[[1, 2], [1, 3], [2, 4], [3, 4]])],\nArray[[-0.5; -0.5], [0.5; 0.5]], \"10234090646332247690\", 2, \"feature\") The generation of container nodes may continue hierarchically by suitably applying Struct. Notice that each LAR object in a Struct container is transformed by each matrix before it within the container, going from right to left. The action of a transformation (tensor) extends to each object on its right within its own container. Whereas,  the action of a tensor does not extend outside its container, according to the semantics of PHIGS structures.chair = Lar.Struct([ Lar.t(0.75,0), Lar.s(0.35,0.35), table ])"
 },
 
 {
-    "location": "struct.html#Container-evaluation-1",
+    "location": "struct/#Container-evaluation-1",
     "page": "Assemblies",
     "title": "Container evaluation",
     "category": "section",
-    "text": "The function evalStruct, when applied to a Struct value, generates an Array of LAR models, each one originally defined  in a local coordinate system, transforming all of them in the same world coordinate, equal to the ones of the first object in the Struct parameter sequence.Conversely, the struct2lar function generates a single LAR model (cellular complex), whose components are here assigned respectively to variables W (coordinates of vertices), FW faces (2-cells), and EW edges (1-cells). Notice that the whole model is embedded in 2D, since the W array (coordinates by columns) has two rowsscene = LinearAlgebraicRepresentation.evalStruct(struct02)	# array of LAR models\nW,FW,EW = LinearAlgebraicRepresentation.struct2lar(struct02)	# single LAR model"
+    "text": "The function evalStruct, when applied to a Struct value, generates an Array of LAR models, each one originally defined  in a local coordinate system, transforming all of them in the same world coordinate, equal to the ones of the first object in the Struct parameter sequence.Conversely, the struct2lar function generates a single LAR model (cellular complex), whose components are here assigned respectively to variables W (coordinates of vertices), FW faces (2-cells), and EW edges (1-cells). Notice that the whole model is embedded in 2D, since the W array (coordinates by columns) has two rowsscene = Lar.evalStruct(struct02)	# array of LAR models\nW,FW,EW = Lar.struct2lar(struct02)	# single LAR model"
 },
 
 {
-    "location": "struct.html#Simple-assembly-examples-1",
+    "location": "struct/#Simple-assembly-examples-1",
     "page": "Assemblies",
     "title": "Simple assembly examples",
     "category": "section",
-    "text": "The object struct0 below contains a table and 4 chairs, struct01 is a row of 10 suitably translated instances of struct0, and struct02 is another assembly of suitably translated struct01 instances. L = LinearAlgebraicRepresentation\nstruct0 = L.Struct([ L.t(2,1),table, repeat([L.r(pi/2), chair ], outer = 4)... ])\nstruct01 = L.struct2lar(L.Struct( repeat([ struct0, L.t(0,2.5) ], outer = 10) ));\nscene = L.struct2lar(L.Struct( repeat([ struct01, L.t(3,0) ], outer = 10) ));To see the generated 2D scene you need the LARVIEW module.using LARVIEW\nLARVIEW.view(scene[1],scene[2])\nLARVIEW.view(scene[1],scene[3])A different example provides a sphere, and a cylinder instance suitably translated, within the same Struct container. Of course, we could define a hierarchical assembly of any size and deep, containing any number of Struct nodes.warning: Warning\n2D surfaces embedded in 3D are normally displayed in LARVIEW as made of unoriented 2-cells. In order to get a better dispaly, the user should press the t or T keys on the keyboard.assembly = L.Struct([L.sphere()(), L.t(3,0,-1), L.cylinder()()])\nusing LARVIEW\nLARVIEW.view(L.struct2lar(assembly))(Image: )Figure 3: (a) Enlargement of a portion of the exploded complex in Fig.1; (b) an assembly with two cuboidal 2-complexes (surfaces) embedded in 3D."
+    "text": "The object struct0 below contains a table and 4 chairs, struct01 is a row of 10 suitably translated instances of struct0, and struct02 is another assembly of suitably translated struct01 instances. L = LinearAlgebraicRepresentation\nstruct0 = L.Struct([ L.t(2,1),table, repeat([L.r(pi/2), chair ], outer = 4)... ])\nstruct01 = L.struct2lar(L.Struct( repeat([ struct0, L.t(0,2.5) ], outer = 10) ));\nscene = L.struct2lar(L.Struct( repeat([ struct01, L.t(3,0) ], outer = 10) ));To see the generated 2D scene you need the Plasm module.using Plasm\nPlasm.view(scene[1],scene[2])\nPlasm.view(scene[1],scene[3])A different example provides a sphere, and a cylinder instance suitably translated, within the same Struct container. Of course, we could define a hierarchical assembly of any size and deep, containing any number of Struct nodes.warning: Warning\n2D surfaces embedded in 3D are normally displayed in Plasm as made of unoriented 2-cells. In order to get a better dispaly, the user should press the t or T keys on the keyboard.assembly = L.Struct([L.sphere()(), L.t(3,0,-1), L.cylinder()()])\nusing Plasm\nPlasm.view(L.struct2lar(assembly))(Image: )Figure 3: (a) Enlargement of a portion of the exploded complex in Fig.1; (b) an assembly with two cuboidal 2-complexes (surfaces) embedded in 3D."
 },
 
 {
-    "location": "struct.html#Coding-of-3D-refectory-assembly-1",
+    "location": "struct/#Coding-of-3D-refectory-assembly-1",
     "page": "Assemblies",
     "title": "Coding of 3D refectory assembly",
     "category": "section",
-    "text": "The refectory model shown in Figure 1 is stepwise developed here. Of course, in order to display the various geometric models, the LARVIEW package is needed.using LinearAlgebraicRepresentation\nL = LinearAlgebraicRepresentation\n\nusing LARVIEW\nView = LARVIEW.view(Image: )Figure 4: The generation process of the refectory assembly shown in Figure 1.First develop the table model, starting from a single cube object, of type LAR = Tuple{Points,Cells}, suitably translated to get the base center at the origin, then create containers for tableTop, tablelegs, and table. Finally check the assembly correctness, and convert to a LAR value.  The View primitive may be applied both to  Struct and LAR values, as well to other types.cube = L.apply( L.t(-.5,-.5,0), L.cuboid([1,1,1]))\ntableTop = L.Struct([ L.t(0,0,.85), L.s(1,1,.05), cube ])\ntableLeg = L.Struct([ L.t(-.475,-.475,0), L.s(.1,.1,.89), cube ])\ntablelegs = L.Struct( repeat([ tableLeg, L.r(0,0,pi/2) ],outer=4) )\ntable = L.Struct([ tableTop, tablelegs ])\nView(table)\ntable = L.struct2lar(table)\nView(table)Then build the chair model as above. The polyhedral cylndr is defined with 8 lateral faces, and 16 vertices. cylndr = L.rod(.06, .5, 2*pi)([8,1])\nchairTop = L.Struct([ L.t(0,0,0.5), L.s(0.5,0.5,0.04), cube ])\nchairLeg = L.Struct([ L.t(-.22,-.22,0), L.s(.5,.5,1), L.r(0,0,pi/8), cylndr ])\nchairlegs = L.Struct( repeat([ chairLeg, L.r(0,0,pi/2) ],outer=4) );\nchair = L.Struct([ chairTop, chairlegs ]);\nchair = L.struct2lar(chair)\nView(chair)Just notice that, in expanding the chair data structure, 72 vertices and five 3-cells are obtained. If a model made of quads or triangles is needed, just generate cube and cylndr using different primitives in mapper.jl file.julia> chair[1]\n3×72 Array{Float64,2}:\n -0.25  -0.25  -0.25  -0.25   0.25   0.25  0.25  0.25  …  -0.247716  -0.231481  -0.231481\n -0.25  -0.25   0.25   0.25  -0.25  -0.25  0.25  0.25      0.208519   0.192284   0.192284\n  0.5    0.54   0.5    0.54   0.5    0.54  0.5   0.54      0.5        0.0        0.5     \njulia> chair[2]\n5-element Array{Array{Int64,1},1}:\n [1, 2, 3, 4, 5, 6, 7, 8]                                        \n [9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24] \n [25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40]\n [41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56]\n [57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72]Finally assemble the refectory model, by looping twice on a single coordinate.  Then a single LAR value is create, as well an Array{Any,1} collection of simplest LAR values, all given in Wold Coordinates.theChair = L.Struct([ L.t(-.8,0,0), chair ])\nfourChairs = L.Struct( repeat([L.r(0,0,pi/2), theChair],outer=4) );\nfourSit = L.Struct([fourChairs,table]);\nView(fourSit)\nsingleRow=L.Struct(repeat([fourSit,L.t(0,2.5,0)],outer=10));\nView(singleRow)\nrefectory=L.Struct(repeat([singleRow,L.t(3,0,0)],outer=10));\nView(refectory)"
+    "text": "The refectory model shown in Figure 1 is stepwise developed here. Of course, in order to display the various geometric models, the Plasm package is needed.using LinearAlgebraicRepresentation\nL = LinearAlgebraicRepresentation\n\nusing Plasm\nView = Plasm.view(Image: )Figure 4: The generation process of the refectory assembly shown in Figure 1.First develop the table model, starting from a single cube object, of type LAR = Tuple{Points,Cells}, suitably translated to get the base center at the origin, then create containers for tableTop, tablelegs, and table. Finally check the assembly correctness, and convert to a LAR value.  The View primitive may be applied both to  Struct and LAR values, as well to other types.cube = L.apply( L.t(-.5,-.5,0), L.cuboid([1,1,1]))\ntableTop = L.Struct([ L.t(0,0,.85), L.s(1,1,.05), cube ])\ntableLeg = L.Struct([ L.t(-.475,-.475,0), L.s(.1,.1,.89), cube ])\ntablelegs = L.Struct( repeat([ tableLeg, L.r(0,0,pi/2) ],outer=4) )\ntable = L.Struct([ tableTop, tablelegs ])\nView(table)\ntable = L.struct2lar(table)\nView(table)Then build the chair model as above. The polyhedral cylndr is defined with 8 lateral faces, and 16 vertices. cylndr = L.rod(.06, .5, 2*pi)([8,1])\nchairTop = L.Struct([ L.t(0,0,0.5), L.s(0.5,0.5,0.04), cube ])\nchairLeg = L.Struct([ L.t(-.22,-.22,0), L.s(.5,.5,1), L.r(0,0,pi/8), cylndr ])\nchairlegs = L.Struct( repeat([ chairLeg, L.r(0,0,pi/2) ],outer=4) );\nchair = L.Struct([ chairTop, chairlegs ]);\nchair = L.struct2lar(chair)\nView(chair)Just notice that, in expanding the chair data structure, 72 vertices and five 3-cells are obtained. If a model made of quads or triangles is needed, just generate cube and cylndr using different primitives in mapper.jl file.julia> chair[1]\n3×72 Array{Float64,2}:\n -0.25  -0.25  -0.25  -0.25   0.25   0.25  0.25  0.25  …  -0.247716  -0.231481  -0.231481\n -0.25  -0.25   0.25   0.25  -0.25  -0.25  0.25  0.25      0.208519   0.192284   0.192284\n  0.5    0.54   0.5    0.54   0.5    0.54  0.5   0.54      0.5        0.0        0.5     \njulia> chair[2]\n5-element Array{Array{Int64,1},1}:\n [1, 2, 3, 4, 5, 6, 7, 8]                                        \n [9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24] \n [25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40]\n [41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56]\n [57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72]Finally assemble the refectory model, by looping twice on a single coordinate.  Then a single LAR value is create, as well an Array{Any,1} collection of simplest LAR values, all given in Wold Coordinates.theChair = L.Struct([ L.t(-.8,0,0), chair ])\nfourChairs = L.Struct( repeat([L.r(0,0,pi/2), theChair],outer=4) );\nfourSit = L.Struct([fourChairs,table]);\nView(fourSit)\nsingleRow=L.Struct(repeat([fourSit,L.t(0,2.5,0)],outer=10));\nView(singleRow)\nrefectory=L.Struct(repeat([singleRow,L.t(3,0,0)],outer=10));\nView(refectory)"
 },
 
 {
-    "location": "struct.html#LinearAlgebraicRepresentation.Struct",
+    "location": "struct/#LinearAlgebraicRepresentation.Struct",
     "page": "Assemblies",
     "title": "LinearAlgebraicRepresentation.Struct",
     "category": "type",
-    "text": "Struct\n\nA container of geometrical objects is defined by applying the function Struct to the array of contained objects. Each value is defined in local coordinates and may be transformed by affine transformation tensors.\n\nThe value returned from the application of Struct to an Array{Any, 1} of LAR values, matrices, and Struct values is a value of  Struct type.  The coordinate system of this value is the one associated with the first object of the Struct arguments.  Also, the resulting geometrical value is often associated with a variable name.\n\nThe generation of containers may continue hierarchically by suitably applying Struct. Notice that each LAR object in a Struct container is transformed by each matrix before it within the container, going from right to left. The action of a transformation (tensor) extends to each object on its right within its own container. Whereas,  the action of a tensor does not extend outside its container, according to the semantics of PHIGS structures.\n\nExample\n\njulia> L = LinearAlgebraicRepresentation;\n\njulia> assembly = L.Struct([L.sphere()(), L.t(3,0,-1), L.cylinder()()])\n# return\nLinearAlgebraicRepresentation.Struct(Any[([0.0 -0.173648 … -0.336824 -0.17101; 0.0 0.0 … 0.0593912 0.0301537;\n-1.0 -0.984808 … 0.939693 0.984808], Array{Int64,1}[[2, 3, 1], [4, 2, 3], [4, 3, 5], [4,\n5, 6], [7, 5, 6], [7, 8, 6], [7, 9, 8], … , [1.0 0.0 0.0 3.0; 0.0 1.0 0.0 0.0; 0.0 0.0 1.0\n-1.0; 0.0 0.0 0.0 1.0], ([0.5 0.5 … 0.492404 0.492404; 0.0 0.0 … -0.0868241 -0.0868241;\n0.0 2.0 … 0.0 2.0], Array{Int64,1}[[4, 2, 3, 1], [4, 3, 5, 6], [7, 5, 8, 6], [7, 9, 10,\n8], [9, 10, 11, 12], [13, 14, 11, 12], … , [68, 66, 67, 65], [68, 69, 67, 70], [71, 69,\n72, 70], [71, 2, 72, 1]])], Array{Float64,2}[[-1.0; -1.0; -1.0], [3.5; 1.0; 1.0]],\n\"14417445522513259426\", 3, \"feature\")\n\njulia> assembly.name = \"simple example\"\n# return\n\"simple example\"\n\njulia> assembly\n# return\nLinearAlgebraicRepresentation.Struct(Any[([0.0 -0.173648 … -0.336824 -0.17101; 0.0 0.0 … 0.0593912 0.0301537;\n-1.0 -0.984808 … 0.939693 0.984808], Array{Int64,1}[[2, 3, 1], [4, 2, 3], [4, 3, 5], [4,\n5, 6], [7, 5, 6], [7, 8, 6], … , [71, 2, 72, 1]])], Array{Float64,2}[[-1.0; -1.0; -1.0],\n[3.5; 1.0; 1.0]], \"simple example\", 3, \"feature\")\n\njulia> using LARVIEW\n\njulia> LARVIEW.view(assembly)\n\n\n\n"
+    "text": "Struct\n\nA container of geometrical objects is defined by applying the function Struct to the array of contained objects. Each value is defined in local coordinates and may be transformed by affine transformation tensors.\n\nThe value returned from the application of Struct to an Array{Any, 1} of LAR values, matrices, and Struct values is a value of  Struct type.  The coordinate system of this value is the one associated with the first object of the Struct arguments.  Also, the resulting geometrical value is often associated with a variable name.\n\nThe generation of containers may continue hierarchically by suitably applying Struct. Notice that each LAR object in a Struct container is transformed by each matrix before it within the container, going from right to left. The action of a transformation (tensor) extends to each object on its right within its own container. Whereas,  the action of a tensor does not extend outside its container, according to the semantics of PHIGS structures.\n\nExample\n\njulia> L = LinearAlgebraicRepresentation;\n\njulia> assembly = L.Struct([L.sphere()(), L.t(3,0,-1), L.cylinder()()])\n# return\nLar.Struct(Any[([0.0 -0.173648 … -0.336824 -0.17101; 0.0 0.0 … 0.0593912 0.0301537;\n-1.0 -0.984808 … 0.939693 0.984808], Array{Int64,1}[[2, 3, 1], [4, 2, 3], [4, 3, 5], [4,\n5, 6], [7, 5, 6], [7, 8, 6], [7, 9, 8], … , [1.0 0.0 0.0 3.0; 0.0 1.0 0.0 0.0; 0.0 0.0 1.0\n-1.0; 0.0 0.0 0.0 1.0], ([0.5 0.5 … 0.492404 0.492404; 0.0 0.0 … -0.0868241 -0.0868241;\n0.0 2.0 … 0.0 2.0], Array{Int64,1}[[4, 2, 3, 1], [4, 3, 5, 6], [7, 5, 8, 6], [7, 9, 10,\n8], [9, 10, 11, 12], [13, 14, 11, 12], … , [68, 66, 67, 65], [68, 69, 67, 70], [71, 69,\n72, 70], [71, 2, 72, 1]])], Array{Float64,2}[[-1.0; -1.0; -1.0], [3.5; 1.0; 1.0]],\n\"14417445522513259426\", 3, \"feature\")\n\njulia> assembly.name = \"simple example\"\n# return\n\"simple example\"\n\njulia> assembly\n# return\nLar.Struct(Any[([0.0 -0.173648 … -0.336824 -0.17101; 0.0 0.0 … 0.0593912 0.0301537;\n-1.0 -0.984808 … 0.939693 0.984808], Array{Int64,1}[[2, 3, 1], [4, 2, 3], [4, 3, 5], [4,\n5, 6], [7, 5, 6], [7, 8, 6], … , [71, 2, 72, 1]])], Array{Float64,2}[[-1.0; -1.0; -1.0],\n[3.5; 1.0; 1.0]], \"simple example\", 3, \"feature\")\n\njulia> using Plasm\n\njulia> Plasm.view(assembly)\n\n\n\n\n\n"
 },
 
 {
-    "location": "struct.html#LinearAlgebraicRepresentation.apply",
+    "location": "struct/#LinearAlgebraicRepresentation.apply",
     "page": "Assemblies",
     "title": "LinearAlgebraicRepresentation.apply",
     "category": "function",
-    "text": "apply(affineMatrix::Array{Float64,2}, larmodel::Union{LAR,LARmodel})\n\n\n\n"
+    "text": "apply(affineMatrix::Array{Float64,2}, larmodel::Union{LAR,LARmodel})\n\n\n\n\n\n"
 },
 
 {
-    "location": "struct.html#LinearAlgebraicRepresentation.struct2lar",
+    "location": "struct/#LinearAlgebraicRepresentation.struct2lar",
     "page": "Assemblies",
     "title": "LinearAlgebraicRepresentation.struct2lar",
     "category": "function",
-    "text": "struct2lar(structure::Struct)::Union{LAR,LARmodel}\n\n\n\n"
+    "text": "struct2lar(structure::Struct)::Union{LAR,LARmodel}\n\n\n\n\n\n"
 },
 
 {
-    "location": "struct.html#LinearAlgebraicRepresentation.evalStruct",
+    "location": "struct/#LinearAlgebraicRepresentation.evalStruct",
     "page": "Assemblies",
     "title": "LinearAlgebraicRepresentation.evalStruct",
     "category": "function",
-    "text": "evalStruct(self)\n\n\n\n"
+    "text": "evalStruct(self)\n\n\n\n\n\n"
 },
 
 {
-    "location": "struct.html#Main-Interface-1",
+    "location": "struct/#Main-Interface-1",
     "page": "Assemblies",
     "title": "Main Interface",
     "category": "section",
-    "text": "LinearAlgebraicRepresentation.StructLinearAlgebraicRepresentation.applyLinearAlgebraicRepresentation.struct2larLinearAlgebraicRepresentation.evalStruct"
+    "text": "Lar.StructLar.applyLar.struct2larLar.evalStruct"
 },
 
 {
-    "location": "largrid.html#",
+    "location": "largrid/#",
     "page": "Cuboidal grids",
     "title": "Cuboidal grids",
     "category": "page",
@@ -689,7 +689,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "largrid.html#Generation-and-product-of-multidimensional-complexes-1",
+    "location": "largrid/#Generation-and-product-of-multidimensional-complexes-1",
     "page": "Cuboidal grids",
     "title": "Generation and product of multidimensional complexes",
     "category": "section",
@@ -697,7 +697,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "largrid.html#Introduction-1",
+    "location": "largrid/#Introduction-1",
     "page": "Cuboidal grids",
     "title": "Introduction",
     "category": "section",
@@ -705,15 +705,15 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "largrid.html#The-base-case-1",
+    "location": "largrid/#The-base-case-1",
     "page": "Cuboidal grids",
     "title": "The base case",
     "category": "section",
-    "text": "We use 0- and 1-dimensional cell complexes as the basic material for several operations, including generation of simplicial and cellular grids and topological and Cartesian product of cell complexes.  The grid_0 second-order function generates a 0-dimensional uniform complex embedding n+1 equally-spaced (at unit intervals) 0-cells within the 0n interval. It returns the cells of this 0-complex, as an array of indices to vertices. The grid_1 second-order function generates a 1-dimensional uniform complex embedding n  1-cells of unit size within the 0n interval. A larGrid function is given to generate the LAR representation of the cells of either a 0- or a 1-dimensional complex, depending on the value of a d parameter, to take values in the set 01, and providing the order of the output complex.julia> LinearAlgebraicRepresentation.larGrid(10)(0)\n1×11 Array{Int64,2}:\n 0  1  2  3  4  5  6  7  8  9  10\n\njulia> LinearAlgebraicRepresentation.larGrid(10)(1)\n2×10 Array{Int64,2}:\n 0  1  2  3  4  5  6  7  8   9\n 1  2  3  4  5  6  7  8  9  10"
+    "text": "We use 0- and 1-dimensional cell complexes as the basic material for several operations, including generation of simplicial and cellular grids and topological and Cartesian product of cell complexes.  The grid_0 second-order function generates a 0-dimensional uniform complex embedding n+1 equally-spaced (at unit intervals) 0-cells within the 0n interval. It returns the cells of this 0-complex, as an array of indices to vertices. The grid_1 second-order function generates a 1-dimensional uniform complex embedding n  1-cells of unit size within the 0n interval. A larGrid function is given to generate the LAR representation of the cells of either a 0- or a 1-dimensional complex, depending on the value of a d parameter, to take values in the set 01, and providing the order of the output complex.julia> Lar = LinearAlgebraicRepresentation\n\njulia> Lar.larGrid(10)(0)\n1×11 Array{Int64,2}:\n 0  1  2  3  4  5  6  7  8  9  10\n\njulia> Lar.larGrid(10)(1)\n2×10 Array{Int64,2}:\n 0  1  2  3  4  5  6  7  8   9\n 1  2  3  4  5  6  7  8  9  10"
 },
 
 {
-    "location": "largrid.html#Dimension-independent-cuboidal-grids-1",
+    "location": "largrid/#Dimension-independent-cuboidal-grids-1",
     "page": "Cuboidal grids",
     "title": "Dimension-independent cuboidal grids",
     "category": "section",
@@ -721,55 +721,55 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "largrid.html#Examples-1",
+    "location": "largrid/#Examples-1",
     "page": "Cuboidal grids",
     "title": "Examples",
     "category": "section",
-    "text": "To understand the generation of cuboidal grids from products of 0- or 1-dimensional complexes, below we show a simple example of 2D grids embedded in R^3. In particular, v1 = [0 1 2 3] and v0 = [0 1 2] are two 2-arrays of 1D Points (i.e. with just one coordinate per vertex), c1 = [[0,1],[1,2],[2,3]] and c0 = [[0],[1],[2]] are the LAR representation of one 1-complex and one 0-complex, respectively. The solid 2-complex named grid2D is generated in 2D as follows, with reference to LinearAlgebraicRepresentation types:julia> v1 = [0 1 2 3]::LinearAlgebraicRepresentation.Points\n1×4 Array{Int64,2}:\n 0  1  2  3\n\njulia> c1 = [[0,1],[1,2],[2,3]]::LinearAlgebraicRepresentation.Cells\n3-element Array{Array{Int64,1},1}:\n [0, 1]\n [1, 2]\n [2, 3]\n\njulia> grid2D = ( LinearAlgebraicRepresentation.larVertProd([v1,v1]), LinearAlgebraicRepresentation.larCellProd([c1,c1]) )::LinearAlgebraicRepresentation.LAR\n([0 0 … 3 3; 0 1 … 2 3], Array{Int64,1}[[1, 2, 5, 6], [2, 3, 6, 7], [3, 4, 7, 8], [5, 6,\n9, 10], [6, 7, 10, 11], [7, 8, 11, 12], [9, 10, 13, 14], [10, 11, 14, 15], [11, 12, 15,\n16]])\n\njulia> grid2D[1]\n2×16 Array{Int64,2}:\n 0  0  0  0  1  1  1  1  2  2  2  2  3  3  3  3\n 0  1  2  3  0  1  2  3  0  1  2  3  0  1  2  3\n\njulia> grid2D[2]\n9-element Array{Array{Int64,1},1}:\n [1, 2, 5, 6]    \n [2, 3, 6, 7]    \n [3, 4, 7, 8]    \n [5, 6, 9, 10]   \n [6, 7, 10, 11]  \n [7, 8, 11, 12]  \n [9, 10, 13, 14] \n [10, 11, 14, 15]\n [11, 12, 15, 16]\n"
+    "text": "To understand the generation of cuboidal grids from products of 0- or 1-dimensional complexes, below we show a simple example of 2D grids embedded in R^3. In particular, v1 = [0 1 2 3] and v0 = [0 1 2] are two 2-arrays of 1D Points (i.e. with just one coordinate per vertex), c1 = [[0,1],[1,2],[2,3]] and c0 = [[0],[1],[2]] are the LAR representation of one 1-complex and one 0-complex, respectively. The solid 2-complex named grid2D is generated in 2D as follows, with reference to LinearAlgebraicRepresentation types:julia> v1 = [0 1 2 3]::Lar.Points\n1×4 Array{Int64,2}:\n 0  1  2  3\n\njulia> c1 = [[0,1],[1,2],[2,3]]::Lar.Cells\n3-element Array{Array{Int64,1},1}:\n [0, 1]\n [1, 2]\n [2, 3]\n\njulia> grid2D = ( Lar.larVertProd([v1,v1]), Lar.larCellProd([c1,c1]) )::Lar.LAR\n([0 0 … 3 3; 0 1 … 2 3], Array{Int64,1}[[1, 2, 5, 6], [2, 3, 6, 7], [3, 4, 7, 8], [5, 6,\n9, 10], [6, 7, 10, 11], [7, 8, 11, 12], [9, 10, 13, 14], [10, 11, 14, 15], [11, 12, 15,\n16]])\n\njulia> grid2D[1]\n2×16 Array{Int64,2}:\n 0  0  0  0  1  1  1  1  2  2  2  2  3  3  3  3\n 0  1  2  3  0  1  2  3  0  1  2  3  0  1  2  3\n\njulia> grid2D[2]\n9-element Array{Array{Int64,1},1}:\n [1, 2, 5, 6]    \n [2, 3, 6, 7]    \n [3, 4, 7, 8]    \n [5, 6, 9, 10]   \n [6, 7, 10, 11]  \n [7, 8, 11, 12]  \n [9, 10, 13, 14] \n [10, 11, 14, 15]\n [11, 12, 15, 16]\n"
 },
 
 {
-    "location": "largrid.html#LinearAlgebraicRepresentation.larCellProd",
+    "location": "largrid/#LinearAlgebraicRepresentation.larCellProd",
     "page": "Cuboidal grids",
     "title": "LinearAlgebraicRepresentation.larCellProd",
     "category": "function",
-    "text": "larCellProd(cellLists::Array{Cells,1})::Cells\n\nGeneration of grid cells by Cartesian product of 0/1-complexes. The output complex is generated by the product of any number of either 0- or 1-dimensional cell complexes. The product of d 1-complexes generates solid d-cells, while the product of n 0-complexes and d-n 1-complexes (n  d) generates non-solid (d-n)-cells, properly embedded in d-space, i.e. with vertices having d coordinates.\n\nExamples\n\nTo understand the generation of cuboidal grids from products of 0- or 1-dimensional complexes, below we show a simple example of 2D grids embedded in R^3. In particular, v1 = [0. 1. 2. 3.] and v0 = [0. 1. 2.] are two 2-arrays of 1D vertices, c1 = [[0,1],[1,2],[2,3]] and c0 = [[0],[1],[2]] are the LAR representation of one 1-complex and one 0-complex, respectively. The solid 2-complex named grid2D is generated in 2D as follows:\n\njulia> v1 = [0. 1. 2. 3.]\n1×4 Array{Float64,2}:\n 0.0  1.0  2.0  3.0\n\njulia> c1 = [[0,1],[1,2],[2,3]]\n3-element Array{Array{Int64,1},1}:\n [0, 1]\n [1, 2]\n [2, 3]\n\njulia> grid2D = larVertProd([v1,v1]),larCellProd([c1,c1])\n([0.0 0.0 … 3.0 3.0; 0.0 1.0 … 2.0 3.0], Array{Int64,1}[[1, 2, 5, 6], [2, 3, 6, 7], [3, 4, 7, 8], [5, 6, 9, 10], [6, 7, 10, 11], [7, 8, 11, 12], [9, 10, 13, 14], [10, 11, 14, 15], [11, 12, 15, 16]])\n\nwhereas a non-solid 2-complex in 3D is generated as:\n\njulia> v1, c1 = [0. 1. 2. 3.],[[0,1],[1,2],[2,3]]\n([0.0 1.0 2.0 3.0], Array{Int64,1}[[0, 1], [1, 2], [2, 3]])\n\njulia> v0, c0 = [0. 1. 2.], [[0],[1],[2]]\n([0.0 1.0 2.0], Array{Int64,1}[[0], [1], [2]])\n\njulia> vertGrid = larVertProd([v1, v1, v0])\n3×48 Array{Float64,2}:\n 0.0  0.0  0.0  0.0  0.0  0.0  …  3.0  3.0  3.0  3.0  3.0  3.0  3.0  3.0  3.0\n 0.0  0.0  0.0  1.0  1.0  1.0  …  1.0  1.0  1.0  2.0  2.0  2.0  3.0  3.0  3.0\n 0.0  1.0  2.0  0.0  1.0  2.0  …  0.0  1.0  2.0  0.0  1.0  2.0  0.0  1.0  2.0\n\njulia> cellGrid = larCellProd([c1, c1, c0])\n27-element Array{Array{Int64,1},1}:\n [1, 4, 13, 16]  \n [2, 5, 14, 17]  \n ...  ... ...\n [32, 35, 44, 47]\n [33, 36, 45, 48]\n\njulia> grid3D = vertGrid,cellGrid\n([0.0 0.0 … 3.0 3.0; 0.0 0.0 … 3.0 3.0; 0.0 1.0 … 1.0 2.0], Array{Int64,1}[[1, 4, 13, 16], [2, 5, 14, 17], … [32, 35, 44, 47], [33, 36, 45, 48]])\n\njulia> using LARVIEW\n\njulia> LARVIEW.view(grid3D)\n\n\n\n"
+    "text": "larCellProd(cellLists::Array{Cells,1})::Cells\n\nGeneration of grid cells by Cartesian product of 0/1-complexes. The output complex is generated by the product of any number of either 0- or 1-dimensional cell complexes. The product of d 1-complexes generates solid d-cells, while the product of n 0-complexes and d-n 1-complexes (n  d) generates non-solid (d-n)-cells, properly embedded in d-space, i.e. with vertices having d coordinates.\n\nExamples\n\nTo understand the generation of cuboidal grids from products of 0- or 1-dimensional complexes, below we show a simple example of 2D grids embedded in R^3. In particular, v1 = [0. 1. 2. 3.] and v0 = [0. 1. 2.] are two 2-arrays of 1D vertices, c1 = [[0,1],[1,2],[2,3]] and c0 = [[0],[1],[2]] are the LAR representation of one 1-complex and one 0-complex, respectively. The solid 2-complex named grid2D is generated in 2D as follows:\n\njulia> v1 = [0. 1. 2. 3.]\n1×4 Array{Float64,2}:\n 0.0  1.0  2.0  3.0\n\njulia> c1 = [[0,1],[1,2],[2,3]]\n3-element Array{Array{Int64,1},1}:\n [0, 1]\n [1, 2]\n [2, 3]\n\njulia> grid2D = larVertProd([v1,v1]),larCellProd([c1,c1])\n([0.0 0.0 … 3.0 3.0; 0.0 1.0 … 2.0 3.0], Array{Int64,1}[[1, 2, 5, 6], [2, 3, 6, 7], [3, 4, 7, 8], [5, 6, 9, 10], [6, 7, 10, 11], [7, 8, 11, 12], [9, 10, 13, 14], [10, 11, 14, 15], [11, 12, 15, 16]])\n\nwhereas a non-solid 2-complex in 3D is generated as:\n\njulia> v1, c1 = [0. 1. 2. 3.],[[0,1],[1,2],[2,3]]\n([0.0 1.0 2.0 3.0], Array{Int64,1}[[0, 1], [1, 2], [2, 3]])\n\njulia> v0, c0 = [0. 1. 2.], [[0],[1],[2]]\n([0.0 1.0 2.0], Array{Int64,1}[[0], [1], [2]])\n\njulia> vertGrid = larVertProd([v1, v1, v0])\n3×48 Array{Float64,2}:\n 0.0  0.0  0.0  0.0  0.0  0.0  …  3.0  3.0  3.0  3.0  3.0  3.0  3.0  3.0  3.0\n 0.0  0.0  0.0  1.0  1.0  1.0  …  1.0  1.0  1.0  2.0  2.0  2.0  3.0  3.0  3.0\n 0.0  1.0  2.0  0.0  1.0  2.0  …  0.0  1.0  2.0  0.0  1.0  2.0  0.0  1.0  2.0\n\njulia> cellGrid = larCellProd([c1, c1, c0])\n27-element Array{Array{Int64,1},1}:\n [1, 4, 13, 16]  \n [2, 5, 14, 17]  \n ...  ... ...\n [32, 35, 44, 47]\n [33, 36, 45, 48]\n\njulia> grid3D = vertGrid,cellGrid\n([0.0 0.0 … 3.0 3.0; 0.0 0.0 … 3.0 3.0; 0.0 1.0 … 1.0 2.0], Array{Int64,1}[[1, 4, 13, 16], [2, 5, 14, 17], … [32, 35, 44, 47], [33, 36, 45, 48]])\n\njulia> using Plasm\n\njulia> Plasm.view(grid3D)\n\n\n\n\n\n"
 },
 
 {
-    "location": "largrid.html#LinearAlgebraicRepresentation.larGridSkeleton",
+    "location": "largrid/#LinearAlgebraicRepresentation.larGridSkeleton",
     "page": "Cuboidal grids",
     "title": "LinearAlgebraicRepresentation.larGridSkeleton",
     "category": "function",
-    "text": "larGridSkeleton( shape::Array{Int,1} )( d::Int )::Cells\n\nProduce the d-dimensional skeleton (set of d-cells) of a cuboidal grid of given shape.\n\nExample\n\nA shape=[1,1,1] parameter refers to a grid with a single step on the three axes, i.e. to a single 3D unit cube. Below all skeletons of such simplest grid are generated.\n\njulia> larGridSkeleton([1,1,1])(0)\n# output\n8-element Array{Array{Int64,1},1}:\n[[1], [2], [3], [4], [5], [6], [7], [8]]\n\njulia> larGridSkeleton([1,1,1])(1)\n# output\n12-element Array{Array{Int64,1},1}:\n[[1,2],[3,4],[5,6],[7,8],[1,3],[2,4],[5,7],[6,8],[1,5],[2,6],[3,7],[4,8]]\n\njulia> larGridSkeleton([1,1,1])(2)\n# output\n6-element Array{Array{Int64,1},1}:\n[[1,2,3,4], [5,6,7,8], [1,2,5,6], [3,4,7,8], [1,3,5,7], [2,4,6,8]]\n\njulia> larGridSkeleton([1,1,1])(3)\n# output\n1-element Array{Array{Int64,1},1}:\n [1, 2, 3, 4, 5, 6, 7, 8]\n\n\n\n"
+    "text": "larGridSkeleton( shape::Array{Int,1} )( d::Int )::Cells\n\nProduce the d-dimensional skeleton (set of d-cells) of a cuboidal grid of given shape.\n\nExample\n\nA shape=[1,1,1] parameter refers to a grid with a single step on the three axes, i.e. to a single 3D unit cube. Below all skeletons of such simplest grid are generated.\n\njulia> Lar.larGridSkeleton([1,1,1])(0)\n# output\n8-element Array{Array{Int64,1},1}:\n[[1], [2], [3], [4], [5], [6], [7], [8]]\n\njulia> Lar.larGridSkeleton([1,1,1])(1)\n# output\n12-element Array{Array{Int64,1},1}:\n[[1,2],[3,4],[5,6],[7,8],[1,3],[2,4],[5,7],[6,8],[1,5],[2,6],[3,7],[4,8]]\n\njulia> Lar.larGridSkeleton([1,1,1])(2)\n# output\n6-element Array{Array{Int64,1},1}:\n[[1,2,3,4], [5,6,7,8], [1,2,5,6], [3,4,7,8], [1,3,5,7], [2,4,6,8]]\n\njulia> Lar.larGridSkeleton([1,1,1])(3)\n# output\n1-element Array{Array{Int64,1},1}:\n [1, 2, 3, 4, 5, 6, 7, 8]\n\n\n\n\n\n"
 },
 
 {
-    "location": "largrid.html#LinearAlgebraicRepresentation.larCuboids",
+    "location": "largrid/#LinearAlgebraicRepresentation.larCuboids",
     "page": "Cuboidal grids",
     "title": "LinearAlgebraicRepresentation.larCuboids",
     "category": "function",
-    "text": "larCuboids( shape, filled=false )::Union( Cells, Array{Cells,1} )\n\nMulti-dimensional generator function. Generate either a solid d-grid of unit d-cuboids in d-dimensional space, or the array of p-skeletons (0 =p= d), depending on the Boolean variable filled. 0-cuboids are points, 1-cuboids are segments, , 2-cuboids are squares,  3-cuboids are cubes, etc. The shape=[a,b,c] value determines the number a x b x c of d-cells. Notice that d = length(shape)\n\n\n\n"
+    "text": "larCuboids( shape, filled=false )::Union( Cells, Array{Cells,1} )\n\nMulti-dimensional generator function. Generate either a solid d-grid of unit d-cuboids in d-dimensional space, or the array of p-skeletons (0 =p= d), depending on the Boolean variable filled. 0-cuboids are points, 1-cuboids are segments, , 2-cuboids are squares,  3-cuboids are cubes, etc. The shape=[a,b,c] value determines the number a x b x c of d-cells. Notice that d = length(shape)\n\n\n\n\n\n"
 },
 
 {
-    "location": "largrid.html#LinearAlgebraicRepresentation.larModelProduct",
+    "location": "largrid/#LinearAlgebraicRepresentation.larModelProduct",
     "page": "Cuboidal grids",
     "title": "LinearAlgebraicRepresentation.larModelProduct",
     "category": "function",
-    "text": "larModelProduct\n\nThe larModelProduct function takes as input a pair of LAR models and returns the model of their Cartesian product. Since LAR type is a pair (geometrytopology), the second element of output is the topological product of the input topologies.\n\nExample\n\nData preparation follows.\n\njulia> geom_0,topol_0 = [0. 1. 2. 3. 4.],[[1],[2],[3],[4],[5]]\n([0.0 1.0 … 3.0 4.0], Array{Int64,1}[[1, 2], [2, 3], [3, 4], [4, 5]])\n\njulia> geom_1,topol_1 = [0. 1. 2.], [[1,2],[2,3]]\n([0.0 1.0 2.0], Array{Int64,1}[[1, 2], [2, 3]])\n\njulia> mod_0 = (geom_0,topol_0)\n([0.0 1.0 … 3.0 4.0], Array{Int64,1}[[1, 2], [2, 3], [3, 4], [4, 5]])\n\njulia> mod_1 = (geom_1,topol_1)\n([0.0 1.0 2.0], Array{Int64,1}[[1, 2], [2, 3]])\n\nGeneration of a 2D squares model, with 8 two-dimensional cells.\n\njulia> squares = larModelProduct(mod_1,mod_1)\n([0.0 0.0 … 4.0 4.0; 0.0 1.0 … 1.0 2.0], Array{Int64,1}[[1, 2, 4, 5], [2, 3, 5, 6], [4, 5, 7, 8], [5, 6, 8, 9], [7, 8, 10, 11], [8, 9, 11, 12], [10, 11, 13, 14], [11, 12, 14, 15]])\n\njulia> squares[1]\n2×15 Array{Float64,2}:\n 0.0  0.0  0.0  1.0  1.0  1.0  2.0  2.0  2.0  3.0  3.0  3.0  4.0  4.0  4.0\n 0.0  1.0  2.0  0.0  1.0  2.0  0.0  1.0  2.0  0.0  1.0  2.0  0.0  1.0  2.0\n\njulia> squares[2]\n8-element Array{Array{Int64,1},1}:\n[[1,2,4,5], [2,3,5,6], [4,5,7,8], [5,6,8,9], [7,8,10,11], [8,9,11,12], [10,11,13,14], [11,12,14,15]]\n\nGeneration of a 3D cubes model, with 32 three-dimensional cells.\n\njulia> cubes = larModelProduct(squares,mod_0)\n([0.0 0.0 … 4.0 4.0; 0.0 0.0 … 2.0 2.0; 0.0 1.0 … 3.0 4.0], Array{Int64,1}[[1, 2, 6, 7, 16, 17, 21, 22], [2, 3, 7, 8, 17, 18, 22, 23], [3, 4, 8, 9, 18, 19, 23, 24], [4, 5, 9, 10, 19, 20, 24, 25], … [53, 54, 58, 59, 68, 69, 73, 74], [54, 55, 59, 60, 69, 70, 74, 75]])\n\n\n\nlarModelProduct(twoModels::Array{LAR,1})::LAR\n\nFurther method associated to larModelProduct function.\n\n\n\n"
+    "text": "larModelProduct\n\nThe larModelProduct function takes as input a pair of LAR models and returns the model of their Cartesian product. Since LAR type is a pair (geometrytopology), the second element of output is the topological product of the input topologies.\n\nExample\n\nData preparation follows.\n\njulia> geom_0,topol_0 = [0. 1. 2. 3. 4.],[[1],[2],[3],[4],[5]]\n([0.0 1.0 … 3.0 4.0], Array{Int64,1}[[1, 2], [2, 3], [3, 4], [4, 5]])\n\njulia> geom_1,topol_1 = [0. 1. 2.], [[1,2],[2,3]]\n([0.0 1.0 2.0], Array{Int64,1}[[1, 2], [2, 3]])\n\njulia> mod_0 = (geom_0,topol_0)\n([0.0 1.0 … 3.0 4.0], Array{Int64,1}[[1, 2], [2, 3], [3, 4], [4, 5]])\n\njulia> mod_1 = (geom_1,topol_1)\n([0.0 1.0 2.0], Array{Int64,1}[[1, 2], [2, 3]])\n\nGeneration of a 2D squares model, with 8 two-dimensional cells.\n\njulia> squares = larModelProduct(mod_1,mod_1)\n([0.0 0.0 … 4.0 4.0; 0.0 1.0 … 1.0 2.0], Array{Int64,1}[[1, 2, 4, 5], [2, 3, 5, 6], [4, 5, 7, 8], [5, 6, 8, 9], [7, 8, 10, 11], [8, 9, 11, 12], [10, 11, 13, 14], [11, 12, 14, 15]])\n\njulia> squares[1]\n2×15 Array{Float64,2}:\n 0.0  0.0  0.0  1.0  1.0  1.0  2.0  2.0  2.0  3.0  3.0  3.0  4.0  4.0  4.0\n 0.0  1.0  2.0  0.0  1.0  2.0  0.0  1.0  2.0  0.0  1.0  2.0  0.0  1.0  2.0\n\njulia> squares[2]\n8-element Array{Array{Int64,1},1}:\n[[1,2,4,5], [2,3,5,6], [4,5,7,8], [5,6,8,9], [7,8,10,11], [8,9,11,12], [10,11,13,14], [11,12,14,15]]\n\nGeneration of a 3D cubes model, with 32 three-dimensional cells.\n\njulia> cubes = larModelProduct(squares,mod_0)\n([0.0 0.0 … 4.0 4.0; 0.0 0.0 … 2.0 2.0; 0.0 1.0 … 3.0 4.0], Array{Int64,1}[[1, 2, 6, 7, 16, 17, 21, 22], [2, 3, 7, 8, 17, 18, 22, 23], [3, 4, 8, 9, 18, 19, 23, 24], [4, 5, 9, 10, 19, 20, 24, 25], … [53, 54, 58, 59, 68, 69, 73, 74], [54, 55, 59, 60, 69, 70, 74, 75]])\n\n\n\n\n\nlarModelProduct(twoModels::Array{LAR,1})::LAR\n\nFurther method associated to larModelProduct function.\n\n\n\n\n\n"
 },
 
 {
-    "location": "largrid.html#Main-Interface-1",
+    "location": "largrid/#Main-Interface-1",
     "page": "Cuboidal grids",
     "title": "Main Interface",
     "category": "section",
-    "text": "LinearAlgebraicRepresentation.larCellProdLinearAlgebraicRepresentation.larGridSkeletonLinearAlgebraicRepresentation.larCuboidsLinearAlgebraicRepresentation.larModelProduct"
+    "text": "Lar.larCellProdLar.larGridSkeletonLar.larCuboidsLar.larModelProduct"
 },
 
 {
-    "location": "simplexn.html#",
+    "location": "simplexn/#",
     "page": "Simplicial grids",
     "title": "Simplicial grids",
     "category": "page",
@@ -777,7 +777,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "simplexn.html#Simplicial-complexes-1",
+    "location": "simplexn/#Simplicial-complexes-1",
     "page": "Simplicial grids",
     "title": "Simplicial complexes",
     "category": "section",
@@ -785,7 +785,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "simplexn.html#Simplicial-extrusion-1",
+    "location": "simplexn/#Simplicial-extrusion-1",
     "page": "Simplicial grids",
     "title": "Simplicial extrusion",
     "category": "section",
@@ -793,7 +793,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "simplexn.html#Simplicial-grids-1",
+    "location": "simplexn/#Simplicial-grids-1",
     "page": "Simplicial grids",
     "title": "Simplicial grids",
     "category": "section",
@@ -801,7 +801,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "simplexn.html#Facet-extraction-from-simplices-1",
+    "location": "simplexn/#Facet-extraction-from-simplices-1",
     "page": "Simplicial grids",
     "title": "Facet extraction from simplices",
     "category": "section",
@@ -809,7 +809,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "simplexn.html#Examples-1",
+    "location": "simplexn/#Examples-1",
     "page": "Simplicial grids",
     "title": "Examples",
     "category": "section",
@@ -817,63 +817,63 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "simplexn.html#Multidimensional-simplicial-extrusion-1",
+    "location": "simplexn/#Multidimensional-simplicial-extrusion-1",
     "page": "Simplicial grids",
     "title": "Multidimensional simplicial extrusion",
     "category": "section",
-    "text": "The algorithm for multimensional extrusion of a simplicial complex is implemented in the extrudeSimplicial function.  This one can be applied to 0-, 1-, 2-, ... simplicial model, to get a 1-, 2-, 3-, .... model.  A 1D pattern of linear Array type is used to specify how to decompose the added dimension.The input and output model are a LAR model, i.e. a pair (vertices, cells), whereas pattern is an array of Int64, to be used as lateral measures of the extruded model. Note that pattern elements are assumed as either solid or empty measures, according to their (+/-) sign.julia> V = [[0,0] [1,0] [2,0] [0,1] [1,1] [2,1] [0,2] [1,2] [2,2]]\n2×9 Array{Int64,2}:\n 0  1  2  0  1  2  0  1  2\n 0  0  0  1  1  1  2  2  2\n\njulia> FV = [[1,2,4],[2,3,5],[3,5,6],[4,5,7],[5,7,8],[6,8,9]]\n6-element Array{Array{Int64,1},1}:\n [1, 2, 4]\n [2, 3, 5]\n [3, 5, 6]\n [4, 5, 7]\n [5, 7, 8]\n [6, 8, 9]\n\njulia> pattern = repeat([1,2,-3],outer=4)\n12-element Array{Int64,1}:\n[1,2,-3,1,2,-3,1,2,-3,1,2,-3]\n\njulia> model = (V,FV)\n([0 1 2 0 1 2 0 1 2; 0 0 0 1 1 1 2 2 2], \nArray{Int64,1}[[1, 2, 4], [2, 3, 5], [3, 5, 6], [4, 5, 7], [5, 7, 8], [6, 8, 9]])\n\njulia> W,FW = LinearAlgebraicRepresentation.extrudeSimplicial(model, pattern)\n\njulia> W\n3×117 Array{Int64,2}:\n 0  1  2  0  1  2  0  1  2   …   0   1   2   0   1   2   0   1   2   0   1   2\n 0  0  0  1  1  1  2  2  2       2   2   2   0   0   0   1   1   1   2   2   2\n 0  0  0  0  0  0  0  0  0      21  21  21  24  24  24  24  24  24  24  24  24\n\njulia> FW\n144-element Array{Array{Int64,1},1}:\n [1, 2, 4, 10]      \n [2, 4, 10, 11]     \n ⋮                  \n [96, 98, 99, 105]  \n [98, 99, 105, 107] \n [99, 105, 107, 108]\n\njulia> LARVIEW.view(W,FW)"
+    "text": "The algorithm for multimensional extrusion of a simplicial complex is implemented in the extrudeSimplicial function.  This one can be applied to 0-, 1-, 2-, ... simplicial model, to get a 1-, 2-, 3-, .... model.  A 1D pattern of linear Array type is used to specify how to decompose the added dimension.The input and output model are a LAR model, i.e. a pair (vertices, cells), whereas pattern is an array of Int64, to be used as lateral measures of the extruded model. Note that pattern elements are assumed as either solid or empty measures, according to their (+/-) sign.julia> Lar = LinearAlgebraicRepresentation\n\njulia> V = [[0,0] [1,0] [2,0] [0,1] [1,1] [2,1] [0,2] [1,2] [2,2]]\n2×9 Array{Int64,2}:\n 0  1  2  0  1  2  0  1  2\n 0  0  0  1  1  1  2  2  2\n\njulia> FV = [[1,2,4],[2,3,5],[3,5,6],[4,5,7],[5,7,8],[6,8,9]]\n6-element Array{Array{Int64,1},1}:\n [1, 2, 4]\n [2, 3, 5]\n [3, 5, 6]\n [4, 5, 7]\n [5, 7, 8]\n [6, 8, 9]\n\njulia> pattern = repeat([1,2,-3],outer=4)\n12-element Array{Int64,1}:\n[1,2,-3,1,2,-3,1,2,-3,1,2,-3]\n\njulia> model = (V,FV)\n([0 1 2 0 1 2 0 1 2; 0 0 0 1 1 1 2 2 2], \nArray{Int64,1}[[1, 2, 4], [2, 3, 5], [3, 5, 6], [4, 5, 7], [5, 7, 8], [6, 8, 9]])\n\njulia> W,FW = Lar.extrudeSimplicial(model, pattern)\n\njulia> W\n3×117 Array{Int64,2}:\n 0  1  2  0  1  2  0  1  2   …   0   1   2   0   1   2   0   1   2   0   1   2\n 0  0  0  1  1  1  2  2  2       2   2   2   0   0   0   1   1   1   2   2   2\n 0  0  0  0  0  0  0  0  0      21  21  21  24  24  24  24  24  24  24  24  24\n\njulia> FW\n144-element Array{Array{Int64,1},1}:\n [1, 2, 4, 10]      \n [2, 4, 10, 11]     \n ⋮                  \n [96, 98, 99, 105]  \n [98, 99, 105, 107] \n [99, 105, 107, 108]\n\njulia> Plasm.view(W,FW)"
 },
 
 {
-    "location": "simplexn.html#Multidimensional-grids-of-simplices-1",
+    "location": "simplexn/#Multidimensional-grids-of-simplices-1",
     "page": "Simplicial grids",
     "title": "Multidimensional grids of simplices",
     "category": "section",
-    "text": "Generate a simplicial complex decomposition of a cubical grid of d-cuboids, where d is the length of shape=[n_1, n_2, ..., n_d] array, so that shape defines the grid dimension d and size n_1 times n_2 times  times n_d  as a d-dimensional array of cubes. Vertices (0-cells) of the grid have Int64 coordinates.julia> LinearAlgebraicRepresentation.simplexGrid([0]) # 0-dimensional simplicial complex\n# output\n([0], Array{Int64,1}[])\n\njulia> V,EV = LinearAlgebraicRepresentation.simplexGrid([1]) # 1-dimensional simplicial complex\n# output\n([0 1], Array{Int64,1}[[1, 2]])\n\njulia> V,FV = LinearAlgebraicRepresentation.simplexGrid([1,1]) # 2-dimensional simplicial complex\n# output\n([0 1 0 1; 0 0 1 1], Array{Int64,1}[[1, 2, 3], [2, 3, 4]])\n\njulia> V,CV = LinearAlgebraicRepresentation.simplexGrid([10,10,1]) # 3-dimensional simplicial complex\n# output\n([0 1 … 9 10; 0 0 … 10 10; 0 0 … 1 1], Array{Int64,1}[[1, 2, 12, 122], [2, 12, 122, 123], [12, 122, 123, 133], [2, 12, 13, 123], [12, 13, 123, 133], [13, 123, 133, 134], [2, 3, 13, 123], [3, 13, 123, 124], [13, 123, 124, 134], [3, 13, 14, 124]  …  [119, 229, 230, 240], [109, 119, 120, 230], [119, 120, 230, 240], [120, 230, 240, 241], [109, 110, 120, 230], [110, 120, 230, 231], [120, 230, 231, 241], [110, 120, 121, 231], [120, 121, 231, 241], [121, 231, 241, 242]])\n\njulia> V\n# output\n3×242 Array{Int64,2}:\n 0  1  2  3  4  5  6  7  8  9  10  0  1  2  3  …   1   2   3   4   5   6   7   8   9  10\n 0  0  0  0  0  0  0  0  0  0   0  1  1  1  1     10  10  10  10  10  10  10  10  10  10\n 0  0  0  0  0  0  0  0  0  0   0  0  0  0  0      1   1   1   1   1   1   1   1   1   1\n\n\njulia> using LARVIEW\n\njulia> hpc = LARVIEW.hpc_exploded(V,CV) # exploded visualization of the simplicial grid\n\njulia> LARVIEW.view(hpc)\n\njulia> V,HV = simplexGrid([1,1,1,1]) # 4-dim simplicial complex\n# output\n([0 1 … 0 1; 0 0 … 1 1; 0 0 … 1 1; 0 0 … 1 1], Array{Int64,1}[[1, 2, 3, 5, 9], [2, 3, 5, 9, 10], [3, 5, 9, 10, 11], [5, 9, 10, 11, 13], [2, 3, 5, 6, 10], [3, 5, 6, 10, 11], [5, 6, 10, 11, 13], [6, 10, 11, 13, 14], [3, 5, 6, 7, 11], [5, 6, 7, 11, 13]  …  [4, 6, 10, 11, 12], [6, 10, 11, 12, 14], [3, 4, 6, 7, 11], [4, 6, 7, 11, 12], [6, 7, 11, 12, 14], [7, 11, 12, 14, 15], [4, 6, 7, 8, 12], [6, 7, 8, 12, 14], [7, 8, 12, 14, 15], [8, 12, 14, 15, 16]])"
+    "text": "Generate a simplicial complex decomposition of a cubical grid of d-cuboids, where d is the length of shape=[n_1, n_2, ..., n_d] array, so that shape defines the grid dimension d and size n_1 times n_2 times  times n_d  as a d-dimensional array of cubes. Vertices (0-cells) of the grid have Int64 coordinates.julia> Lar.simplexGrid([0]) # 0-dimensional simplicial complex\n# output\n([0], Array{Int64,1}[])\n\njulia> V,EV = Lar.simplexGrid([1]) # 1-dimensional simplicial complex\n# output\n([0 1], Array{Int64,1}[[1, 2]])\n\njulia> V,FV = Lar.simplexGrid([1,1]) # 2-dimensional simplicial complex\n# output\n([0 1 0 1; 0 0 1 1], Array{Int64,1}[[1, 2, 3], [2, 3, 4]])\n\njulia> V,CV = Lar.simplexGrid([10,10,1]) # 3-dimensional simplicial complex\n# output\n([0 1 … 9 10; 0 0 … 10 10; 0 0 … 1 1], Array{Int64,1}[[1, 2, 12, 122], [2, 12, 122, 123], [12, 122, 123, 133], [2, 12, 13, 123], [12, 13, 123, 133], [13, 123, 133, 134], [2, 3, 13, 123], [3, 13, 123, 124], [13, 123, 124, 134], [3, 13, 14, 124]  …  [119, 229, 230, 240], [109, 119, 120, 230], [119, 120, 230, 240], [120, 230, 240, 241], [109, 110, 120, 230], [110, 120, 230, 231], [120, 230, 231, 241], [110, 120, 121, 231], [120, 121, 231, 241], [121, 231, 241, 242]])\n\njulia> V\n# output\n3×242 Array{Int64,2}:\n 0  1  2  3  4  5  6  7  8  9  10  0  1  2  3  …   1   2   3   4   5   6   7   8   9  10\n 0  0  0  0  0  0  0  0  0  0   0  1  1  1  1     10  10  10  10  10  10  10  10  10  10\n 0  0  0  0  0  0  0  0  0  0   0  0  0  0  0      1   1   1   1   1   1   1   1   1   1\n\n\njulia> using Plasm\n\njulia> hpc = Plasm.hpc_exploded(V,CV) # exploded visualization of the simplicial grid\n\njulia> Plasm.view(hpc)\n\njulia> V,HV = simplexGrid([1,1,1,1]) # 4-dim simplicial complex\n# output\n([0 1 … 0 1; 0 0 … 1 1; 0 0 … 1 1; 0 0 … 1 1], Array{Int64,1}[[1, 2, 3, 5, 9], [2, 3, 5, 9, 10], [3, 5, 9, 10, 11], [5, 9, 10, 11, 13], [2, 3, 5, 6, 10], [3, 5, 6, 10, 11], [5, 6, 10, 11, 13], [6, 10, 11, 13, 14], [3, 5, 6, 7, 11], [5, 6, 7, 11, 13]  …  [4, 6, 10, 11, 12], [6, 10, 11, 12, 14], [3, 4, 6, 7, 11], [4, 6, 7, 11, 12], [6, 7, 11, 12, 14], [7, 11, 12, 14, 15], [4, 6, 7, 8, 12], [6, 7, 8, 12, 14], [7, 8, 12, 14, 15], [8, 12, 14, 15, 16]])"
 },
 
 {
-    "location": "simplexn.html#Facets-of-multidimensional-simplicial-complexes-1",
+    "location": "simplexn/#Facets-of-multidimensional-simplicial-complexes-1",
     "page": "Simplicial grids",
     "title": "Facets of multidimensional simplicial complexes",
     "category": "section",
-    "text": "Compute the (d-1)-skeleton (set of facets) of a simplicial d-complex. Each of the d+1 facets of of a d-simplex sigma^d, obtained by removing a vertex from sigma^d, is a (d-1)-simplex.julia> V,FV = LinearAlgebraicRepresentation.simplexGrid([1,1]) # 2-dimensional complex\n# output\n([0 1 0 1; 0 0 1 1], Array{Int64,1}[[1, 2, 3], [2, 3, 4]])\n\njulia> LARVIEW.view(V,FV)\n\njulia> W,CW = LinearAlgebraicRepresentation.extrudeSimplicial((V,FV), [1])\n([0.0 1.0 … 0.0 1.0; 0.0 0.0 … 1.0 1.0; 0.0 0.0 … 1.0 1.0], \nArray{Int64,1}[[1,2,3,5],[2,3,5,6],[3,5,6,7],[2,3,4,6],[3,4,6,7],[4,6,7,8]])\n\njulia> FW = LinearAlgebraicRepresentation.simplexFacets(CW)\n18-element Array{Any,1}:\n[[1,3,5],[5,6,7],[3,5,7],[3,6,7],[4,6,7],[4,7,8],[4,6,8],\n[6,7,8],[3,5,6],[2,3,5],[2,3,4],[3,4,7],[1,2,3],[2,4,6],[2,5,6],\n[1,2,5],[2,3,6],[3,4,6]]\n\njulia> LARVIEW.view(W,FW)"
+    "text": "Compute the (d-1)-skeleton (set of facets) of a simplicial d-complex. Each of the d+1 facets of of a d-simplex sigma^d, obtained by removing a vertex from sigma^d, is a (d-1)-simplex.julia> V,FV = Lar.simplexGrid([1,1]) # 2-dimensional complex\n# output\n([0 1 0 1; 0 0 1 1], Array{Int64,1}[[1, 2, 3], [2, 3, 4]])\n\njulia> Plasm.view(V,FV)\n\njulia> W,CW = Lar.extrudeSimplicial((V,FV), [1])\n([0.0 1.0 … 0.0 1.0; 0.0 0.0 … 1.0 1.0; 0.0 0.0 … 1.0 1.0], \nArray{Int64,1}[[1,2,3,5],[2,3,5,6],[3,5,6,7],[2,3,4,6],[3,4,6,7],[4,6,7,8]])\n\njulia> FW = Lar.simplexFacets(CW)\n18-element Array{Any,1}:\n[[1,3,5],[5,6,7],[3,5,7],[3,6,7],[4,6,7],[4,7,8],[4,6,8],\n[6,7,8],[3,5,6],[2,3,5],[2,3,4],[3,4,7],[1,2,3],[2,4,6],[2,5,6],\n[1,2,5],[2,3,6],[3,4,6]]\n\njulia> Plasm.view(W,FW)"
 },
 
 {
-    "location": "simplexn.html#LinearAlgebraicRepresentation.simplexGrid",
+    "location": "simplexn/#LinearAlgebraicRepresentation.simplexGrid",
     "page": "Simplicial grids",
     "title": "LinearAlgebraicRepresentation.simplexGrid",
     "category": "function",
-    "text": "simplexGrid(shape::Array)::LAR\n\nGenerate a simplicial complex decomposition of a cubical grid of d-cuboids, where d is the length of shape array. Vertices (0-cells) of the grid have Int64 coordinates.\n\nExamples\n\njulia> simplexGrid([0]) # 0-dimensional complex\n# output\n([0], Array{Int64,1}[])\n\njulia> V,EV = simplexGrid([1]) # 1-dimensional complex\n# output\n([0 1], Array{Int64,1}[[1, 2]])\n\njulia> V,FV = simplexGrid([1,1]) # 2-dimensional complex\n# output\n([0 1 0 1; 0 0 1 1], Array{Int64,1}[[1, 2, 3], [2, 3, 4]])\n\njulia> V,CV = simplexGrid([10,10,1]) # 3-dimensional complex\n# output\n([0 1 … 9 10; 0 0 … 10 10; 0 0 … 1 1], Array{Int64,1}[[1, 2, 12, 122], [2, 12, 122, 123], [12, 122, 123, 133], [2, 12, 13, 123], [12, 13, 123, 133], [13, 123, 133, 134], [2, 3, 13, 123], [3, 13, 123, 124], [13, 123, 124, 134], [3, 13, 14, 124]  …  [119, 229, 230, 240], [109, 119, 120, 230], [119, 120, 230, 240], [120, 230, 240, 241], [109, 110, 120, 230], [110, 120, 230, 231], [120, 230, 231, 241], [110, 120, 121, 231], [120, 121, 231, 241], [121, 231, 241, 242]])\n\njulia> V\n# output\n3×242 Array{Int64,2}:\n 0  1  2  3  4  5  6  7  8  9  10  0  1  2  3  …   1   2   3   4   5   6   7   8   9  10\n 0  0  0  0  0  0  0  0  0  0   0  1  1  1  1     10  10  10  10  10  10  10  10  10  10\n 0  0  0  0  0  0  0  0  0  0   0  0  0  0  0      1   1   1   1   1   1   1   1   1   1\n\njulia> using LARVIEW\n\njulia> hpc = LARVIEW.lar2exploded_hpc(V,CV) # exploded visualization of the grid\n\njulia> LARVIEW.view(hpc)\n\njulia> V,HV = simplexGrid([1,1,1,1]) # 4-dim cellular complex from the 4D simplex\n# output\n([0 1 … 0 1; 0 0 … 1 1; 0 0 … 1 1; 0 0 … 1 1], Array{Int64,1}[[1, 2, 3, 5, 9], [2, 3, 5, 9, 10], [3, 5, 9, 10, 11], [5, 9, 10, 11, 13], [2, 3, 5, 6, 10], [3, 5, 6, 10, 11], [5, 6, 10, 11, 13], [6, 10, 11, 13, 14], [3, 5, 6, 7, 11], [5, 6, 7, 11, 13]  …  [4, 6, 10, 11, 12], [6, 10, 11, 12, 14], [3, 4, 6, 7, 11], [4, 6, 7, 11, 12], [6, 7, 11, 12, 14], [7, 11, 12, 14, 15], [4, 6, 7, 8, 12], [6, 7, 8, 12, 14], [7, 8, 12, 14, 15], [8, 12, 14, 15, 16]])\n\n\n\n"
+    "text": "simplexGrid(shape::Array)::LAR\n\nGenerate a simplicial complex decomposition of a cubical grid of d-cuboids, where d is the length of shape array. Vertices (0-cells) of the grid have Int64 coordinates.\n\nExamples\n\njulia> simplexGrid([0]) # 0-dimensional complex\n# output\n([0], Array{Int64,1}[])\n\njulia> V,EV = simplexGrid([1]) # 1-dimensional complex\n# output\n([0 1], Array{Int64,1}[[1, 2]])\n\njulia> V,FV = simplexGrid([1,1]) # 2-dimensional complex\n# output\n([0 1 0 1; 0 0 1 1], Array{Int64,1}[[1, 2, 3], [2, 3, 4]])\n\njulia> V,CV = simplexGrid([10,10,1]) # 3-dimensional complex\n# output\n([0 1 … 9 10; 0 0 … 10 10; 0 0 … 1 1], Array{Int64,1}[[1, 2, 12, 122], [2, 12, 122, 123], [12, 122, 123, 133], [2, 12, 13, 123], [12, 13, 123, 133], [13, 123, 133, 134], [2, 3, 13, 123], [3, 13, 123, 124], [13, 123, 124, 134], [3, 13, 14, 124]  …  [119, 229, 230, 240], [109, 119, 120, 230], [119, 120, 230, 240], [120, 230, 240, 241], [109, 110, 120, 230], [110, 120, 230, 231], [120, 230, 231, 241], [110, 120, 121, 231], [120, 121, 231, 241], [121, 231, 241, 242]])\n\njulia> V\n# output\n3×242 Array{Int64,2}:\n 0  1  2  3  4  5  6  7  8  9  10  0  1  2  3  …   1   2   3   4   5   6   7   8   9  10\n 0  0  0  0  0  0  0  0  0  0   0  1  1  1  1     10  10  10  10  10  10  10  10  10  10\n 0  0  0  0  0  0  0  0  0  0   0  0  0  0  0      1   1   1   1   1   1   1   1   1   1\n\njulia> using Plasm\n\njulia> hpc = Plasm.lar2exploded_hpc(V,CV) # exploded visualization of the grid\n\njulia> Plasm.view(hpc)\n\njulia> V,HV = simplexGrid([1,1,1,1]) # 4-dim cellular complex from the 4D simplex\n# output\n([0 1 … 0 1; 0 0 … 1 1; 0 0 … 1 1; 0 0 … 1 1], Array{Int64,1}[[1, 2, 3, 5, 9], [2, 3, 5, 9, 10], [3, 5, 9, 10, 11], [5, 9, 10, 11, 13], [2, 3, 5, 6, 10], [3, 5, 6, 10, 11], [5, 6, 10, 11, 13], [6, 10, 11, 13, 14], [3, 5, 6, 7, 11], [5, 6, 7, 11, 13]  …  [4, 6, 10, 11, 12], [6, 10, 11, 12, 14], [3, 4, 6, 7, 11], [4, 6, 7, 11, 12], [6, 7, 11, 12, 14], [7, 11, 12, 14, 15], [4, 6, 7, 8, 12], [6, 7, 8, 12, 14], [7, 8, 12, 14, 15], [8, 12, 14, 15, 16]])\n\n\n\n\n\n"
 },
 
 {
-    "location": "simplexn.html#LinearAlgebraicRepresentation.simplexFacets",
+    "location": "simplexn/#LinearAlgebraicRepresentation.simplexFacets",
     "page": "Simplicial grids",
     "title": "LinearAlgebraicRepresentation.simplexFacets",
     "category": "function",
-    "text": "simplexFacets(simplices::Cells)::Cells\n\nCompute the (d-1)-skeleton (set of facets) of a simplicial d-complex.\n\nExamples\n\njulia> V,FV = simplexGrid([1,1]) # 2-dimensional complex\n# output\n([0 1 0 1; 0 0 1 1], Array{Int64,1}[[1, 2, 3], [2, 3, 4]])\n\njulia> LARVIEW.view(V,FV)\n\njulia> W,CW = extrudeSimplicial((V,FV), [1])\n([0.0 1.0 … 0.0 1.0; 0.0 0.0 … 1.0 1.0; 0.0 0.0 … 1.0 1.0], \nArray{Int64,1}[[1,2,3,5],[2,3,5,6],[3,5,6,7],[2,3,4,6],[3,4,6,7],[4,6,7,8]])\n\njulia> FW = simplexFacets(CW)\n18-element Array{Any,1}:\n[[1,3,5],[5,6,7],[3,5,7],[3,6,7],[4,6,7],[4,7,8],[4,6,8],\n[6,7,8],[3,5,6],[2,3,5],[2,3,4],[3,4,7],[1,2,3],[2,4,6],[2,5,6],\n[1,2,5],[2,3,6],[3,4,6]]\n\njulia> LARVIEW.view(W,FW)\n\n\n\n"
+    "text": "simplexFacets(simplices::Cells)::Cells\n\nCompute the (d-1)-skeleton (set of facets) of a simplicial d-complex.\n\nExamples\n\njulia> V,FV = simplexGrid([1,1]) # 2-dimensional complex\n# output\n([0 1 0 1; 0 0 1 1], Array{Int64,1}[[1, 2, 3], [2, 3, 4]])\n\njulia> Plasm.view(V,FV)\n\njulia> W,CW = extrudeSimplicial((V,FV), [1])\n([0.0 1.0 … 0.0 1.0; 0.0 0.0 … 1.0 1.0; 0.0 0.0 … 1.0 1.0], \nArray{Int64,1}[[1,2,3,5],[2,3,5,6],[3,5,6,7],[2,3,4,6],[3,4,6,7],[4,6,7,8]])\n\njulia> FW = simplexFacets(CW)\n18-element Array{Any,1}:\n[[1,3,5],[5,6,7],[3,5,7],[3,6,7],[4,6,7],[4,7,8],[4,6,8],\n[6,7,8],[3,5,6],[2,3,5],[2,3,4],[3,4,7],[1,2,3],[2,4,6],[2,5,6],\n[1,2,5],[2,3,6],[3,4,6]]\n\njulia> Plasm.view(W,FW)\n\n\n\n\n\n"
 },
 
 {
-    "location": "simplexn.html#LinearAlgebraicRepresentation.extrudeSimplicial",
+    "location": "simplexn/#LinearAlgebraicRepresentation.extrudeSimplicial",
     "page": "Simplicial grids",
     "title": "LinearAlgebraicRepresentation.extrudeSimplicial",
     "category": "function",
-    "text": "extrudeSimplicial(model::LAR, pattern::Array)::LAR\n\nAlgorithm for multimensional extrusion of a simplicial complex.  Can be applied to 0-, 1-, 2-, ... simplicial models, to get a 1-, 2-, 3-, .... model. The pattern Array is used to specify how to decompose the added dimension.\n\nA model is a LAR model, i.e. a pair (vertices,cells) to be extruded, whereas pattern is an array of Int64, to be used as lateral measures of the extruded model. pattern elements are assumed as either solid or empty measures, according to their (+/-) sign.\n\nExample\n\njulia> V = [[0,0] [1,0] [2,0] [0,1] [1,1] [2,1] [0,2] [1,2] [2,2]];\n\njulia> FV = [[1,2,4],[2,3,5],[3,5,6],[4,5,7],[5,7,8],[6,8,9]];\n\njulia> pattern = repeat([1,2,-3],outer=4);\n\njulia> model = (V,FV);\n\njulia> W,FW = extrudeSimplicial(model, pattern);\n\njulia> LARVIEW.view(W,FW)\n\n\n\n"
+    "text": "extrudeSimplicial(model::LAR, pattern::Array)::LAR\n\nAlgorithm for multimensional extrusion of a simplicial complex.  Can be applied to 0-, 1-, 2-, ... simplicial models, to get a 1-, 2-, 3-, .... model. The pattern Array is used to specify how to decompose the added dimension.\n\nA model is a LAR model, i.e. a pair (vertices,cells) to be extruded, whereas pattern is an array of Int64, to be used as lateral measures of the extruded model. pattern elements are assumed as either solid or empty measures, according to their (+/-) sign.\n\nExample\n\njulia> V = [[0,0] [1,0] [2,0] [0,1] [1,1] [2,1] [0,2] [1,2] [2,2]];\n\njulia> FV = [[1,2,4],[2,3,5],[3,5,6],[4,5,7],[5,7,8],[6,8,9]];\n\njulia> pattern = repeat([1,2,-3],outer=4);\n\njulia> model = (V,FV);\n\njulia> W,FW = extrudeSimplicial(model, pattern);\n\njulia> Plasm.view(W,FW)\n\n\n\n\n\n"
 },
 
 {
-    "location": "simplexn.html#Main-Interface-1",
+    "location": "simplexn/#Main-Interface-1",
     "page": "Simplicial grids",
     "title": "Main Interface",
     "category": "section",
-    "text": "LinearAlgebraicRepresentation.simplexGridLinearAlgebraicRepresentation.simplexFacetsLinearAlgebraicRepresentation.extrudeSimplicial"
+    "text": "Lar.simplexGridLar.simplexFacetsLar.extrudeSimplicial"
 },
 
 {
-    "location": "integr.html#",
+    "location": "integr/#",
     "page": "Domain integration",
     "title": "Domain integration",
     "category": "page",
@@ -881,7 +881,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "integr.html#Finite-integration-of-polynomials-1",
+    "location": "integr/#Finite-integration-of-polynomials-1",
     "page": "Domain integration",
     "title": "Finite integration of polynomials",
     "category": "section",
@@ -889,7 +889,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "integr.html#Integration-Algorithms-1",
+    "location": "integr/#Integration-Algorithms-1",
     "page": "Domain integration",
     "title": "Integration Algorithms",
     "category": "section",
@@ -897,7 +897,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "integr.html#Examples-1",
+    "location": "integr/#Examples-1",
     "page": "Domain integration",
     "title": "Examples",
     "category": "section",
@@ -905,7 +905,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "integr.html#D-integration-1",
+    "location": "integr/#D-integration-1",
     "page": "Domain integration",
     "title": "2D integration",
     "category": "section",
@@ -913,51 +913,51 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "integr.html#Example-unit-3D-triangle-1",
+    "location": "integr/#Example-unit-3D-triangle-1",
     "page": "Domain integration",
     "title": "Example  unit 3D triangle",
     "category": "section",
-    "text": "julia> V = [0.0 1.0 0.0; 0.0 0.0 1.0; 0.0 0.0 0.0]\n3×3 Array{Float64,2}:\n 0.0  1.0  0.0\n 0.0  0.0  1.0\n 0.0  0.0  0.0\n\njulia> FV = [[1,2,3]]\n1-element Array{Array{Int64,1},1}:\n [1, 2, 3]\n\njulia> P = V,FV\n([0.0 1.0 0.0; 0.0 0.0 1.0; 0.0 0.0 0.0], Array{Int64,1}[[1, 2, 3]])\n\njulia> LinearAlgebraicRepresentation.II(P, 0,0,0)\n0.5Then, more interesting examples are given. First, the surface of the affinely transformed (rotated and translated) unit square:julia> V,FV = LinearAlgebraicRepresentation.simplexGrid([1,1])\n([0.0 1.0 0.0 1.0; 0.0 0.0 1.0 1.0], Array{Int64,1}[[1, 2, 3], [2, 3, 4]])\n\njulia> P = [V;[0 0 0 0]], FV\n([0.0 1.0 0.0 1.0; 0.0 0.0 1.0 1.0; 0.0 0.0 0.0 0.0], \nArray{Int64,1}[[1, 2, 3], [2, 3, 4]])\n\njulia> LinearAlgebraicRepresentation.surface(P)\n1.0\n\njulia> p = LinearAlgebraicRepresentation.Struct([LinearAlgebraicRepresentation.t(0.5,0.5,0), LinearAlgebraicRepresentation.r(0,0,pi/4), P]);\n\njulia> q = LinearAlgebraicRepresentation.struct2lar(p);\n\njulia> LinearAlgebraicRepresentation.surface(q)\n1.0000000532124802Then, the surface and the barycenter  of the simplicial grid 3 x 4 of unit 2-cells on the z=0 plane is computed. Notice that the  centroid function cannot be used, since P is two-dimensional (flat) and embedded in 3-space. So, we use directly the centroid definition as first surface moments divided by area. Remember that the grid domain is 3 x 4.julia> V,FV = LinearAlgebraicRepresentation.simplexGrid([3,4]);\n\njulia> P = [V; zeros(size(V,2))\'], FV;\n\njulia> LinearAlgebraicRepresentation.surface(P)\n12.0\n\njulia> LinearAlgebraicRepresentation.II(P,1,0,0)/LinearAlgebraicRepresentation.II(P,0,0,0)\n1.5\n\njulia> LinearAlgebraicRepresentation.II(P,0,1,0)/LinearAlgebraicRepresentation.II(P,0,0,0)\n2.0\n\njulia> LinearAlgebraicRepresentation.II(P,0,0,1)/LinearAlgebraicRepresentation.II(P,0,0,0)\n0.0"
+    "text": "julia> V = [0.0 1.0 0.0; 0.0 0.0 1.0; 0.0 0.0 0.0]\n3×3 Array{Float64,2}:\n 0.0  1.0  0.0\n 0.0  0.0  1.0\n 0.0  0.0  0.0\n\njulia> FV = [[1,2,3]]\n1-element Array{Array{Int64,1},1}:\n [1, 2, 3]\n\njulia> P = V,FV\n([0.0 1.0 0.0; 0.0 0.0 1.0; 0.0 0.0 0.0], Array{Int64,1}[[1, 2, 3]])\n\njulia> Lar.II(P, 0,0,0)\n0.5Then, more interesting examples are given. First, the surface of the affinely transformed (rotated and translated) unit square:julia> V,FV = Lar.simplexGrid([1,1])\n([0.0 1.0 0.0 1.0; 0.0 0.0 1.0 1.0], Array{Int64,1}[[1, 2, 3], [2, 3, 4]])\n\njulia> P = [V;[0 0 0 0]], FV\n([0.0 1.0 0.0 1.0; 0.0 0.0 1.0 1.0; 0.0 0.0 0.0 0.0], \nArray{Int64,1}[[1, 2, 3], [2, 3, 4]])\n\njulia> Lar.surface(P)\n1.0\n\njulia> p = Lar.Struct([Lar.t(0.5,0.5,0), Lar.r(0,0,pi/4), P]);\n\njulia> q = Lar.struct2lar(p);\n\njulia> Lar.surface(q)\n1.0000000532124802Then, the surface and the barycenter  of the simplicial grid 3 x 4 of unit 2-cells on the z=0 plane is computed. Notice that the  centroid function cannot be used, since P is two-dimensional (flat) and embedded in 3-space. So, we use directly the centroid definition as first surface moments divided by area. Remember that the grid domain is 3 x 4.julia> V,FV = Lar.simplexGrid([3,4]);\n\njulia> P = [V; zeros(size(V,2))\'], FV;\n\njulia> Lar.surface(P)\n12.0\n\njulia> Lar.II(P,1,0,0)/Lar.II(P,0,0,0)\n1.5\n\njulia> Lar.II(P,0,1,0)/Lar.II(P,0,0,0)\n2.0\n\njulia> Lar.II(P,0,0,1)/Lar.II(P,0,0,0)\n0.0"
 },
 
 {
-    "location": "integr.html#D-integration-2",
+    "location": "integr/#D-integration-2",
     "page": "Domain integration",
     "title": "3D integration",
     "category": "section",
-    "text": "The simplest example of volume integration is volume integral on the unit 3D tetrahedron P.julia> V = [0.0 1.0 0.0 0.0; 0.0 0.0 1.0 0.0; 0.0 0.0 0.0 1.0]\n3×4 Array{Float64,2}:\n 0.0  1.0  0.0  0.0\n 0.0  0.0  1.0  0.0\n 0.0  0.0  0.0  1.0\n\njulia> FV = [[1, 2, 4], [1, 3, 2], [4, 3, 1], [2, 3, 4]]\n4-element Array{Array{Int64,1},1}:\n [1, 2, 4]\n [1, 3, 2]\n [4, 3, 1]\n [2, 3, 4]\n\njulia> P = V,FV\n([0.0 1.0 0.0 0.0; 0.0 0.0 1.0 0.0; 0.0 0.0 0.0 1.0], \nArray{Int64,1}[[1, 2, 4], [1, 3, 2], [4, 3, 1], [2, 3, 4]])\n\njulia> LinearAlgebraicRepresentation.volume(P)\n0.16666666666666674For more general polyhedrons, we must extract the boundary sourface, get a triangulation and apply the 3D integration functions on the LAR of such models."
+    "text": "The simplest example of volume integration is volume integral on the unit 3D tetrahedron P.julia> V = [0.0 1.0 0.0 0.0; 0.0 0.0 1.0 0.0; 0.0 0.0 0.0 1.0]\n3×4 Array{Float64,2}:\n 0.0  1.0  0.0  0.0\n 0.0  0.0  1.0  0.0\n 0.0  0.0  0.0  1.0\n\njulia> FV = [[1, 2, 4], [1, 3, 2], [4, 3, 1], [2, 3, 4]]\n4-element Array{Array{Int64,1},1}:\n [1, 2, 4]\n [1, 3, 2]\n [4, 3, 1]\n [2, 3, 4]\n\njulia> P = V,FV\n([0.0 1.0 0.0 0.0; 0.0 0.0 1.0 0.0; 0.0 0.0 0.0 1.0], \nArray{Int64,1}[[1, 2, 4], [1, 3, 2], [4, 3, 1], [2, 3, 4]])\n\njulia> Lar.volume(P)\n0.16666666666666674For more general polyhedrons, we must extract the boundary sourface, get a triangulation and apply the 3D integration functions on the LAR of such models."
 },
 
 {
-    "location": "integr.html#LinearAlgebraicRepresentation.surface",
+    "location": "integr/#LinearAlgebraicRepresentation.surface",
     "page": "Domain integration",
     "title": "LinearAlgebraicRepresentation.surface",
     "category": "type",
-    "text": "sphere(radius=1., angle1=pi, angle2=2*pi)(shape=[18, 36])\n\nCompute a cellular 2-complex, approximation of the two-dimensional closed surface, embedded in a three-dimensional Euclidean space. Geographical coordinates are user to compute the 0-cells of the complex.\n\nExample\n\njulia> using LARVIEW\n\njulia> LARVIEW.view(LinearAlgebraicRepresentation.sphere()())\n\n\n\n"
+    "text": "sphere(radius=1., angle1=pi, angle2=2*pi)(shape=[18, 36])\n\nCompute a cellular 2-complex, approximation of the two-dimensional closed surface, embedded in a three-dimensional Euclidean space. Geographical coordinates are user to compute the 0-cells of the complex.\n\nExample\n\njulia> using Plasm\n\njulia> Plasm.view(Lar.sphere()())\n\n\n\n\n\n"
 },
 
 {
-    "location": "integr.html#LinearAlgebraicRepresentation.volume",
+    "location": "integr/#LinearAlgebraicRepresentation.volume",
     "page": "Domain integration",
     "title": "LinearAlgebraicRepresentation.volume",
     "category": "function",
-    "text": "volume(P::LinearAlgebraicRepresentation.LAR)::Float64\n\nvolume integral on polyhedron P.\n\nExample # unit 3D tetrahedron\n\njulia> V = [0.0 1.0 0.0 0.0; 0.0 0.0 1.0 0.0; 0.0 0.0 0.0 1.0]\n3×4 Array{Float64,2}:\n 0.0  1.0  0.0  0.0\n 0.0  0.0  1.0  0.0\n 0.0  0.0  0.0  1.0\n\njulia> FV = [[1, 2, 4], [1, 3, 2], [4, 3, 1], [2, 3, 4]]\n4-element Array{Array{Int64,1},1}:\n [1, 2, 4]\n [1, 3, 2]\n [4, 3, 1]\n [2, 3, 4]\n\njulia> P = V,FV\n([0.0 1.0 0.0 0.0; 0.0 0.0 1.0 0.0; 0.0 0.0 0.0 1.0], \nArray{Int64,1}[[1, 2, 4], [1, 3, 2], [4, 3, 1], [2, 3, 4]])\n\njulia> LinearAlgebraicRepresentation.volume(P)\n0.16666666666666674\n\n\n\n"
+    "text": "volume(P::Lar.LAR)::Float64\n\nvolume integral on polyhedron P.\n\nExample # unit 3D tetrahedron\n\njulia> V = [0.0 1.0 0.0 0.0; 0.0 0.0 1.0 0.0; 0.0 0.0 0.0 1.0]\n3×4 Array{Float64,2}:\n 0.0  1.0  0.0  0.0\n 0.0  0.0  1.0  0.0\n 0.0  0.0  0.0  1.0\n\njulia> FV = [[1, 2, 4], [1, 3, 2], [4, 3, 1], [2, 3, 4]]\n4-element Array{Array{Int64,1},1}:\n [1, 2, 4]\n [1, 3, 2]\n [4, 3, 1]\n [2, 3, 4]\n\njulia> P = V,FV\n([0.0 1.0 0.0 0.0; 0.0 0.0 1.0 0.0; 0.0 0.0 0.0 1.0], \nArray{Int64,1}[[1, 2, 4], [1, 3, 2], [4, 3, 1], [2, 3, 4]])\n\njulia> Lar.volume(P)\n0.16666666666666674\n\n\n\n\n\n"
 },
 
 {
-    "location": "integr.html#LinearAlgebraicRepresentation.centroid",
+    "location": "integr/#LinearAlgebraicRepresentation.centroid",
     "page": "Domain integration",
     "title": "LinearAlgebraicRepresentation.centroid",
     "category": "function",
-    "text": "centroid(P::LinearAlgebraicRepresentation.LAR)::Array{Float64,1}\n\nBarycenter or centroid of polyhedron P.\n\nExample # unit 3D tetrahedron\n\njulia> V = [0.0 1.0 0.0 0.0; 0.0 0.0 1.0 0.0; 0.0 0.0 0.0 1.0];\n\njulia> FV = [[1, 2, 4], [1, 3, 2], [4, 3, 1], [2, 3, 4]];\n\njulia> P = V,FV;\n\njulia> LinearAlgebraicRepresentation.centroid(P)\n3-element Array{Float64,1}:\n 0.25\n 0.25\n 0.25\n\n\n\n"
+    "text": "centroid(P::Lar.LAR)::Array{Float64,1}\n\nBarycenter or centroid of polyhedron P.\n\nExample # unit 3D tetrahedron\n\njulia> V = [0.0 1.0 0.0 0.0; 0.0 0.0 1.0 0.0; 0.0 0.0 0.0 1.0];\n\njulia> FV = [[1, 2, 4], [1, 3, 2], [4, 3, 1], [2, 3, 4]];\n\njulia> P = V,FV;\n\njulia> Lar.centroid(P)\n3-element Array{Float64,1}:\n 0.25\n 0.25\n 0.25\n\n\n\n\n\n"
 },
 
 {
-    "location": "integr.html#Main-Interface-1",
+    "location": "integr/#Main-Interface-1",
     "page": "Domain integration",
     "title": "Main Interface",
     "category": "section",
-    "text": "LinearAlgebraicRepresentation.surfaceLinearAlgebraicRepresentation.volumeLinearAlgebraicRepresentation.centroid"
+    "text": "Lar.surfaceLar.volumeLar.centroid"
 },
 
 ]}
