@@ -11,12 +11,10 @@ branches:
 julia:
   - 0.7
   - 1.0
-  - 1.1
   - nightly
 
 matrix:
   allow_failures:
-    - julia: 1.1  
     - julia: nightly
 
 notifications:
