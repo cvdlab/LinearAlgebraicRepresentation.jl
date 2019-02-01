@@ -6,7 +6,7 @@ Lar = LinearAlgebraicRepresentation
 
 makedocs(
 	format = :html,
-	sitename = "Lar.jl",
+	sitename = "LinearAlgebraicRepresentation.jl",
 	assets = ["assets/lar.css", "assets/logo.png"],
 	pages = [
 		"Home" => "index.md",
