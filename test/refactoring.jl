@@ -231,6 +231,7 @@ function decomposition(model::Lar.LAR)
 	
 		end
 	end
+	
 end
 
 
