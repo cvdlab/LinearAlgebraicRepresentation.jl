@@ -28,7 +28,8 @@ FE = [[1,2,3,4,9,20,17,5],
 EV = [[1,2],[2,3],[3,4],[4,5],[1,12],[2,6],[3,7],[4,9],[5,17],[6,7],[8,9],
 [8,10],[9,11],[10,11],[11,15],[12,13],[12,16],[13,14],[14,15],[16,17]]
 
-V = [[0 16];[2 16];[5 16];[7 16];[10 16];[2 13];[5 13];[3 11];[7 11];[3 8];[7 8];[0 5];[3 5];[3 2];[7 2];[0 0];[10 0]]
+V = [0   2   5   7  10   2   5   3   7  3  7  0  3  3  7  0  10;
+    16  16  16  16  16  13  13  11  11  8  8  5  5  2  2  0   0]
 
 cscFE = u_coboundary_1( FV::Lar.Cells, EV::Lar.Cells, false);
 Matrix(cscFE)
@@ -37,10 +38,9 @@ Matrix(cscFE)
 Notice that there are two columns (2 and 13) with 3 ones, hence (3-2)+(3-2)=2 defects to fix. The fixed complex is shown graphically as:
 
 ```julia
-V = convert(Lar.Points, V')
 VV = [[k] for k in 1:size(V,2)];
 using Plasm
-Plasm.view( Plasm.numbering(2)((V,[VV, EV, FV])) )
+Plasm.view( Plasm.numbering(3)((V,[VV, EV, FV])) )
 ```
 """
 function fix_redundancy(target_mat, ref_mat)
@@ -115,7 +115,7 @@ julia> Matrix(cscFE)
 
 
 """
-function coboundary_1( FV::Lar.Cells, EV::Lar.Cells)::Lar.ChainOp
+function coboundary_1( V::Lar.Points, EV::Lar.Cells, FV::Lar.Cells, exterior=true)::Lar.ChainOp
 	# generate unsigned operator's sparse matrix
 	cscFE = u_coboundary_1( FV::Lar.Cells, EV::Lar.Cells, false)
 	# greedy generation of incidence number signs
@@ -164,11 +164,33 @@ function coboundary_1( FV::Lar.Cells, EV::Lar.Cells)::Lar.ChainOp
 			cscFE[f,e] = cycle[e]
 		end
 	end
-	return cscFE
+	if exterior # put matrix in form: first row outer cell; with opposite sign )
+		V = convert(Array{Float64,2},transpose(V))
+		EV = convert(Lar.ChainOp, SparseArrays.transpose(Lar.boundary_1(EV)))
+		
+		outer = Lar.Arrangement.get_external_cycle(V::Lar.Points, cscEV::Lar.ChainOp, 
+			cscFE::Lar.ChainOp)
+		FE = [ -cscFE[outer:outer,:];  cscFE[1:outer-1,:];  cscFE[outer+1:end,:] ]
+		return FE
+	else
+		return cscFE
+	end
 end
 
+FV = [[1,2,3,4,5,17,16,12],
+[1,2,3,4,6,7,8,9,10,11,12,13,14,15],
+[4,5,9,11,12,13,14,15,16,17],
+[2,3,6,7], [8,9,10,11]]
 
-V = convert(Array{Float64,2},transpose(V))
-EV = convert(Lar.ChainOp, SparseArrays.transpose(Lar.boundary_1(EV)))
+EV = [[1,2],[2,3],[3,4],[4,5],[1,12],[2,6],[3,7],[4,9],[5,17],[6,7],[8,9],
+[8,10],[9,11],[10,11],[11,15],[12,13],[12,16],[13,14],[14,15],[16,17]]
 
+V = [0   2   5   7  10   2   5   3   7  3  7  0  3  3  7  0  10;
+    16  16  16  16  16  13  13  11  11  8  8  5  5  2  2  0   0]
 
+copFE = coboundary_1( V::Lar.Points, EV::Lar.Cells, FV::Lar.Cells );
+Matrix(copFE)
+
+VV = [[k] for k in 1:size(V,2)];
+using Plasm
+Plasm.view( Plasm.numbering(3)((V,[VV, EV, FV])) )
