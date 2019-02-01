@@ -1,46 +1,46 @@
 Lar = LinearAlgebraicRepresentation
 
 """
-		characteristicMatrix( FV::Cells )::ChainOp
+	characteristicMatrix( FV::Cells )::ChainOp
 
-	Binary matrix representing by rows the `p`-cells of a cellular complex.
-	The input parameter must be of `Cells` type. Return a sparse binary matrix, 
-	providing the basis of a ``Chain`` space of given dimension. Notice that the 
-	number of columns is equal to the number of vertices (0-cells). 
+Binary matrix representing by rows the `p`-cells of a cellular complex.
+The input parameter must be of `Cells` type. Return a sparse binary matrix, 
+providing the basis of a ``Chain`` space of given dimension. Notice that the 
+number of columns is equal to the number of vertices (0-cells). 
 
-	# Example
+# Example
 
-	```julia
-	V,(VV,EV,FV,CV) = cuboid([1.,1.,1.], true); 
+```julia
+V,(VV,EV,FV,CV) = cuboid([1.,1.,1.], true); 
 
-	julia> Matrix(characteristicMatrix(FV))
-	6×8 Array{Int8,2}:
-	1  1  1  1  0  0  0  0
-	0  0  0  0  1  1  1  1
-	1  1  0  0  1  1  0  0
-	0  0  1  1  0  0  1  1
-	1  0  1  0  1  0  1  0
-	0  1  0  1  0  1  0  1
+julia> Matrix(characteristicMatrix(FV))
+6×8 Array{Int8,2}:
+1  1  1  1  0  0  0  0
+0  0  0  0  1  1  1  1
+1  1  0  0  1  1  0  0
+0  0  1  1  0  0  1  1
+1  0  1  0  1  0  1  0
+0  1  0  1  0  1  0  1
 
-	julia> Matrix(characteristicMatrix(CV))
-	1×8 Array{Int8,2}:
-	1  1  1  1  1  1  1  1
+julia> Matrix(characteristicMatrix(CV))
+1×8 Array{Int8,2}:
+1  1  1  1  1  1  1  1
 
-	julia> Matrix(characteristicMatrix(EV))
-	12×8 Array{Int8,2}:
-	1  1  0  0  0  0  0  0
-	0  0  1  1  0  0  0  0
-	0  0  0  0  1  1  0  0
-	0  0  0  0  0  0  1  1
-	1  0  1  0  0  0  0  0
-	0  1  0  1  0  0  0  0
-	0  0  0  0  1  0  1  0
-	0  0  0  0  0  1  0  1
-	1  0  0  0  1  0  0  0
-	0  1  0  0  0  1  0  0
-	0  0  1  0  0  0  1  0
-	0  0  0  1  0  0  0  1
-	```
+julia> Matrix(characteristicMatrix(EV))
+12×8 Array{Int8,2}:
+1  1  0  0  0  0  0  0
+0  0  1  1  0  0  0  0
+0  0  0  0  1  1  0  0
+0  0  0  0  0  0  1  1
+1  0  1  0  0  0  0  0
+0  1  0  1  0  0  0  0
+0  0  0  0  1  0  1  0
+0  0  0  0  0  1  0  1
+1  0  0  0  1  0  0  0
+0  1  0  0  0  1  0  0
+0  0  1  0  0  0  1  0
+0  0  0  1  0  0  0  1
+```
 """
 function characteristicMatrix( FV::Cells )::ChainOp
 	I,J,V = Int64[],Int64[],Int8[] 
@@ -57,100 +57,100 @@ end
 
 
 """
-		boundary_1( EV::Cells )::ChainOp
+	boundary_1( EV::Cells )::ChainOp
 
-	Computation of sparse signed boundary operator ``C_1 -> C_0``.
+Computation of sparse signed boundary operator ``C_1 -> C_0``.
 
-	# Example
-	```julia
-	julia> V,(VV,EV,FV,CV) = cuboid([1.,1.,1.], true);
+# Example
+```julia
+julia> V,(VV,EV,FV,CV) = cuboid([1.,1.,1.], true);
 
-	julia> EV
-	12-element Array{Array{Int64,1},1}:
-	[1, 2]
-	[3, 4]
-	...
-	[2, 6]
-	[3, 7]
-	[4, 8]
+julia> EV
+12-element Array{Array{Int64,1},1}:
+[1, 2]
+[3, 4]
+...
+[2, 6]
+[3, 7]
+[4, 8]
 
-	julia> boundary_1( EV::Cells )
-	8×12 SparseMatrixCSC{Int8,Int64} with 24 stored entries:
-	[1 ,  1]  =  -1
-	[2 ,  1]  =  1
-	[3 ,  2]  =  -1
-	...       ...
-	[7 , 11]  =  1
-	[4 , 12]  =  -1
-	[8 , 12]  =  1
+julia> boundary_1( EV::Cells )
+8×12 SparseMatrixCSC{Int8,Int64} with 24 stored entries:
+[1 ,  1]  =  -1
+[2 ,  1]  =  1
+[3 ,  2]  =  -1
+...       ...
+[7 , 11]  =  1
+[4 , 12]  =  -1
+[8 , 12]  =  1
 
-	julia> Matrix(boundary_1(EV::Cells))
-	8×12 Array{Int8,2}:
-	-1   0   0   0  -1   0   0   0  -1   0   0   0
-	1   0   0   0   0  -1   0   0   0  -1   0   0
-	0  -1   0   0   1   0   0   0   0   0  -1   0
-	0   1   0   0   0   1   0   0   0   0   0  -1
-	0   0  -1   0   0   0  -1   0   1   0   0   0
-	0   0   1   0   0   0   0  -1   0   1   0   0
-	0   0   0  -1   0   0   1   0   0   0   1   0
-	0   0   0   1   0   0   0   1   0   0   0   1
-	```
+julia> Matrix(boundary_1(EV::Cells))
+8×12 Array{Int8,2}:
+-1   0   0   0  -1   0   0   0  -1   0   0   0
+1   0   0   0   0  -1   0   0   0  -1   0   0
+0  -1   0   0   1   0   0   0   0   0  -1   0
+0   1   0   0   0   1   0   0   0   0   0  -1
+0   0  -1   0   0   0  -1   0   1   0   0   0
+0   0   1   0   0   0   0  -1   0   1   0   0
+0   0   0  -1   0   0   1   0   0   0   1   0
+0   0   0   1   0   0   0   1   0   0   0   1
+```
 """
 function boundary_1( EV::Cells )::ChainOp
-	sp_boundary_1 = characteristicMatrix(EV)'
+	out = characteristicMatrix(EV)'
 	for e = 1:length(EV)
-		sp_boundary_1[EV[e][1],e] = -1
+		out[EV[e][1],e] = -1
 	end
-	return sp_boundary_1
+	return out
 end
 
 
 
 
 """
-		coboundary_0(EV::Lar.Cells)
+	coboundary_0(EV::Lar.Cells)
 
-	Return the `coboundary_0` signed operator `C_0` -> `C_1`.
+Return the `coboundary_0` signed operator `C_0` -> `C_1`.
 """
 coboundary_0(EV::Cells) = boundary_1(EV::Cells)'
 
 
 
 """
-		u_coboundary_1( FV::Cells, EV::::Cells)::ChainOp
+	u_coboundary_1( FV::Cells, EV::::Cells)::ChainOp
 
-	Compute the sparse *unsigned* coboundary_1 operator ``C_1 -> C_2``.
-	Notice that the output matrix is `m x n`, where `m` is the number of faces, and `n` 
-	is the number of edges.
+Compute the sparse *unsigned* coboundary_1 operator ``C_1 -> C_2``.
+Notice that the output matrix is `m x n`, where `m` is the number of faces, and `n` 
+is the number of edges.
 
-	# Example
+# Example
 
-	```julia
-	julia> V,(VV,EV,FV,CV) = Lar.cuboid([1.,1.,1.], true);
+```julia
+julia> V,(VV,EV,FV,CV) = Lar.cuboid([1.,1.,1.], true);
 
-	julia> u_coboundary_1(FV,EV)
-	6×12 SparseMatrixCSC{Int8,Int64} with 24 stored entries:
-	[1 ,  1]  =  1
-	[3 ,  1]  =  1
-	[1 ,  2]  =  1
-	[4 ,  2]  =  1
-	...		...
-	[4 , 11]  =  1
-	[5 , 11]  =  1
-	[4 , 12]  =  1
-	[6 , 12]  =  1
+julia> u_coboundary_1(FV,EV)
+6×12 SparseMatrixCSC{Int8,Int64} with 24 stored entries:
+[1 ,  1]  =  1
+[3 ,  1]  =  1
+[1 ,  2]  =  1
+[4 ,  2]  =  1
+...		...
+[4 , 11]  =  1
+[5 , 11]  =  1
+[4 , 12]  =  1
+[6 , 12]  =  1
 
-	julia> Matrix(u_coboundary_1(FV,EV))
-	6×12 Array{Int8,2}:
-	1  1  0  0  1  1  0  0  0  0  0  0
-	0  0  1  1  0  0  1  1  0  0  0  0
-	1  0  1  0  0  0  0  0  1  1  0  0
-	0  1  0  1  0  0  0  0  0  0  1  1
-	0  0  0  0  1  0  1  0  1  0  1  0
-	0  0  0  0  0  1  0  1  0  1  0  1
+julia> Matrix(u_coboundary_1(FV,EV))
+6×12 Array{Int8,2}:
+1  1  0  0  1  1  0  0  0  0  0  0
+0  0  1  1  0  0  1  1  0  0  0  0
+1  0  1  0  0  0  0  0  1  1  0  0
+0  1  0  1  0  0  0  0  0  0  1  1
+0  0  0  0  1  0  1  0  1  0  1  0
+0  0  0  0  0  1  0  1  0  1  0  1
 
-	julia> unsigned_boundary_2 = u_coboundary_1(FV,EV)';
-	```
+julia> unsigned_boundary_2 = u_coboundary_1(FV,EV)';
+```
 """
 function u_coboundary_1( FV::Lar.Cells, EV::Lar.Cells)::Lar.ChainOp
 	cscFV = Lar.characteristicMatrix(FV)
@@ -166,17 +166,212 @@ function u_coboundary_1( FV::Lar.Cells, EV::Lar.Cells)::Lar.ChainOp
 			end
 		end
 	end
-	sp_u_coboundary_1 = sparse(I,J,V)
-	return sp_u_coboundary_1
+	out = sparse(I,J,V)
+	return out
+end
+
+
+"""
+	fix_redundancy(target_mat, ref_mat)
+	
+*Fix the coboundary_1 matrix*, generated by product ``FV EV^t``, for complexes of *non-convex cells*. This approach can be used when both `EV` and `FV` of the cellular complex are known. It is exact when cells are convex. Maybe non-exact, introducing spurious incidence coefficients (``redundancies``), when adjacent faces share an edge combinatorially, but not geometrically. This happen when an edge is on the boundary of face A, but only its vertices are on the boundary of face B.  TODO: Similar situations may appear when computing algebraically CF as product of known CV and FV, with non-convex cells.
+
+In order to remove such ``redundancies``, the Euler characteristic of 2-sphere is used, where V-E+F=2. Since we have F=2 (inner and outer face) ``V=E`` must hold, and possible `d=E-V` is the (positive) ``defect`` number, called `nfixs` in the code. It equates the number of columns `edges`
+whose sum is greater than 2 for the considered row (face). Remember the in a ``d``-complex, *including* the ``outer cell``, all ``(d-1)``-faces must be shared by exactly 2 ``d``-faces. Note that `FV` must include the row of outer shell (exterior face).
+
+# Example
+
+```julia
+FV = [[1,2,3,4,5,17,16,12],
+[1,2,3,4,6,7,8,9,10,11,12,13,14,15],
+[4,5,9,11,12,13,14,15,16,17],
+[2,3,6,7], [8,9,10,11]]
+
+FE = [[1,2,3,4,9,20,17,5], 
+[1,6,10,7,3,8,11,12,14,15,19,18,16,5],
+[4,9,20,17,16,18,19,15,13,8],
+[2,10,6,7], [11,12,13,14]]
+
+EV = [[1,2],[2,3],[3,4],[4,5],[1,12],[2,6],[3,7],[4,9],[5,17],[6,7],[8,9],
+[8,10],[9,11],[10,11],[11,15],[12,13],[12,16],[13,14],[14,15],[16,17]]
+
+V = [0   2   5   7  10   2   5   3   7  3  7  0  3  3  7  0  10;
+    16  16  16  16  16  13  13  11  11  8  8  5  5  2  2  0   0]
+
+cscFE = u_coboundary_1( FV::Lar.Cells, EV::Lar.Cells, false);
+Matrix(cscFE)
+```
+
+Notice that there are two columns (2 and 13) with 3 ones, hence (3-2)+(3-2)=2 defects to fix. The fixed complex can be shown graphically as:
+
+```julia
+VV = [[k] for k in 1:size(V,2)];
+using Plasm
+Plasm.view( Plasm.numbering(3)((V,[VV, EV, FV])) )
+```
+"""
+function fix_redundancy(target_mat, ref_mat)
+	nfixs = 0
+	faces2fix = []
+	edges2fix = []
+	for face = 1:size(target_mat,1)
+		nedges = sum(findnz(target_mat[face,:])[2])
+		nverts = sum(findnz(ref_mat[face,:])[2])
+		if nedges != nverts
+			nfixs += nedges - nverts
+			#println("face $face, nedges=$nedges, nverts=$nverts")
+			push!(faces2fix,face)
+		end
+	end
+	for edge = 1:size(target_mat,2)
+		nfaces = sum(findnz(target_mat[:,edge])[2])
+		if nfaces > 2
+			#println("edge $edge, nfaces=$nfaces")
+			push!(edges2fix,edge)
+		end
+	end
+	#println("nfixs=$nfixs")
+	for i=1:length(faces2fix)
+		for j=1:length(edges2fix)
+			if target_mat[faces2fix[i], edges2fix[j]]==1
+				target_mat[faces2fix[i], edges2fix[j]]=0
+			end	
+		end
+	end
+	cscFE = dropzeros(target_mat)
+	@assert nnz(cscFE) == 2*size(EV,1)
+	return cscFE
+end
+
+""" 
+	u_coboundary_1( FV::Lar.Cells, EV::Lar.Cells, convex=true)::Lar.ChainOp
+
+Compute the *Unsigned* `coboundary_1` operator matrix as product of two
+sparse characteristic matrices.
+
+# Example
+
+```julia
+FV = [[1,2,3,4,5,17,16,12],
+[1,2,3,4,6,7,8,9,10,11,12,13,14,15],
+[4,5,9,11,12,13,14,15,16,17],
+[2,3,6,7], [8,9,10,11]]
+
+EV = [[1,2],[2,3],[3,4],[4,5],[1,12],[2,6],[3,7],[4,9],[5,17],[6,7],[8,9],
+[8,10],[9,11],[10,11],[11,15],[12,13],[12,16],[13,14],[14,15],[16,17]]
+
+out = u_coboundary_1( FV::Lar.Cells, EV::Lar.Cells, false)
+```
+In case of expected 2-chains with non-convex cells, use the method instancing 
+`convex = false`, in order to fix a possible redundancy of incidence values, induced by computation through multiplication of characteristic matrices. (Look at columns 
+2 and 13 before, generated by default).
+"""
+function u_coboundary_1( FV::Lar.Cells, EV::Lar.Cells, convex=true)::Lar.ChainOp
+	cscFV = Lar.characteristicMatrix(FV)
+	cscEV = Lar.characteristicMatrix(EV)
+	temp = cscFV * cscEV'
+	I,J,Val = Int64[],Int64[],Int8[]
+	for j=1:size(temp,2)
+		for i=1:size(temp,1)
+			if temp[i,j] == 2
+				push!(I,i)
+				push!(J,j)
+				push!(Val,1)
+			end
+		end
+	end
+	cscFE = sparse(I,J,Val)
+	if !convex return fix_redundancy(cscFE,cscFV)
+	else return cscFE end
+end
+
+
+"""
+	coboundary_1( FV::Lar.Cells, EV::Lar.Cells)::Lar.ChainOp
+
+Generate the *signed* sparse matrix of the coboundary_1 operator.
+For each row, start with the first incidence number positive (i.e. assign the orientation of the first edge to the 1-cycle of the face), then bounce back and forth between vertex columns/rows of EV and FE.
+
+# Example
+
+julia> Matrix(cscFE)
+5×20 Array{Int8,2}:
+ 1  1  1  1  1  0  0  0  1  0  0  0  0  0  0  0  1  0  0  1
+ 1  0  1  0  1  1  1  1  0  1  1  1  0  1  1  1  0  1  1  0
+ 0  0  0  1  0  0  0  1  1  0  0  0  1  0  1  1  1  1  1  1
+ 0  1  0  0  0  1  1  0  0  1  0  0  0  0  0  0  0  0  0  0
+ 0  0  0  0  0  0  0  0  0  0  1  1  1  1  0  0  0  0  0  0
+
+
+"""
+function coboundary_1( V::Lar.Points, EV::Lar.Cells, FV::Lar.Cells, exterior=true)::Lar.ChainOp
+	# generate unsigned operator's sparse matrix
+	cscFE = u_coboundary_1( FV::Lar.Cells, EV::Lar.Cells, false)
+	# greedy generation of incidence number signs
+	cscEV = sparse(Lar.coboundary_0( EV::Lar.Cells ))
+	global cycle
+	for f=1:size(cscFE,1)
+		chain = findnz(cscFE[f,:])[1]	#	dense
+		global cycle = spzeros(Int8,cscFE.n)	#	sparse
+		
+		edge = findnz(cscFE[f,:])[1][1]; sign = 1
+		cycle[edge] = sign
+		chain = setdiff( chain, edge )
+		while chain != []
+			boundary = sparse(cycle') * cscEV
+			_,vs,vals = findnz(dropzeros(boundary))
+			
+			rindex = vals[1]==1 ? vf = vs[1] : vf = vs[2] 
+			r_boundary = spzeros(Int8,cscEV.n)	#	sparse
+			r_boundary[rindex] = 1
+			r_coboundary = cscEV * r_boundary
+			r_edge = intersect(findnz(r_coboundary)[1],chain)[1]
+			r_coboundary = spzeros(Int8,cscEV.m)	#	sparse
+			r_coboundary[r_edge] = EV[r_edge][1]<EV[r_edge][2] ? 1 : -1
+			
+			lindex = vals[1]==-1 ? vi = vs[1] : vi = vs[2] 
+			l_boundary = spzeros(Int8,cscEV.n)	#	sparse
+			l_boundary[lindex] = -1
+			l_coboundary = cscEV * l_boundary
+			l_edge = intersect(findnz(l_coboundary)[1],chain)[1]
+			l_coboundary = spzeros(Int8,cscEV.m)	#	sparse
+			l_coboundary[l_edge] = EV[l_edge][1]<EV[l_edge][2] ? -1 : 1
+			
+			if r_coboundary != -l_coboundary  # false iff last edge
+				# add edge to cycle from both sides
+				rsign = rindex == EV[r_edge][1] ? 1 : -1
+				lsign = lindex == EV[l_edge][2] ? -1 : 1
+				cycle = cycle + rsign * r_coboundary + lsign * l_coboundary
+			else
+				# add last (odd) edge to cycle
+				rsign = rindex==EV[r_edge][1] ? 1 : -1
+				cycle = cycle + rsign * r_coboundary
+			end
+			chain = setdiff(chain, findnz(cycle)[1])
+		end
+		for e in findnz(cscFE[f,:])[1]
+			cscFE[f,e] = cycle[e]
+		end
+	end
+	if exterior # put matrix in form: first row outer cell; with opposite sign )
+		V = convert(Array{Float64,2},transpose(V))
+		EV = convert(Lar.ChainOp, SparseArrays.transpose(Lar.boundary_1(EV)))
+		
+		outer = Lar.Arrangement.get_external_cycle(V::Lar.Points, cscEV::Lar.ChainOp, 
+			cscFE::Lar.ChainOp)
+		FE = [ -cscFE[outer:outer,:];  cscFE[1:outer-1,:];  cscFE[outer+1:end,:] ]
+		return FE
+	else
+		return cscFE
+	end
 end
 
 
 
-
 """
-		u_boundary_2(FV::Lar.Cells, EV::Lar.Cells)::Lar.ChainOp
+	u_boundary_2(FV::Lar.Cells, EV::Lar.Cells)::Lar.ChainOp
 
-	Return the unsigned `boundary_2` operator `C_2` -> `C_1`.
+Return the unsigned `boundary_2` operator `C_2` -> `C_1`.
 """
 u_boundary_2(EV, FV) = (Lar.u_coboundary_1(FV, EV))'
 
@@ -184,148 +379,57 @@ u_boundary_2(EV, FV) = (Lar.u_coboundary_1(FV, EV))'
 
 
 
-"""
-	Local utility function. Storage of information need to build face cycles.
-"""
-function columninfo(infos,EV,next,col)
-	infos[1,col] = 1
-	infos[2,col] = next
-	infos[3,col] = EV[next][1]
-	infos[4,col] = EV[next][2]
-	vpivot = infos[4,col]
-end
 
 
 """
-		coboundary_1( FV::Cells, EV::Cells)::ChainOp
+	chaincomplex( W::Points, EW::Cells )::Tuple{Array{Cells,1},Array{ChainOp,1}}
 
-	Compute the sparse *signed* coboundary_1 operator ``C_1 -> C_2``.
-	The sparse matrix generated by `coboundary_1` contains by row a representation 
-	of faces as oriented cycles of edges. The orientation of cycles is arbitrary.
-	```	
-	julia> coboundary_1( FV,EV )
-	6×12 SparseMatrixCSC{Int8,Int64} with 24 stored entries:
-	[1 ,  1]  =  -1
-	[3 ,  1]  =  -1
-	[1 ,  2]  =  1
-	[4 ,  2]  =  -1
-	...		  ...	
-	[4 , 11]  =  1
-	[5 , 11]  =  -1
-	[4 , 12]  =  -1
-	[6 , 12]  =  -1
+Chain 2-complex construction from basis of 1-cells. 
 
-	julia> Matrix(coboundary_2( FV,EV ))
-	6×12 Array{Int8,2}:
-	-1   1   0  0   1  -1  0   0  0   0   0   0
-	0   0  -1  1   0   0  1  -1  0   0   0   0
-	-1   0   1  0   0   0  0   0  1  -1   0   0
-	0  -1   0  1   0   0  0   0  0   0   1  -1
-	0   0   0  0  -1   0  1   0  1   0  -1   0
-	0   0   0  0   0  -1  0   1  0   1   0  -1
+From the minimal input, construct the whole
+two-dimensional chain complex, i.e. the bases for linear spaces C_1 and 
+C_2 of 1-chains and  2-chains, and the signed coboundary operators from 
+C_0 to C_1 and from C_1 to C_2.
 
-		
-	julia> boundary_2(FV,EV) = coboundary_1(FV,EV)'
-	12×6 Array{Int8,2}:
-	-1   0  -1   0   0   0
-	1   0   0  -1   0   0
-	0  -1   1   0   0   0
-	...			...
-	0   0  -1   0   0   1
-	0   0   0   1  -1   0
-	0   0   0  -1   0  -1
-	```	
-"""
-function coboundary_1( FV::Cells, EV::Cells)::ChainOp
-	sp_u_coboundary_1 = u_coboundary_1(FV,EV)
-	larEV = characteristicMatrix(EV)
-	# unsigned incidence relation
-	FE = [findall(!iszero, sp_u_coboundary_1[f,:]) for f=1:size(sp_u_coboundary_1,1) ]
-	I,J,V = Int64[],Int64[],Int8[]
-	vedges = [findall(!iszero, larEV[:,v]) for v=1:size(larEV,2)]
+# Example
 
-	# Loop on faces
-	for f=1:length(FE)
-		fedges = Set(FE[f])
-		next = pop!(fedges)
-		col = 1
-		infos = zeros(Int64,(4,length(FE[f])))
-		vpivot = infos[4,col]
-		vpivot = columninfo(infos,EV,next,col)
-		while fedges != Set()
-			nextedge = intersect(fedges, Set(vedges[vpivot]))
-			fedges = setdiff(fedges,nextedge)
-			next = pop!(nextedge)
-			col += 1
-			vpivot = columninfo(infos,EV,next,col)
-			if vpivot == infos[4,col-1]
-				infos[3,col],infos[4,col] = infos[4,col],infos[3,col]
-				infos[1,col] = -1
-				vpivot = infos[4,col]
-			end
-		end
-		for j=1:size(infos,2)
-			push!(I, f)
-			push!(J, infos[2,j])
-			push!(V, infos[1,j])
-		end
-	end
+```julia
+julia> W = 
+[0.0  0.0  0.0  0.0  1.0  1.0  1.0  1.0  2.0  2.0  2.0  2.0  3.0  3.0  3.0  3.0
+0.0  1.0  2.0  3.0  0.0  1.0  2.0  3.0  0.0  1.0  2.0  3.0  0.0  1.0  2.0  3.0]
+# output  
+2×16 Array{Float64,2}: ...
 
-	sp_coboundary_1 = sparse(I,J,V)
-	return sp_coboundary_1
-end
+julia> EW = 
+[[1, 2],[2, 3],[3, 4],[5, 6],[6, 7],[7, 8],[9, 10],[10, 11],[11, 12],[13, 14],
+[14, 15],[15, 16],[1, 5],[2, 6],[3, 7],[4, 8],[5, 9],[6, 10],[7, 11],[8, 12],
+[9, 13],[10, 14],[11, 15],[12, 16]]
+# output  
+24-element Array{Array{Int64,1},1}: ...
 
+julia> V,bases,coboundaries = chaincomplex(W,EW)
 
+julia> bases[1]	# edges
+24-element Array{Array{Int64,1},1}: ...
 
+julia> bases[2] # faces -- previously unknown !!
+9-element Array{Array{Int64,1},1}: ...
 
-"""
-		chaincomplex( W::Points, EW::Cells )::Tuple{Array{Cells,1},Array{ChainOp,1}}
+julia> coboundaries[1] # coboundary_1 
+24×16 SparseMatrixCSC{Int8,Int64} with 48 stored entries: ...
 
-	Chain 2-complex construction from basis of 1-cells. 
-
-	From the minimal input, construct the whole
-	two-dimensional chain complex, i.e. the bases for linear spaces C_1 and 
-	C_2 of 1-chains and  2-chains, and the signed coboundary operators from 
-	C_0 to C_1 and from C_1 to C_2.
-
-	# Example
-	```julia
-	julia> W = 
-	[0.0  0.0  0.0  0.0  1.0  1.0  1.0  1.0  2.0  2.0  2.0  2.0  3.0  3.0  3.0  3.0
-	0.0  1.0  2.0  3.0  0.0  1.0  2.0  3.0  0.0  1.0  2.0  3.0  0.0  1.0  2.0  3.0]
-	# output  
-	2×16 Array{Float64,2}: ...
-
-	julia> EW = 
-	[[1, 2],[2, 3],[3, 4],[5, 6],[6, 7],[7, 8],[9, 10],[10, 11],[11, 12],[13, 14],
-	[14, 15],[15, 16],[1, 5],[2, 6],[3, 7],[4, 8],[5, 9],[6, 10],[7, 11],[8, 12],
-	[9, 13],[10, 14],[11, 15],[12, 16]]
-	# output  
-	24-element Array{Array{Int64,1},1}: ...
-
-	julia> V,bases,coboundaries = chaincomplex(W,EW)
-
-	julia> bases[1]	# edges
-	24-element Array{Array{Int64,1},1}: ...
-
-	julia> bases[2] # faces -- previously unknown !!
-	9-element Array{Array{Int64,1},1}: ...
-
-	julia> coboundaries[1] # coboundary_1 
-	24×16 SparseMatrixCSC{Int8,Int64} with 48 stored entries: ...
-
-	julia> Matrix(coboundaries[2]) # coboundary_1: faces as oriented 1-cycles of edges
-	9×24 Array{Int8,2}:
-	-1  0  0  1  0  0  0  0  0  0  0  0  1 -1  0  0  0  0  0  0  0  0  0  0
-	0 -1  0  0  1  0  0  0  0  0  0  0  0  1 -1  0  0  0  0  0  0  0  0  0
-	0  0 -1  0  0  1  0  0  0  0  0  0  0  0  1 -1  0  0  0  0  0  0  0  0
-	0  0  0 -1  0  0  1  0  0  0  0  0  0  0  0  0  1 -1  0  0  0  0  0  0
-	0  0  0  0 -1  0  0  1  0  0  0  0  0  0  0  0  0  1 -1  0  0  0  0  0
-	0  0  0  0  0 -1  0  0  1  0  0  0  0  0  0  0  0  0  1 -1  0  0  0  0
-	0  0  0  0  0  0  0 -1  0  0  1  0  0  0  0  0  0  0  0  0  0  1 -1  0
-	0  0  0  0  0  0 -1  0  0  1  0  0  0  0  0  0  0  0  0  0  1 -1  0  0
-	0  0  0  0  0  0  0  0 -1  0  0  1  0  0  0  0  0  0  0  0  0  0  1 -1
-	```
+julia> Matrix(coboundaries[2]) # coboundary_1: faces as oriented 1-cycles of edges
+9×24 Array{Int8,2}:
+-1  0  0  1  0  0  0  0  0  0  0  0  1 -1  0  0  0  0  0  0  0  0  0  0
+0 -1  0  0  1  0  0  0  0  0  0  0  0  1 -1  0  0  0  0  0  0  0  0  0
+0  0 -1  0  0  1  0  0  0  0  0  0  0  0  1 -1  0  0  0  0  0  0  0  0
+0  0  0 -1  0  0  1  0  0  0  0  0  0  0  0  0  1 -1  0  0  0  0  0  0
+0  0  0  0 -1  0  0  1  0  0  0  0  0  0  0  0  0  1 -1  0  0  0  0  0
+0  0  0  0  0 -1  0  0  1  0  0  0  0  0  0  0  0  0  1 -1  0  0  0  0
+0  0  0  0  0  0  0 -1  0  0  1  0  0  0  0  0  0  0  0  0  0  1 -1  0
+0  0  0  0  0  0 -1  0  0  1  0  0  0  0  0  0  0  0  0  0  1 -1  0  0
+0  0  0  0  0  0  0  0 -1  0  0  1  0  0  0  0  0  0  0  0  0  0  1 -1
+```
 """
 function chaincomplex( W, EW )
 	V = convert(Array{Float64,2},LinearAlgebra.transpose(W))
@@ -352,66 +456,66 @@ function chaincomplex( W, EW )
 end
 
 """
-		chaincomplex( W::Points, FW::Cells, EW::Cells )
-			::Tuple{ Array{Cells,1}, Array{ChainOp,1} }
+	chaincomplex( W::Points, FW::Cells, EW::Cells )
+		::Tuple{ Array{Cells,1}, Array{ChainOp,1} }
 
-	Chain 3-complex construction from bases of 2- and 1-cells. 
+Chain 3-complex construction from bases of 2- and 1-cells. 
 
-	From the minimal input, construct the whole
-	two-dimensional chain complex, i.e. the bases for linear spaces C_1 and 
-	C_2 of 1-chains and  2-chains, and the signed coboundary operators from 
-	C_0 to C_1  and from C_1 to C_2.
+From the minimal input, construct the whole
+two-dimensional chain complex, i.e. the bases for linear spaces C_1 and 
+C_2 of 1-chains and  2-chains, and the signed coboundary operators from 
+C_0 to C_1  and from C_1 to C_2.
 
-	# Example
-	```julia
-	julia> cube_1 = ([0 0 0 0 1 1 1 1; 0 0 1 1 0 0 1 1; 0 1 0 1 0 1 0 1], 
-	[[1,2,3,4],[5,6,7,8],[1,2,5,6],[3,4,7,8],[1,3,5,7],[2,4,6,8]], 
-	[[1,2],[3,4],[5,6],[7,8],[1,3],[2,4],[5,7],[6,8],[1,5],[2,6],[3,7],[4,8]] )
+# Example
+```julia
+julia> cube_1 = ([0 0 0 0 1 1 1 1; 0 0 1 1 0 0 1 1; 0 1 0 1 0 1 0 1], 
+[[1,2,3,4],[5,6,7,8],[1,2,5,6],[3,4,7,8],[1,3,5,7],[2,4,6,8]], 
+[[1,2],[3,4],[5,6],[7,8],[1,3],[2,4],[5,7],[6,8],[1,5],[2,6],[3,7],[4,8]] )
 
-	julia> cube_2 = Lar.Struct([Lar.t(0,0,0.5), Lar.r(0,0,pi/3), cube_1])
+julia> cube_2 = Lar.Struct([Lar.t(0,0,0.5), Lar.r(0,0,pi/3), cube_1])
 
-	julia> V,FV,EV = Lar.struct2lar(Lar.Struct([ cube_1, cube_2 ]))
+julia> V,FV,EV = Lar.struct2lar(Lar.Struct([ cube_1, cube_2 ]))
 
-	julia> V,bases,coboundaries = Lar.chaincomplex(V,FV,EV)
+julia> V,bases,coboundaries = Lar.chaincomplex(V,FV,EV)
 
-	julia> (EV, FV, CV), (cscEV, cscFE, cscCF) = bases,coboundaries
+julia> (EV, FV, CV), (cscEV, cscFE, cscCF) = bases,coboundaries
 
-	julia> FV # bases[2]
-	18-element Array{Array{Int64,1},1}:
-	[1, 3, 4, 6]            
-	[2, 3, 5, 6]            
-	[7, 8, 9, 10]           
-	[1, 2, 3, 7, 8]         
-	[4, 6, 9, 10, 11, 12]   
-	[5, 6, 11, 12]          
-	[1, 4, 7, 9]            
-	[2, 5, 11, 13]          
-	[2, 8, 10, 11, 13]      
-	[2, 3, 14, 15, 16]      
-	[11, 12, 13, 17]        
-	[11, 12, 13, 18, 19, 20]
-	[2, 3, 13, 17]          
-	[2, 13, 14, 18]         
-	[15, 16, 19, 20]        
-	[3, 6, 12, 15, 19]      
-	[3, 6, 12, 17]          
-	[14, 16, 18, 20]        
+julia> FV # bases[2]
+18-element Array{Array{Int64,1},1}:
+[1, 3, 4, 6]            
+[2, 3, 5, 6]            
+[7, 8, 9, 10]           
+[1, 2, 3, 7, 8]         
+[4, 6, 9, 10, 11, 12]   
+[5, 6, 11, 12]          
+[1, 4, 7, 9]            
+[2, 5, 11, 13]          
+[2, 8, 10, 11, 13]      
+[2, 3, 14, 15, 16]      
+[11, 12, 13, 17]        
+[11, 12, 13, 18, 19, 20]
+[2, 3, 13, 17]          
+[2, 13, 14, 18]         
+[15, 16, 19, 20]        
+[3, 6, 12, 15, 19]      
+[3, 6, 12, 17]          
+[14, 16, 18, 20]        
 
-	julia> CV # bases[3]
-	3-element Array{Array{Int64,1},1}:
-	[2, 3, 5, 6, 11, 12, 13, 14, 15, 16, 18, 19, 20]
-	[2, 3, 5, 6, 11, 12, 13, 17]                    
-	[1, 2, 3, 4, 6, 7, 8, 9, 10, 11, 12, 13, 17]    
+julia> CV # bases[3]
+3-element Array{Array{Int64,1},1}:
+[2, 3, 5, 6, 11, 12, 13, 14, 15, 16, 18, 19, 20]
+[2, 3, 5, 6, 11, 12, 13, 17]                    
+[1, 2, 3, 4, 6, 7, 8, 9, 10, 11, 12, 13, 17]    
 
-	julia> cscEV # coboundaries[1]
-	34×20 SparseMatrixCSC{Int8,Int64} with 68 stored entries: ...
+julia> cscEV # coboundaries[1]
+34×20 SparseMatrixCSC{Int8,Int64} with 68 stored entries: ...
 
-	julia> cscFE # coboundaries[2]
-	18×34 SparseMatrixCSC{Int8,Int64} with 80 stored entries: ...
+julia> cscFE # coboundaries[2]
+18×34 SparseMatrixCSC{Int8,Int64} with 80 stored entries: ...
 
-	julia> cscCF # coboundaries[3]
-	4×18 SparseMatrixCSC{Int8,Int64} with 36 stored entries: ...
-	```	
+julia> cscCF # coboundaries[3]
+4×18 SparseMatrixCSC{Int8,Int64} with 36 stored entries: ...
+```	
 """
 function chaincomplex(W,FW,EW)
 	V = convert(Points, LinearAlgebra.transpose(W))
