@@ -74,20 +74,20 @@ Lar = LinearAlgebraicRepresentation
 
 	@testset "signed_coboundary_1 Tests" begin
 		V,(VV,EV,FV,CV) = Lar.cuboid([1.,1.,1.], true);
-		signed_coboundary_1 = Lar.coboundary_1( FV,EV );
+		signed_coboundary_1 = Lar.coboundary_1( V,FV,EV );
 
 		@test size(signed_coboundary_1)==(6,12)
-		@test typeof(signed_coboundary_1)==SparseMatrixCSC{Int8,Int64}
+		@test typeof(signed_coboundary_1)==SparseArrays.SparseMatrixCSC{Int8,Int64}
 		@test nnz(signed_coboundary_1)==24
-		@test signed_coboundary_1[1,1]==-1
-		@test signed_coboundary_1[6,12]==-1
+		@test signed_coboundary_1[1,1]==1
+		@test signed_coboundary_1[6,12]==1
 		@test Matrix(signed_coboundary_1)==
-		[-1   1   0  0   1  -1  0   0  0   0   0   0;
-		  0   0  -1  1   0   0  1  -1  0   0   0   0;
-		 -1   0   1  0   0   0  0   0  1  -1   0   0;
-		  0  -1   0  1   0   0  0   0  0   0   1  -1;
-		  0   0   0  0  -1   0  1   0  1   0  -1   0;
-		  0   0   0  0   0  -1  0   1  0   1   0  -1]
+			[1  -1   0   0  -1  1   0   0   0   0   0  0;
+			 0   0   1  -1   0  0  -1   1   0   0   0  0;
+			 1   0  -1   0   0  0   0   0  -1   1   0  0;
+			 0   1   0  -1   0  0   0   0   0   0  -1  1;
+			 0   0   0   0   1  0  -1   0  -1   0   1  0;
+			 0   0   0   0   0  1   0  -1   0  -1   0  1]
 	end
 
 @testset "chaincomplex 2D Tests" begin
