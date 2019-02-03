@@ -73,21 +73,29 @@ Lar = LinearAlgebraicRepresentation
 	 end
 
 	@testset "signed_coboundary_1 Tests" begin
-		V,(VV,EV,FV,CV) = Lar.cuboid([1.,1.,1.], true);
-		signed_coboundary_1 = Lar.coboundary_1( V,FV,EV );
+		FV = [[1,2,3,4,5,17,16,12],
+		[1,2,3,4,6,7,8,9,10,11,12,13,14,15],
+		[4,5,9,11,12,13,14,15,16,17],
+		[2,3,6,7], [8,9,10,11]]
 
-		@test size(signed_coboundary_1)==(6,12)
+		EV = [[1,2],[2,3],[3,4],[4,5],[1,12],[2,6],[3,7],[4,9],[5,17],[6,7],[8,9],
+		[8,10],[9,11],[10,11],[11,15],[12,13],[12,16],[13,14],[14,15],[16,17]]
+
+		V = [0   2   5   7  10   2   5   3   7  3  7  0  3  3  7  0  10;
+			16  16  16  16  16  13  13  11  11  8  8  5  5  2  2  0   0]
+		signed_coboundary_1 = Lar.coboundary_1( V,FV,EV,false,true );
+
+		@test size(Matrix(signed_coboundary_1))==(5,20)
 		@test typeof(signed_coboundary_1)==SparseArrays.SparseMatrixCSC{Int8,Int64}
-		@test nnz(signed_coboundary_1)==24
-		@test signed_coboundary_1[1,1]==1
-		@test signed_coboundary_1[6,12]==1
+		@test nnz(signed_coboundary_1)==40
+		@test signed_coboundary_1[1,1]==-1
+		@test signed_coboundary_1[3,20]==-1
 		@test Matrix(signed_coboundary_1)==
-			[1  -1   0   0  -1  1   0   0   0   0   0  0;
-			 0   0   1  -1   0  0  -1   1   0   0   0  0;
-			 1   0  -1   0   0  0   0   0  -1   1   0  0;
-			 0   1   0  -1   0  0   0   0   0   0  -1  1;
-			 0   0   0   0   1  0  -1   0  -1   0   1  0;
-			 0   0   0   0   0  1   0  -1   0  -1   0  1]
+		[-1  -1  -1  -1   1   0   0   0  -1   0   0   0   0   0   0   0   1   0   0   1;
+		  1   0   1   0  -1   1  -1   1   0   1  -1   1   0   1   1  -1   0  -1  -1   0;
+		  0   0   0   1   0   0   0  -1   1   0   0   0  -1   0  -1   1  -1   1   1  -1;
+		  0   1   0   0   0  -1   1   0   0  -1   0   0   0   0   0   0   0   0   0   0;
+		  0   0   0   0   0   0   0   0   0   0   1  -1   1  -1   0   0   0   0   0   0]
 	end
 
 @testset "chaincomplex 2D Tests" begin

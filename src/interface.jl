@@ -254,6 +254,10 @@ In case of expected 2-chains with non-convex cells, instance the method with
 function u_coboundary_1( FV::Lar.Cells, EV::Lar.Cells, convex=true::Bool)::Lar.ChainOp
 	cscFV = Lar.characteristicMatrix(FV)
 	cscEV = Lar.characteristicMatrix(EV)
+	out = u_coboundary_1( cscFV::Lar.ChainOp, cscEV::Lar.ChainOp, convex::Bool)
+	return out
+end
+function u_coboundary_1( cscFV::Lar.ChainOp, cscEV::Lar.ChainOp, convex=true::Bool)::Lar.ChainOp
 	temp = cscFV * cscEV'
 	I,J,Val = Int64[],Int64[],Int8[]
 	for j=1:size(temp,2)
@@ -265,11 +269,12 @@ function u_coboundary_1( FV::Lar.Cells, EV::Lar.Cells, convex=true::Bool)::Lar.C
 			end
 		end
 	end
-	cscFE = sparse(I,J,Val)
-	if !convex return Lar.fix_redundancy(cscFE,cscFV)
-	else return cscFE end
+	cscFE = SparseArrays.sparse(I,J,Val)
+	if !convex 
+		cscFE = Lar.fix_redundancy(cscFE,cscFV)
+	end
+	return cscFE 
 end
-
 
 """
 	coboundary_1( FV::Lar.Cells, EV::Lar.Cells)::Lar.ChainOp
@@ -289,37 +294,51 @@ julia> Matrix(cscFE)
 
 
 """
-function coboundary_1( V::Lar.Points, FV::Lar.Cells, EV::Lar.Cells, convex=true, exterior=false)::Lar.ChainOp
+function coboundary_1( V::Lar.Points, FV::Lar.Cells, EV::Lar.Cells, convex=true::Bool, exterior=false::Bool)::Lar.ChainOp
 	# generate unsigned operator's sparse matrix
-	global cscFE = Lar.u_coboundary_1( FV::Lar.Cells, EV::Lar.Cells, convex)
-	# greedy generation of incidence number signs
-	cscEV = SparseArrays.sparse(Lar.coboundary_0( EV::Lar.Cells ))
+	cscFV = Lar.characteristicMatrix(FV)
+	cscEV = Lar.characteristicMatrix(EV)
+	if size(V,1) == 3
+		copFE = u_coboundary_1( FV::Lar.Cells, EV::Lar.Cells )
+	elseif size(V,1) == 2
+		# greedy generation of incidence number signs
+		copFE = coboundary_1( V, cscFV::Lar.ChainOp, cscEV::Lar.ChainOp, convex, exterior)
+	end
+	return copFE
+end
+
+function coboundary_1( V::Lar.Points, cscFV::Lar.ChainOp, cscEV::Lar.ChainOp, 
+	convex=true::Bool, exterior=false::Bool)::Lar.ChainOp
+
+	cscFE = u_coboundary_1( cscFV::Lar.ChainOp, cscEV::Lar.ChainOp, convex)	
+	EV = [findnz(cscEV[k,:])[1] for k=1:size(cscEV,1)]
+	cscEV = sparse(Lar.coboundary_0( EV::Lar.Cells ))
 	global cycle
 	for f=1:size(cscFE,1)
-		chain = SparseArrays.findnz(cscFE[f,:])[1]	#	dense
-		global cycle = SparseArrays.spzeros(Int8,cscFE.n)	#	sparse
+		chain = findnz(cscFE[f,:])[1]	#	dense
+		global cycle = spzeros(Int8,cscFE.n)	#	sparse
 		
-		edge = SparseArrays.findnz(cscFE[f,:])[1][1]; sign = 1
+		edge = findnz(cscFE[f,:])[1][1]; sign = 1
 		cycle[edge] = sign
 		chain = setdiff( chain, edge )
 		while chain != []
-			boundary = SparseArrays.sparse(cycle') * cscEV
-			_,vs,vals = SparseArrays.findnz(SparseArrays.dropzeros(boundary))
+			boundary = sparse(cycle') * cscEV
+			_,vs,vals = findnz(dropzeros(boundary))
 			
 			rindex = vals[1]==1 ? vf = vs[1] : vf = vs[2] 
-			r_boundary = SparseArrays.spzeros(Int8,cscEV.n)	#	sparse
+			r_boundary = spzeros(Int8,cscEV.n)	#	sparse
 			r_boundary[rindex] = 1
 			r_coboundary = cscEV * r_boundary
 			r_edge = intersect(findnz(r_coboundary)[1],chain)[1]
-			r_coboundary = SparseArrays.spzeros(Int8,cscEV.m)	#	sparse
+			r_coboundary = spzeros(Int8,cscEV.m)	#	sparse
 			r_coboundary[r_edge] = EV[r_edge][1]<EV[r_edge][2] ? 1 : -1
 			
 			lindex = vals[1]==-1 ? vi = vs[1] : vi = vs[2] 
-			l_boundary = SparseArrays.spzeros(Int8,cscEV.n)	#	sparse
+			l_boundary = spzeros(Int8,cscEV.n)	#	sparse
 			l_boundary[lindex] = -1
 			l_coboundary = cscEV * l_boundary
-			l_edge = intersect(SparseArrays.findnz(l_coboundary)[1],chain)[1]
-			l_coboundary = SparseArrays.spzeros(Int8,cscEV.m)	#	sparse
+			l_edge = intersect(findnz(l_coboundary)[1],chain)[1]
+			l_coboundary = spzeros(Int8,cscEV.m)	#	sparse
 			l_coboundary[l_edge] = EV[l_edge][1]<EV[l_edge][2] ? -1 : 1
 			
 			if r_coboundary != -l_coboundary  # false iff last edge
@@ -334,22 +353,25 @@ function coboundary_1( V::Lar.Points, FV::Lar.Cells, EV::Lar.Cells, convex=true,
 			end
 			chain = setdiff(chain, findnz(cycle)[1])
 		end
-		for e in SparseArrays.findnz(cscFE[f,:])[1]
-			global cscFE[f,e] = cycle[e]
+		for e in findnz(cscFE[f,:])[1]
+			cscFE[f,e] = cycle[e]
 		end
 	end
-	if exterior # put matrix in form: first row outer cell; with opposite sign )
+	if exterior && size(V,1)==2  
+		# put matrix in form: first row outer cell; with opposite sign )
 		V = convert(Array{Float64,2},transpose(V))
 		EV = convert(Lar.ChainOp, SparseArrays.transpose(Lar.boundary_1(EV)))
 		
 		outer = Lar.Arrangement.get_external_cycle(V::Lar.Points, cscEV::Lar.ChainOp, 
 			cscFE::Lar.ChainOp)
-		FE = [ -cscFE[outer:outer,:];  cscFE[1:outer-1,:];  cscFE[outer+1:end,:] ]
-		return FE
+		copFE = [ -cscFE[outer:outer,:];  cscFE[1:outer-1,:];  cscFE[outer+1:end,:] ]
+		return copFE
 	else
 		return cscFE
 	end
 end
+
+
 
 
 
