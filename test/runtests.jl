@@ -12,3 +12,6 @@ include("./struct.jl")
 include("./mapper.jl")
 include("./integr.jl")
 include("./simplexn.jl")
+
+include("./simplexn-serial.jl")
+include("./psimplexn.jl")
