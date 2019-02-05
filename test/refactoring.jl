@@ -178,7 +178,7 @@ function spaceindex(model::Lar.LAR)::Array{Array{Int,1},1}
 			xyzs = intersect(xqs,yqs)
 		end
 		
-		I_sigma = sort(xyzs)
+		I_sigma = filter(x -> x>k,sort(xyzs))
 		append!(Sigma, I_sigma)		
 		push!(spatialindex,Sigma)
 	end
@@ -188,9 +188,29 @@ end
 
 
 """
+	decomposition2d()::
+	
+Pairwise *intersection* of 2D *line segments* in ``σ ∪ I(σ)``, for each ``σ ∈ Sd−1``.
+
+# Example 2D
+
+```julia
+V,EV = model2d
+
+```
+"""
+function decomposition2d(model::Lar.LAR)
+	V,FV,EV = model
+	dim = size(V,1)
+	spatialindex = spaceindex(model)
+	
+end
+
+
+"""
 	decomposition()::
 	
-Pairwise z = 0 *intersection* of *line segments* in ``σ ∪ I(σ)``, for each ``σ ∈ Sd−1``.
+Pairwise *intersection* in ``z = 0`` of *line segments* in ``σ ∪ I(σ)``, for each ``σ ∈ Sd−1``.
 
 # Example 3D
 
