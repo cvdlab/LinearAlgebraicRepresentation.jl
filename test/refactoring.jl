@@ -2,6 +2,164 @@ using LinearAlgebraicRepresentation
 using Plasm
 Lar = LinearAlgebraicRepresentation
 using IntervalTrees
+using SparseArrays
+
+
+""" 
+	verts2verts(V::Lar.Points, EV::Lar.Cells)::Lar.Cells
+
+Adjacency lists of vertices of a cellular 1-complex.
+
+# Example
+
+```julia 
+julia> V,(VV,EV,FV) = Lar.cuboidGrid([3,3],true);
+
+julia> verts2verts(V::Lar.Points, EV::Lar.Cells)::Lar.Cells
+16-element Array{Array{Int64,1},1}:
+ [2, 5]         
+ [1, 3, 6]      
+ [2, 4, 7]      
+ [3, 8]         
+ [1, 6, 9]      
+ [2, 5, 7, 10]  
+ [3, 6, 8, 11]  
+ [4, 7, 12]     
+ [5, 10, 13]    
+ [6, 9, 11, 14] 
+ [7, 10, 12, 15]
+ [8, 11, 16]    
+ [9, 14]        
+ [10, 13, 15]   
+ [11, 14, 16]   
+ [12, 15]       
+```
+
+```
+julia> V
+2×13 Array{Float64,2}:
+ 3.0  6.0  6.0  6.0  6.0  0.0  3.0  10.0  10.0  10.0  0.0  3.0  0.0
+ 2.0  2.0  0.0  4.0  8.0  4.0  4.0   4.0   0.0   8.0  8.0  0.0  0.0
+
+julia> EV
+16-element Array{Array{Int64,1},1}:
+[[0, 1], [1, 2], [1, 3], [4, 9], [2, 11], [4, 10], [5, 6], [7, 8], 
+[5, 12], [11, 12], [0, 6], [0, 11], [3, 6], [3, 7], [3, 4], [7, 9]]
+```
+
+To see graphically the generated output:
+```julia
+julia> using Plasm
+julia> Plasm.view( Plasm.numbering(1)((V,[VV, EV, FV])) )
+```
+"""
+function verts2verts(EV::Lar.Cells)::Lar.Cells
+    cscEV = Lar.characteristicMatrix(EV)
+    cscVE = convert(Lar.ChainOp, cscEV')
+    cscVV = cscVE * cscEV   
+    rows,cols,data = SparseArrays.findnz(cscVV)
+    VV = [ findnz(cscVV[k,:])[1] for k=1:size(cscVV,2) ]
+    return [setdiff(vs,[k]) for (k,vs) in enumerate(VV)]
+end
+
+
+
+""" 
+	biconnectedComponent(model)
+
+Main procedure for computation of biconnected components of a graph 
+represented by a LAR unsigned pair.
+``` 
+model = V,EV
+```
+"""
+function biconnectedComponent(model)
+    W,EV = model
+    V = range(1, size(W,2))
+    count = 0
+    stack,out = [],[]
+    visited = [false for v in V]
+    parent = Union{Int, Array{Any,1}}[[] for v in V]
+    d = Any[0 for v in V]
+    low = Any[0 for v in V]    
+    VV = verts2verts(EV)
+    out = Any[]
+    for u in V 
+        if ! visited[u] 
+            out = DFV_visit( VV,out,count,visited,parent,d,low,stack, u )
+        end
+    end
+    out = [component for component in out if length(component) >= 1]
+    EVs = [[map(sort∘collect,edges) for edges in cat(comp) if length(edges)>1] for comp in out]
+    EVs = cat(filter(x->!isempty(x), EVs))
+    return W, EVs
+end
+
+
+
+
+""" 
+	DFV_visit( VV::cells, out::Array, count::Int, visited::Array, parent::Array, 
+		d::Array, low::Array, stack::Array, u::Int )::Array
+
+Hopcroft-Tarjan algorithm
+"""
+function DFV_visit( VV::Lar.Cells, out::Array, count::Int, visited::Array, parent::Array, 
+		d::Array, low::Array, stack::Array, u::Int )::Array
+		
+    visited[u] = true
+    count += 1
+    d[u] = count
+    low[u] = d[u]
+    for v in VV[u]
+        if ! visited[v]
+            push!(stack, [(u,v)])
+            parent[v] = u
+            DFV_visit( VV,out,count,visited,parent,d,low,stack, v )
+            if low[v] >= d[u]
+                push!(out, [outputComp(stack,u,v)])
+            end
+            low[u] = min( low[u], low[v] )
+        else
+            if ! (parent[u]==v) && (d[v] < d[u])
+                push!(stack, [(u,v)])
+            end
+            low[u] = min( low[u], d[v] )
+        end
+    end
+    out
+end
+
+
+"""
+	outputComp(stack::Array, u::Int, v::Int)::Array
+
+Output of biconnected components
+"""
+function outputComp(stack,u,v)
+    out = []
+    while true
+        e = pop!(stack)[1]
+        push!(out,e)
+        if e == (u,v) 
+        	break
+        end
+    end
+    return [out] 
+end
+
+
+Plasm.view( Plasm.numbering(3)((V,[VV,EV])) )
+
+using SparseArrays
+model = (V,EV)
+biconnectedComponent(model)
+
+
+
+
+
+
 
 """
 	input_collection(data::Array)::Tuple
@@ -31,7 +189,7 @@ data2d6 = Lar.Struct([ Lar.t(5,3.5), mycircle(.25,16) ])
 model2d = input_collection( [ data2d1, data2d2, data2d3, data2d4, data2d5, data2d6 ] )
 V,EV = model2d
 VV = [[k] for k in 1:size(V,2)];
-Plasm.view( Plasm.numbering(.3)((V,[VV, EV])) )
+Plasm.view( Plasm.numbering(.5)((V,[VV,EV])) )
 ```
 Note that `V,EV` is not a cellular complex, since 1-cells intersect out of 0-cells.
 
@@ -196,14 +354,21 @@ Pairwise *intersection* of 2D *line segments* in ``σ ∪ I(σ)``, for each ``σ
 
 ```julia
 V,EV = model2d
+out = Lar.decomposition2d(model2d)
+
+biconcomp = Lar.Arrangement.biconnected_components(cscEV)
+
 
 ```
 """
 function decomposition2d(model::Lar.LAR)
-	V,FV,EV = model
+	V,EV = model
 	dim = size(V,1)
+	@assert dim == 2
 	spatialindex = spaceindex(model)
-	
+	copEV = convert(Lar.ChainOp, Lar.coboundary_0(EV))
+	out = planar_arrangement( V::Lar.Points, copEV::Lar.ChainOp )
+	return out
 end
 
 
