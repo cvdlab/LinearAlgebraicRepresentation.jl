@@ -1,567 +1,124 @@
+using Test
 using LinearAlgebraicRepresentation
-using Plasm
 Lar = LinearAlgebraicRepresentation
-using IntervalTrees
-using SparseArrays
 
 
-""" 
-	verts2verts(V::Lar.Points, EV::Lar.Cells)::Lar.Cells
+@testset "2D containment tests" begin
 
-Adjacency lists of vertices of a cellular 1-complex.
+(V, EV) = ([0.43145 0.596771 0.758062 1.0 0.778226 0.919353 0.879033 0.806447 0.778226 0.709677 0.596771 0.262094 0.322578 0.0 0.2379 0.161291 0.467739 0.429435 0.627999 0.627999 0.383062 0.694833 0.653221 0.544027 0.778226 0.848789 0.750707 0.627999 0.694833 0.806447; -0.0163938 0.22521 0.104412 0.325182 0.629266 0.683418 0.820882 0.725074 0.845873 0.75215 1.0 0.820882 0.629266 0.385151 0.43765 0.246033 0.466811 0.629266 0.704244 0.507207 0.275195 0.683418 0.43765 0.291323 0.199264 0.43765 0.497413 0.341841 0.259902 0.364484], Array{Int64,1}[[1, 2], [2, 3], [3, 4], [4, 5], [5, 6], [6, 7], [7, 8], [8, 9], [9, 10], [10, 11], [11, 12], [12, 13], [13, 14], [14, 15], [15, 16], [16, 17], [17, 18], [18, 19], [19, 20], [20, 21], [21, 1], [22, 23], [24, 23], [24, 25], [25, 26], [26, 22], [27, 28], [28, 29], [29, 30], [30, 27]])
 
-# Example
+classify = Lar.pointInPolygonClassification(V,EV)
+queryPoint = [0.5,0.5]
 
-```julia 
-julia> V,(VV,EV,FV) = Lar.cuboidGrid([3,3],true);
-
-julia> verts2verts(V::Lar.Points, EV::Lar.Cells)::Lar.Cells
-16-element Array{Array{Int64,1},1}:
- [2, 5]         
- [1, 3, 6]      
- [2, 4, 7]      
- [3, 8]         
- [1, 6, 9]      
- [2, 5, 7, 10]  
- [3, 6, 8, 11]  
- [4, 7, 12]     
- [5, 10, 13]    
- [6, 9, 11, 14] 
- [7, 10, 12, 15]
- [8, 11, 16]    
- [9, 14]        
- [10, 13, 15]   
- [11, 14, 16]   
- [12, 15]       
-```
-
-```
-julia> V
-2×13 Array{Float64,2}:
- 3.0  6.0  6.0  6.0  6.0  0.0  3.0  10.0  10.0  10.0  0.0  3.0  0.0
- 2.0  2.0  0.0  4.0  8.0  4.0  4.0   4.0   0.0   8.0  8.0  0.0  0.0
-
-julia> EV
-16-element Array{Array{Int64,1},1}:
-[[0, 1], [1, 2], [1, 3], [4, 9], [2, 11], [4, 10], [5, 6], [7, 8], 
-[5, 12], [11, 12], [0, 6], [0, 11], [3, 6], [3, 7], [3, 4], [7, 9]]
-```
-
-To see graphically the generated output:
-```julia
-julia> using Plasm
-julia> Plasm.view( Plasm.numbering(1)((V,[VV, EV, FV])) )
-```
-"""
-function verts2verts(EV::Lar.Cells)::Lar.Cells
-    cscEV = Lar.characteristicMatrix(EV)
-    cscVE = convert(Lar.ChainOp, cscEV')
-    cscVV = cscVE * cscEV   
-    rows,cols,data = SparseArrays.findnz(cscVV)
-    VV = [ findnz(cscVV[k,:])[1] for k=1:size(cscVV,2) ]
-    return [setdiff(vs,[k]) for (k,vs) in enumerate(VV)]
-end
-
-
-
-""" 
-	biconnectedComponent(model)
-
-Main procedure for computation of biconnected components of a graph 
-represented by a LAR unsigned pair.
-``` 
-model = V,EV
-```
-"""
-function biconnectedComponent(model)
-    W,EV = model
-    V = range(1, size(W,2))
-    count = 0
-    stack,out = [],[]
-    visited = [false for v in V]
-    parent = Union{Int, Array{Any,1}}[[] for v in V]
-    d = Any[0 for v in V]
-    low = Any[0 for v in V]    
-    VV = verts2verts(EV)
-    out = Any[]
-    for u in V 
-        if ! visited[u] 
-            out = DFV_visit( VV,out,count,visited,parent,d,low,stack, u )
-        end
-    end
-    out = [component for component in out if length(component) >= 1]
-    EVs = [[map(sort∘collect,edges) for edges in cat(comp) if length(edges)>1] for comp in out]
-    EVs = cat(filter(x->!isempty(x), EVs))
-    return W, EVs
-end
-
-
-
-
-""" 
-	DFV_visit( VV::cells, out::Array, count::Int, visited::Array, parent::Array, 
-		d::Array, low::Array, stack::Array, u::Int )::Array
-
-Hopcroft-Tarjan algorithm
-"""
-function DFV_visit( VV::Lar.Cells, out::Array, count::Int, visited::Array, parent::Array, 
-		d::Array, low::Array, stack::Array, u::Int )::Array
-		
-    visited[u] = true
-    count += 1
-    d[u] = count
-    low[u] = d[u]
-    for v in VV[u]
-        if ! visited[v]
-            push!(stack, [(u,v)])
-            parent[v] = u
-            DFV_visit( VV,out,count,visited,parent,d,low,stack, v )
-            if low[v] >= d[u]
-                push!(out, [outputComp(stack,u,v)])
-            end
-            low[u] = min( low[u], low[v] )
-        else
-            if ! (parent[u]==v) && (d[v] < d[u])
-                push!(stack, [(u,v)])
-            end
-            low[u] = min( low[u], d[v] )
-        end
-    end
-    out
-end
-
-
-"""
-	outputComp(stack::Array, u::Int, v::Int)::Array
-
-Output of biconnected components
-"""
-function outputComp(stack,u,v)
-    out = []
-    while true
-        e = pop!(stack)[1]
-        push!(out,e)
-        if e == (u,v) 
-        	break
-        end
-    end
-    return [out] 
-end
-
-
-Plasm.view( Plasm.numbering(3)((V,[VV,EV])) )
-
-using SparseArrays
-model = (V,EV)
-biconnectedComponent(model)
-
-
-
-
-
-
-
-"""
-	input_collection(data::Array)::Tuple
-
-*Facet selection*. Construction of a ``(d-1)``-dimensional collection from a ``(d-1)``- 
-or ``d``-dimensional one. ``0-chain`` of `LAR` type are used as *input*.
-
-*Output* is ``admissible input`` for algorithms of the *2D/3D arrangement* pipeline.
-
-# Example 2D
-
-An assembly of geometric objects is generated, and their assembly, including rotated 
-and translated chains, is built producing a collection of input LAR models.
-
-```julia
-V,(_,EV,FV) = Lar.cuboidGrid([4,4],true);
-W,(_,EW,FW) = Lar.cuboidGrid([3,5],true);
-mycircle(r,n) = Lar.circle(r)(n)
-
-data2d1 = (V,EV)
-data2d2 = Lar.Struct([ Lar.t(2,2), Lar.r(pi/3), Lar.t(-1.5,-2.5), (W,EW) ])
-data2d3 = Lar.Struct([ Lar.t(2,2), mycircle(2.5,16) ])
-data2d4 = Lar.Struct([ Lar.t(3.5,3.5), mycircle(.25,16) ])
-data2d5 = Lar.Struct([ Lar.t(5,3.5), mycircle(.5,16) ])
-data2d6 = Lar.Struct([ Lar.t(5,3.5), mycircle(.25,16) ])
-
-model2d = input_collection( [ data2d1, data2d2, data2d3, data2d4, data2d5, data2d6 ] )
-V,EV = model2d
-VV = [[k] for k in 1:size(V,2)];
-Plasm.view( Plasm.numbering(.5)((V,[VV,EV])) )
-```
-Note that `V,EV` is not a cellular complex, since 1-cells intersect out of 0-cells.
-
-# Example 3D
-
-```julia
-V,FV = Lar.sphere(2)([3,4])
-EV = Lar.simplexFacets(FV)
-mysphere = V,FV,EV
-
-data3d1 = mysphere
-data3d2 = Lar.Struct([ Lar.t(0,1,0), mysphere ])
-data3d3 = Lar.Struct([ Lar.t(0,0.5,0), Lar.s(0.4,0.4,0.4), mysphere ])
-data3d4 = Lar.Struct([ Lar.t(4,0,0), Lar.s(0.8,0.8,0.8), mysphere ])
-data3d5 = Lar.Struct([ Lar.t(4,0,0), Lar.s(0.4,0.4,0.4), mysphere ])
-
-model3d = input_collection([ data3d1, data3d2, data3d3, data3d4, data3d5 ])
-V,FV,EV = model3d
-VV = [[k] for k in 1:size(V,2)];
-Plasm.view( Plasm.numbering(.6)((V,[VV, EV])) )
-```
-
-Note that `V,FV,EV` is not a cellular complex, since 1-cells and
-2-cells intersect out of 0-cells.
-
-"""
-function input_collection(data::Array)::Lar.LAR
-	assembly = Lar.Struct(data)
-	return Lar.struct2lar(assembly)
-end
-
-
-
-
-"""
-	indexing(model::Lar.LAR)
+   @testset "crossingTest Tests" begin
+		@test Lar.crossingTest(0, 0, 0., 0)::Number == 0.5
+		@test Lar.crossingTest(0, 0, 0.5, 0)::Number == 1.0
+		@test Lar.crossingTest(0, 0, 0.5, 0)::Number == 1.0
+		@test Lar.crossingTest(1, 0, 0.5, 0) == 1.0
+		@test Lar.crossingTest(1, 1, 0.5, 0) == 1.0
+		@test Lar.crossingTest(1, 1, 0.5, 1) == 0
+   end
+   
+   @testset "setTile Tests" begin
+		x,y = 0.5,0.75
+		xmin,xmax,ymin,ymax = x,x,y,y
+		box = [ymax,ymin,xmax,xmin]
+		tilecode = Lar.setTile(box)
 	
-*Spatial index* made by ``d`` *interval-trees* on 
-bounding boxes of ``sigma in S_{d−1}``. Spatial queries solved by
-intersection of ``d`` queries on IntervalTrees generated by
-bounding-boxes of geometric objects (LAR cells).
+		@test Lar.setTile isa Function
+		@test typeof(box)==Array{Float64,1}
+		@test Lar.setTile(box) isa Function
+		@test tilecode([.5,.5])==2
+		@test tilecode([-.5,.5])==10
+		@test tilecode([.5,-.5])==2
+		@test tilecode([-.5,-.5])==10
+		@test tilecode([.5,.95])==1
+   end
+   
+   @testset "pointInPolygonClassification Tests" begin
+		@test Lar.pointInPolygonClassification(V,EV) isa Function
+		@test pnt = [0.5,0.5] isa Array{Float64,1}
+		@test classify(queryPoint)=="p_out"
+		@test classify([0.5,0.75])=="p_in"
+		@test classify([1.5,0.75])=="p_out"
+		@test typeof(classify(queryPoint))==String
+   end
+end
 
-# Example 2D
 
-```julia
-model = model2d
-xs,ys =  indexing(model2d);
-```
 
-# Example 3D
+@testset "Biconnected components" begin
 
-```julia
-model = model3d
-xs,ys,zs =  indexing(model3d);
-```
-"""
-function indexing(model)
-	V,CV = model[1:2]
-	dim = size(V,1)
-	@assert length(model) == dim  #n. chains == dim space
-	
-	cellpoints = [ V[:,CV[k]]::Lar.Points for k=1:length(CV) ]
-	bboxes = [Lar.bbox(cell) for cell in cellpoints]
-	intervals = [IntervalValue{Float64,Int}[] for k=1:dim]
+(V, (VV, EV, FV)) = Lar.cuboidGrid([3, 3], true)
 
-	for k=1:dim
-		for (b,box) in enumerate(bboxes)
-			push!(intervals[k], IntervalValue{Float64,Int}(box[1][k], box[2][k], b))
-		end
+	@testset "verts2verts data Tests" begin
+		@test Lar.cuboidGrid([3,3],true) == ([0.0 0.0 0.0 0.0 1.0 1.0 1.0 1.0 2.0 2.0 2.0 2.0 3.0 3.0 3.0 3.0; 0.0 1.0 2.0 3.0 0.0 1.0 2.0 3.0 0.0 1.0 2.0 3.0 0.0 1.0 2.0 3.0], ( [[[1],[2],[3],[4],[5],[6],[7],[8],[9],[10],[11],[12],[13],[14],[15],[16]], [[1, 2],[2,3],[3,4],[5,6],[6,7],[7,8],[9,10],[10,11],[11,12],[13,14],[14, 15],[15,16],[1,5],[2,6],[3,7],[4,8],[5,9],[6,10],[7,11],[8,12],[9,13], [10,14],[11,15],[12,16]], [[1,2,5,6],[2,3,6,7],[3,4,7,8],[5,6,9,10], [6,7,10,11],[7,8,11,12],[9,10,13,14],[10,11,14,15],[11,12,15,16]]] ) )
+		@test size(V,2)==length(VV)
+		@test length(VV)==16
+		@test length(EV)==24
+		@test length(FV)==9
+		@test length(VV)-length(EV)+length(FV)==1
+		@test Lar.verts2verts(EV::Lar.Cells)==[[2,5],[1,3,6],[2,4,7],[3,8],[1,
+		6,9],[2,5,7,10],[3,6,8,11],[4,7,12],[5,10,13],[6,9,11,14],[7,10,12,
+		15],[8,11,16],[9,14],[10,13,15],[11,14,16],[12,15]]
+		@test Lar.verts2verts(FV::Lar.Cells)==[[2,5,6],[1,3,5,6,7],[2,4,6,7,
+		8],[3,7,8],[1,2,6,9,10],[1,2,3,5,7,9,10,11],[2,3,4,6,8,10,11,12],[3,
+		4,7,11,12],[5,6,10,13,14],[5,6,7,9,11,13,14,15],[6,7,8,10,12,14,15,
+		16],[7,8,11,15,16],[9,10,14],[9,10,11,13,15],[10,11,12,14,16],[11,12,15]]
 	end
-	map(sort!, intervals)
-	
-	xs = IntervalTree{Float64, IntervalValue{Float64,Int}}(intervals[1])
-	ys = IntervalTree{Float64, IntervalValue{Float64,Int}}(intervals[2])
-	if dim == 3
-		zs = IntervalTree{Float64, IntervalValue{Float64,Int}}(intervals[3])
-	end
-	if dim==2 return (xs,ys)
-	elseif dim==3 return (xs,ys,zs) 
-	end
+   
+   @testset "DFV_visit Tests" begin
+      @test 
+   end
+   
+   @testset "outputComp Tests" begin
+      @test 
+   end
+   
+   @testset "biconnectedComponent Tests" begin
+		(V, EV) = ([0.0 0.97721 0.97721 0.724048 0.724048 0.258225 0.258225 0.660757 0.660757 0.0; 1.0 1.0 0.0 0.0 0.934178 0.934178 0.346836 0.346836 0.0 0.0], Array{Int64,1}[[1, 2], [2, 3], [3, 4], [4, 5], [5, 6], [6, 7], [7, 8], [8, 9], [9, 10], [10, 1]])
+		V,EVs = Lar.biconnectedComponent((V,EV))
+		@test sort(map(sort,EVs[1]))==sort(map(sort,EV))
+		@test Lar.biconnectedComponent((V,EV)) == ([0.0 0.97721 0.97721 0.724048 0.724048 0.258225 0.258225 0.660757 0.660757 0.0; 1.0 1.0 0.0 0.0 0.934178 0.934178 0.346836 0.346836 0.0 0.0], Any[Array{Int64,1}[[1, 10], [9, 10], [8, 9], [7, 8], [6, 7], [5, 6], [4, 5], [3, 4], [2, 3], [1, 2]]])
+		@test length(EVs)==1
+		@test typeof(EVs[1])==Array{Array{Int64,1},1}
+		@test typeof(EVs)==Array{Any,1}
+  end
 end
 
 
+@testset "Refactoring pipeline 1" begin
+   
+   @testset "bbbbbbb Tests" begin
+      @test 
+   end
 
-"""
-	spaceindex(model::Lar.LAR)::Array{Array{Int,1},1}
-	
-Generation of *space indexes* for all ``(d-1)``-dim cell members of `model`.
-`model` input must be a pair for 2d LAR, and a triple for 3d LAR.
-The return value is an array of arrays of `int`s, indexing 2-, 3-cells whose 
-containment boxes are intersecting the containment box of the first cell. 
-According to Hoffmann, Hopcroft, and Karasick (1989) the worst-case complexity of
-Boolean ops on such complexes equates the total sum of such numbers. 
-
-# Example 2D
-
-```julia
-model = model2d
-Sigma =  spaceindex(model2d);
-typeof(Sigma) = Array{Array{Int,1},1}
-```
-
-# Example 3D
-
-```julia
-model = model3d
-Sigma =  spaceindex(model3d);
-typeof(Sigma) = Array{Array{Int,1},1}
-```
-"""
-function spaceindex(model::Lar.LAR)::Array{Array{Int,1},1}
-	V,CV = model[1:2]
-	dim = size(V,1)
-	@assert length(model) == dim  #n. chains == dim space
-	
-	if dim == 3 
-		xs,ys,zs = indexing(model)
-	elseif dim == 2 
-		xs,ys = indexing(model)
-	end
-	
-	function bbox(vertices::Lar.Points)
-	   minimum = mapslices(x->min(x...), vertices, dims=2)
-	   maximum = mapslices(x->max(x...), vertices, dims=2)
-	   return minimum, maximum
-	end
-	
-	spatialindex = []
-	for (k,sigma) in enumerate(CV)
-		Sigma = [k]
-		facepoints = V[:,sigma]
-		vmin, vmax = bbox(facepoints)
-		
-		xquery = intersect( xs::IntervalTree, (vmin[1], vmax[1]) )
-		xqs = [xint.value for xint in xquery]
-		yquery = intersect( ys::IntervalTree, (vmin[2], vmax[2]) )
-		yqs = [yint.value for yint in yquery]
-		
-		if dim == 3 
-			zquery = intersect( zs::IntervalTree, (vmin[3], vmax[3]) )
-			zqs = [zint.value for zint in zquery]
-			xyzs = intersect(xqs,yqs,zqs)
-		elseif dim == 2 
-			xyzs = intersect(xqs,yqs)
-		end
-		
-		I_sigma = filter(x -> x>k,sort(xyzs))
-		append!(Sigma, I_sigma)		
-		push!(spatialindex,Sigma)
-	end
-	return spatialindex
+   @testset "bbbbbbb Tests" begin
+      @test 
+   end
+   
+   @testset "bbbbbbb Tests" begin
+      @test 
+   end
+   
+   @testset "bbbbbbb Tests" begin
+      @test 
+   end
 end
 
 
+@testset "Refactoring pipeline 2" begin
 
-"""
-	decomposition2d()::
-	
-Pairwise *intersection* of 2D *line segments* in ``σ ∪ I(σ)``, for each ``σ ∈ Sd−1``.
-
-# Example 2D
-
-```julia
-V,EV = model2d
-out = Lar.decomposition2d(model2d)
-
-biconcomp = Lar.Arrangement.biconnected_components(cscEV)
-
-
-```
-"""
-function decomposition2d(model::Lar.LAR)
-	V,EV = model
-	dim = size(V,1)
-	@assert dim == 2
-	spatialindex = spaceindex(model)
-	copEV = convert(Lar.ChainOp, Lar.coboundary_0(EV))
-	out = planar_arrangement( V::Lar.Points, copEV::Lar.ChainOp )
-	return out
+   @testset "bbbbbbb Tests" begin
+      @test 
+   end
+   
+   @testset "bbbbbbb Tests" begin
+      @test 
+   end
+   
+   @testset "bbbbbbb Tests" begin
+      @test 
+   end
 end
-
-
-"""
-	decomposition()::
-	
-Pairwise *intersection* in ``z = 0`` of *line segments* in ``σ ∪ I(σ)``, for each ``σ ∈ Sd−1``.
-
-# Example 3D
-
-```julia
-V,FV,EV = model3d
-model = model3d
-
-```
-"""
-function decomposition(model::Lar.LAR)
-	V,FV,EV = model
-	dim = size(V,1)
-	spatialindex = spaceindex(model)
-	
-	function submanifoldmap(vs)
-		centroid = [sum(vs[k,:]) for k=1:size(vs,1)]/size(vs,2)
-		# u1, u2 always independent
-		u1 = normalize( centroid - vs[:,1] )
-		u2 = normalize( vs[:,2] - vs[:,1] )
-		u3 = normalize(cross(u1, u2))
-		# u1, u2, u3 orthonormal
-		u1 = cross(u2, u3)
-		T = Matrix{Float64}(LinearAlgebra.I, 4, 4)
-		T[1:3,4] = - vs[:,1]
-		R = Matrix{Float64}(LinearAlgebra.I, 4, 4)
-		R[1:3, 1:3] = [u1 u2 u3]'
-		return R*T  # roto-translation matrix
-	end
-
-	for Sigma in spatialindex
-		sigma = Sigma[1]
-		if dim == 3
-			# transform Sigma s.t. Sigma[1], i.e. sigma, -> z=0
-			vs = V[:, CV[sigma]]
-			Q = submanifoldmap(vs)
-			vq = Q * [vs; ones(1, size(vs,2))]
-			v2d = vq[1:2,:]
-	
-		end
-	end
-	
-end
-
-
-
-"""
-	Congruence()::
-Graded bases of equivalence classes Ck (Uk ), with Uk = Xk /Rk for 0 ≤ k ≤ 2.
-
-# Example
-
-```julia
-julia> 
-```
-"""
-function Congruence 
-
-end
-
-
-
-"""
-	Connection()::
-Extraction of (X p , ∂p ), maximal connected components of Xd −1 (0 ≤ p ≤ h). d−1 d−1 +p
-
-# Example
-
-```julia
-julia> 
-```
-"""
-function Connection 
-
-end
-
-
-
-"""
-	Bases()::
-Computation of redundant cycle basis [∂d ] for each p-component, via TGW. 
-
-# Example
-
-```julia
-julia> 
-```
-"""
-function Bases 
-
-end
-
-
-
-"""
-	Boundaries()::
-Accumulation into H += [o]p (hole-set) of outer boundary cycle from each [∂d+]p . 
-
-# Example
-
-```julia
-julia> 
-```
-"""
-function Boundaries 
-
-end
-
-
-
-"""
-	Containment()::
-Computation of antisymmetric containment relation S between [o]p holes in H. 
-
-# Example
-
-```julia
-julia> 
-```
-"""
-function Containment 
-
-end
-
-
-
-"""
-	Reduction()::
-Transitive R reduction of S and generation of forest of flat trees ⟨[od ]p , [∂d ]p ⟩. 
-
-# Example
-
-```julia
-julia> 
-```
-"""
-function Reduction 
-
-end
-
-
-
-"""
-	Adjoining()::
-of roots [od ]r to (unique) outer cell, and non-roots [∂d+]q to container cells. 
-
-# Example
-
-```julia
-julia> 
-```
-"""
-function Adjoining 
-
-end
-
-
-
-"""
-	Assembling()::
-Quasi-block-diagonal assembly of matrices relatives to isolated components [∂d ]p . 
-
-# Example
-
-```julia
-julia> 
-```
-"""
-function Assembling 
-
-end
-
-
-
-"""
-	Output()::
-Global boundary map [∂d ] of A(Sd−1), and reconstruction of 0-chains of d-cells in Xd .
-
-# Example
-
-```julia
-julia> 
-```
-"""
-function Output 
-
-end
-
-
 

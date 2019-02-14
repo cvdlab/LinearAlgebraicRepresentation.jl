@@ -157,7 +157,7 @@ using Plasm
 Plasm.view( Plasm.numbering(3)((V,[VV, EV, FV])) )
 ```
 """
-function fix_redundancy(target_mat, cscFV,cscEV)
+function fix_redundancy(target_mat, cscFV,cscEV) # incidence numbers > 2#E
 	global nfixs = 0
 	faces2fix = []
 	edges2fix = []
@@ -199,6 +199,8 @@ function fix_redundancy(target_mat, cscFV,cscEV)
 	cscFE = dropzeros(target_mat)
 	@assert nnz(cscFE) == 2*size(cscFE,2)
 	return cscFE
+end
+function fix_lack(target_mat, cscFV,cscEV) # incidence numbers < 2#E
 end
 
 
@@ -285,6 +287,8 @@ function u_coboundary_1( cscFV::Lar.ChainOp, cscEV::Lar.ChainOp, convex=true::Bo
 	end
 	return cscFE 
 end
+
+
 
 """
 	coboundary_1( FV::Lar.Cells, EV::Lar.Cells)::Lar.ChainOp
@@ -403,6 +407,81 @@ u_boundary_2(EV, FV) = (Lar.u_coboundary_1(FV, EV))'
 
 
 
+"""
+	u_boundary_3(CV::Lar.Cells, FV::Lar.Cells)::Lar.ChainOp
+
+Return the unsigned `boundary_2` operator `C_2` -> `C_1`.
+"""
+u_boundary_3(CV, FV) = (Lar.u_coboundary_1(CV, FV))'
+
+
+
+
+"""
+	u_coboundary_2( CV::Lar.Cells, FV::Lar.Cells[, convex=true::Bool] )::Lar.ChainOp
+
+Unsigned 2-coboundary matrix.
+Compute algebraically the *unsigned* coboundary matrix `∂_2` from 
+characteristic matrices of `CV` and `FV`. Currently usable *only* with complexes of *convex* cells.
+
+#	Examples
+ 
+## First example
+
+(1) Compute the *boundary matrix* for a block of 3-cells of size ``[32,32,16]``;  
+
+(2) compute and show the *boundary* 2-cell array `boundary_2D_cells` by decodifying the (`mod 2`) result of multiplication of  the *boundary_3 matrix* `∂_2'`, transpose of *unsigned  coboundary_2* matrix  times the coordinate vector of the ``total`` 3-chain.
+
+```julia
+julia> using SparseArrays, Plasm
+
+julia> V,(_,_,FV,CV) = Lar.cuboidGrid([32,32,16], true)
+
+julia> ∂_2 = u_coboundary_2( CV, FV)
+
+julia> coord_vect_of_all_3D_cells  = ones(size(∂_2,1),1)
+
+julia> coord_vect_of_boundary_2D_cells = ∂_2' * coord_vect_of_all_3D_cells .% 2
+
+julia> out = coord_vect_of_boundary_2D_cells
+
+julia> boundary_2D_cells = [ FV[f] for f in findnz(sparse(out))[1] ]
+
+julia> hpc = Plasm.lar2exploded_hpc(V, boundary_2D_cells)(1.,1.,1.)
+
+julia> Plasm.view(hpc)
+```
+## Second example example
+
+Using the boundary matrix of the `32 x 32 x 16` "image block" (better if stored on disk)
+compute the boundary 2-complex of a random sub-image inside the block.
+
+```julia
+julia> coord_vect_of_all_3D_cells = [x>0.15  ? 1 : 0  for x in rand(size(∂_2,1)) ]
+```
+
+"""
+function u_coboundary_2( CV::Lar.Cells, FV::Lar.Cells, convex=true::Bool)::Lar.ChainOp
+	cscCV = Lar.characteristicMatrix(CV)
+	cscFV = Lar.characteristicMatrix(FV)
+	temp = cscCV * cscFV'
+	I,J,value = Int64[],Int64[],Int8[]
+	for j=1:size(temp,2)
+		nverts = length(FV[j])
+		for i=1:size(temp,1)
+			if temp[i,j] == nverts
+				push!(I,i)
+				push!(J,j)
+				push!(value,1)
+			end
+		end
+	end
+	cscCF = SparseArrays.sparse(I,J,value)
+	if !convex 
+		@assert "not yet implemented: TODO!"
+	end
+	return cscCF
+end
 
 
 
