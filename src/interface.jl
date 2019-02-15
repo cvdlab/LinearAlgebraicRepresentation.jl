@@ -420,7 +420,7 @@ u_boundary_3(CV, FV) = (Lar.u_coboundary_1(CV, FV))'
 """
 	u_coboundary_2( CV::Lar.Cells, FV::Lar.Cells[, convex=true::Bool] )::Lar.ChainOp
 
-Unsigned 2-coboundary matrix.
+Unsigned 2-coboundary matrix `∂_2 : C_2 -> C_3` from 2-chain to 3-chain space.
 Compute algebraically the *unsigned* coboundary matrix `∂_2` from 
 characteristic matrices of `CV` and `FV`. Currently usable *only* with complexes of *convex* cells.
 
@@ -434,21 +434,13 @@ characteristic matrices of `CV` and `FV`. Currently usable *only* with complexes
 
 ```julia
 julia> using SparseArrays, Plasm
-
 julia> V,(_,_,FV,CV) = Lar.cuboidGrid([32,32,16], true)
-
-julia> ∂_2 = u_coboundary_2( CV, FV)
-
+julia> ∂_2 = Lar.u_coboundary_2( CV, FV)
 julia> coord_vect_of_all_3D_cells  = ones(size(∂_2,1),1)
-
 julia> coord_vect_of_boundary_2D_cells = ∂_2' * coord_vect_of_all_3D_cells .% 2
-
 julia> out = coord_vect_of_boundary_2D_cells
-
 julia> boundary_2D_cells = [ FV[f] for f in findnz(sparse(out))[1] ]
-
 julia> hpc = Plasm.lar2exploded_hpc(V, boundary_2D_cells)(1.,1.,1.)
-
 julia> Plasm.view(hpc)
 ```
 ## Second example example
@@ -457,7 +449,11 @@ Using the boundary matrix of the `32 x 32 x 16` "image block" (better if stored 
 compute the boundary 2-complex of a random sub-image inside the block.
 
 ```julia
-julia> coord_vect_of_all_3D_cells = [x>0.15  ? 1 : 0  for x in rand(size(∂_2,1)) ]
+julia> coord_vect_of_segment = [x>0.25 ? 1 : 0  for x in rand(size(∂_2,1)) ]
+julia> out = ∂_2' * coord_vect_of_segment .% 2
+julia> boundary_2D_cells = [ FV[f] for f in findnz(sparse(out))[1] ]
+julia> hpc = Plasm.lar2exploded_hpc(V, boundary_2D_cells)(1.1,1.1,1.1)
+julia> Plasm.view(hpc)
 ```
 
 """
