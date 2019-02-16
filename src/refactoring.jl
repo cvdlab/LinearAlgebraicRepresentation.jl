@@ -262,20 +262,17 @@ Plasm.view( Plasm.numbering(3)((V,[VV,EW])) )
 Another example:
 
 ```julia
-
 V = [0. 1  0  0 -1;
 	 0  0  1 -1  0]
 EV = [[1,2],[2,3],[1,4],[4,5],[5,1],[1,3]  ,[2,4]]
 model = (V,EV)
 Plasm.view( Plasm.numbering(1)((V,[[[k] for k=1:size(V,2)],EV])) )
-V,EVs = biconnectedComponent(model)
+V,EVs = Lar.biconnectedComponent(model)
 
 cscEV = Lar.characteristicMatrix(EV)
 biconcomp = Lar.Arrangement.biconnected_components(cscEV)
 
 Matrix(Lar.characteristicMatrix(EV))
-
-
 
 V,EVs = biconnectedComponent(model)
 EW = convert(Lar.Cells, cat(EVs))
