@@ -22,9 +22,9 @@ end
 """
 	depth_first_search(EV::Lar.Cells [, start::Int=1])::Tuple{Lar.Cells, Lar.Cells}
 
-*Depth-First-Search algorithm* (Tarjan, 1972) to compute a *spanning tree* of an undirected graph. The graph is entered as an array of edges, given as an array `EV` of 1-cells.
+*Depth-First-Search algorithm* (Tarjan, 1972) to compute a *spanning tree* of an undirected graph. The graph is entered as an array of edges, given as an array `EV` of 1-cells. Complexity linear in the number of nodes and edges: O(V, E).
 
-Return a partition of `EV` into two arrays `spanningtree` and `fronds` defining a ``palm tree``.  The algorithm may `start` from any vertex index.
+Return a partition of `EV` into two arrays `spanningtree` and `fronds` which define a ``palm tree``.  The algorithm may `start` from any vertex index.
 
 # Example
 
@@ -41,7 +41,7 @@ julia> depth_first_search(EV)
 """
 function depth_first_search(EV::Lar.Cells, start::Int=1)::
 		Tuple{Lar.Cells, Lar.Cells}
-		# initialize the data structures and start DFS
+	# initialize the data structures and start DFS
     VV = Lar.verts2verts(EV)
     spanningtree = Array{Int,1}[];  
     fronds = Array{Int,1}[]
@@ -69,40 +69,6 @@ function depth_first_search(EV::Lar.Cells, start::Int=1)::
 end
 
 
-BEGIN
-	INTEGER i;
-	procedure BICONNECT (v, u);
-		BEGIN
-			NUMBER(v)’= i’= i+ 1;
-			LOWPT (v) NUMBER (v);
-			FOR w in the adjacency list of v DO
-				BEGIN
-					IF w is not yet numbered THEN
-						BEGIN
-							add (v, w) to stack of edges;
-							BICONNECT (w, v)
-							LOWPT (v) "= min (LOWPT (v), LOWPT (w));
-							IF LOWPT (w) _>_ NUMBER (v) THEN
-								BEGIN
-									start new biconnected component;
-									WHILE top edge e (u l, u2) on edge
-										stack has NUMBER (u l)
-										_>_ NUMBER (w) DO
-										delete (u, u2) from edge stack and
-											add it to current component;
-									delete (v, w) from edge stack and add
-										it to current component;
-								END;
-						END
-					ELSE 
-						IF (NUMBER (w) < NUMBER (v)) and (w---n u) THEN
-							BEGIN
-								add (v, w) to edge stack;
-								LOWPT(v) "= min(LOWPT(v), NUMBER(w));
-							END;
-			END;
-		END;
-	i := 0;
-	empty the edge stack;
-	FOR w a vertex DO IF w is not yet numbered THEN BICONNECT (w, 0);
-END;
+
+
+

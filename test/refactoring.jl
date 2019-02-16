@@ -72,6 +72,7 @@ end
    end
    
    @testset "outputComp Tests" begin
+      @test Lar.outputComp isa Function
       @test 
    end
    

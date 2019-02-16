@@ -104,6 +104,7 @@ module LinearAlgebraicRepresentation
    include("./struct.jl")
    include("./integr.jl")
    include("./refactoring.jl")
+   include("./graphalgorithms.jl")
    
    include("./arrangement/arrangement.jl")
    planar_arrangement = Arrangement.planar_arrangement
