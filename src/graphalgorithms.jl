@@ -1,21 +1,168 @@
-"""
 
-```julia
-EV = [[1,2],[2,3],[3,4],[4,5],[5,6],[1,6],
-[6,7],[4,7],[2,7],[5,8],[1,8],[3,8]]
+#---------------------------------------------------------------------
+#	Biconnected components
+#---------------------------------------------------------------------
 
+""" 
+	verts2verts(EV::Lar.Cells)::Lar.Cells
+
+Adjacency lists of vertices of a cellular 1-complex.
+
+# Example
+
+```julia 
+julia> V,(VV,EV,FV) = Lar.cuboidGrid([3,3],true);
+
+julia> verts2verts(EV::Lar.Cells)::Lar.Cells
+16-element Array{Array{Int64,1},1}:
+ [2, 5]         
+ [1, 3, 6]      
+ [2, 4, 7]      
+ [3, 8]         
+ [1, 6, 9]      
+ [2, 5, 7, 10]  
+ [3, 6, 8, 11]  
+ [4, 7, 12]     
+ [5, 10, 13]    
+ [6, 9, 11, 14] 
+ [7, 10, 12, 15]
+ [8, 11, 16]    
+ [9, 14]        
+ [10, 13, 15]   
+ [11, 14, 16]   
+ [12, 15]       
 ```
-
 """
 function verts2verts(EV::Lar.Cells)::Lar.Cells
     cscEV = Lar.characteristicMatrix(EV)
     cscVE = convert(Lar.ChainOp, cscEV')
     cscVV = cscVE * cscEV   
-    rows,cols,data = SparseArrays.findnz(cscVV)
+    rows,cols,data = findnz(cscVV)
     VV = [ findnz(cscVV[k,:])[1] for k=1:size(cscVV,2) ]
-    return [setdiff(vs,[k]) for (k,vs) in enumerate(VV)]
+    return [setdiff(vs,[k]) for (k,vs) in enumerate(VV)] # remove reflexive pairs
 end
 
+
+
+""" 
+	DFV_visit( VV::cells, out::Array, count::Int, visited::Array, parent::Array, d::Array, low::Array, stack::Array, u::Int )::Array
+
+Hopcroft-Tarjan algorithm. Depth-First-Visit recursive algorithm.
+"""
+function DFV_visit( VV::Lar.Cells, out::Array, count::Int, visited::Array, parent::Array, d::Array, low::Array, stack::Array, u::Int )::Array
+		
+    visited[u] = true
+    count += 1
+    d[u] = count
+    low[u] = d[u]
+    for v in VV[u]
+        if ! visited[v]
+            push!(stack, [(u,v)])
+            parent[v] = u
+            DFV_visit( VV,out,count,visited,parent,d,low,stack, v )
+            if low[v] >= d[u]
+                push!(out, [outputComp(stack,u,v)])
+            end
+            low[u] = min( low[u], low[v] )
+        else
+            if ! (parent[u]==v) && (d[v] < d[u])
+                push!(stack, [(u,v)])
+            end
+            low[u] = min( low[u], d[v] )
+        end
+    end
+    out
+end
+
+visited=[]; count=0; out=[]; parent=[]; d=[];low=[]; stack=[]; u=1
+
+"""
+	outputComp(stack::Array, u::Int, v::Int)::Array
+
+Internal output of biconnected components. Utility function for DFV_visit graph algorithm (Hopcrof, Tarjan (1973)).
+"""
+function outputComp(stack::Array, u::Int, v::Int)::Array
+    out = []
+    while true
+        e = pop!(stack)[1]
+        push!(out,e)
+        if e == (u,v) 
+        	break
+        end
+    end
+    return [out] 
+end
+
+
+""" 
+	biconnectedComponent(model)
+
+Main procedure for computation of biconnected components of a graph 
+represented by a LAR unsigned pair (Points, Cells).
+
+# Example
+
+```julia
+julia> V =  [3.0  6.0  6.0  6.0  6.0  0.0  3.0  10.0  10.0  10.0  0.0  3.0  0.0;
+ 			 2.0  2.0  0.0  4.0  8.0  4.0  4.0   4.0   0.0   8.0  8.0  0.0  0.0]
+
+julia> EV = [[1, 2], [2, 3], [2, 4], [5, 10], [3, 12], [5, 11], [6, 7], [8, 9], 
+			 [6, 13], [12, 13], [1, 7], [1, 12], [4, 7], [4, 8], [4, 5], [8, 10]]
+			 
+julia> VV = [[k] for k=1:size(V,2)]
+
+julia> Plasm.view( Plasm.numbering(3)((V,[VV, EV])) )
+```
+
+```julia
+model = (V,EV)
+V,EVs = biconnectedComponent(model)
+EW = convert(Lar.Cells, cat(EVs))
+Plasm.view( Plasm.numbering(3)((V,[VV,EW])) )
+```
+
+Another example:
+
+```julia
+V = [0. 1  0  0 -1;
+	 0  0  1 -1  0]
+EV = [[1,2],[2,3],[1,4],[4,5],[5,1],[1,3]  ,[2,4]]
+model = (V,EV)
+Plasm.view( Plasm.numbering(1)((V,[[[k] for k=1:size(V,2)],EV])) )
+V,EVs = Lar.biconnectedComponent(model)
+
+cscEV = Lar.characteristicMatrix(EV)
+biconcomp = Lar.Arrangement.biconnected_components(cscEV)
+
+Matrix(Lar.characteristicMatrix(EV))
+
+V,EVs = biconnectedComponent(model)
+EW = convert(Lar.Cells, cat(EVs))
+Plasm.view( Plasm.numbering(.3)((V,[VV,EW])) )
+```
+
+"""
+function biconnectedComponent(model)
+    W,EV = model
+    V = range(1, size(W,2))
+    count = 0
+    stack,out = [],[]
+    visited = [false for v in V]
+    parent = Union{Int, Array{Any,1}}[[] for v in V]
+    d = Any[0 for v in V]
+    low = Any[0 for v in V]    
+    VV = Lar.verts2verts(EV)
+    out = Any[]
+    for u in V 
+        if ! visited[u] 
+            out = DFV_visit( VV,out,count,visited,parent,d,low,stack, u )
+        end
+    end
+    out = [component for component in out if length(component) >= 1]
+    EVs = [[map(sort∘collect,edges) for edges in cat(comp) if length(edges)>1] for comp in out]
+    EVs = cat(filter(x->!isempty(x), EVs))
+    return W, EVs
+end
 
 
 
