@@ -331,21 +331,19 @@ Pairwise *intersection* of 2D *line segments* in ``σ ∪ I(σ)``, for each ``σ
 
 ```julia
 V,EV = model2d
-out = Lar.decomposition2d(model2d)
-
-biconcomp = Lar.Arrangement.biconnected_components(cscEV)
-
+W, copEW, copFE = Lar.decomposition2d(model2d) # OK
+Plasm.viewexploded(W, copEW) 
 
 ```
 """
 function decomposition2d(model::Lar.LAR)
 	V,EV = model
 	dim = size(V,1)
-	@assert dim == 2
 	spatialindex = spaceindex(model)
 	copEV = convert(Lar.ChainOp, Lar.coboundary_0(EV))
-	out = planar_arrangement( V::Lar.Points, copEV::Lar.ChainOp )
-	return out
+	V = convert(Lar.Points, transpose(V))
+	V, copEV, FE = Lar.Arrangement.planar_arrangement( V::Lar.Points, copEV::Lar.ChainOp )
+	return V, copEV, FE
 end
 
 

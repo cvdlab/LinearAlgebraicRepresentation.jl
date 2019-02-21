@@ -448,7 +448,7 @@ function planar_arrangement(
         
     else
         for i in 1:edgenum
-            v, ev = frag_edge(V, copEV, i)
+            v, ev = Lar.Arrangement.frag_edge(V, copEV, i)
         
             newedges_nums = map(x->x+finalcells_num, collect(1:size(ev, 1)))
             
