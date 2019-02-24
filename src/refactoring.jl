@@ -230,19 +230,31 @@ function indexing(model)
 	
 	cellpoints = [ V[:,CV[k]]::Lar.Points for k=1:length(CV) ]
 	bboxes = [Lar.bbox(cell) for cell in cellpoints]
-	intervals = [IntervalValue{Float64,Int}[] for k=1:dim]
-
-	for k=1:dim
-		for (b,box) in enumerate(bboxes)
-			push!(intervals[k], IntervalValue{Float64,Int}(box[1][k], box[2][k], b))
-		end
-	end
-	map(sort!, intervals)
+	ordboxes = [map(x->sort(x,dims=2),bboxes[k]) for k=1:length(bboxes)]
+	xordboxes = sort([(vec(ordboxes[h][1]), h) for h=1:length(ordboxes)])
+	yordboxes = sort([(vec(ordboxes[h][2]), h) for h=1:length(ordboxes)])
 	
-	xs = IntervalTree{Float64, IntervalValue{Float64,Int}}(intervals[1])
-	ys = IntervalTree{Float64, IntervalValue{Float64,Int}}(intervals[2])
+	# xs IntervalTree
+	xintervals = IntervalValue{Float64,Int}[]
+	for (k,xbox) in enumerate(xordboxes)
+		push!(xintervals, IntervalValue{Float64,Int}(xbox[1][1], xbox[1][2], xbox[2]))
+	end
+	xs = IntervalTree{Float64, IntervalValue{Float64,Int} }(xintervals)
+	
+	# ys IntervalTree
+	yintervals = IntervalValue{Float64,Int}[]
+	for (k,ybox) in enumerate(yordboxes)
+		push!(yintervals, IntervalValue{Float64,Int}(ybox[1][1], ybox[1][2], ybox[2]))
+	end
+	ys = IntervalTree{Float64, IntervalValue{Float64,Int}}(yintervals)
+	
 	if dim == 3
-		zs = IntervalTree{Float64, IntervalValue{Float64,Int}}(intervals[3])
+		# zs IntervalTree
+		zintervals = IntervalValue{Float64,Int}[]
+		for (k,zbox) in enumerate(zordboxes)
+			push!(zintervals, IntervalValue{Float64,Int}(zbox[1][1], zbox[1][2], zbox[2]))
+		end
+		zs = IntervalTree{Float64, IntervalValue{Float64,Int}}(zintervals)
 	end
 	if dim==2 return (xs,ys)
 	elseif dim==3 return (xs,ys,zs) 
@@ -283,9 +295,9 @@ function spaceindex(model::Lar.LAR)::Array{Array{Int,1},1}
 	@assert length(model) == dim  #n. chains == dim space
 	
 	if dim == 3 
-		xs,ys,zs = indexing(model)
+		xs,ys,zs = Lar.indexing(model)
 	elseif dim == 2 
-		xs,ys = indexing(model)
+		xs,ys = Lar.indexing(model)
 	end
 	
 	function bbox(vertices::Lar.Points)
@@ -297,9 +309,8 @@ function spaceindex(model::Lar.LAR)::Array{Array{Int,1},1}
 	spatialindex = []
 	for (k,sigma) in enumerate(CV)
 		Sigma = [k]
-		facepoints = V[:,sigma]
-		vmin, vmax = bbox(facepoints)
-		
+		cellpoints = V[:,sigma]
+		vmin, vmax = map(x->sort(x,dims=2),bbox(cellpoints)) 		
 		xquery = intersect( xs::IntervalTree, (vmin[1], vmax[1]) )
 		xqs = [xint.value for xint in xquery]
 		yquery = intersect( ys::IntervalTree, (vmin[2], vmax[2]) )
@@ -313,7 +324,7 @@ function spaceindex(model::Lar.LAR)::Array{Array{Int,1},1}
 			xyzs = intersect(xqs,yqs)
 		end
 		
-		I_sigma = filter(x -> x>k,sort(xyzs))
+		I_sigma = xyzs #filter(x -> x>k,sort(xyzs))
 		append!(Sigma, I_sigma)		
 		push!(spatialindex,Sigma)
 	end
@@ -323,8 +334,9 @@ end
 
 
 """
-	decomposition2d()::
+	decomposition2d(model::Lar.LAR)
 	
+Test function Lar.Arrangement.planar_arrangement.
 Pairwise *intersection* of 2D *line segments* in ``σ ∪ I(σ)``, for each ``σ ∈ Sd−1``.
 
 # Example 2D
@@ -332,17 +344,19 @@ Pairwise *intersection* of 2D *line segments* in ``σ ∪ I(σ)``, for each ``σ
 ```julia
 V,EV = model2d
 W, copEW, copFE = Lar.decomposition2d(model2d) # OK
-Plasm.viewexploded(W, copEW) 
-
+Plasm.viewexploded(W, copEW)(1.2,1.2,1.2)
 ```
 """
 function decomposition2d(model::Lar.LAR)
 	V,EV = model
-	dim = size(V,1)
 	spatialindex = spaceindex(model)
-	copEV = convert(Lar.ChainOp, Lar.coboundary_0(EV))
-	V = convert(Lar.Points, transpose(V))
-	V, copEV, FE = Lar.Arrangement.planar_arrangement( V::Lar.Points, copEV::Lar.ChainOp )
+	
+#test previous implementation
+#copEV = convert(Lar.ChainOp, Lar.coboundary_0(EV))
+#V = convert(Lar.Points, transpose(V))
+#V, copEV, FE = Lar.Arrangement.planar_arrangement( V::Lar.Points, copEV::Lar.ChainOp )
+	
+	
 	return V, copEV, FE
 end
 

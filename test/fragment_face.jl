@@ -310,7 +310,7 @@ print("before make_quotients ^^^^^^^^^^^^^^^^^^^")
 	return V,FV,EV	
 end
 	
-function mergevertices(verts, edges, err=LinearAlgebraicRepresentation.ERR)
+function (verts, edges, err=LinearAlgebraicRepresentation.ERR)
 	vertsnum = size(verts, 2)
 	kdtree = KDTree(verts)
 	todelete = []

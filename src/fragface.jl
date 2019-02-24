@@ -44,10 +44,21 @@ function sigmamodel(V, copEV, FV, copFE, sigma, space_idx)
 	return v,ev,Q
 end
 
+"""
 
-function sigma_intersect(V, copEV, copFE, sigma, Q, bigpi)
-	EV = [findnz(copEV[e,:])[1] for e=1:size(copEV,1)]
-	FE = [findnz(copFE[f,:])[1] for f=1:size(copFE,1)]
+Intersect `sigma` edges with edges in `bigpi`.
+
+# Example 2D
+
+```julia
+
+
+```
+"""
+function sigma_intersect(V, EV, FV, sigma, Q, bigpi)
+
+	cscEV = Lar.characteristic_matrix(EV)
+
 	sigma_edges = EV[FE[sigma]]
 	sigma_verts = union(sigma_edges...)
 	sigma_vdict =  Dict(zip(sigma_verts, 1:length(sigma_verts)))
@@ -107,6 +118,11 @@ end
 
 
 
+"""
+
+Intersect pairs of `line` in `linestore`.
+
+"""
 function computeparams(linestore,b_linenum)
 	m = length(linestore)
 	params = [[] for i=1:m]
@@ -152,7 +168,10 @@ function computeparams(linestore,b_linenum)
 end
 
 
+"""
 
+
+"""
 function fragface(V, EV, FV, FE, space_idx, sigma)
 	bigpi = space_idx[sigma]
 	Q = Lar.face_mapping(V', FV, sigma)
