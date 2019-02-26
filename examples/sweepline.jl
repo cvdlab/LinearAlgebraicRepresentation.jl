@@ -1,34 +1,82 @@
 # https://www.cp.eng.chula.ac.th/~attawith/class/linint
 using LinearAlgebraicRepresentation
 Lar = LinearAlgebraicRepresentation
-using Plasm
+using Plasm, DataStructures
 
 
+function cuboids(n,scale=1.; grid=[1,1])
+	assembly = []
+	for k=1:n
+		corner = rand(Float64, 2)
+		dims = rand(Float64, 2)
+		if grid==[1,1]
+			V,(_,EV,_) = Lar.cuboid(corner,true,corner+dims)
+		else
+			V,(_,EV,_) = Lar.cuboidGrid(grid, true)
+			g = Lar.Struct([ Lar.t(corner...), Lar.s(dims...), (V,EV) ])
+			V,EV = Lar.struct2lar(g)
+		end
+		center = (corner + corner+dims)/2
+		angle = rand(Float64)*2*pi
+		obj = Lar.Struct([ Lar.t(center...), Lar.r(angle), 
+				Lar.s(scale,scale), Lar.t(-center...), (V,EV) ])
+		push!(assembly, obj)
+	end
+	Lar.struct2lar(Lar.Struct(assembly))
+end
+
+function presorted(V,EV)
+	lines = [[V[:,u],V[:,v]] for (u,v) in EV]
+	orientedlines = Array{Array{Float64,1},1}[]
+	for (v1,v2) in lines
+		if v1 > v2 
+			v1,v2 = v2,v1
+		end
+		push!(orientedlines, [v1,v2])
+	end
+	outlines = sort(orientedlines)
+end
 
 function sweepline(V,EV)
+	segments = presorted(V,EV)
+	evpairs = [[(v1,"start",k), (v2,"end",k)] for (k,(v1,v2)) in enumerate(segments)]
+	events = sort(cat(evpairs))
 	# Initialize event queue ξ = all segment endpoints Sort ξ by increasing x and y
+	pqvalues = events
+	pqkeys = [(e[1],e[3]) for e in events]
+	ξ = PriorityQueue(zip(pqkeys,pqvalues))
 	# Initialize sweep line SL to be empty
-	# Initialize output intersection list Λ to be empty
-	while # (ξ is nonempty)
-		# E = the next event from ξ 
-		if # (E is a left endpoint)
+	SL = SortedMultiDict{Int,Array{Float64,1}}()	
+	i = startof(SL)
+	# Initialized output intersection list Λ to be empty
+	Λ = Array{Int64,1}[]
+	while length(ξ) ≠ 0 # (ξ is nonempty)
+		E = peek(ξ).second # the next event (k => v) from ξ 
+		dequeue!(ξ) 
+		if E[2] == "start"# (E is a left endpoint)
 			# segE = E's segment
+			e = E[3]; segE = EV[e]
 			# Add segE to SL
-			# segA = the segment above segE in SL 
-			# segB = the segment below segE in SL 
-			If # (I = Intersect( segE with segA) exists)
+			i = insert!(SL, e, segE)
+			if segA ≠ beforestartsemitoken(SL)
+				# segA = the segment above segE in SL 
+				segA = regress((SL,i))
+				# (I = Intersect( segE with segA) exists)
 				# Insert I into ξ
 			end
-			If # (I = Intersect( segE with segB) exists)
+			if deref(SL,i) ≠ last(SL)
+				# segB = the segment below segE in SL 
+				segB = advance((SL,i))
+				# (I = Intersect( segE with segB) exists)
 				# Insert I into ξ
 			end
-		elseif # (E is a right endpoint)
+		elseif E[2] == "end" # (E is a right endpoint)
 			# segE = E's segment
 			# segA = the segment above segE in SL 
 			# segB = the segment below segE in SL 
 			# Remove segE from SL
-			If # (I = Intersect( segA with segB) exists)
-				If # (I is not in ξ already) 
+			if # (I = Intersect( segA with segB) exists)
+				if # (I is not in ξ already) 
 					# Insert I into ξ
 				end
 			end
@@ -38,13 +86,13 @@ function sweepline(V,EV)
 			# Swap their positions so that segE2 is now above segE1 
 			# segA = the segment above segE2 in SL
 			# segB = the segment below segE1 in SL
-			If # (I = Intersect(segE2 with segA) exists)
-				If # (I is not in ξ already) 
+			if # (I = Intersect(segE2 with segA) exists)
+				if # (I is not in ξ already) 
 					# Insert I into ξ
 				end
 			end
-			If # (I = Intersect(segE1 with segB) exists)
-				If # (I is not in ξ already) 
+			if # (I = Intersect(segE1 with segB) exists)
+				if # (I is not in ξ already) 
 					# Insert I into ξ
 				end
 			end
@@ -55,8 +103,19 @@ function sweepline(V,EV)
 end
 
 
+# EXAMPLE 1
+# data generation
+V,EV = cuboids(10, .5)
+V = Plasm.normalize(V,flag=true)
+model2d = V,EV
+Plasm.view(Plasm.numbering(.1)((V,[[[k] for k=1:size(V,2)], EV])))
 
 
+
+#===================================================================
+#===================================================================
+#===================================================================
+#===================================================================
 
 
 
@@ -65,10 +124,6 @@ using LinearAlgebraicRepresentation
 Lar = LinearAlgebraicRepresentation
 using Plasm, DataStructures
 
-
-function grid(n,scale=1.)
-
-end
 
 function cuboids(n,scale=1.; grid=[1,1])
 	assembly = []

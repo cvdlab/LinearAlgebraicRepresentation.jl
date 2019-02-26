@@ -414,12 +414,12 @@ julia> cubes = larModelProduct(squares,mod_0)
 ([0.0 0.0 … 4.0 4.0; 0.0 0.0 … 2.0 2.0; 0.0 1.0 … 3.0 4.0], Array{Int64,1}[[1, 2, 6, 7, 16, 17, 21, 22], [2, 3, 7, 8, 17, 18, 22, 23], [3, 4, 8, 9, 18, 19, 23, 24], [4, 5, 9, 10, 19, 20, 24, 25], … [53, 54, 58, 59, 68, 69, 73, 74], [54, 55, 59, 60, 69, 70, 74, 75]])
 ```
 """
-function larModelProduct( modelOne::LAR, modelTwo::LAR )::LAR
+function larModelProduct( modelOne, modelTwo )
     (V, cells1) = modelOne
     (W, cells2) = modelTwo
 
     vertices = DataStructures.OrderedDict(); 
-    k = 1
+    global k = 1
     for j in 1:size(V,2)
        v = V[:,j]
         for i in 1:size(W,2)
@@ -427,7 +427,7 @@ function larModelProduct( modelOne::LAR, modelTwo::LAR )::LAR
             id = [v;w]
             if haskey(vertices, id) == false
                 vertices[id] = k
-                k = k + 1
+                global k = k + 1
             end
         end
     end
