@@ -3,6 +3,49 @@ using LinearAlgebraicRepresentation
 Lar = LinearAlgebraicRepresentation
 using Plasm, DataStructures
 
+function presorted(V,EV, preview=false)
+	lines = [[V[:,u],V[:,v]] for (u,v) in EV]
+	orientedlines = Array{Array{Float64,1},1}[]
+	for (v1,v2) in lines
+		if v1 > v2 
+			v1,v2 = v2,v1
+		end
+		push!(orientedlines, [v1,v2])
+	end
+	inputlines = sort(orientedlines)
+	newlines = map(cat,inputlines)
+	W,EW  = lines2lar(newlines)
+	if preview
+		Plasm.view(Plasm.numbering(.1)((W,[[[k] for k=1:size(W,2)], EW ])))
+	end
+	vsorted = sort([[W[:,k],k] for k=1:size(W,2)])
+	V = hcat([vsorted[k][1] for k=1:length(vsorted)]...)
+	edgedict = OrderedDict([(oldv,newv) for (newv,(vert,oldv)) in enumerate(vsorted)])
+	EV = [[edgedict[v1],edgedict[v2]] for (v1,v2) in EW]
+	return V,EV
+end
+
+function lines2lar(lines)
+	vertdict = OrderedDict{Array{Float64,1}, Int64}()
+	EV = Array{Int64,1}[]
+	idx = 0
+	for h=1:length(lines)
+		x1,y1,x2,y2 = cat(lines[h])
+		
+		if ! haskey(vertdict, [x1,y1])
+			idx += 1
+			vertdict[[x1,y1]] = idx
+		end
+		if ! haskey(vertdict, [x2,y2])
+			idx += 1
+			vertdict[[x2,y2]] = idx
+		end
+		v1,v2 = vertdict[[x1,y1]],vertdict[[x2,y2]]
+		push!(EV, [v1,v2])
+	end
+	V = hcat(collect(keys(vertdict))...) 
+	return V,EV
+end
 
 function cuboids(n,scale=1.; grid=[1,1])
 	assembly = []
@@ -25,7 +68,7 @@ function cuboids(n,scale=1.; grid=[1,1])
 	Lar.struct2lar(Lar.Struct(assembly))
 end
 
-function presorted(V,EV)
+function presortedlines(V,EV)
 	lines = [[V[:,u],V[:,v]] for (u,v) in EV]
 	orientedlines = Array{Array{Float64,1},1}[]
 	for (v1,v2) in lines
@@ -37,8 +80,78 @@ function presorted(V,EV)
 	outlines = sort(orientedlines)
 end
 
+
+"""
+	intersection(V::Lar.Points, EV::Lar.Cells)
+		(e1::Int, e2::Int)::Union{Nothing, Array}
+		
+Compute the intersection point of two line segments `line1` and `line2`,
+of extreme point indices `EV[e1]` and `EV[e2]`, with given coordinates 
+in `V` array.
+
+# Example
+
+```julia
+julia> line1 = V[:,EV[14]]
+2×2 Array{Float64,2}:
+ 0.0379479  0.168838
+ 0.90315    1.0     
+
+julia> line2 = V[:,EV[23]]
+2×2 Array{Float64,2}:
+ 0.0307485  0.312532
+ 0.93606    0.957881
+
+julia> intersection(line1,line2)
+2-element Array{Float64,1}:
+ 0.08846469268137241
+ 0.9405292234774614 
+
+julia> intersection(line1,line2)
+2-element Array{Float64,1}:
+ 0.08846469268137241
+ 0.9405292234774614 
+
+julia> intersection(line1,-1*line2) # returns a `Nothing` value
+
+julia> 
+```
+"""
+function intersection(line1,line2)::Union{Nothing, Array}
+	x1,y1,x2,y2 = reshape(line1, 4,1)
+	x3,y3,x4,y4 = reshape(line2, 4,1)
+
+	# intersect lines e1,e2
+	# http://www.cs.swan.ac.uk/~cssimon/line_intersection.html
+	det = (x4-x3)*(y1-y2)-(x1-x2)*(y4-y3)
+	α,β = 99,99
+	if det != 0.0
+		a = 1/det
+		b = [y1-y2 x2-x1; y3-y4 x4-x3]  # x1-x2 => x2-x1 bug in the source link !!
+		c = [x1-x3; y1-y3]
+		(β,α) = a * b * c
+	else
+		if (y1==y2) == (y3==y4) # segments collinear
+			α = -x1/(x2-x1)
+			β = -x3/(x4-x3)
+		elseif (x1==x2) == (x3==x4)
+			α = -y1/(y2-y1)
+			β = -y3/(y4-y3)
+		else
+			 # segments parallel: no intersection
+			 (β,α) = 999
+		end
+	end
+	if 0<=α<=1 && 0<=β<=1
+		p = [x1,y1] + α * ([x2,y2] - [x1,y1])
+		return p
+	end
+end
+
+
+#=
 function sweepline(V,EV)
-	segments = presorted(V,EV)
+	segments = presortedlines(V,EV)
 	evpairs = [[(v1,"start",k), (v2,"end",k)] for (k,(v1,v2)) in enumerate(segments)]
 	events = sort(cat(evpairs))
 	# Initialize event queue ξ = all segment endpoints Sort ξ by increasing x and y
@@ -46,61 +159,130 @@ function sweepline(V,EV)
 	pqkeys = [(e[1],e[3]) for e in events]
 	ξ = PriorityQueue(zip(pqkeys,pqvalues))
 	# Initialize sweep line SL to be empty
-	SL = SortedMultiDict{Int,Array{Float64,1}}()	
+	SL = SortedMultiDict{Int,Array{Float64,1}}()
+	@assert isempty(SL) # debug	
+	@assert beforestartsemitoken(SL)==DataStructures.Tokens.IntSemiToken(1) # debug
+	@assert pastendsemitoken(SL)==DataStructures.Tokens.IntSemiToken(2) # debug
+	
 	i = startof(SL)
+	@assert i = startof(SL)==DataStructures.Tokens.IntSemiToken(2) # debug
 	# Initialized output intersection list Λ to be empty
 	Λ = Array{Int64,1}[]
 	while length(ξ) ≠ 0 # (ξ is nonempty)
-		E = peek(ξ).second # the next event (k => v) from ξ 
-		dequeue!(ξ) 
+		E = peek(ξ).second; dequeue!(ξ)  # the next v event (k => v) from ξ 
+		
 		if E[2] == "start"# (E is a left endpoint)
 			# segE = E's segment
-			e = E[3]; segE = EV[e]
+			e = E[3]; segE = EV[e] # ==> segE = V[:,EV[e]] is better ??
 			# Add segE to SL
-			i = insert!(SL, e, segE)
-			if segA ≠ beforestartsemitoken(SL)
+			i = insert!(SL, e, segE)  #  SortedMultiDict, key, value
+			if first(SL) !== last(SL)
 				# segA = the segment above segE in SL 
-				segA = regress((SL,i))
-				# (I = Intersect( segE with segA) exists)
-				# Insert I into ξ
+				j = regress((SL,i))
+				E = peek(ξ).second; a = E[3]; segA = EV[a]
+				I = intersection(segE,segA)
+				global seg1 = segE; global seg2 = segA
+				# (if Intersect( segE with segA) exists)
+				if typeof(I) ≠ Nothing
+					# Insert I into ξ
+					key = (E[1],E[3]); val = (I,"int",(e,a))
+					enqueue!(ξ, key, val) 
+				end
 			end
-			if deref(SL,i) ≠ last(SL)
+			if i < pastendsemitoken(SL)
 				# segB = the segment below segE in SL 
-				segB = advance((SL,i))
-				# (I = Intersect( segE with segB) exists)
-				# Insert I into ξ
+				k = advance((SL,i))
+				E = peek(ξ).second; b = E[3]; segB = EV[b]
+				I = intersection(segE,segB)
+				global seg1 = segE; global seg2 = segB
+				# (if Intersect( segE with segB) exists)
+				if typeof(I) ≠ Nothing
+					# Insert I into ξ
+					key = (E[1],E[3]); val = (I,"int",(e,b))
+					enqueue!(ξ, key, val) 
 			end
 		elseif E[2] == "end" # (E is a right endpoint)
 			# segE = E's segment
+			e = E[3]; segE = EV[e]
 			# segA = the segment above segE in SL 
+			if segE ≠ beforestartsemitoken(SL)
+				# segA = the segment above segE in SL 
+				j = regress((SL,i))
+				E = peek(ξ).second; a = E[3]; segA = EV[a]
+			end
 			# segB = the segment below segE in SL 
+			if deref((SL,i)) ≠ last(SL)
+				# segB = the segment below segE in SL 
+				k = advance((SL,i))
+				E = peek(ξ).second; b = E[3]; segB = EV[b]
+			end
 			# Remove segE from SL
-			if # (I = Intersect( segA with segB) exists)
-				if # (I is not in ξ already) 
+			delete!((SL,i))
+			# (I = Intersect( segA with segB) exists)
+			I = intersection(segA,segB)
+			global seg1 = segA; global seg2 = segB
+			if  typeof(I) ≠ Nothing
+				h = searchsortedfirst(LS, k)
+				# (I is not in ξ already) 
+				if h = pastendsemitoken(SL)
 					# Insert I into ξ
+					E = (I,"int",(a,b))
+					key = (E[1],E[3]); val = (I,"int",(a,b))
+					enqueue!(ξ, key, val) 
 				end
 			end
 		else # E is an intersection event
+			@assert E[2] == "int"
 			# Add E to the output list Λ
+			push!(Λ, E)
 			# segE1 above segE2 be E's intersecting segments in SL 
-			# Swap their positions so that segE2 is now above segE1 
 			# segA = the segment above segE2 in SL
+			a = searchsortedfirst(LS, seg2)  # TODO: check seg1's type
 			# segB = the segment below segE1 in SL
-			if # (I = Intersect(segE2 with segA) exists)
-				if # (I is not in ξ already) 
+			b = searchsortedlast(LS, seg1)  # TODO: check seg2's type
+			# Swap their positions so that segE2 is now above segE1 
+			??? HOW TO DO ???
+			# (I = Intersect(segE2 with segA) exists)
+			I = intersection(segE2,segA)
+			if typeof(I) ≠ Nothing
+				k = searchsortedfirst(LS, a)
+				# (I is not in ξ already) 
+				if k = beforestartsemitoken(SL) 
 					# Insert I into ξ
+					E = (I,"int",(k,a))
+					key = (E[1],E[3]); val = (I,"int",(k,a))
+					enqueue!(ξ, key, val) 
 				end
 			end
-			if # (I = Intersect(segE1 with segB) exists)
-				if # (I is not in ξ already) 
+			I = intersection(segE1,segB)
+			# (I = Intersect(segE1 with segB) exists)
+			if typeof(I) ≠ Nothing
+				h = searchsortedfirst(LS, b)
+				# (I is not in ξ already) 
+				if h = pastendsemitoken(SL) 
 					# Insert I into ξ
+					E = (I,"int",(h,b))
+					key = (E[1],E[3]); val = (I,"int",(h,b))
+					enqueue!(ξ, key, val) 
 				end
 			end
 		end
 		# remove E from ξ
+		delete!(ξ, E[1])  
 	end
 	return Λ
 end
+=#
+
+# EXAMPLE 0
+# data generation
+lines = [[[1,3],[10,5]],[[2,6],[11,2.5]],
+[[3,4],[8,2.25]],[[5,1.25],[12,5]]]
+V,EV = lines2lar(lines)
+Plasm.view(Plasm.numbering(2.)((V,[[[k] for k=1:size(V,2)], EV])))
+V = Plasm.normalize(V,flag=true)
+W,EW = presorted(V,EV)
+Plasm.view(Plasm.numbering(.25)((W,[[[k] for k=1:size(W,2)], EW ])))
 
 
 # EXAMPLE 1
@@ -111,6 +293,14 @@ model2d = V,EV
 Plasm.view(Plasm.numbering(.1)((V,[[[k] for k=1:size(V,2)], EV])))
 
 
+	i1,i2 = searchequalrange(factors, 80)
+	compare(factors,regress((factors,i)),i2) == 0
+    my_assert(deref((factors,i)) == Pair(2,1))
+    my_assert(deref_key((factors,i)) == 2)
+    my_assert(deref_value((factors,i)) == 1)
+	startof(SL)==lastindex(SL)	
+    my_assert(haskey(factors, 60))
+    my_assert(!haskey(factors, -1))
 
 #===================================================================
 #===================================================================
