@@ -182,33 +182,29 @@ end
 #=
 function sweepline(V,EV)
 	segments = presortedlines(V,EV)
-	evpairs = [[(v1,"start",k), (v2,"end",k)] for (k,(v1,v2)) in enumerate(segments)]
-	events = sort(cat(evpairs))
+	evpairs = [[(v1,v2,"start",k), (v2,v1,"end",k)] for (k,(v1,v2)) in enumerate(segments)]
+	events = sort(cat(evpairs),lt=isless0)
 	# Initialize event queue ξ = all segment endpoints Sort ξ by increasing x and y
-	pqkeys = [(e[1],e[3],) for e in events]
+	pqkeys = [(e[1],e[3],e[4]) for e in events]
 	pqvalues = events
 	ξ = PriorityQueue(zip(pqkeys,pqvalues))
 	# Proper ordering object for the `SortedMultiDic` used by sweep line SL
-	o = Lt((x,y) -> [x[1][1],x[1][2],x[2][2]] < [y[1][1],y[1][2],y[2][2]])
 	# Initialize sweep line SL to be empty
-	SL = SortedMultiDict{Int,Array{Float64,2}}(o)
-	@assert isempty(SL) # debug	
-	@assert beforestartsemitoken(SL)==DataStructures.Tokens.IntSemiToken(1) # debug
-	@assert pastendsemitoken(SL)==DataStructures.Tokens.IntSemiToken(2) # debug
-	
-	i = startof(SL)
-	@assert i = startof(SL)==DataStructures.Tokens.IntSemiToken(2) # debug
+	SL = SortedMultiDict{Any,Any}()
 	# Initialized output intersection list Λ to be empty
 	Λ = Array{Int64,1}[]
 	while length(ξ) ≠ 0 # (ξ is nonempty)
-		E = peek(ξ).second;   # the next v event (k => v) from ξ 
+		E = peek(ξ)[2]   # the next v event (k => v) from ξ 
 		
 		if E[2] == "start"# (E is a left endpoint)
 			# segE = E's segment
-			e = E[3]; segE = V[:,EV[e]] # ==> segE = V[:,EV[e]] is better ??
+			(v1, v2, nodetype, e) = E
+			(e, segE) = (v1[1],v1[2]), (v1, v2, nodetype, e)
 			# Add segE to SL
 			i = insert!(SL, e, segE)  # SortedMultiDict, key, value -> semitoken
-			if first(SL) !== last(SL) # key=>value pairs (both)
+			if first(SL) == last(SL) # only one line in SL
+				break
+			else
 				# segA = the segment above segE in SL 
 				j = advance((SL,i)) # semitoken
 				deref((SL,j))
@@ -234,7 +230,7 @@ function sweepline(V,EV)
 					key = (E[1],E[3]); val = (I,"int",(e,b))
 					enqueue!(ξ, key, val) 
 			end
-		elseif E[2] == "end" # (E is a right endpoint)
+		elseif E[2] == "zend" # (E is a right endpoint)
 			# segE = E's segment
 			e = E[3]; segE = EV[e]
 			# segA = the segment above segE in SL 
