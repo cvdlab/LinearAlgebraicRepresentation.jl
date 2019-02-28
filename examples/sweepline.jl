@@ -3,6 +3,35 @@ using LinearAlgebraicRepresentation
 Lar = LinearAlgebraicRepresentation
 using Plasm, DataStructures
 
+
+"""
+	presorted(V, EV [,preview=false] )
+
+Generate the presorting needed by the scan-line algorithm (Bentley-Ottmann, 1979).
+
+When two or more 2D (left to right oriented) lines have the same start point, 
+they are ordered according to forward values of the y-coord of the end line point.
+This guarantess that each other line having the same first vertex is inserted in the right 
+scan-line data structure interval, i.e. between the two lines closely above and below it.
+
+# Example
+
+```
+julia> lines = [[Float64[1,2],Float64[4,3]],
+       [Float64[1,2],Float64[4,2.999]]]
+2-element Array{Array{Array{Float64,1},1},1}:
+ [[1.0, 2.0], [4.0, 3.0]]  
+ [[1.0, 2.0], [4.0, 2.999]]
+
+julia> isless0 = (x,y) -> [x,x[2][2]] < [y,y[2][2]]
+#66 (generic function with 1 method)
+
+julia> sort(lines, lt=isless0)
+2-element Array{Array{Array{Float64,1},1},1}:
+ [[1.0, 2.0], [4.0, 2.999]]
+ [[1.0, 2.0], [4.0, 3.0]]  
+```
+"""
 function presorted(V,EV, preview=false)
 	lines = [[V[:,u],V[:,v]] for (u,v) in EV]
 	orientedlines = Array{Array{Float64,1},1}[]
@@ -12,7 +41,8 @@ function presorted(V,EV, preview=false)
 		end
 		push!(orientedlines, [v1,v2])
 	end
-	inputlines = sort(orientedlines)
+	isless0 = (x,y) -> [x[1][1],x[1][2],x[2][2]] < [y[1][1],y[1][2],y[2][2]]
+	inputlines = sort(orientedlines, lt=isless0)
 	newlines = map(cat,inputlines)
 	W,EW  = lines2lar(newlines)
 	if preview
@@ -155,11 +185,11 @@ function sweepline(V,EV)
 	evpairs = [[(v1,"start",k), (v2,"end",k)] for (k,(v1,v2)) in enumerate(segments)]
 	events = sort(cat(evpairs))
 	# Initialize event queue ξ = all segment endpoints Sort ξ by increasing x and y
+	pqkeys = [(e[1],e[3],) for e in events]
 	pqvalues = events
-	pqkeys = [(e[1],e[3]) for e in events]
 	ξ = PriorityQueue(zip(pqkeys,pqvalues))
 	# Initialize sweep line SL to be empty
-	SL = SortedMultiDict{Int,Array{Float64,1}}()
+	SL = SortedMultiDict{Int,Array{Float64,2}}()
 	@assert isempty(SL) # debug	
 	@assert beforestartsemitoken(SL)==DataStructures.Tokens.IntSemiToken(1) # debug
 	@assert pastendsemitoken(SL)==DataStructures.Tokens.IntSemiToken(2) # debug
@@ -169,17 +199,18 @@ function sweepline(V,EV)
 	# Initialized output intersection list Λ to be empty
 	Λ = Array{Int64,1}[]
 	while length(ξ) ≠ 0 # (ξ is nonempty)
-		E = peek(ξ).second; dequeue!(ξ)  # the next v event (k => v) from ξ 
+		E = peek(ξ).second;   # the next v event (k => v) from ξ 
 		
 		if E[2] == "start"# (E is a left endpoint)
 			# segE = E's segment
-			e = E[3]; segE = EV[e] # ==> segE = V[:,EV[e]] is better ??
+			e = E[3]; segE = V[:,EV[e]] # ==> segE = V[:,EV[e]] is better ??
 			# Add segE to SL
-			i = insert!(SL, e, segE)  #  SortedMultiDict, key, value
-			if first(SL) !== last(SL)
+			i = insert!(SL, e, segE)  # SortedMultiDict, key, value -> semitoken
+			if first(SL) !== last(SL) # key=>value pairs (both)
 				# segA = the segment above segE in SL 
-				j = regress((SL,i))
-				E = peek(ξ).second; a = E[3]; segA = EV[a]
+				j = advance((SL,i)) # semitoken
+				deref((SL,j))
+				a = E[3]; segA = V[:,EV[a]]
 				I = intersection(segE,segA)
 				global seg1 = segE; global seg2 = segA
 				# (if Intersect( segE with segA) exists)
@@ -191,7 +222,7 @@ function sweepline(V,EV)
 			end
 			if i < pastendsemitoken(SL)
 				# segB = the segment below segE in SL 
-				k = advance((SL,i))
+				k = regress((SL,i))
 				E = peek(ξ).second; b = E[3]; segB = EV[b]
 				I = intersection(segE,segB)
 				global seg1 = segE; global seg2 = segB
@@ -268,7 +299,7 @@ function sweepline(V,EV)
 			end
 		end
 		# remove E from ξ
-		delete!(ξ, E[1])  
+		dequeue!(ξ)  
 	end
 	return Λ
 end
@@ -280,6 +311,7 @@ lines = [[[1,3],[10,5]],[[2,6],[11,2.5]],
 [[3,4],[8,2.25]],[[5,1.25],[12,5]]]
 V,EV = lines2lar(lines)
 Plasm.view(Plasm.numbering(2.)((V,[[[k] for k=1:size(V,2)], EV])))
+# data sorting 
 V = Plasm.normalize(V,flag=true)
 W,EW = presorted(V,EV)
 Plasm.view(Plasm.numbering(.25)((W,[[[k] for k=1:size(W,2)], EW ])))
@@ -291,6 +323,26 @@ V,EV = cuboids(10, .5)
 V = Plasm.normalize(V,flag=true)
 model2d = V,EV
 Plasm.view(Plasm.numbering(.1)((V,[[[k] for k=1:size(V,2)], EV])))
+# data sorting 
+W,EW = presorted(V,EV)
+Plasm.view(Plasm.numbering(.15)((W,[[[k] for k=1:size(W,2)], EW ])))
+
+
+# EXAMPLE 2
+# data generation
+V,(_,EV,FV) = Lar.cuboidGrid([3,3],true)
+Plasm.view(Plasm.numbering(1)((V,[[[k] for k=1:size(V,2)], EV ])))
+# data sorting 
+W,EW = presorted(V,EV)
+Plasm.view(Plasm.numbering(1)((W,[[[k] for k=1:size(W,2)], EW ])))
+
+
+
+struct CaseInsensitive <: Ordering end
+lt(::CaseInsensitive, a, b) = isless(lowercase(a), lowercase(b))
+eq(o::Ordering, a, b) = !lt(o, a, b) && !lt(o, b, a)
+
+
 
 
 	i1,i2 = searchequalrange(factors, 80)
