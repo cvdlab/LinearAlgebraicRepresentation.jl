@@ -188,8 +188,10 @@ function sweepline(V,EV)
 	pqkeys = [(e[1],e[3],) for e in events]
 	pqvalues = events
 	ξ = PriorityQueue(zip(pqkeys,pqvalues))
+	# Proper ordering object for the `SortedMultiDic` used by sweep line SL
+	o = Lt((x,y) -> [x[1][1],x[1][2],x[2][2]] < [y[1][1],y[1][2],y[2][2]])
 	# Initialize sweep line SL to be empty
-	SL = SortedMultiDict{Int,Array{Float64,2}}()
+	SL = SortedMultiDict{Int,Array{Float64,2}}(o)
 	@assert isempty(SL) # debug	
 	@assert beforestartsemitoken(SL)==DataStructures.Tokens.IntSemiToken(1) # debug
 	@assert pastendsemitoken(SL)==DataStructures.Tokens.IntSemiToken(2) # debug
