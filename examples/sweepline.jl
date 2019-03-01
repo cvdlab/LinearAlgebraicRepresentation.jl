@@ -148,8 +148,8 @@ julia>
 ```
 """
 function intersection(line1,line2)::Union{Nothing, Array}
-	x1,y1,x2,y2 = reshape(line1, 4,1)
-	x3,y3,x4,y4 = reshape(line2, 4,1)
+	x1,y1,x2,y2 = vcat(line1...)
+	x3,y3,x4,y4 = vcat(line2...)
 
 	# intersect lines e1,e2
 	# http://www.cs.swan.ac.uk/~cssimon/line_intersection.html
@@ -179,10 +179,40 @@ function intersection(line1,line2)::Union{Nothing, Array}
 end
 
 
+"""
+	computesegposition(SL,h,xe,ye)
+
+Compute the current position of a neighbourhood line with respect to a new segment.
+
+`SL` (the sweep line) is a SortedMultiDict; `h` is the semitoken of a segment on SL;
+`(xe, ye)` are the coordinates of vertex of a new segment lying on `SL`, w.r.t. 
+compare the segment's `h` position.  The function returns a pair of values for `segA`
+and `segB`, one of which is the empty array.
+"""
+function computesegposition(SL,h,xe,ye)
+	segA = Array{Float64,1}[]; 
+	segB = Array{Float64,1}[]
+	u,v,type,edgeid = deref_value((SL,h))
+	Dx = xe - u[1]
+	Dy = Dx * (v[2]-u[2])/(v[1]-u[1])  ##### NO vertical edges allowed !!!
+	y = u[2] + Dy
+	if y > ye
+		push!(segA, u, v)
+	elseif y < ye
+		push!(segB, u, v)
+	elseif y == ye
+		nothing::Nothing  # by now ... ;-)
+	end
+	return segA,segB
+end
+
+segA,segB = computesegposition(SL,h,xe,ye)
+
 #=
 function sweepline(V,EV)
 	segments = presortedlines(V,EV)
 	evpairs = [[(v1,v2,"start",k), (v2,v1,"end",k)] for (k,(v1,v2)) in enumerate(segments)]
+	isless0 = (x,y) -> [x[1][1],x[1][2],x[2][2]] < [y[1][1],y[1][2],y[2][2]]
 	events = sort(cat(evpairs),lt=isless0)
 	# Initialize event queue ξ = all segment endpoints Sort ξ by increasing x and y
 	pqkeys = [(e[1],e[3],e[4]) for e in events]
@@ -194,43 +224,55 @@ function sweepline(V,EV)
 	# Initialized output intersection list Λ to be empty
 	Λ = Array{Int64,1}[]
 	while length(ξ) ≠ 0 # (ξ is nonempty)
-		E = peek(ξ)[2]   # the next v event (k => v) from ξ 
+		E = peek(ξ)[2]   # the next value of event (k => v) from ξ 
 		
-		if E[2] == "start"# (E is a left endpoint)
+		if E[3] == "start" # (E is a left endpoint)
 			# segE = E's segment
-			(v1, v2, nodetype, e) = E
-			(e, segE) = (v1[1],v1[2]), (v1, v2, nodetype, e)
+			(v1, v2, nodetype, edgeid) = E
+			(e, segE) = v1, (v1, v2, nodetype, edgeid) # key, value
+			xe,ye = e; segE = [v1, v2]
 			# Add segE to SL
 			i = insert!(SL, e, segE)  # SortedMultiDict, key, value -> semitoken
 			if first(SL) == last(SL) # only one line in SL
 				break
 			else
-				# segA = the segment above segE in SL 
-				j = advance((SL,i)) # semitoken
-				deref((SL,j))
-				a = E[3]; segA = V[:,EV[a]]
+			# compute segA and/or segB
+			st1,st2 = searchequalrange(SL, e) 
+			if st1==st2 # segE (i.e. start node) isolated on SL 
+				???
+			else 
+				h = regress((SL,i))
+				seghA, seghB = Array{Float64,1}[], Array{Float64,1}[]
+				if h ≠ beforestartsemitoken(SL)
+					seghA,seghB = computesegposition(SL,h,xe,ye)
+				end
+				k = advance((SL,i))
+				segkA, segkB = Array{Float64,1}[], Array{Float64,1}[]
+				if k ≠ pastendsemitoken(SL)
+					segkA,segkB = computesegposition(SL,k,xe,ye)
+				end	
+				segA = union(seghA, segkA); segB = union(seghB, segkB); 
+			end
+			if segA ≠ [] # segA = the segment above segE in SL 
 				I = intersection(segE,segA)
 				global seg1 = segE; global seg2 = segA
 				# (if Intersect( segE with segA) exists)
 				if typeof(I) ≠ Nothing
 					# Insert I into ξ
-					key = (E[1],E[3]); val = (I,"int",(e,a))
+					key = I; val = (I[1],I[2],"int",(e,b))
 					enqueue!(ξ, key, val) 
 				end
 			end
-			if i < pastendsemitoken(SL)
-				# segB = the segment below segE in SL 
-				k = regress((SL,i))
-				E = peek(ξ).second; b = E[3]; segB = EV[b]
+			if segB ≠ [] # segB = the segment below segE in SL 
 				I = intersection(segE,segB)
 				global seg1 = segE; global seg2 = segB
 				# (if Intersect( segE with segB) exists)
 				if typeof(I) ≠ Nothing
 					# Insert I into ξ
-					key = (E[1],E[3]); val = (I,"int",(e,b))
+					key = I; val = (I[1],I[2],"int",(e,b))
 					enqueue!(ξ, key, val) 
 			end
-		elseif E[2] == "zend" # (E is a right endpoint)
+		elseif E[3] == "end" # (E is a right endpoint)
 			# segE = E's segment
 			e = E[3]; segE = EV[e]
 			# segA = the segment above segE in SL 
