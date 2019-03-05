@@ -207,7 +207,29 @@ function computesegposition(SL,h,xe,ye)
 end
 
 
-#=
+"""
+	selectsegmentneighbors(SL::SortedMultiDict,i)
+
+Compute `segA` and/or `segB`, i.e. the one/two segments adjacent to `segE`, 
+the segment of `E` event, on the `SL` sweepline. `segA` should be *above* `segE`;
+`segB` should be *below* `segE`.
+"""
+function selectsegmentneighbor(SL,i)
+	h = regress((SL,i))
+	seghA, seghB = Array{Float64,1}[], Array{Float64,1}[]
+	if h ≠ beforestartsemitoken(SL)
+		seghA,seghB = computesegposition(SL,h,xe,ye)
+	end
+	k = advance((SL,i))
+	segkA, segkB = Array{Float64,1}[], Array{Float64,1}[]
+	if k ≠ pastendsemitoken(SL)
+		segkA,segkB = computesegposition(SL,k,xe,ye)
+	end	
+	segA = union(seghA, segkA); segB = union(seghB, segkB); 
+	return segA, segB
+end
+
+
 function sweepline(V,EV)
 	# event generation and ordering
 	segments = presortedlines(V,EV)
@@ -218,136 +240,132 @@ function sweepline(V,EV)
 	pqkeys = [(e[1],e[3],e[4]) for e in events]
 	pqvalues = events
 	ξ = PriorityQueue(zip(pqkeys,pqvalues))
+@show ξ,0 println()
 	# Proper ordering object for the `SortedMultiDic` used by sweep line SL
 	# Initialize sweep line SL to be empty
 	SL = SortedMultiDict{Any,Any}()
+@show SL, 0 println()
 	# Initialized output intersection list Λ to be empty
-	Λ = Array{Int64,1}[]
-	
+	Λ = Array{Array{Float64,1},1}[]
+@show Λ,0 println()
+
 	while length(ξ) ≠ 0 # (ξ is nonempty)
 		E = peek(ξ)[2]   # the next value of event (k => v) from ξ 
+@show E, 1 println()
 		(v1, v2, nodetype, edgeid) = E
 		# segE = E's segment
 		e, segE = v1, (v1, v2, nodetype, edgeid) # key, value
-		@show E
 		if E[3] == "start" # (E is a left endpoint)
+@show "start" println()
 			# Add segE to SL
 			i = insert!(SL, e, segE)  # SortedMultiDict, key, value -> semitoken
-			@show i
-			xe,ye = e
-			if first(SL) !== last(SL) # only one segment in SL
+@show SL, 1 println()
+@show i println()
+			global xe,ye = e
+			if first(SL) !== last(SL) # more than one segment in SL	
 				# compute segA and/or segB
-				h = regress((SL,i))
-				seghA, seghB = Array{Float64,1}[], Array{Float64,1}[]
-				hAB, kAB = "", ""
-				if h ≠ beforestartsemitoken(SL)
-					seghA,seghB = computesegposition(SL,h,xe,ye)
-				end
-				i = advance((SL,h))
-				k = advance((SL,i))
-				segkA, segkB = Array{Float64,1}[], Array{Float64,1}[]
-				if k ≠ pastendsemitoken(SL)
-					segkA,segkB = computesegposition(SL,k,xe,ye)
-				end	
-				segA = union(seghA, segkA); segB = union(seghB, segkB); 
-			
+				segA, segB = selectsegmentneighbor(SL,i)		
 				if segA ≠ [] 
 				# segA = the segment above segE in SL 
 					a = Int(segA[3][1]); segA = segA[1:2] # edgeid of segA
 					I = intersection(segE,segA)
-					global seg1 = segE; global seg2 = segA
 					# (if Intersect( segE with segA) exists)
 					if typeof(I) ≠ Nothing
 						# Insert I into ξ
 						key = (I,"int",edgeid); val = (I,I,"int",a)
 						enqueue!(ξ, key, val) 
+@show ξ,6 println()
 					end
 				end
 				if segB ≠ [] 
 				# segB = the segment below segE in SL 
 					b = Int(segB[3][1]); segB = segB[1:2] # edgeid of segB
 					I = intersection(segE,segB)
-					global seg1 = segE; global seg2 = segB[1:2]
 					# (if Intersect( segE with segB) exists)
 					if typeof(I) ≠ Nothing
 						# Insert I into ξ
 						key = (I,"int",edgeid); val = (I,I,"int",b)
 						enqueue!(ξ, key, val) 
+@show ξ,5 println()
 					end
 				end
 			end			
 		elseif E[3] == "end" # (E is a right endpoint)
+@show "end" println()
 			# segE = E's segment
+			# compute segA and/or segB
+			segA, segB = selectsegmentneighbor(SL,i)		
 			# segA = the segment above segE in SL 
-			if segE ≠ beforestartsemitoken(SL)
-				# segA = the segment above segE in SL 
-				j = regress((SL,i))
-				E = peek(ξ).second; a = E[3]; segA = EV[a]
+			if segA ≠ []
+				a = Int(segA[3][1]) # edgeid of segA
+				segA = segA[1:2] 
 			end
 			# segB = the segment below segE in SL 
-			if deref((SL,i)) ≠ last(SL)
-				# segB = the segment below segE in SL 
-				k = advance((SL,i))
-				E = peek(ξ).second; b = E[3]; segB = EV[b]
+			if segB ≠ []
+				b = Int(segB[3][1])
+				segB = segB[1:2] # edgeid of segB
 			end
 			# Remove segE from SL
 			delete!((SL,i))
 			# (I = Intersect( segA with segB) exists)
-			I = intersection(segA,segB)
-			global seg1 = segA; global seg2 = segB
-			if  typeof(I) ≠ Nothing
-				h = searchsortedfirst(LS, k)
+			I = intersection(segA, segB)
+			if typeof(I) ≠ Nothing
 				# (I is not in ξ already) 
-				if h == pastendsemitoken(SL)
-					# Insert I into ξ
-					E = (I,"int",(a,b))
-					key = (E[1],E[3]); val = (I,"int",(a,b))
-					enqueue!(ξ, key, val) 
-				end
+				# no problem anyway (in case I is overwritten)
+				# Insert I into ξ
+				key = (I,"int",a); val = (I,I,"int",b)
+				enqueue!(ξ, key, val) 
+@show ξ,4 println()
 			end
 			
 		else # E is an intersection event
-			@assert E[2] == "int"
+		@assert E[3] == "int"
+@show "end" println()
 			# Add E to the output list Λ
-			push!(Λ, E)
+			push!(Λ, [E[1],E[2]])
+@show Λ,1 println()
 			# segE1 above segE2 be E's intersecting segments in SL 
+			segE1, segE2 = selectsegmentneighbor(SL,i)
+			if segE1 ≠ []
+				h = Int(segE1[3][2]) # semitoken of segE1 in SL
+			end
+			if segE2 ≠ []
+				k = Int(segE2[3][2]) # semitoken of segE2 in SL
+			end
+			# Swap their positions so that segE2 is now above segE1  
+			# ??? HOW TO DO IT ???
 			# segA = the segment above segE2 in SL
-			a = searchsortedfirst(LS, seg2)  # TODO: check seg1's type
+			segA, segE2 = selectsegmentneighbor(SL,k)		
 			# segB = the segment below segE1 in SL
-			b = searchsortedlast(LS, seg1)  # TODO: check seg2's type
-			# Swap their positions so that segE2 is now above segE1  # HOW TO DO IT ???
+			segE1, segB = selectsegmentneighbor(SL,h)		
 
 			I = intersection(segE2,segA)
 			# (I = Intersect(segE2 with segA) exists)
 			if typeof(I) ≠ Nothing
-				k = searchsortedfirst(LS, a)
-				# (I is not in ξ already) 
-				if k == beforestartsemitoken(SL) 
-					# Insert I into ξ
-					E = (I,"int",(k,a))
-					key = (E[1],E[3]); val = (I,"int",(k,a))
-					enqueue!(ξ, key, val) 
-				end
+				# (if I is not in ξ already) no problem in case
+				# Insert I into ξ
+				key = (I,"int",edgeid); val = (I,I,"int",a) # edgeid ??
+				enqueue!(ξ, key, val) 
+@show ξ,5 println()
 			end
 			I = intersection(segE1,segB)
 			# (I = Intersect(segE1 with segB) exists)
 			if typeof(I) ≠ Nothing
-				h = searchsortedfirst(LS, b)
-				# (I is not in ξ already) 
-				if h == pastendsemitoken(SL) 
-					# Insert I into ξ
-					E = (I,"int",(h,b))
-					key = (E[1],E[3]); val = (I,"int",(h,b))
-					enqueue!(ξ, key, val) 
-				end
+				# (if I is not in ξ already) no problem in case
+				# Insert I into ξ
+				key = (I,"int",edgeid); val = (I,I,"int",b) # edgeid ??
+				enqueue!(ξ, key, val) 
+@show ξ,4 println()
 			end
 		end
 		# remove E from ξ
+@show ξ,1 println()
 		dequeue!(ξ)  
+@show ξ,2 println()
 	end
 	return Λ
 end
-=#
+
 
 # EXAMPLE 0
 # data generation
