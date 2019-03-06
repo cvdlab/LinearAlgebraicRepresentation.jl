@@ -20,16 +20,16 @@ scan-line data structure interval, i.e. between the two lines closely above and 
 julia> lines = [[Float64[1,2],Float64[4,3]],
        [Float64[1,2],Float64[4,2.999]]]
 2-element Array{Array{Array{Float64,1},1},1}:
- [[1.0, 2.0], [4.0, 3.0]]  
+ [[1.0, 2.0], [3.0, 3.0]]  
  [[1.0, 2.0], [4.0, 2.999]]
 
-julia> isless0 = (x,y) -> [x,x[2][2]] < [y,y[2][2]]
+julia> isless0 = (x,y) -> [x[1][1],x[1][2],x[2][2]] < [y[1][1],y[1][2],y[2][2]]
 #66 (generic function with 1 method)
 
 julia> sort(lines, lt=isless0)
 2-element Array{Array{Array{Float64,1},1},1}:
  [[1.0, 2.0], [4.0, 2.999]]
- [[1.0, 2.0], [4.0, 3.0]]  
+ [[1.0, 2.0], [3.0, 3.0]]  
 ```
 """
 function presorted(V,EV, preview=false)
@@ -215,16 +215,17 @@ the segment of `E` event, on the `SL` sweepline. `segA` should be *above* `segE`
 `segB` should be *below* `segE`.
 """
 function selectsegmentneighbor(SL,i)
-	h = regress((SL,i))
 	seghA, seghB = Array{Float64,1}[], Array{Float64,1}[]
+	segkA, segkB = Array{Float64,1}[], Array{Float64,1}[]
+
+	h = regress((SL,i))
 	if h ≠ beforestartsemitoken(SL)
 		seghA,seghB = computesegposition(SL,h,xe,ye)
+		k = regress((SL,h))
+		if k ≠ beforestartsemitoken(SL)
+			segkA,segkB = computesegposition(SL,k,xe,ye)
+		end
 	end
-	k = advance((SL,i))
-	segkA, segkB = Array{Float64,1}[], Array{Float64,1}[]
-	if k ≠ pastendsemitoken(SL)
-		segkA,segkB = computesegposition(SL,k,xe,ye)
-	end	
 	segA = union(seghA, segkA); segB = union(seghB, segkB); 
 	return segA, segB
 end
@@ -242,8 +243,9 @@ function sweepline(V,EV)
 	ξ = PriorityQueue(zip(pqkeys,pqvalues))
 @show ξ,0 println()
 	# Proper ordering object for the `SortedMultiDic` used by sweep line SL
+	##o = Lt((x,y) -> (x,y))	
 	# Initialize sweep line SL to be empty
-	SL = SortedMultiDict{Any,Any}()
+	SL = SortedMultiDict{Any,Any}()##o)
 @show SL, 0 println()
 	# Initialized output intersection list Λ to be empty
 	Λ = Array{Array{Float64,1},1}[]
@@ -293,8 +295,10 @@ function sweepline(V,EV)
 		elseif E[3] == "end" # (E is a right endpoint)
 @show "end" println()
 			# segE = E's segment
+			# e = key(segE); st1 = corresponding semitoken in SL
+			st1,st2 = searchequalrange(SL::SortedMultiDict, e)
 			# compute segA and/or segB
-			segA, segB = selectsegmentneighbor(SL,i)		
+			segA, segB = selectsegmentneighbor(SL,st1)		
 			# segA = the segment above segE in SL 
 			if segA ≠ []
 				a = Int(segA[3][1]) # edgeid of segA
@@ -306,57 +310,74 @@ function sweepline(V,EV)
 				segB = segB[1:2] # edgeid of segB
 			end
 			# Remove segE from SL
-			delete!((SL,i))
+@show st1,st2 println()
+			#delete!((SL,st1))
+println("############ ECCOMI !!!!!")
 			# (I = Intersect( segA with segB) exists)
-			I = intersection(segA, segB)
-			if typeof(I) ≠ Nothing
-				# (I is not in ξ already) 
-				# no problem anyway (in case I is overwritten)
-				# Insert I into ξ
-				key = (I,"int",a); val = (I,I,"int",b)
-				enqueue!(ξ, key, val) 
+			if segA ≠ [] && segB ≠ []
+				I = intersection(segA, segB)
+				if typeof(I) ≠ Nothing
+					# (I is not in ξ already) 
+					# no problem anyway (in case I is overwritten)
+					# Insert I into ξ
+					key = (I,"int",a); val = (I,I,"int",b)
+					enqueue!(ξ, key, val) 
 @show ξ,4 println()
+				end
 			end
-			
 		else # E is an intersection event
 		@assert E[3] == "int"
-@show "end" println()
+@show "int" println()
 			# Add E to the output list Λ
 			push!(Λ, [E[1],E[2]])
 @show Λ,1 println()
 			# segE1 above segE2 be E's intersecting segments in SL 
+			i = insert!(SL, e, segE) ### ????
 			segE1, segE2 = selectsegmentneighbor(SL,i)
 			if segE1 ≠ []
-				h = Int(segE1[3][2]) # semitoken of segE1 in SL
+				h = Int(segE1[3][1]) # index of segment segE1
+				v1 = V[:,EV[h][1]] # key of segE1 in SL
+				hst1,hst2 = searchequalrange(SL::SortedMultiDict, v1)
+				# extreme semitokens of segE1 in SL
+				# segB = the segment below segE1 in SL
+@show SL,hst1 println()
+				segE1, segB = selectsegmentneighbor(SL,hst1)		
+				if segE1 ≠ [] && segB ≠ []
+					I = intersection(segE1,segB)
+					# (I = Intersect(segE1 with segB) exists)
+					if typeof(I) ≠ Nothing
+						# (if I is not in ξ already) no problem in case
+						# Insert I into ξ
+						key = (I,"int",edgeid); val = (I,I,"int",b) # edgeid ??
+						enqueue!(ξ, key, val) 
+@show ξ,5 println()
+					end
+				end
 			end
 			if segE2 ≠ []
-				k = Int(segE2[3][2]) # semitoken of segE2 in SL
-			end
-			# Swap their positions so that segE2 is now above segE1  
-			# ??? HOW TO DO IT ???
-			# segA = the segment above segE2 in SL
-			segA, segE2 = selectsegmentneighbor(SL,k)		
-			# segB = the segment below segE1 in SL
-			segE1, segB = selectsegmentneighbor(SL,h)		
-
-			I = intersection(segE2,segA)
-			# (I = Intersect(segE2 with segA) exists)
-			if typeof(I) ≠ Nothing
-				# (if I is not in ξ already) no problem in case
-				# Insert I into ξ
-				key = (I,"int",edgeid); val = (I,I,"int",a) # edgeid ??
-				enqueue!(ξ, key, val) 
-@show ξ,5 println()
-			end
-			I = intersection(segE1,segB)
-			# (I = Intersect(segE1 with segB) exists)
-			if typeof(I) ≠ Nothing
-				# (if I is not in ξ already) no problem in case
-				# Insert I into ξ
-				key = (I,"int",edgeid); val = (I,I,"int",b) # edgeid ??
-				enqueue!(ξ, key, val) 
+				k = Int(segE2[3][1])  # index of segment segE2
+				v1 = V[:,EV[k][1]]  # key of segE2 in SL
+				kst1,kst2 = searchequalrange(SL::SortedMultiDict, v1)
+				# extreme semitokens of segE2 in SL
+				# Swap their positions so that segE2 is now above segE1  
+				# ??? HOW TO DO IT ???
+				# segA = the segment above segE2 in SL
+@show SL,kst1 println()
+				segA, segE2 = selectsegmentneighbor(SL,kst1)		
+@show segA, segE2
+				if segA ≠ [] && segE2 ≠ []
+					I = intersection(segE2,segA)
+					# (I = Intersect(segE2 with segA) exists)
+					if typeof(I) ≠ Nothing
+						# (if I is not in ξ already) no problem in case
+						# Insert I into ξ
+						key = (I,"int",edgeid); val = (I,I,"int",a) # edgeid ??
+						enqueue!(ξ, key, val) 
 @show ξ,4 println()
+					end
+				end
 			end
+			delete!((SL, i)) ### ????
 		end
 		# remove E from ξ
 @show ξ,1 println()
@@ -365,6 +386,7 @@ function sweepline(V,EV)
 	end
 	return Λ
 end
+
 
 
 # EXAMPLE 0
@@ -397,4 +419,16 @@ Plasm.view(Plasm.numbering(1)((V,[[[k] for k=1:size(V,2)], EV ])))
 # data sorting 
 W,EW = presorted(V,EV)
 Plasm.view(Plasm.numbering(1)((W,[[[k] for k=1:size(W,2)], EW ])))
+=#
+
+
+
+
+
+#=
+V = [0.435352 0.449902 0.658165 0.672715 0.76547 0.685644 0.542851 0.463025 0.438641 0.446501 0.406689 0.414549 0.145006 0.104172 0.218371 0.177538 0.129832 0.11199 0.151923 0.134081 0.206417 0.174285 0.208523 0.176391 0.988503 0.779401 0.904498 0.695396 0.0573599 0.232703 0.122291 0.297634 0.412384 0.42493 0.578685 0.59123 0.290235 0.0044308 0.285804 0.0; 0.290109 0.272658 0.475885 0.458435 0.274124 0.513271 0.199815 0.438962 0.813539 0.876549 0.817525 0.880535 0.947022 0.879789 0.902464 0.835231 0.416359 0.365524 0.408606 0.357771 0.345616 0.120288 0.345315 0.119988 0.286924 0.348144 0.0 0.0612204 0.416447 0.157502 0.460414 0.20147 0.759923 0.751232 1.0 0.99131 0.409458 0.428899 0.34432 0.363761]
+
+EV = Array{Int64,1}[[1, 2], [3, 4], [1, 3], [2, 4], [5, 6], [7, 8], [5, 7], [6, 8], [9, 10], [11, 12], [9, 11], [10, 12], [13, 14], [15, 16], [13, 15], [14, 16], [17, 18], [19, 20], [17, 19], [18, 20], [21, 22], [23, 24], [21, 23], [22, 24], [25, 26], [27, 28], [25, 27], [26, 28], [29, 30], [31, 32], [29, 31], [30, 32], [33, 34], [35, 36], [33, 35], [34, 36], [37, 38], [39, 40], [37, 39], [38, 40]]
+
+sweepline(V,EV)
 =#
