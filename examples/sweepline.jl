@@ -55,6 +55,7 @@ function presorted(V,EV, preview=false)
 	return V,EV
 end
 
+
 function lines2lar(lines)
 	vertdict = OrderedDict{Array{Float64,1}, Int64}()
 	EV = Array{Int64,1}[]
@@ -77,6 +78,8 @@ function lines2lar(lines)
 	return V,EV
 end
 
+
+
 function cuboids(n,scale=1.; grid=[1,1])
 	assembly = []
 	for k=1:n
@@ -97,6 +100,7 @@ function cuboids(n,scale=1.; grid=[1,1])
 	end
 	Lar.struct2lar(Lar.Struct(assembly))
 end
+
 
 function presortedlines(V,EV)
 	lines = [[V[:,u],V[:,v]] for (u,v) in EV]
@@ -179,74 +183,17 @@ function intersection(line1,line2)::Union{Nothing, Array}
 end
 
 
-"""
-	computesegposition(SL,h,xe,ye)
-
-Compute the current position of a neighbourhood line with respect to a new segment.
-
-`SL` (the sweep line) is a SortedMultiDict; `h` is the semitoken of a segment on SL;
-`(xe, ye)` are the coordinates of vertex of a new segment lying on `SL`, w.r.t. 
-compare the segment's `h` position.  The function returns a pair of values for `segA`
-and `segB`, one of which is the empty array.
-"""
-function computesegposition(SL,h,xe,ye)
-	segA = Array{Float64,1}[]; 
-	segB = Array{Float64,1}[]
-	u,v,type,edgeid = deref_value((SL,h))
-	Dx = xe - u[1]
-	Dy = Dx * (v[2]-u[2])/(v[1]-u[1])  ##### NO vertical edges allowed !!!
-	y = u[2] + Dy
-	if y > ye
-		push!(segA, u, v, [edgeid])
-	elseif y < ye
-		push!(segB, u, v, [edgeid])
-	elseif y == ye
-		nothing::Nothing  # by now ... ;-)
-	end
-	return segA,segB
-end
-
 
 """
-	selectsegmentneighbors(SL::SortedMultiDict,i)
+	swapsegments(SL,segA,segB)
 
-Compute `segA` and/or `segB`, i.e. the one/two segments adjacent to `segE`, 
-the segment of `E` event, on the `SL` sweepline. `segA` should be *above* `segE`;
-`segB` should be *below* `segE`.
+Swap two segments at their intersection event, by exchanging the
+values of pairs (kay, value).
 """
-function selectsegmentneighbor(SL,i)
-	seghA, seghB = Array{Float64,1}[], Array{Float64,1}[]
-	segkA, segkB = Array{Float64,1}[], Array{Float64,1}[]
-
-	h = regress((SL,i))
-	if h ≠ beforestartsemitoken(SL)
-		seghA,seghB = computesegposition(SL,h,xe,ye)
-		k = regress((SL,h))
-		if k ≠ beforestartsemitoken(SL)
-			segkA,segkB = computesegposition(SL,k,xe,ye)
-		end
-	end
-	segA = union(seghA, segkA); segB = union(seghB, segkB); 
-	return segA, segB
-end
-
-
-
-"""
-	swapsegments(SL,I,segA,segB)
-
-Swap the positions of segments on the sweep line `SL` at the intersection point `I`.
-"""
-function swapsegments(SL,I,segA,segB)
-	println("=================================================")
-	@show segA
-	@show segB
-	@show I
-	# cancel both segA and segB from SL
-	# ---------------------------------
+function swapsegments(SL,segA,segB)
 	# get segment keys in SL
 	a = segA[1]
-	b = segB[1] 
+	b = segB[1]
 	# semitokens of segA and segB in SL
 	a_st = searchsortedfirst(SL,a)
 	b_st = searchsortedfirst(SL,b)
@@ -256,188 +203,187 @@ function swapsegments(SL,I,segA,segB)
 		k_b,v_b = deref((SL, b_st))
 		# delete old segments from SL
 		delete!((SL, a_st)) 
-		delete!((SL, b_st)) # delete old segment
-		# swap the two new segments
-		Dy = 0.0001
-		newsegA = (I, v_a[2], v_a[3], v_a[4])
-		newsegB = (I, v_b[2], v_b[3], v_b[4])
-		if k_a[1] <= k_b[1]
-			newsegA = (I+[0,Dy], v_a[2], v_a[3], v_a[4])
-			keyA = (I+[0,Dy],"int",v_a[4])
-		elseif k_a[1] > k_b[1]
-			newsegB = (I+[0,Dy], v_b[2], v_b[3], v_b[4])
-			keyB = (I+[0,Dy],"int",v_b[4])
-		end
-		if k_b[1] <= k_a[1]
-			newsegB = (I+[0,Dy], v_b[2], v_b[3], v_b[4])
-			keyA = (I+[0,Dy],"int",v_b[4])
-		elseif k_a[1] > k_b[1]
-			newsegA = (I+[0,Dy], v_a[2], v_a[3], v_a[4])
-			keyA = (I+[0,Dy],"int",v_a[4])
-		end
-		# insert the new segments in SL
-		insert!(SL, keyA, newsegA)
-		insert!(SL, keyB, newsegB)
+		delete!((SL, b_st))
+		# swap the two segments
+		# insert the new segments (sorted on keys) in SL
+		st1 = insert!(SL, k_a, v_b)
+		st2 = insert!(SL, k_b, v_a)
 	end
-	println("=================================================")
-	return (keyA, newsegA),(keyB, newsegB)
+	return st1,st2
 end
 
 
+
+"""
+	selectsegmentneighbors(SL::SortedMultiDict,i)
+
+Compute `segE1` and/or `segE2`, i.e. the one/two segments adjacent to `segE`, 
+the segment of `E` event, on the `SL` sweepline. `segE2` should be *above* `segE`;
+`segE2` should be *below* `segE`.
+"""
+function selectsegmentneighbor(SL,i)
+	if i ≠ pastendsemitoken(SL)
+		st2 = advance((SL,i))
+	end
+	if i ≠ beforestartsemitoken(SL)
+		st1 = regress((SL,i))
+	end
+	keyE2 = st2 ≠ pastendsemitoken(SL) ? deref_key((SL,st2))[1] : nothing
+	keyE = deref_key((SL,i))[1]
+	keyE1 = st1 ≠ beforestartsemitoken(SL) ? deref_key((SL,st1))[1] : nothing
+	segE2 = keyE2 ≠ nothing ? deref_value((SL, st2)) : []
+	segE1 = keyE1 ≠ nothing ? deref_value((SL, st1)) : []
+	return segE2, segE1
+end
+function selectsegmentneighbor(SL,i)
+	segE1 = []; segE2 = []
+	if i ≠ pastendsemitoken(SL)
+		st2 = advance((SL,i))
+		keyE2 = st2 ≠ pastendsemitoken(SL) ? deref_key((SL,st2))[1] : nothing
+		segE2 = keyE2 ≠ nothing ? deref_value((SL, st2)) : []
+	end
+	if i ≠ beforestartsemitoken(SL)
+		st1 = regress((SL,i))
+		keyE1 = st1 ≠ beforestartsemitoken(SL) ? deref_key((SL,st1))[1] : nothing
+		segE1 = keyE1 ≠ nothing ? deref_value((SL, st1)) : []
+	end
+	return segE2, segE1
+end
 
 
 function sweepline(V,EV)
 	# event generation and ordering
 	segments = presortedlines(V,EV)
 	evpairs = [[(v1,v2,"start",k), (v2,v1,"end",k)] for (k,(v1,v2)) in enumerate(segments)]
-	isless0 = (x,y) -> [x[1][1],x[1][2],x[2][2]] < [y[1][1],y[1][2],y[2][2]]
-	events = sort(cat(evpairs),lt=isless0)
+	events = sort(cat(evpairs))
+	eventdict = Dict(zip([(e[4],e[3]) for e in events], events))
 	# Initialize event queue ξ = all segment endpoints; Sort ξ by increasing x and y
 	pqkeys = [(e[1],e[3],e[4]) for e in events]
 	pqvalues = events
 	ξ = PriorityQueue(zip(pqkeys,pqvalues))
-	# Proper ordering object for the `SortedMultiDic` used by sweep line SL
 	# Initialize sweep line SL to be empty
 	SL = SortedMultiDict{Any,Any}()
 	# Initialized output intersection list Λ to be empty
-	Λ = Array{Array{Float64,1},1}[]
+	Λ = Array{Float64,1}[]
 
 	while length(ξ) ≠ 0 # (ξ is nonempty)
-@show peek(ξ)   # the next value of event (k => v) from ξ 
-		E = peek(ξ)[2]   # the next value of event (k => v) from ξ 
+@show peek(ξ)   
+		obj = peek(ξ)
+		E = obj[2]   # the  value of next event (k => v) from ξ 
+		keyE = obj[1]   # the key of next event (k => v) from ξ 
 		(v1, v2, nodetype, edgeid) = E
 		# segE = E's segment
-		e, segE = v1, (v1, v2, nodetype, edgeid) # key, value
+		e, segE = reverse(v1), (v1, v2, nodetype, edgeid) # key, value in SL
 		if E[3] == "start" # (E is a left endpoint)
+vals = [v for v in values(SL)]; for v in reverse(vals)	println(v) end
 			# Add segE to SL
 			i = insert!(SL, e, segE)  # SortedMultiDict, key, value -> semitoken
-			global xe,ye = e
 			if first(SL) !== last(SL) # more than one segment in SL	
 				# compute segA and/or segB
-				segA, segB = selectsegmentneighbor(SL,i)		
+				segA, segB = selectsegmentneighbor(SL,i)	
+					
 				if segA ≠ [] 
 				# segA = the segment above segE in SL 
-					a = Int(segA[3][1]); segA = segA[1:2] # edgeid of segA
+					a = segA[4]
 					I = intersection(segE,segA)
 					# (if Intersect( segE with segA) exists)
 					if typeof(I) ≠ Nothing
 						# Insert I into ξ
 						key = (I,"int",edgeid); val = (I,I,"int",a)
 						enqueue!(ξ, key,val) 
-						#enqueue!(ξ, keyA,newsegA) 
 					end
 				end
 				if segB ≠ [] 
 				# segB = the segment below segE in SL 
-					b = Int(segB[3][1]); segB = segB[1:2] # edgeid of segB
+					b = segB[4]
 					I = intersection(segE,segB)
 					# (if Intersect( segE with segB) exists)
 					if typeof(I) ≠ Nothing
 						# Insert I into ξ
 						key = (I,"int",edgeid); val = (I,I,"int",b)
 						enqueue!(ξ, key,val) 
-						#enqueue!(ξ, keyB,newsegB) 
 					end
 				end
 			end			
 		elseif E[3] == "end" # (E is a right endpoint)
+vals = [v for v in values(SL)]; for v in reverse(vals)	println(v) end
 			# segE = E's segment
 			# e = key(segE); st1 = corresponding semitoken in SL
-			
-			# compute E semitoken
-			key = E[1]
+			key = reverse(E[1])
 			E_st = searchsortedlast(SL,key)
-			
-			# compute segA and/or segB
-			segA, segB = selectsegmentneighbor(SL,E_st)		
-			# segA = the segment above segE in SL 
-			if segA ≠ []
-				a = Int(segA[3][1]) # edgeid of segA
-				segA = segA[1:2] 
-			end
-			# segB = the segment below segE in SL 
-			if segB ≠ []
-				b = Int(segB[3][1])
-				segB = segB[1:2] # edgeid of segB
-			end
-			# Remove segE from SL
-			delete!((SL,E_st))
-			# (I = Intersect( segA with segB) exists)
-			if segA ≠ [] && segB ≠ []
-				I = intersection(segA, segB)
-				if typeof(I) ≠ Nothing
-					# (I is not in ξ already) 
-					# no problem anyway (in case I is overwritten)
-					# Insert I into ξ
-					key = (I,"int",a); val = (I,I,"int",b)
-					enqueue!(ξ, key,val) 
-					#enqueue!(ξ, keyB,newsegB) 
+			if E_st==beforestartsemitoken(SL) # no more events in SL 
+				break 
+			else	
+				# compute segA and/or segB
+				segA, segB = selectsegmentneighbor(SL,E_st)	
+				if segA==[] && segB==[] break end	
+				# segA = the segment above segE in SL 
+				if segA ≠ []
+					a = segA[4] # edgeid of segA
+					segA = segA[1:2] 
+				end
+				# segB = the segment below segE in SL 
+				if segB ≠ []
+					b = segB[4]  # edgeid of segB
+					segB = segB[1:2] # edgeid of segB
+				end
+				# Remove segE from SL
+				delete!((SL,E_st))
+				# (I = Intersect( segA with segB) exists)
+				if segA ≠ [] && segB ≠ []
+					I = intersection(segA, segB)
+					if typeof(I) ≠ Nothing
+						# (I is not in ξ already) 
+						# no problem anyway (in case I is overwritten)
+						# Insert I into ξ
+						key = (I,"int",a); val = (I,I,"int",b)
+						enqueue!(ξ, key,val) 
+					end
 				end
 			end
 		else # E is an intersection event
-		@assert E[3] == "int"
-println("int, I = $E[1] ")
-for v in values(SL)
-	println(v)
-end
+vals = [v for v in values(SL)]; for v in reverse(vals)	println(v) end
 			# Add E to the output list Λ
-			push!(Λ, [E[1],E[2]])
-			# segE1 above segE2 be E's intersecting segments in SL 
-			##i = insert!(SL, e, segE) ### ????
-			
-			# compute E semitoken
-			key = E[1]
-			E_st = searchsortedlast(SL,key)
-@show E_st
-			segE1, segE2 = selectsegmentneighbor(SL,E_st)
-@show segE1
-			if segE1 ≠ []
-				h = Int(segE1[3][1]) # index of segment segE1
-				v1 = V[:,EV[h][1]] # key of segE1 in SL
-				hst1,hst2 = searchequalrange(SL::SortedMultiDict, v1)
-				# extreme semitokens of segE1 in SL
-				# segB = the segment below segE1 in SL
-				segE1, segB = selectsegmentneighbor(SL,hst1)		
-				if segE1 ≠ [] && segB ≠ []
-					I = intersection(segE1,segB)
-					# (I = Intersect(segE1 with segB) exists)
-					if typeof(I) ≠ Nothing
-						# (if I is not in ξ already) no problem in case
-						# Insert I into ξ
-						(keyE1,newsegE1),(keyB,newsegB) = swapsegments(SL,I,segE1,segB)
-						key = (I,"int",edgeid); val = (I,I,"int",b) # edgeid ??
-						enqueue!(ξ, keyE1,newsegE1) 
-						enqueue!(ξ, keyB,newsegB) 
-					end
+			push!(Λ, E[1])
+			# the two intersecting segments generating E
+			a = eventdict[(keyE[3],"start")]
+			b = eventdict[(E[4],"start")]
+			a_st = searchsortedfirst(SL,reverse(a[1]))
+			b_st = searchsortedfirst(SL,reverse(b[1]))
+			segA = deref((SL,a_st))	
+			segB = deref((SL,b_st))
+			# Let segE1 above segE2 be E's intersecting segments in SL
+			segE1,segE2 = compare(SL,a_st,b_st)==1 ? (segA,segB) : (segB,segA)
+			# Swap their positions so that segE2 is now above segE1
+			stE1,stE2 = swapsegments(SL,segE1,segE2)
+			# segA = the segment above segE2 in SL
+			segA, segE2 = selectsegmentneighbor(SL,stE2)		
+			# segB = the segment below segE1 in SL
+			segE1, segB = selectsegmentneighbor(SL,stE1)					
+			if segE1 ≠ [] && segB ≠ []
+				I = intersection(segE1,segB)
+				# (I = Intersect(segE1 with segB) exists)
+				if typeof(I) ≠ Nothing
+					# (if I is not in ξ already) no problem in case
+					# Insert I into ξ
+					key = (I,"int",edgeid); val = (I,I,"int",a)
+					enqueue!(ξ, key,val) 
 				end
 			end
-@show segE2
-			if segE2 ≠ []
-				k = Int(segE2[3][1])  # index of segment segE2
-				v1 = V[:,EV[k][1]]  # key of segE2 in SL
-				kst1,kst2 = searchequalrange(SL::SortedMultiDict, v1)
-				# extreme semitokens of segE2 in SL
-				# Swap their positions so that segE2 is now above segE1  
-				# ??? HOW TO DO IT ???
-				# segA = the segment above segE2 in SL
-				segA, segE2 = selectsegmentneighbor(SL,kst1)		
-				if segA ≠ [] && segE2 ≠ []  ## debug => false ==> don't compute last intersection
-					I = intersection(segA, segE2)
-					# (I = Intersect(segE2 with segA) exists)
-					if typeof(I) ≠ Nothing
-						# (if I is not in ξ already) no problem in case
-						# Insert I into ξ
-						(keyA,newsegA),(keyE2,newsegE2) = swapsegments(SL,I,segA,segE2)
-						##key = (I,"int",edgeid); val = (I,I,"int",a) # edgeid ??
-						enqueue!(ξ, keyA,newsegA) 
-						enqueue!(ξ, keyE2,newsegE2) 
-					end
+			if segA ≠ [] && segE2 ≠ []
+				I = intersection(segA, segE2)
+				# (I = Intersect(segE2 with segA) exists)
+				if typeof(I) ≠ Nothing
+					# (if I is not in ξ already) no problem in case
+					# Insert I into ξ
+					key = (I,"int",edgeid); val = (I,I,"int",b)
+					enqueue!(ξ, key,val) 
 				end
 			end
-			##delete!((SL, i)) ### ????
 		end
 		# remove E from ξ
 		dequeue!(ξ)  
+print(ξ)
 	end
 	return Λ
 end
@@ -454,6 +400,10 @@ Plasm.view(Plasm.numbering(2.)((V,[[[k] for k=1:size(V,2)], EV])))
 V = Plasm.normalize(V,flag=true)
 W,EW = presorted(V,EV)
 Plasm.view(Plasm.numbering(.25)((W,[[[k] for k=1:size(W,2)], EW ])))
+
+Λ = sweepline(V,EV)
+
+
 
 #=
 # EXAMPLE 1
@@ -474,17 +424,5 @@ Plasm.view(Plasm.numbering(1)((V,[[[k] for k=1:size(V,2)], EV ])))
 # data sorting 
 W,EW = presorted(V,EV)
 Plasm.view(Plasm.numbering(1)((W,[[[k] for k=1:size(W,2)], EW ])))
-=#
-
-
-
-
-
-#=
-V = [0.435352 0.449902 0.658165 0.672715 0.76547 0.685644 0.542851 0.463025 0.438641 0.446501 0.406689 0.414549 0.145006 0.104172 0.218371 0.177538 0.129832 0.11199 0.151923 0.134081 0.206417 0.174285 0.208523 0.176391 0.988503 0.779401 0.904498 0.695396 0.0573599 0.232703 0.122291 0.297634 0.412384 0.42493 0.578685 0.59123 0.290235 0.0044308 0.285804 0.0; 0.290109 0.272658 0.475885 0.458435 0.274124 0.513271 0.199815 0.438962 0.813539 0.876549 0.817525 0.880535 0.947022 0.879789 0.902464 0.835231 0.416359 0.365524 0.408606 0.357771 0.345616 0.120288 0.345315 0.119988 0.286924 0.348144 0.0 0.0612204 0.416447 0.157502 0.460414 0.20147 0.759923 0.751232 1.0 0.99131 0.409458 0.428899 0.34432 0.363761]
-
-EV = Array{Int64,1}[[1, 2], [3, 4], [1, 3], [2, 4], [5, 6], [7, 8], [5, 7], [6, 8], [9, 10], [11, 12], [9, 11], [10, 12], [13, 14], [15, 16], [13, 15], [14, 16], [17, 18], [19, 20], [17, 19], [18, 20], [21, 22], [23, 24], [21, 23], [22, 24], [25, 26], [27, 28], [25, 27], [26, 28], [29, 30], [31, 32], [29, 31], [30, 32], [33, 34], [35, 36], [33, 35], [34, 36], [37, 38], [39, 40], [37, 39], [38, 40]]
-
-sweepline(V,EV)
 =#
 
