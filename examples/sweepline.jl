@@ -152,6 +152,7 @@ julia>
 ```
 """
 function intersection(line1,line2)::Union{Nothing, Array}
+@show line1,line2
 	x1,y1,x2,y2 = vcat(line1...)
 	x3,y3,x4,y4 = vcat(line2...)
 
@@ -222,20 +223,6 @@ the segment of `E` event, on the `SL` sweepline. `segE2` should be *above* `segE
 `segE2` should be *below* `segE`.
 """
 function selectsegmentneighbor(SL,i)
-	if i ≠ pastendsemitoken(SL)
-		st2 = advance((SL,i))
-	end
-	if i ≠ beforestartsemitoken(SL)
-		st1 = regress((SL,i))
-	end
-	keyE2 = st2 ≠ pastendsemitoken(SL) ? deref_key((SL,st2))[1] : nothing
-	keyE = deref_key((SL,i))[1]
-	keyE1 = st1 ≠ beforestartsemitoken(SL) ? deref_key((SL,st1))[1] : nothing
-	segE2 = keyE2 ≠ nothing ? deref_value((SL, st2)) : []
-	segE1 = keyE1 ≠ nothing ? deref_value((SL, st1)) : []
-	return segE2, segE1
-end
-function selectsegmentneighbor(SL,i)
 	segE1 = []; segE2 = []
 	if i ≠ pastendsemitoken(SL)
 		st2 = advance((SL,i))
@@ -275,7 +262,7 @@ function sweepline(V,EV)
 		# segE = E's segment
 		e, segE = reverse(v1), (v1, v2, nodetype, edgeid) # key, value in SL
 		if E[3] == "start" # (E is a left endpoint)
-vals = [v for v in values(SL)]; for v in reverse(vals)	println(v) end
+#vals = [v for v in values(SL)]; for v in reverse(vals)	println(v) end
 			# Add segE to SL
 			i = insert!(SL, e, segE)  # SortedMultiDict, key, value -> semitoken
 			if first(SL) !== last(SL) # more than one segment in SL	
@@ -306,26 +293,22 @@ vals = [v for v in values(SL)]; for v in reverse(vals)	println(v) end
 				end
 			end			
 		elseif E[3] == "end" # (E is a right endpoint)
-vals = [v for v in values(SL)]; for v in reverse(vals)	println(v) end
+#vals = [v for v in values(SL)]; for v in reverse(vals)	println(v) end
 			# segE = E's segment
 			# e = key(segE); st1 = corresponding semitoken in SL
 			key = reverse(E[1])
 			E_st = searchsortedlast(SL,key)
-			if E_st==beforestartsemitoken(SL) # no more events in SL 
-				break 
-			else	
+			if E_st ≠ beforestartsemitoken(SL) # no more events in SL 
 				# compute segA and/or segB
 				segA, segB = selectsegmentneighbor(SL,E_st)	
-				if segA==[] && segB==[] break end	
+				#if segA==[] && segB==[] break end	
 				# segA = the segment above segE in SL 
 				if segA ≠ []
 					a = segA[4] # edgeid of segA
-					segA = segA[1:2] 
 				end
 				# segB = the segment below segE in SL 
 				if segB ≠ []
 					b = segB[4]  # edgeid of segB
-					segB = segB[1:2] # edgeid of segB
 				end
 				# Remove segE from SL
 				delete!((SL,E_st))
@@ -342,7 +325,7 @@ vals = [v for v in values(SL)]; for v in reverse(vals)	println(v) end
 				end
 			end
 		else # E is an intersection event
-vals = [v for v in values(SL)]; for v in reverse(vals)	println(v) end
+#vals = [v for v in values(SL)]; for v in reverse(vals)	println(v) end
 			# Add E to the output list Λ
 			push!(Λ, E[1])
 			# the two intersecting segments generating E
@@ -383,7 +366,6 @@ vals = [v for v in values(SL)]; for v in reverse(vals)	println(v) end
 		end
 		# remove E from ξ
 		dequeue!(ξ)  
-print(ξ)
 	end
 	return Λ
 end
@@ -402,7 +384,6 @@ W,EW = presorted(V,EV)
 Plasm.view(Plasm.numbering(.25)((W,[[[k] for k=1:size(W,2)], EW ])))
 
 Λ = sweepline(V,EV)
-
 
 
 #=
