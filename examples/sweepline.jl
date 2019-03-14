@@ -193,7 +193,7 @@ values of pairs (kay, value).
 """
 function swapsegments(SL,segA,segB)
 	# get segment keys in SL
-	a = segA[1]
+	a = segA[1]; 
 	b = segB[1]
 	# semitokens of segA and segB in SL
 	a_st = searchsortedfirst(SL,a)
@@ -261,8 +261,9 @@ function sweepline(V,EV)
 		(v1, v2, nodetype, edgeid) = E
 		# segE = E's segment
 		e, segE = reverse(v1), (v1, v2, nodetype, edgeid) # key, value in SL
+println(eventdict)
 		if E[3] == "start" # (E is a left endpoint)
-#vals = [v for v in values(SL)]; for v in reverse(vals)	println(v) end
+vals = [v for v in values(SL)]; for v in reverse(vals)	println(v) end
 			# Add segE to SL
 			i = insert!(SL, e, segE)  # SortedMultiDict, key, value -> semitoken
 			if first(SL) !== last(SL) # more than one segment in SL	
@@ -275,8 +276,14 @@ function sweepline(V,EV)
 					I = intersection(segE,segA)
 					# (if Intersect( segE with segA) exists)
 					if typeof(I) ≠ Nothing
+						# (I is not in ξ already) 
+						# no problem in case I is overwritten
+						akey = (I,segE[3],segE[4])
+						bkey = (I,segA[3],segA[4])
+						eventdict[akey] = (I,eventdict[segE][2],segE[3],segE[4])
+						eventdict[bkey] = (I,eventdict[segA][2],segA[3],segA[4])
 						# Insert I into ξ
-						key = (I,"int",edgeid); val = (I,I,"int",a)
+						key = (I,"int",segE[4]); val = (I,I,"int",segA[4])
 						enqueue!(ξ, key,val) 
 					end
 				end
@@ -286,14 +293,20 @@ function sweepline(V,EV)
 					I = intersection(segE,segB)
 					# (if Intersect( segE with segB) exists)
 					if typeof(I) ≠ Nothing
+						# (I is not in ξ already) 
+						# no problem in case I is overwritten
+						akey = (I,segE[3],segE[4])
+						bkey = (I,segB[3],segB[4])
+						eventdict[akey] = (I,eventdict[segE][2],segE[3],segE[4])
+						eventdict[bkey] = (I,eventdict[segB][2],segB[3],segB[4])
 						# Insert I into ξ
-						key = (I,"int",edgeid); val = (I,I,"int",b)
+						key = (I,"int",segE[4]); val = (I,I,"int",segB[4])
 						enqueue!(ξ, key,val) 
 					end
 				end
 			end			
 		elseif E[3] == "end" # (E is a right endpoint)
-#vals = [v for v in values(SL)]; for v in reverse(vals)	println(v) end
+vals = [v for v in values(SL)]; for v in reverse(vals)	println(v) end
 			# segE = E's segment
 			# e = key(segE); st1 = corresponding semitoken in SL
 			key = reverse(E[1])
@@ -303,13 +316,13 @@ function sweepline(V,EV)
 				segA, segB = selectsegmentneighbor(SL,E_st)	
 				#if segA==[] && segB==[] break end	
 				# segA = the segment above segE in SL 
-				if segA ≠ []
-					a = segA[4] # edgeid of segA
-				end
-				# segB = the segment below segE in SL 
-				if segB ≠ []
-					b = segB[4]  # edgeid of segB
-				end
+#				if segA ≠ []
+#					a = segA[4] # edgeid of segA
+#				end
+#				# segB = the segment below segE in SL 
+#				if segB ≠ []
+#					b = segB[4]  # edgeid of segB
+#				end
 				# Remove segE from SL
 				delete!((SL,E_st))
 				# (I = Intersect( segA with segB) exists)
@@ -317,28 +330,32 @@ function sweepline(V,EV)
 					I = intersection(segA, segB)
 					if typeof(I) ≠ Nothing
 						# (I is not in ξ already) 
-						# no problem anyway (in case I is overwritten)
+						# no problem in case I is overwritten
+						akey = (I,segA[3],segA[4])
+						bkey = (I,segB[3],segB[4])
+						eventdict[akey] = (I,eventdict[segA][2],segA[3],segA[4])
+						eventdict[bkey] = (I,eventdict[segB][2],segB[3],segB[4])
 						# Insert I into ξ
-						key = (I,"int",a); val = (I,I,"int",b)
+						key = (I,"int",segA[4]); val = (I,I,"int",segB[4])
 						enqueue!(ξ, key,val) 
 					end
 				end
 			end
 		else # E is an intersection event
-#vals = [v for v in values(SL)]; for v in reverse(vals)	println(v) end
+for (k,v) in SL @show (k,v) end
 			# Add E to the output list Λ
 			push!(Λ, E[1])
 			# the two intersecting segments generating E
 			a = eventdict[(keyE[3],"start")]
 			b = eventdict[(E[4],"start")]
-			a_st = searchsortedfirst(SL,reverse(a[1]))
-			b_st = searchsortedfirst(SL,reverse(b[1]))
+			a_st = searchsortedfirst(SL,reverse(a[1])) # KO: look via above/below
+			b_st = searchsortedfirst(SL,reverse(b[1])) # KO: look via above/below
 			segA = deref((SL,a_st))	
 			segB = deref((SL,b_st))
 			# Let segE1 above segE2 be E's intersecting segments in SL
 			segE1,segE2 = compare(SL,a_st,b_st)==1 ? (segA,segB) : (segB,segA)
 			# Swap their positions so that segE2 is now above segE1
-			stE1,stE2 = swapsegments(SL,segE1,segE2)
+			stE1,stE2 =  swapsegments(SL,segE1,segE2)
 			# segA = the segment above segE2 in SL
 			segA, segE2 = selectsegmentneighbor(SL,stE2)		
 			# segB = the segment below segE1 in SL
@@ -347,9 +364,14 @@ function sweepline(V,EV)
 				I = intersection(segE1,segB)
 				# (I = Intersect(segE1 with segB) exists)
 				if typeof(I) ≠ Nothing
-					# (if I is not in ξ already) no problem in case
+					# (I is not in ξ already) 
+					# no problem in case I is overwritten
+					akey = (I,segE1[3],segE1[4])
+					bkey = (I,segB[3],segB[4])
+					eventdict[akey] = (I,eventdict[segE1][2],segE1[3],segE1[4])
+					eventdict[bkey] = (I,eventdict[segB][2],segB[3],segB[4])
 					# Insert I into ξ
-					key = (I,"int",edgeid); val = (I,I,"int",a)
+					key = (I,"int",segE1[4]); val = (I,I,"int",segB[4])
 					enqueue!(ξ, key,val) 
 				end
 			end
@@ -357,12 +379,18 @@ function sweepline(V,EV)
 				I = intersection(segA, segE2)
 				# (I = Intersect(segE2 with segA) exists)
 				if typeof(I) ≠ Nothing
-					# (if I is not in ξ already) no problem in case
+					# (I is not in ξ already) 
+					# no problem in case I is overwritten
+					akey = (I,segA[3],segA[4])
+					bkey = (I,segE2[3],segE2[4])
+					eventdict[akey] = (I,eventdict[segA][2],segA[3],segA[4])
+					eventdict[bkey] = (I,eventdict[segE2][2],segE2[3],segE2[4])
 					# Insert I into ξ
-					key = (I,"int",edgeid); val = (I,I,"int",b)
+					key = (I,"int",segA[4]); val = (I,I,"int",segE2[4])
 					enqueue!(ξ, key,val) 
 				end
 			end
+			##stE1,stE2 = swapsegments(SL,segE1,segE2) ## ??? to remove
 		end
 		# remove E from ξ
 		dequeue!(ξ)  
