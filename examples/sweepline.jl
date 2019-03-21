@@ -243,7 +243,8 @@ function sweepline(V,EV)
 	segments = presortedlines(V,EV)
 	evpairs = [[(v1,v2,"start",k), (v2,v1,"end",k)] for (k,(v1,v2)) in enumerate(segments)]
 	events = sort(cat(evpairs))
-	eventdict = Dict(zip([(e[4],e[3]) for e in events], events))
+	eventdict = Dict(zip([(e[4],e[3],e[1]) for e in events], events))
+@show eventdict;
 	# Initialize event queue ξ = all segment endpoints; Sort ξ by increasing x and y
 	pqkeys = [(e[1],e[3],e[4]) for e in events]
 	pqvalues = events
@@ -261,7 +262,6 @@ function sweepline(V,EV)
 		(v1, v2, nodetype, edgeid) = E
 		# segE = E's segment
 		e, segE = reverse(v1), (v1, v2, nodetype, edgeid) # key, value in SL
-println(eventdict)
 		if E[3] == "start" # (E is a left endpoint)
 vals = [v for v in values(SL)]; for v in reverse(vals)	println(v) end
 			# Add segE to SL
@@ -276,15 +276,20 @@ vals = [v for v in values(SL)]; for v in reverse(vals)	println(v) end
 					I = intersection(segE,segA)
 					# (if Intersect( segE with segA) exists)
 					if typeof(I) ≠ Nothing
-						# (I is not in ξ already) 
-						# no problem in case I is overwritten
-						akey = (I,segE[3],segE[4])
-						bkey = (I,segA[3],segA[4])
-						eventdict[akey] = (I,eventdict[segE][2],segE[3],segE[4])
-						eventdict[bkey] = (I,eventdict[segA][2],segA[3],segA[4])
-						# Insert I into ξ
-						key = (I,"int",segE[4]); val = (I,I,"int",segA[4])
-						enqueue!(ξ, key,val) 
+#						Insert I into ξ
+#						key = (I,"int",edgeid); val = (I,I,"int",a)
+#						enqueue!(ξ, key,val) 
+					segB = segE
+					# (I is not in ξ already) 
+					# no problem in case I is overwritten
+					akey = (segA[4],segA[3],segA[1])
+					bkey = (segB[4],segB[3],segB[1])
+					eventdict[akey] = (I,eventdict[segA][2],segA[3],segA[4])
+					eventdict[bkey] = (I,eventdict[segB][2],segB[3],segB[4])
+					# Insert I into ξ
+					key = (I,"int",segA[4]); val = (I,I,"int",segB[4])
+					enqueue!(ξ, key,val) 
+@show eventdict;
 					end
 				end
 				if segB ≠ [] 
@@ -293,15 +298,20 @@ vals = [v for v in values(SL)]; for v in reverse(vals)	println(v) end
 					I = intersection(segE,segB)
 					# (if Intersect( segE with segB) exists)
 					if typeof(I) ≠ Nothing
-						# (I is not in ξ already) 
-						# no problem in case I is overwritten
-						akey = (I,segE[3],segE[4])
-						bkey = (I,segB[3],segB[4])
-						eventdict[akey] = (I,eventdict[segE][2],segE[3],segE[4])
-						eventdict[bkey] = (I,eventdict[segB][2],segB[3],segB[4])
-						# Insert I into ξ
-						key = (I,"int",segE[4]); val = (I,I,"int",segB[4])
-						enqueue!(ξ, key,val) 
+#						Insert I into ξ
+#						key = (I,"int",edgeid); val = (I,I,"int",b)
+#						enqueue!(ξ, key,val) 
+					segA = segE
+					# (I is not in ξ already) 
+					# no problem in case I is overwritten
+					akey = (segA[4],segA[3],segA[1])
+					bkey = (segB[4],segB[3],segB[1])
+					eventdict[akey] = (I,eventdict[segA][2],segA[3],segA[4])
+					eventdict[bkey] = (I,eventdict[segB][2],segB[3],segB[4])
+					# Insert I into ξ
+					key = (I,"int",segA[4]); val = (I,I,"int",segB[4])
+					enqueue!(ξ, key,val) 
+@show eventdict;
 					end
 				end
 			end			
@@ -331,8 +341,8 @@ vals = [v for v in values(SL)]; for v in reverse(vals)	println(v) end
 					if typeof(I) ≠ Nothing
 						# (I is not in ξ already) 
 						# no problem in case I is overwritten
-						akey = (I,segA[3],segA[4])
-						bkey = (I,segB[3],segB[4])
+						akey = (segA[4],segA[3],segA[1])
+						bkey = (segB[4],segB[3],segB[1])
 						eventdict[akey] = (I,eventdict[segA][2],segA[3],segA[4])
 						eventdict[bkey] = (I,eventdict[segB][2],segB[3],segB[4])
 						# Insert I into ξ
@@ -364,30 +374,34 @@ for (k,v) in SL @show (k,v) end
 				I = intersection(segE1,segB)
 				# (I = Intersect(segE1 with segB) exists)
 				if typeof(I) ≠ Nothing
+					segA = segE1
 					# (I is not in ξ already) 
 					# no problem in case I is overwritten
-					akey = (I,segE1[3],segE1[4])
-					bkey = (I,segB[3],segB[4])
-					eventdict[akey] = (I,eventdict[segE1][2],segE1[3],segE1[4])
+					akey = (segA[4],segA[3],segA[1])
+					bkey = (segB[4],segB[3],segB[1])
+					eventdict[akey] = (I,eventdict[segA][2],segA[3],segA[4])
 					eventdict[bkey] = (I,eventdict[segB][2],segB[3],segB[4])
 					# Insert I into ξ
-					key = (I,"int",segE1[4]); val = (I,I,"int",segB[4])
+					key = (I,"int",segA[4]); val = (I,I,"int",segB[4])
 					enqueue!(ξ, key,val) 
+@show eventdict;
 				end
 			end
 			if segA ≠ [] && segE2 ≠ []
 				I = intersection(segA, segE2)
 				# (I = Intersect(segE2 with segA) exists)
 				if typeof(I) ≠ Nothing
+					segB = segE2
 					# (I is not in ξ already) 
 					# no problem in case I is overwritten
-					akey = (I,segA[3],segA[4])
-					bkey = (I,segE2[3],segE2[4])
+					akey = (segA[4],segA[3],segA[1])
+					bkey = (segB[4],segB[3],segB[1])
 					eventdict[akey] = (I,eventdict[segA][2],segA[3],segA[4])
-					eventdict[bkey] = (I,eventdict[segE2][2],segE2[3],segE2[4])
+					eventdict[bkey] = (I,eventdict[segB][2],segB[3],segB[4])
 					# Insert I into ξ
-					key = (I,"int",segA[4]); val = (I,I,"int",segE2[4])
+					key = (I,"int",segA[4]); val = (I,I,"int",segB[4])
 					enqueue!(ξ, key,val) 
+@show eventdict;
 				end
 			end
 			##stE1,stE2 = swapsegments(SL,segE1,segE2) ## ??? to remove

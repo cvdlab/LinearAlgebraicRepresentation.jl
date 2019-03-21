@@ -156,7 +156,7 @@ julia> FW = simplexFacets(CW)
 julia> Plasm.view(W,FW)
 ```
 """
-function simplexFacets(simplices)
+function simplexFacets(simplices) # TODO: solve bug
     out = []
     d = length(simplices[1])
     for simplex in simplices
