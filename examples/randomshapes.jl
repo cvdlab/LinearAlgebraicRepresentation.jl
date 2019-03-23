@@ -20,16 +20,15 @@ end
 
 
 
-V,EV = cuboids(50, .15)
+V,EV = cuboids(20, .35)
 V = Plasm.normalize(V,flag=true)
 model2d = V,EV
 
-Plasm.view(Plasm.numbering(.1)((V,[[[k] for k=1:size(V,2)], EV])))
-
 Sigma =  Lar.spaceindex(model2d);
-println([(k,Sigma[k]) for k=1:length(Sigma)])
+for k=1:length(Sigma) println(k,Sigma[k]) end
 
-Plasm.view(Plasm.numbering(.1)((V,[[[k] for k=1:size(V,2)], EV])))
+Plasm.view(Plasm.numbering(.15)((V,[[[k] for k=1:size(V,2)], EV])))
+
 
 
 

@@ -144,7 +144,7 @@ Plasm.view( Plasm.numbering(.3)((V,[VV,EW])) )
 """
 function biconnectedComponent(model)
     W,EV = model
-    V = range(1, size(W,2))
+    V = collect(1:size(W,2))
     count = 0
     stack,out = [],[]
     visited = [false for v in V]
@@ -159,7 +159,8 @@ function biconnectedComponent(model)
         end
     end
     out = [component for component in out if length(component) >= 1]
-    EVs = [[map(sort∘collect,edges) for edges in cat(comp) if length(edges)>1] for comp in out]
+    EVs = [[map(sort∘collect,edges) for edges in cat(comp) if length(edges)>1] 
+    		for comp in out]
     EVs = cat(filter(x->!isempty(x), EVs))
     return W, EVs
 end
