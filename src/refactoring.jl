@@ -185,7 +185,7 @@ data3d5 = Lar.Struct([ Lar.t(4,0,0), Lar.s(0.4,0.4,0.4), mysphere ])
 model3d = input_collection([ data3d1, data3d2, data3d3, data3d4, data3d5 ])
 V,FV,EV = model3d
 VV = [[k] for k in 1:size(V,2)];
-Plasm.view( Plasm.numbering(.6)((V,[VV, EV])) )
+Plasm.view( Plasm.numbering(1)((V,[VV, EV])) )
 ```
 
 Note that `V,FV,EV` is not a cellular complex, since 1-cells and
@@ -220,7 +220,7 @@ Boolean ops on such complexes equates the total sum of such numbers.
 ```julia
 model = model2d
 Sigma =  spaceindex(model2d);
-typeof(Sigma) = Array{Array{Int,1},1}
+Sigma
 ```
 
 # Example 3D
@@ -228,7 +228,7 @@ typeof(Sigma) = Array{Array{Int,1},1}
 ```julia
 model = model3d
 Sigma =  spaceindex(model3d);
-typeof(Sigma) = Array{Array{Int,1},1}
+Sigma
 ```
 """
 function spaceindex(model::Lar.LAR)::Array{Array{Int,1},1}
@@ -252,24 +252,21 @@ function spaceindex(model::Lar.LAR)::Array{Array{Int,1},1}
 		return boxdict
 	end
 	
-	function boxcovering(cellnum, boxdict, tree)
+	function boxcovering(bboxes, index, tree)
 		@show tree;
-		covers = [[] for k=1:cellnum]	
-		for (i,key) in enumerate(keys(boxdict))
-			@show key
-			#thekey = key + [-0.01,0] + [0,+0.01]
-			iterator = IntervalTrees.intersect(tree, tuple(key...))
+		covers = [[] for k=1:length(bboxes)]	
+		for (i,bbox) in enumerate(bboxes)
+			extent = bboxes[i][index,:]
+			iterator = IntervalTrees.intersect(tree, tuple(extent...))
 			for x in iterator
-				@show "$(x.first), $(x.last), $(x.value)"
-				append!(covers[i],x.value[1])
+				append!(covers[i],x.value)
 			end
 		end	
 		return covers
 	end
 
 	V,CV = model[1:2]
-	dim = size(V,1); cellnum = length(CV)
-	@assert length(model) == dim  #n. chains == dim space
+	dim = size(V,1)
 	
 	cellpoints = [ V[:,CV[k]]::Lar.Points for k=1:length(CV) ]
 	bboxes = [hcat(bbox(cell)...) for cell in cellpoints]
@@ -284,8 +281,8 @@ function spaceindex(model::Lar.LAR)::Array{Array{Int,1},1}
 	for (key,boxset) in yboxdict
 		ys[tuple(key...)] = boxset
 	end
-	xcovers = boxcovering(cellnum, xboxdict, xs)
-	ycovers = boxcovering(cellnum, yboxdict, ys)
+	xcovers = boxcovering(bboxes, 1, xs)
+	ycovers = boxcovering(bboxes, 2, ys)
 	covers = [intersect(pair...) for pair in zip(xcovers,ycovers)]
 	
 	if dim == 3 
@@ -294,7 +291,7 @@ function spaceindex(model::Lar.LAR)::Array{Array{Int,1},1}
 		for (key,boxset) in zboxdict
 			zs[tuple(key...)] = boxset
 		end
-		zcovers = boxcovering(cellnum, zboxdict, zs)
+		zcovers = boxcovering(bboxes, 3, ys)
 		covers = [intersect(pair...) for pair in zip(zcovers,covers)]
 	end
 

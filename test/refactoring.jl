@@ -10,16 +10,16 @@ Lar = LinearAlgebraicRepresentation
 classify = Lar.pointInPolygonClassification(V,EV)
 queryPoint = [0.5,0.5]
 
-   @testset "crossingTest Tests" begin
+	@testset "crossingTest Tests" begin
 		@test Lar.crossingTest(0, 0, 0., 0)::Number == 0.5
 		@test Lar.crossingTest(0, 0, 0.5, 0)::Number == 1.0
 		@test Lar.crossingTest(0, 0, 0.5, 0)::Number == 1.0
 		@test Lar.crossingTest(1, 0, 0.5, 0) == 1.0
 		@test Lar.crossingTest(1, 1, 0.5, 0) == 1.0
 		@test Lar.crossingTest(1, 1, 0.5, 1) == 0
-   end
-   
-   @testset "setTile Tests" begin
+	end
+	
+	@testset "setTile Tests" begin
 		x,y = 0.5,0.75
 		xmin,xmax,ymin,ymax = x,x,y,y
 		box = [ymax,ymin,xmax,xmin]
@@ -33,16 +33,16 @@ queryPoint = [0.5,0.5]
 		@test tilecode([.5,-.5])==2
 		@test tilecode([-.5,-.5])==10
 		@test tilecode([.5,.95])==1
-   end
-   
-   @testset "pointInPolygonClassification Tests" begin
+	end
+	
+	@testset "pointInPolygonClassification Tests" begin
 		@test Lar.pointInPolygonClassification(V,EV) isa Function
 		@test pnt = [0.5,0.5] isa Array{Float64,1}
 		@test classify(queryPoint)=="p_out"
 		@test classify([0.5,0.75])=="p_in"
 		@test classify([1.5,0.75])=="p_out"
 		@test typeof(classify(queryPoint))==String
-   end
+	end
 end
 
 
@@ -66,17 +66,17 @@ end
 		4,7,11,12],[5,6,10,13,14],[5,6,7,9,11,13,14,15],[6,7,8,10,12,14,15,
 		16],[7,8,11,15,16],[9,10,14],[9,10,11,13,15],[10,11,12,14,16],[11,12,15]]
 	end
-   
-   @testset "DFV_visit Tests" begin
-      @test 
-   end
-   
-   @testset "outputComp Tests" begin
-      @test Lar.outputComp isa Function
-      @test 
-   end
-   
-   @testset "biconnectedComponent Tests" begin
+	
+	@testset "DFV_visit Tests" begin
+		@test 
+	end
+	
+	@testset "outputComp Tests" begin
+		@test Lar.outputComp isa Function
+		@test 
+	end
+	
+	@testset "biconnectedComponent Tests" begin
 		(V, EV) = ([0.0 0.97721 0.97721 0.724048 0.724048 0.258225 0.258225 0.660757 0.660757 0.0; 1.0 1.0 0.0 0.0 0.934178 0.934178 0.346836 0.346836 0.0 0.0], Array{Int64,1}[[1, 2], [2, 3], [3, 4], [4, 5], [5, 6], [6, 7], [7, 8], [8, 9], [9, 10], [10, 1]])
 		V,EVs = Lar.biconnectedComponent((V,EV))
 		@test sort(map(sort,EVs[1]))==sort(map(sort,EV))
@@ -89,37 +89,63 @@ end
 
 
 @testset "Refactoring pipeline 1" begin
-   
-   @testset "bbbbbbb Tests" begin
-      @test 
-   end
+	
+	@testset "bbox Tests" begin
+		V,(VV,EV,FV,CV) = Lar.cuboidGrid([3,3,3],true)
+		W,_ = Lar.apply(Lar.r(1,1,pi/6),(V,[VV,EV,FV,CV]))
+		
+		function test_bboxes(bboxes)
+			a = BitArray{1}()
+			push!(a, true,true)
+			for h=1:length(bboxes)
+				a = (bboxes[h][:,1] .< bboxes[h][:,2]) .& a
+			end
+			return a == [true, true]
+		end
+			
+		@test begin
+			cellpoints = [ W[:,EV[k]]::Lar.Points for k=1:length(EV) ]
+			bboxes = [hcat(bbox(cell)...) for cell in cellpoints]
+			test_bboxes(bboxes)
+		end
+		@test begin
+			cellpoints = [ W[:,FV[k]]::Lar.Points for k=1:length(FV) ]
+			bboxes = [hcat(bbox(cell)...) for cell in cellpoints]
+			test_bboxes(bboxes)
+		end
+		@test begin
+			cellpoints = [ W[:,CV[k]]::Lar.Points for k=1:length(CV) ]
+			bboxes = [hcat(bbox(cell)...) for cell in cellpoints]
+			test_bboxes(bboxes)
+		end
+	end
 
-   @testset "bbbbbbb Tests" begin
-      @test 
-   end
-   
-   @testset "bbbbbbb Tests" begin
-      @test 
-   end
-   
-   @testset "bbbbbbb Tests" begin
-      @test 
-   end
+	@testset "bbbbbbb Tests" begin
+		@test 
+	end
+	
+	@testset "bbbbbbb Tests" begin
+		@test 
+	end
+	
+	@testset "bbbbbbb Tests" begin
+		@test 
+	end
 end
 
 
 @testset "Refactoring pipeline 2" begin
 
-   @testset "bbbbbbb Tests" begin
-      @test 
-   end
-   
-   @testset "bbbbbbb Tests" begin
-      @test 
-   end
-   
-   @testset "bbbbbbb Tests" begin
-      @test 
-   end
+	@testset "bbbbbbb Tests" begin
+		@test 
+	end
+	
+	@testset "bbbbbbb Tests" begin
+		@test 
+	end
+	
+	@testset "bbbbbbb Tests" begin
+		@test 
+	end
 end
 
