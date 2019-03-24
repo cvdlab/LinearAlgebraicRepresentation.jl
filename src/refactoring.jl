@@ -207,8 +207,6 @@ end
 	function coordintervals(coord,bboxes)
 		boxdict = OrderedDict{Array{Float64,1},Array{Int64,1}}()
 		for (h,box) in enumerate(bboxes)
-		@show (h,box)
-		@show coord
 			key = box[coord,:]
 			if haskey(boxdict,key) == false
 				boxdict[key] = [h]
