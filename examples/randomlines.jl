@@ -18,6 +18,10 @@ end
 
 Sigma = Lar.spaceindex((V,EV))
 
+for k=1:length(Sigma)
+	@show k," ",sort(Sigma[k])
+end
+
 Plasm.view(V,EV)
 
 

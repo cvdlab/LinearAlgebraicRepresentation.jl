@@ -291,7 +291,10 @@ function spaceindex(model::Lar.LAR)::Array{Array{Int,1},1}
 		zcovers = Lar.boxcovering(bboxes, 3, ys)
 		covers = [intersect(pair...) for pair in zip(zcovers,covers)]
 	end
-
+	# remove each cell from its cover
+	for k=1:length(covers)
+		covers[k] = setdiff(covers[k],[k])
+	end
 	return covers
 end
 	
