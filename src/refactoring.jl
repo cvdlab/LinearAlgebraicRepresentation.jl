@@ -207,6 +207,8 @@ end
 	function coordintervals(coord,bboxes)
 		boxdict = OrderedDict{Array{Float64,1},Array{Int64,1}}()
 		for (h,box) in enumerate(bboxes)
+		@show (h,box)
+		@show coord
 			key = box[coord,:]
 			if haskey(boxdict,key) == false
 				boxdict[key] = [h]
@@ -266,9 +268,9 @@ function spaceindex(model::Lar.LAR)::Array{Array{Int,1},1}
 	dim = size(V,1)
 	
 	cellpoints = [ V[:,CV[k]]::Lar.Points for k=1:length(CV) ]
-	bboxes = [hcat(Lar.bbox(cell)...) for cell in cellpoints]
-	xboxdict = coordinateintervals(1,bboxes)
-	yboxdict = coordinateintervals(2,bboxes)
+	bboxes = [hcat(Lar.boundingbox(cell)...) for cell in cellpoints]
+	xboxdict = Lar.coordintervals(1,bboxes)
+	yboxdict = Lar.coordintervals(2,bboxes)
 	# xs,ys are IntervalTree type
 	xs = IntervalTrees.IntervalMap{Float64, Array}()
 	for (key,boxset) in xboxdict
@@ -278,17 +280,17 @@ function spaceindex(model::Lar.LAR)::Array{Array{Int,1},1}
 	for (key,boxset) in yboxdict
 		ys[tuple(key...)] = boxset
 	end
-	xcovers = boxcovering(bboxes, 1, xs)
-	ycovers = boxcovering(bboxes, 2, ys)
+	xcovers = Lar.boxcovering(bboxes, 1, xs)
+	ycovers = Lar.boxcovering(bboxes, 2, ys)
 	covers = [intersect(pair...) for pair in zip(xcovers,ycovers)]
 	
 	if dim == 3 
-		zboxdict = coordintervals(3,bboxes)
+		zboxdict = Lar.coordintervals(3,bboxes)
 		zs = IntervalTrees.IntervalMap{Float64, Array}()
 		for (key,boxset) in zboxdict
 			zs[tuple(key...)] = boxset
 		end
-		zcovers = boxcovering(bboxes, 3, ys)
+		zcovers = Lar.boxcovering(bboxes, 3, ys)
 		covers = [intersect(pair...) for pair in zip(zcovers,covers)]
 	end
 
