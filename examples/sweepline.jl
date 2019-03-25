@@ -84,15 +84,15 @@ function cuboids(n,scale=1.; grid=[1,1])
 	assembly = []
 	for k=1:n
 		corner = rand(Float64, 2)
-		dims = rand(Float64, 2)
+		sizes = rand(Float64, 2)
 		if grid==[1,1]
-			V,(_,EV,_) = Lar.cuboid(corner,true,corner+dims)
+			V,(_,EV,_) = Lar.cuboid(corner,true,corner+sizes)
 		else
 			V,(_,EV,_) = Lar.cuboidGrid(grid, true)
-			g = Lar.Struct([ Lar.t(corner...), Lar.s(dims...), (V,EV) ])
+			g = Lar.Struct([ Lar.t(corner...), Lar.s(sizes...), (V,EV) ])
 			V,EV = Lar.struct2lar(g)
 		end
-		center = (corner + corner+dims)/2
+		center = (corner + corner+sizes)/2
 		angle = rand(Float64)*2*pi
 		obj = Lar.Struct([ Lar.t(center...), Lar.r(angle), 
 				Lar.s(scale,scale), Lar.t(-center...), (V,EV) ])

@@ -21,10 +21,11 @@ V = Plasm.normalize(V)
 model = (V,EV)
 Sigma = Lar.spaceindex(model)
 
-
 #Plasm.view(V,EV)
 model = V,EV
 W,EW = Lar.fragmentlines(model)
+
+
 Plasm.viewexploded(W,EW)(1.2,1.2,1.2)
 
 

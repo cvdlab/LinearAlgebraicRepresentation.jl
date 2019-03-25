@@ -318,7 +318,26 @@ end
 """
 	intersection(line1,line2)
 
+Intersect two line segments in 2D, by computing the two line parameters of the intersection point.
 
+The line segments intersect if both return parameters `α,β` are contained in the interval `[0,1]`.
+
+# Example
+
+```
+julia> line1 = [[0.,0], [1,2]]
+2-element Array{Array{Float64,1},1}:
+ [0.0, 0.0]
+ [1.0, 2.0]
+
+julia> line2 = [[2.,0], [0,3]]
+2-element Array{Array{Float64,1},1}:
+ [2.0, 0.0]
+ [0.0, 3.0]
+
+julia> Lar.intersection(line1,line2)
+(0.8571428571428571, 0.5714285714285714)
+```
 """
 function intersection(line1,line2)
 	x1,y1,x2,y2 = vcat(line1...)
@@ -327,22 +346,17 @@ function intersection(line1,line2)
 	# intersect lines e1,e2
 	# http://www.cs.swan.ac.uk/~cssimon/line_intersection.html
 	det = (x4-x3)*(y1-y2)-(x1-x2)*(y4-y3)
-	α,β = 99,99
 	if det != 0.0
 		a = 1/det
 		b = [y1-y2 x2-x1; y3-y4 x4-x3]  # x1-x2 => x2-x1 bug in the source link !!
 		c = [x1-x3; y1-y3]
 		(β,α) = a * b * c
 	else
-		if (y1==y2) == (y3==y4) # segments collinear
-			α = -x1/(x2-x1)
-			β = -x3/(x4-x3)
-		elseif (x1==x2) == (x3==x4)
-			α = -y1/(y2-y1)
-			β = -y3/(y4-y3)
+		if (y1==y2) == (y3==y4) || (x1==x2) == (x3==x4) # segments collinear
+			 return nothing
 		else
 			 # segments parallel: no intersection
-			 (β,α) = 999
+			 return nothing
 		end
 	end
 	return α,β
@@ -371,7 +385,7 @@ julia> Sigma = Lar.spaceindex((V,EV))
  [1, 3, 5]   
  [4, 1, 3, 2]
 
-julia> linefragments(V,EV,Sigma)
+julia> Lar.linefragments(V,EV,Sigma)
 5-element Array{Any,1}:
  [0.0, 1.0]     
  [0.0, 0.5, 1.0]

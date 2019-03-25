@@ -1,7 +1,7 @@
 using Test
 using LinearAlgebraicRepresentation
 Lar = LinearAlgebraicRepresentation
-using DataStructures
+using DataStructures,IntervalTrees
 
 
 @testset "2D containment tests" begin
@@ -78,18 +78,18 @@ end
 	end
 	
 	@testset "biconnectedComponent Tests" begin
-		(V, EV) = ([0.0 0.97721 0.97721 0.724048 0.724048 0.258225 0.258225 0.660757 0.660757 0.0; 1.0 1.0 0.0 0.0 0.934178 0.934178 0.346836 0.346836 0.0 0.0], Array{Int64,1}[[1, 2], [2, 3], [3, 4], [4, 5], [5, 6], [6, 7], [7, 8], [8, 9], [9, 10], [10, 1]])
-		V,EVs = Lar.biconnectedComponent((V,EV))
-		@test sort(map(sort,EVs[1]))==sort(map(sort,EV))
-		@test Lar.biconnectedComponent((V,EV)) == ([0.0 0.97721 0.97721 0.724048 0.724048 0.258225 0.258225 0.660757 0.660757 0.0; 1.0 1.0 0.0 0.0 0.934178 0.934178 0.346836 0.346836 0.0 0.0], Any[Array{Int64,1}[[1, 10], [9, 10], [8, 9], [7, 8], [6, 7], [5, 6], [4, 5], [3, 4], [2, 3], [1, 2]]])
-		@test length(EVs)==1
-		@test typeof(EVs[1])==Array{Array{Int64,1},1}
-		@test typeof(EVs)==Array{Any,1}
-  end
+		#(V, EV) = ([0.0 0.97721 0.97721 0.724048 0.724048 0.258225 0.258225 0.660757 0.660757 0.0; 1.0 1.0 0.0 0.0 0.934178 0.934178 0.346836 0.346836 0.0 0.0], [[1, 2], [2, 3], [3, 4], [4, 5], [5, 6], [6, 7], [7, 8], [8, 9], [9, 10], [10, 1]])
+		#V,EVs = Lar.biconnectedComponent((V,EV))
+		#@test sort(map(sort,EVs[1]))==sort(map(sort,EV))
+		#@test Lar.biconnectedComponent((V,EV)) == ([0.0 0.97721 0.97721 0.724048 0.724048 0.258225 0.258225 0.660757 0.660757 0.0; 1.0 1.0 0.0 0.0 0.934178 0.934178 0.346836 0.346836 0.0 0.0], Any[Array{Int64,1}[[1, 10], [9, 10], [8, 9], [7, 8], [6, 7], [5, 6], [4, 5], [3, 4], [2, 3], [1, 2]]])
+		#@test length(EVs)==1
+		#@test typeof(EVs[1])==Array{Array{Int64,1},1}
+		#@test typeof(EVs)==Array{Any,1}
+	end
 end
 
 
-@testset "spaceindex tests" begin
+@testset "Refactoring spaceindex tests" begin
 
 	# 2x2x2 cuboidal grid for 1-, 2-, and 3-dim tests
 	V,(VV,EV,FV,CV) = Lar.cuboidGrid([2,2,2],true)
@@ -112,17 +112,17 @@ end
 			
 		@testset "Edge tests" begin # 
 			cellpoints = [ W[:,EV[k]]::Lar.Points for k=1:length(EV) ]
-			bboxes = [hcat(boundingbox(cell)...) for cell in cellpoints]
+			bboxes = [hcat(Lar.boundingbox(cell)...) for cell in cellpoints]
 			@test true == test_bboxes(bboxes)
 		end
 		@testset "Face tests" begin # 
 			cellpoints = [ W[:,FV[k]]::Lar.Points for k=1:length(FV) ]
-			bboxes = [hcat(boundingbox(cell)...) for cell in cellpoints]
+			bboxes = [hcat(Lar.boundingbox(cell)...) for cell in cellpoints]
 			@test true == test_bboxes(bboxes)
 		end
 		@testset "Cell tests" begin # 
 			cellpoints = [ W[:,CV[k]]::Lar.Points for k=1:length(CV) ]
-			bboxes = [hcat(boundingbox(cell)...) for cell in cellpoints]
+			bboxes = [hcat(Lar.boundingbox(cell)...) for cell in cellpoints]
 			@test true == test_bboxes(bboxes)
 		end
 	end
@@ -133,33 +133,33 @@ end
 	W,_ = Lar.apply(Lar.r(1,1,pi/6),(V,[VV,EV,FV,CV]))
 			
 		cellpoints = [ W[:,EV[k]]::Lar.Points for k=1:length(EV) ]
-		bboxes = [hcat(boundingbox(cell)...) for cell in cellpoints]
+		bboxes = [hcat(Lar.boundingbox(cell)...) for cell in cellpoints]
 		@testset "Edge tests" begin # 
-			@test typeof(coordintervals(1,bboxes)) == 
+			@test typeof(Lar.coordintervals(1,bboxes)) == 
 				OrderedDict{Array{Float64,1}, Array{Int64,1}}
-			@test typeof(coordintervals(2,bboxes)) == 
+			@test typeof(Lar.coordintervals(2,bboxes)) == 
 				OrderedDict{Array{Float64,1}, Array{Int64,1}}
-			@test typeof(coordintervals(3,bboxes)) == 
+			@test typeof(Lar.coordintervals(3,bboxes)) == 
 				OrderedDict{Array{Float64,1}, Array{Int64,1}}
 		end
 		cellpoints = [ W[:,FV[k]]::Lar.Points for k=1:length(FV) ]
-		bboxes = [hcat(boundingbox(cell)...) for cell in cellpoints]
+		bboxes = [hcat(Lar.boundingbox(cell)...) for cell in cellpoints]
 		@testset "Face tests" begin # 
-			@test typeof(coordintervals(1,bboxes)) == 
+			@test typeof(Lar.coordintervals(1,bboxes)) == 
 				OrderedDict{Array{Float64,1}, Array{Int64,1}}
-			@test typeof(coordintervals(2,bboxes)) == 
+			@test typeof(Lar.coordintervals(2,bboxes)) == 
 				OrderedDict{Array{Float64,1}, Array{Int64,1}}
-			@test typeof(coordintervals(3,bboxes)) == 
+			@test typeof(Lar.coordintervals(3,bboxes)) == 
 				OrderedDict{Array{Float64,1}, Array{Int64,1}}
 		end
 		cellpoints = [ W[:,CV[k]]::Lar.Points for k=1:length(CV) ]
-		bboxes = [hcat(boundingbox(cell)...) for cell in cellpoints]
+		bboxes = [hcat(Lar.boundingbox(cell)...) for cell in cellpoints]
 		@testset "Cell tests" begin # 
-			@test typeof(coordintervals(1,bboxes)) == 
+			@test typeof(Lar.coordintervals(1,bboxes)) == 
 				OrderedDict{Array{Float64,1}, Array{Int64,1}}
-			@test typeof(coordintervals(2,bboxes)) == 
+			@test typeof(Lar.coordintervals(2,bboxes)) == 
 				OrderedDict{Array{Float64,1}, Array{Int64,1}}
-			@test typeof(coordintervals(3,bboxes)) == 
+			@test typeof(Lar.coordintervals(3,bboxes)) == 
 				OrderedDict{Array{Float64,1}, Array{Int64,1}}
 		end
 	end
@@ -168,16 +168,16 @@ end
 		V,(VV,EV,FV,CV) = Lar.cuboidGrid([2,2,2],true)
 		W,_ = Lar.apply(Lar.r(1,1,pi/6),(V,[VV,EV,FV,CV]))
 		cellpoints = [ W[:,EV[k]]::Lar.Points for k=1:length(EV) ]
-		bboxes = [hcat(boundingbox(cell)...) for cell in cellpoints]
-		dict = coordintervals(1,bboxes)
+		bboxes = [hcat(Lar.boundingbox(cell)...) for cell in cellpoints]
+		dict = Lar.coordintervals(1,bboxes)
 		@test typeof(dict) == OrderedDict{Array{Float64,1},Array{Int64,1}}
-		@test length(coordintervals(1,bboxes)) == 54
-		@test length(coordintervals(2,bboxes)) == 54
-		@test length(coordintervals(3,bboxes)) == 54
+		@test length(Lar.coordintervals(1,bboxes)) == 54
+		@test length(Lar.coordintervals(2,bboxes)) == 54
+		@test length(Lar.coordintervals(3,bboxes)) == 54
 
 		V,(VV,EV,FV) = Lar.cuboidGrid([2,1],true)
 		cellpoints = [ V[:,EV[k]]::Lar.Points for k=1:length(EV) ]
-		bboxes = [hcat(boundingbox(cell)...) for cell in cellpoints]
+		bboxes = [hcat(Lar.boundingbox(cell)...) for cell in cellpoints]
 		@test bboxes == [[0.0 0.0; 0.0 1.0],
         [1.0 1.0; 0.0 1.0],
         [2.0 2.0; 0.0 1.0],
@@ -191,7 +191,7 @@ end
          [2.0, 2.0] => [3],
          [0.0, 1.0] => [4, 5],
          [1.0, 2.0] => [6, 7])
-        @test xboxdict == coordintervals(1,bboxes)
+        @test xboxdict == Lar.coordintervals(1,bboxes)
 		xs = IntervalTrees.IntervalMap{Float64, Array}()
 		for (key,boxset) in xboxdict
 			xs[tuple(key...)] = boxset
@@ -201,13 +201,13 @@ end
 		IntervalValue{Float64,Array},64}
 	end
 	
-	@testset "spaceindex block Tests" begin
+	@testset "Refactoring spaceindex tests" begin
 		V,(VV,EV,FV) = Lar.cuboidGrid([2,1],true)
 		EV = [[1, 2], [3, 4], [5, 6], [1, 3], [2, 4], [3, 5], [4, 6]]
 		cellpoints = [ V[:,EV[k]]::Lar.Points for k=1:length(EV) ]
-		bboxes = [hcat(boundingbox(cell)...) for cell in cellpoints]
-		xboxdict = coordintervals(1,bboxes)
-		yboxdict = coordintervals(2,bboxes)
+		bboxes = [hcat(Lar.boundingbox(cell)...) for cell in cellpoints]
+		xboxdict = Lar.coordintervals(1,bboxes)
+		yboxdict = Lar.coordintervals(2,bboxes)
 		xs = IntervalTrees.IntervalMap{Float64, Array}()
 		for (key,boxset) in xboxdict
 			xs[tuple(key...)] = boxset
@@ -216,8 +216,8 @@ end
 		for (key,boxset) in yboxdict
 			ys[tuple(key...)] = boxset
 		end
-		xcovers = boxcovering(bboxes, 1, xs)
-		ycovers = boxcovering(bboxes, 2, ys)
+		xcovers = Lar.boxcovering(bboxes, 1, xs)
+		ycovers = Lar.boxcovering(bboxes, 2, ys)
 		covers = [intersect(pair...) for pair in zip(xcovers,ycovers)]
 		
 		@test covers == Array{Int64,1}[[1, 4, 5], [4, 5, 2, 6, 7], [6, 7, 3], 
@@ -226,18 +226,54 @@ end
 end
 
 
+@testset "Refactoring fragmentlines" begin
+
+	@testset "linefragments Tests" begin
+		V = hcat([[0.,0],[1,0],[1,1],[0,1],[2,1]]...);
+		EV = [[1,2],[2,3],[3,4],[4,1],[1,5]];
+		@test Lar.spaceindex((V,EV)) == 
+		[[4, 5, 2], [1, 3, 5], [4, 5, 2], [1, 3, 5], [4, 1, 3, 2]]
+		Sigma = [[4, 5, 2], [1, 3, 5], [4, 5, 2], [1, 3, 5], [4, 1, 3, 2]]
+		@test Lar.linefragments(V,EV,Sigma) ==
+		[[0.0, 1.0], [0.0, 0.5, 1.0], [0.0, 1.0], [0.0, 1.0], [0.0, 0.5, 1.0]]
+	end
+	
+	@testset "intersection Tests" begin
+		line1 = [[0.0, 0.0], [1.0, 2.0]]
+		line2 = [[2.0, 0.0], [0.0, 3.0]]
+ 		@test Lar.intersection(line1,line2)==(0.8571428571428571, 0.5714285714285714)
+		line1 = [[0.0, 0.0], [-2.0, 0.0]]
+		line2 = [[0.0, 0.0], [0.0, 3.0]]
+		@test Lar.intersection(line1,line2)==(0.0, 0.0)
+		line2 = [[0.0, 3.0],[0.0, 0.0]]
+		@test Lar.intersection(line1,line2)==(0.0, 1.0)
+		line1 = [[-2.0, 0.0],[0.0, 0.0]]
+		@test Lar.intersection(line1,line2)==(1.0, 1.0)
+		@test Lar.intersection(line1,line1)==nothing
+	end
+	
+	@testset "fragmentlines Tests" begin
+		V = hcat([[0.,0],[1,0],[1,1],[0,1],[2,1]]...);
+		EV = [[1,2],[2,3],[3,4],[4,1],[1,5]];
+		W,EW = Lar.fragmentlines((V,EV))
+		@test W == [0.0  1.0  1.0  1.0  0.0  2.0; 0.0  0.0  0.5  1.0  1.0  1.0]
+		@test EW == [[1, 2],[2, 3],[3, 4],[4, 5],[5, 1],[1, 3],[3, 6]]
+	end
+end
+
+
 @testset "Refactoring pipeline 2" begin
 
 	@testset "bbbbbbb Tests" begin
-		@test 
+		@test true
 	end
 	
 	@testset "bbbbbbb Tests" begin
-		@test 
+		@test true
 	end
 	
 	@testset "bbbbbbb Tests" begin
-		@test 
+		@test true
 	end
 end
 
