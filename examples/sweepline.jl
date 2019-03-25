@@ -116,10 +116,10 @@ end
 
 
 """
-	intersection(V::Lar.Points, EV::Lar.Cells)
+	theintersection(V::Lar.Points, EV::Lar.Cells)
 		(e1::Int, e2::Int)::Union{Nothing, Array}
 		
-Compute the intersection point of two line segments `line1` and `line2`,
+Compute the theintersection point of two line segments `line1` and `line2`,
 of extreme point indices `EV[e1]` and `EV[e2]`, with given coordinates 
 in `V` array.
 
@@ -136,22 +136,22 @@ julia> line2 = V[:,EV[23]]
  0.0307485  0.312532
  0.93606    0.957881
 
-julia> intersection(line1,line2)
+julia> theintersection(line1,line2)
 2-element Array{Float64,1}:
  0.08846469268137241
  0.9405292234774614 
 
-julia> intersection(line1,line2)
+julia> theintersection(line1,line2)
 2-element Array{Float64,1}:
  0.08846469268137241
  0.9405292234774614 
 
-julia> intersection(line1,-1*line2) # returns a `Nothing` value
+julia> theintersection(line1,-1*line2) # returns a `Nothing` value
 
 julia> 
 ```
 """
-function intersection(line1,line2)::Union{Nothing, Array}
+function theintersection(line1,line2)::Union{Nothing, Array}
 @show line1,line2
 	x1,y1,x2,y2 = vcat(line1...)
 	x3,y3,x4,y4 = vcat(line2...)
@@ -173,7 +173,7 @@ function intersection(line1,line2)::Union{Nothing, Array}
 			α = -y1/(y2-y1)
 			β = -y3/(y4-y3)
 		else
-			 # segments parallel: no intersection
+			 # segments parallel: no theintersection
 			 (β,α) = 999
 		end
 	end
@@ -188,7 +188,7 @@ end
 """
 	swapsegments(SL,segA,segB)
 
-Swap two segments at their intersection event, by exchanging the
+Swap two segments at their theintersection event, by exchanging the
 values of pairs (kay, value).
 """
 function swapsegments(SL,segA,segB)
@@ -251,7 +251,7 @@ function sweepline(V,EV)
 	ξ = PriorityQueue(zip(pqkeys,pqvalues))
 	# Initialize sweep line SL to be empty
 	SL = SortedMultiDict{Any,Any}()
-	# Initialized output intersection list Λ to be empty
+	# Initialized output theintersection list Λ to be empty
 	Λ = Array{Float64,1}[]
 
 	while length(ξ) ≠ 0 # (ξ is nonempty)
@@ -273,7 +273,7 @@ vals = [v for v in values(SL)]; for v in reverse(vals)	println(v) end
 				if segA ≠ [] 
 				# segA = the segment above segE in SL 
 					a = segA[4]
-					I = intersection(segE,segA)
+					I = theintersection(segE,segA)
 					# (if Intersect( segE with segA) exists)
 					if typeof(I) ≠ Nothing
 #						Insert I into ξ
@@ -295,7 +295,7 @@ vals = [v for v in values(SL)]; for v in reverse(vals)	println(v) end
 				if segB ≠ [] 
 				# segB = the segment below segE in SL 
 					b = segB[4]
-					I = intersection(segE,segB)
+					I = theintersection(segE,segB)
 					# (if Intersect( segE with segB) exists)
 					if typeof(I) ≠ Nothing
 #						Insert I into ξ
@@ -337,7 +337,7 @@ vals = [v for v in values(SL)]; for v in reverse(vals)	println(v) end
 				delete!((SL,E_st))
 				# (I = Intersect( segA with segB) exists)
 				if segA ≠ [] && segB ≠ []
-					I = intersection(segA, segB)
+					I = theintersection(segA, segB)
 					if typeof(I) ≠ Nothing
 						# (I is not in ξ already) 
 						# no problem in case I is overwritten
@@ -351,7 +351,7 @@ vals = [v for v in values(SL)]; for v in reverse(vals)	println(v) end
 					end
 				end
 			end
-		else # E is an intersection event
+		else # E is an theintersection event
 for (k,v) in SL @show (k,v) end
 			# Add E to the output list Λ
 			push!(Λ, E[1])
@@ -371,7 +371,7 @@ for (k,v) in SL @show (k,v) end
 			# segB = the segment below segE1 in SL
 			segE1, segB = selectsegmentneighbor(SL,stE1)					
 			if segE1 ≠ [] && segB ≠ []
-				I = intersection(segE1,segB)
+				I = theintersection(segE1,segB)
 				# (I = Intersect(segE1 with segB) exists)
 				if typeof(I) ≠ Nothing
 					segA = segE1
@@ -388,7 +388,7 @@ for (k,v) in SL @show (k,v) end
 				end
 			end
 			if segA ≠ [] && segE2 ≠ []
-				I = intersection(segA, segE2)
+				I = theintersection(segA, segE2)
 				# (I = Intersect(segE2 with segA) exists)
 				if typeof(I) ≠ Nothing
 					segB = segE2

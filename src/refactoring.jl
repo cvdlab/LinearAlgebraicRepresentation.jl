@@ -245,12 +245,26 @@ containment boxes are intersecting the containment box of the first cell.
 According to Hoffmann, Hopcroft, and Karasick (1989) the worst-case complexity of
 Boolean ops on such complexes equates the total sum of such numbers. 
 
-# Example 2D
+# Examples 2D
+
+```
+julia> V = hcat([[0.,0],[1,0],[1,1],[0,1],[2,1]]...);
+
+julia> EV = [[1,2],[2,3],[3,4],[4,1],[1,5]];
+
+julia> Sigma = Lar.spaceindex((V,EV))
+5-element Array{Array{Int64,1},1}:
+ [4, 5, 2]   
+ [1, 3, 5]   
+ [4, 5, 2]   
+ [1, 3, 5]   
+ [4, 1, 3, 2]
+```
+
+From `model2d` value, available in `?input_collection` docstring:
 
 ```julia
-model = model2d
-Sigma =  spaceindex(model2d);
-Sigma
+julia> Sigma =  spaceindex(model2d);
 ```
 
 # Example 3D
@@ -300,33 +314,152 @@ end
 	
 
 
+
 """
-	decomposition2d(model::Lar.LAR)
+	intersection(line1,line2)
+
+
+"""
+function intersection(line1,line2)
+	x1,y1,x2,y2 = vcat(line1...)
+	x3,y3,x4,y4 = vcat(line2...)
+
+	# intersect lines e1,e2
+	# http://www.cs.swan.ac.uk/~cssimon/line_intersection.html
+	det = (x4-x3)*(y1-y2)-(x1-x2)*(y4-y3)
+	α,β = 99,99
+	if det != 0.0
+		a = 1/det
+		b = [y1-y2 x2-x1; y3-y4 x4-x3]  # x1-x2 => x2-x1 bug in the source link !!
+		c = [x1-x3; y1-y3]
+		(β,α) = a * b * c
+	else
+		if (y1==y2) == (y3==y4) # segments collinear
+			α = -x1/(x2-x1)
+			β = -x3/(x4-x3)
+		elseif (x1==x2) == (x3==x4)
+			α = -y1/(y2-y1)
+			β = -y3/(y4-y3)
+		else
+			 # segments parallel: no intersection
+			 (β,α) = 999
+		end
+	end
+	return α,β
+end
+
+
+
+"""
+	linefragments(V,EV,Sigma)
+
+Compute the sequences of ordered parameters fragmenting each input lines.
+
+Extreme parameter values (`0.0` and `1.0`) are included in each output line.
+`Sigma` is the spatial index providing the subset of lines whose containment boxes intersect the box of each input line (given by `EV`).
+
+```
+julia> V = hcat([[0.,0],[1,0],[1,1],[0,1],[2,1]]...);
+
+julia> EV = [[1,2],[2,3],[3,4],[4,1],[1,5]];
+
+julia> Sigma = Lar.spaceindex((V,EV))
+5-element Array{Array{Int64,1},1}:
+ [4, 5, 2]   
+ [1, 3, 5]   
+ [4, 5, 2]   
+ [1, 3, 5]   
+ [4, 1, 3, 2]
+
+julia> linefragments(V,EV,Sigma)
+5-element Array{Any,1}:
+ [0.0, 1.0]     
+ [0.0, 0.5, 1.0]
+ [0.0, 1.0]     
+ [0.0, 1.0]     
+ [0.0, 0.5, 1.0]
+```
+"""
+function linefragments(V,EV,Sigma)
+	# remove the double intersections by ordering Sigma
+	m = length(Sigma)
+	sigma = map(sort,Sigma) 
+	reducedsigma = sigma ##[filter(x->(x > k), sigma[k]) for k=1:m]
+	# pairwise parametric intersection
+	params = Array{Float64,1}[[] for i=1:m]
+	for h=1:m
+		if sigma[h] ≠ []
+			line1 = V[:,EV[h]]
+			for k in sigma[h]
+				line2 = V[:,EV[k]]
+				α,β = intersection(line1,line2)
+				if 0<=α<=1 && 0<=β<=1
+					push!(params[h], α)
+					push!(params[k], β)
+				end
+			end
+		end
+	end
+	# finalize parameters of fragmented lines 
+	fragparams = []
+	for line in params
+		push!(line, 0.0, 1.0)
+		line = sort(collect(Set(line)))
+		push!(fragparams, line)
+	end	
+	return fragparams
+end
+
+
+
+"""
+	fragmentlines(model::Lar.LAR)::Lar.LAR
 	
-Test function Lar.Arrangement.planar_arrangement.
-Pairwise *intersection* of 2D *line segments* in ``σ ∪ I(σ)``, for each ``σ ∈ Sd−1``.
+Pairwise *intersection* of 2D *line segments*.
 
 # Example 2D
 
 ```julia
 V,EV = model2d
-W, copEW, copFE = Lar.decomposition2d(model2d) # OK
+W, EW = Lar.fragmentlines(model2d) # OK
 using Plasm
-Plasm.viewexploded(W, copEW)(1.2,1.2,1.2)
+Plasm.viewexploded(W,EW)(1.2,1.2,1.2)
 ```
 """
-function decomposition2d(model::Lar.LAR)
+function fragmentlines(model)
 	V,EV = model
-	spatialindex = spaceindex(model)
-	
-#test previous implementation
-#copEV = convert(Lar.ChainOp, Lar.coboundary_0(EV))
-#V = convert(Lar.Points, transpose(V))
-#V, copEV, FE = Lar.Arrangement.planar_arrangement( V::Lar.Points, copEV::Lar.ChainOp )
-#Plasm.view(V, copEV)
-	
-	return V, copEV, FE
+	Sigma = Lar.spaceindex(model)
+	lineparams = linefragments(V,EV,Sigma)
+	vertdict = OrderedDict{Array{Float64,1},Array{Int,1}}()
+	pairs = collect(zip(lineparams, [V[:,e] for e in EV]))
+	vertdict = OrderedDict{Array{Float64,1},Int}()
+	W = Array[]
+	EW = Array[]
+	k = 0
+	for (params,linepoints) in pairs
+		v1 = linepoints[:,1]
+		v2 = linepoints[:,2]
+		points = [v1 + t*(v2 - v1) for t in params]
+		vs = zeros(Int64,1,length(points))
+		for (h,point) in enumerate(points)
+			if haskey(vertdict, point) == false
+				k += 1
+				vertdict[point] = k
+				push!(W, point)
+			end
+			vs[h] = vertdict[point]
+		end
+		[push!(EW, [vs[k], vs[k+1]]) for k=1:length(vs)-1]
+	end
+	return hcat(W...),convert(Array{Array{Int64,1},1},EW)
 end
+
+
+
+
+
+
+
 
 
 """
@@ -343,9 +476,9 @@ model = model3d
 ```
 """
 function decomposition(model::Lar.LAR)
-	V,FV,EV = model
+	V,EV = model
 	dim = size(V,1)
-	spatialindex = spaceindex(model)
+	spatialindex = Lar.spaceindex(model)
 	
 	function submanifoldmap(vs)
 		centroid = [sum(vs[k,:]) for k=1:size(vs,1)]/size(vs,2)
@@ -362,15 +495,15 @@ function decomposition(model::Lar.LAR)
 		return R*T  # roto-translation matrix
 	end
 
-	for Sigma in spatialindex
-		sigma = Sigma[1]
+	for (k,Sigma) in spatialindex
+		sigma = Sigma[k]
 		if dim == 3
 			# transform Sigma s.t. Sigma[1], i.e. sigma, -> z=0
 			vs = V[:, CV[sigma]]
 			Q = submanifoldmap(vs)
 			vq = Q * [vs; ones(1, size(vs,2))]
 			v2d = vq[1:2,:]
-	
+	@show v2d
 		end
 	end
 	
