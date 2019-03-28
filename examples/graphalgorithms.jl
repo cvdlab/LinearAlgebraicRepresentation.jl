@@ -65,3 +65,14 @@ FE = Lar.Arrangement.biconnected_components(copEV) # 2-connected components (H &
 EVs = [[EV[e] for e in F] for F in FE]
 hpcs = [ Plasm.numbering(1.25)((V,[[[k] for k=1:size(V,2)],EVs[i]])) for i=1:length(EVs)]
 Plasm.view([ Plasm.color(colorkey[k])(hpcs[k]) for k=1:length(hpcs) ])
+
+
+# Example 4
+
+V = hcat([[0.,0],[1,0],[1,1],[0,1],[2,1]]...);
+EV = [[1,2],[2,3],[3,4],[4,1],[1,5]];
+model = V,EV
+W,EW = Lar.fragmentlines(model)
+V,EVs = Lar.biconnectedComponent((W,EW::Lar.Cells)) # 2-connected components (H & T)
+Plasm.view(Plasm.numbering()((V,[[[k] for k=1:size(V,2)],EVs[1]])))
+

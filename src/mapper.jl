@@ -11,7 +11,7 @@ Transform the float `value` to get a `PRECISION` number of significant digits.
 """
 function approxVal(PRECISION)
     function approxVal0(value)
-        out = round(value, digits=PRECISION)
+        out = round(value, sigdigits=PRECISION)
         if out == -0.0
             out = 0.0
         end
@@ -42,7 +42,9 @@ function simplifyCells(V,CV)
 	for incell in CV
 		outcell = Int64[]
 		for v in incell 
-			key = map(approxVal(PRECISION), V[:,v])
+		@show v,incell
+			vert = V[:,v]
+			key = map(approxVal(PRECISION), vert)
 			if vertDict[key]==0 
 				index += 1
 				vertDict[key] = index

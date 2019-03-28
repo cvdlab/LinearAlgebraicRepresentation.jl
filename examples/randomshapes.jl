@@ -20,7 +20,7 @@ end
 
 
 
-V,EV = cuboids(20, .35)
+V,EV = cuboids(40, .35)
 V = Plasm.normalize(V,flag=true)
 model2d = V,EV
 
@@ -28,7 +28,12 @@ Sigma =  Lar.spaceindex(model2d);
 for k=1:length(Sigma) println(k,Sigma[k]) end
 
 Plasm.view(Plasm.numbering(.15)((V,[[[k] for k=1:size(V,2)], EV])))
+Plasm.viewexploded(V,EV)(1.2,1.2,1.2) 	# no numerical errors
 
+W,EW = Lar.fragmentlines((V,EV)) # introduced false edges (measure ≈ 0)
+#W,EW = Lar.simplifyCells(W,EW)
+Plasm.viewexploded(W,EW)(1.2,1.2,1.2)	
+Plasm.view(Plasm.numbering(.0035)((W,[[[k] for k=1:size(W,2)], EW])))
 
 
 

@@ -162,6 +162,7 @@ function biconnectedComponent(model)
     EVs = [[map(sort∘collect,edges) for edges in cat(comp) if length(edges)>1] 
     		for comp in out]
     EVs = cat(filter(x->!isempty(x), EVs))
+    EVs = sort(EVs, lt=(x,y)->length(x)>length(y))
     return W, EVs
 end
 

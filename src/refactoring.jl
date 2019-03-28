@@ -2,6 +2,8 @@ using LinearAlgebraicRepresentation
 Lar = LinearAlgebraicRepresentation
 using IntervalTrees
 using SparseArrays
+using NearestNeighbors
+
 
 
 #---------------------------------------------------------------------
@@ -404,12 +406,17 @@ function linefragments(V,EV,Sigma)
 	for h=1:m
 		if sigma[h] ≠ []
 			line1 = V[:,EV[h]]
+			#@show line1
 			for k in sigma[h]
 				line2 = V[:,EV[k]]
-				α,β = intersection(line1,line2)
-				if 0<=α<=1 && 0<=β<=1
-					push!(params[h], α)
-					push!(params[k], β)
+				#@show line1,line2
+				out = intersection(line1,line2) # TODO: w interval arithmetic
+				if out ≠ nothing
+					α,β = out
+					if 0<=α<=1 && 0<=β<=1
+						push!(params[h], α)
+						push!(params[k], β)
+					end
 				end
 			end
 		end
@@ -453,9 +460,11 @@ function fragmentlines(model)
 	for (params,linepoints) in pairs
 		v1 = linepoints[:,1]
 		v2 = linepoints[:,2]
-		points = [v1 + t*(v2 - v1) for t in params]
+		points = [ v1 + t*(v2 - v1) for t in params]   # !!!! loved !!
 		vs = zeros(Int64,1,length(points))
+		PRECISION = 8
 		for (h,point) in enumerate(points)
+			point = map(Lar.approxVal(PRECISION), point)
 			if haskey(vertdict, point) == false
 				k += 1
 				vertdict[point] = k
@@ -465,17 +474,58 @@ function fragmentlines(model)
 		end
 		[push!(EW, [vs[k], vs[k+1]]) for k=1:length(vs)-1]
 	end
-	return hcat(W...),convert(Array{Array{Int64,1},1},EW)
+	W,EW = hcat(W...),convert(Array{Array{Int64,1},1},EW)
+	V,EV = congruence((W,EW))
+	return V,EV
 end
 
 
 
 
+"""
+	congruence(model::Lar.LAR)::Lar.LAR
+Graded bases of equivalence classes Ck (Uk ), with Uk = Xk /Rk for 0 ≤ k ≤ 2.
+
+# Example
+
+```julia
+julia> 
+```
+"""
+function congruence(model)
+	W,EW = model
+	# congruent vertices
+	balltree = NearestNeighbors.BallTree(W)
+	r = 0.0000000001
+	near = Array{Any}(undef, size(W,2))
+	for k=1:size(W,2)
+		near[k] = cat([NearestNeighbors.inrange(balltree, W[:,k], r, true)])
+	end
+	near = map(sort,near)  # check !!!
+	for k=1:size(W,2)
+		W[:,k] = W[:,near[k][1]]
+	end
+	pointidx = [ near[k][1] for k=1:size(W,2) ]  # check !!
+	invidx = OrderedDict(zip(1:length(pointidx), pointidx))
+	V = [W[:,k] for k=1:length(pointidx)]
+	# congruent edges
+	EV = []
+	for e in (EW)
+		newedge = [invidx[e[1]],invidx[e[2]]]
+		if newedge[1] !== newedge[2]
+			push!(EV,newedge)
+		end
+	end
+	EV = [EV[h] for h=1:length(EV) if length(EV[h])==2]
+	EV = convert(Lar.Cells, EV)
+	#W,EW = Lar.simplifyCells(V,EV)
+	return hcat(V...),EV
+end
 
 
 
 
-
+#=
 """
 	decomposition()::
 	
@@ -517,27 +567,11 @@ function decomposition(model::Lar.LAR)
 			Q = submanifoldmap(vs)
 			vq = Q * [vs; ones(1, size(vs,2))]
 			v2d = vq[1:2,:]
-	@show v2d
 		end
 	end
 	
 end
 
-
-#=
-"""
-	Congruence()::
-Graded bases of equivalence classes Ck (Uk ), with Uk = Xk /Rk for 0 ≤ k ≤ 2.
-
-# Example
-
-```julia
-julia> 
-```
-"""
-function Congruence 
-
-end
 
 
 
