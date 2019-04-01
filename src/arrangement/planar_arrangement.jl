@@ -406,9 +406,9 @@ function planar_arrangement(
     
     edgenum = size(copEV, 1)
     edge_map = Array{Array{Int, 1}, 1}(undef,edgenum)
-    global rV = Lar.Points(zeros(0, 2))
-    global rEV = SparseArrays.spzeros(Int8, 0, 0)
-    global finalcells_num = 0
+    rV = Lar.Points(zeros(0, 2))
+    rEV = SparseArrays.spzeros(Int8, 0, 0)
+    finalcells_num = 0
 
     if (multiproc == true)
         in_chan = Distributed.RemoteChannel(()->Channel{Int64}(0))
@@ -462,7 +462,7 @@ function planar_arrangement(
     
     V, copEV = rV, rEV
 
-    V, copEV = merge_vertices!(V, copEV, edge_map)
+    V, copEV = Lar.Arrangement.merge_vertices!(V, copEV, edge_map)
     
     # Deletes edges outside sigma area
     if sigma.n > 0

@@ -410,7 +410,7 @@ function linefragments(V,EV,Sigma)
 			for k in sigma[h]
 				line2 = V[:,EV[k]]
 				#@show line1,line2
-				out = intersection(line1,line2) # TODO: w interval arithmetic
+				out = Lar.intersection(line1,line2) # TODO: w interval arithmetic
 				if out ≠ nothing
 					α,β = out
 					if 0<=α<=1 && 0<=β<=1
@@ -449,20 +449,25 @@ Plasm.viewexploded(W,EW)(1.2,1.2,1.2)
 """
 function fragmentlines(model)
 	V,EV = model
+	# acceleration via spatial index computation
 	Sigma = Lar.spaceindex(model)
-	lineparams = linefragments(V,EV,Sigma)
+	# actual parametric intersection of each line with the close ones
+	lineparams = Lar.linefragments(V,EV,Sigma)
+	# initialization of local data structures
 	vertdict = OrderedDict{Array{Float64,1},Array{Int,1}}()
 	pairs = collect(zip(lineparams, [V[:,e] for e in EV]))
 	vertdict = OrderedDict{Array{Float64,1},Int}()
 	W = Array[]
 	EW = Array[]
 	k = 0
+	# generation of intersection points
 	for (params,linepoints) in pairs
 		v1 = linepoints[:,1]
 		v2 = linepoints[:,2]
 		points = [ v1 + t*(v2 - v1) for t in params]   # !!!! loved !!
 		vs = zeros(Int64,1,length(points))
 		PRECISION = 8
+		# identification via dictionary of points
 		for (h,point) in enumerate(points)
 			point = map(Lar.approxVal(PRECISION), point)
 			if haskey(vertdict, point) == false
@@ -474,6 +479,7 @@ function fragmentlines(model)
 		end
 		[push!(EW, [vs[k], vs[k+1]]) for k=1:length(vs)-1]
 	end
+	# normalization of output
 	W,EW = hcat(W...),convert(Array{Array{Int64,1},1},EW)
 	V,EV = congruence((W,EW))
 	return V,EV
