@@ -199,7 +199,9 @@ end
 
 
 #-----------------------------------------------------------------
-
+using LinearAlgebraicRepresentation
+Lar = LinearAlgebraicRepresentation
+using Plasm, SparseArrays
 
 function randomcuboids(n,scale=1.)
 	assembly = []
@@ -216,57 +218,19 @@ function randomcuboids(n,scale=1.)
 	Lar.struct2lar(Lar.Struct(assembly))
 end
 
-
 V,EV = randomcuboids(10, .5)
 V = Plasm.normalize(V,flag=true)
-model2d = V,EV
 Plasm.view(Plasm.numbering(.05)((V,[[[k] for k=1:size(V,2)], EV])))
 
-#-----------------------------------------------------------------
-
-V,EV
+W = convert(Lar.Points, V')
 cop_EV = Lar.coboundary_0(EV::Lar.Cells)
-Z = convert(Lar.Points, V')
-cop_EZ = convert(Lar.ChainOp, cop_EV)
-U, copEU, copFUE = planar_arrangement(Z::Lar.Points, cop_EZ::Lar.ChainOp)
-W = convert(Lar.Points, U')
-EW, FE = cop2lar(copEU), cop2lar(copFUE)
-@show W;
-@show EW;
-@show FE;
+cop_EW = convert(Lar.ChainOp, cop_EV)
+V, copEV, copFE = Lar.planar_arrangement(W::Lar.Points, cop_EW::Lar.ChainOp)
+triangulated_faces = Lar.triangulate2D(V, [copEV, copFE])
 
+#model = lar2tria2lar(U,[copEU, copFUE])  ## To finish in utilities.jl
 
-
-open("/tmp/test.txt", "w") do f
-    write(f, Lar.lar2obj2D(U,[copEU, copFUE]))
-end
-model = Lar.obj2lar2D("/tmp/test.txt")
-U = convert(Lar.Points, model[1]')
-
-Plasm.view(U,model[2][2])
-
-
-
-triangulated_faces = Lar.triangulate2D(model[1], [copEU, copFUE])
-TVs = triangulated_faces
-hpcs = [ Plasm.lar2hpc(W,TVs[i]) for i=1:length(TVs) ]
-
-
+V = convert(Lar.Points, V')
+TVs = convert(Array{Lar.Cells}, triangulated_faces)
+Plasm.viewlarcolor(V::Lar.Points, TVs::Array{Lar.Cells})
 #-----------------------------------------------------------------
-using LinearAlgebraicRepresentation
-Lar = LinearAlgebraicRepresentation
-using Plasm, SparseArrays
-
-W = [0.921424 0.783906 1.0 0.862481 0.647673 0.294177 0.545007 0.6026 0.249105 0.373739 0.643302 0.613358 0.74072 0.728415 0.573467 0.561162 0.563934 0.595171 0.734097 0.729797 0.377269 0.372969 0.377079 0.39063 0.561896 0.414482 0.718715 0.513517 0.0943703 0.0739826 0.269193 0.248805 0.262529 0.234926 0.248807 0.0992996 0.149508 0.0 0.744129 0.596022 0.652336 0.50423 0.655607 0.585718 0.688968 0.619079 0.57067 0.287061 0.397911 0.448338 0.164728 0.517317 0.606115 0.554695 0.322323 0.270902; 0.742412 0.710137 0.407609 0.375334 0.540678 0.665496 0.576929 0.413029 0.537848 0.49384 0.528299 0.443496 0.00864823 0.246637 0.0 0.237989 0.184363 0.239748 0.382039 0.530799 0.371723 0.520483 0.378299 0.372109 0.377061 0.372799 0.530479 0.524547 0.420323 0.357549 0.363545 0.30077 0.365709 0.305278 0.762278 0.849756 0.592567 0.680045 0.572753 0.661789 0.420063 0.509099 0.885838 0.811536 0.854458 0.780156 0.289873 0.419416 0.368783 0.0220506 0.151594 0.173066 0.194584 0.406777 0.125814 0.338006]
-
-EW = Array{Int64,1}[[1, 2], [3, 4], [1, 3], [2, 4], [5, 7], [6, 7], [8, 10], [9, 10], [5, 11], [11, 12], [8, 12], [6, 9], [13, 14], [15, 17], [16, 17], [13, 15], [14, 18], [16, 18], [19, 20], [21, 23], [10, 23], [10, 22], [19, 25], [25, 26], [24, 26], [21, 24], [20, 27], [11, 27], [11, 28], [22, 28], [29, 30], [31, 32], [29, 33], [31, 33], [30, 34], [32, 34], [39, 40], [12, 41], [12, 42], [27, 39], [27, 41], [7, 40], [7, 28], [28, 42], [47, 49], [24, 49], [23, 24], [23, 48], [50, 51], [47, 52], [50, 52], [33, 48], [33, 34], [34, 51], [18, 53], [18, 25], [25, 54], [55, 56], [17, 53], [17, 52], [52, 55], [26, 54], [26, 49], [49, 56], [35, 36], [37, 38], [35, 37], [36, 38], [43, 44], [45, 46], [43, 45], [44, 46]]
-
-FE = Array{Int64,1}[[1, 2, 3, 4], [5, 9, 29, 43], [7, 11, 19, 21, 23, 25, 27, 38, 41, 47, 57, 62], [10, 28, 38, 41], [15, 18, 55, 59], [20, 26, 32, 34, 36, 46, 48, 49, 51, 52, 54, 58, 61, 64], [6, 8, 12, 22, 30, 43], [15, 18, 24, 45, 50, 56, 60, 63], [7, 11, 22, 30, 39, 44], [32, 34, 36, 53], [5, 9, 28, 37, 40, 42], [10, 29, 39, 44], [13, 14, 16, 17, 55, 59], [20, 26, 47], [24, 57, 62], [25, 46, 63], [31, 33, 35, 53], [45, 50, 58, 61, 64], [65, 66, 67, 68], [69, 70, 71, 72]]
-
-
-Plasm.view(W,EW)
-
-
-
-
-
