@@ -765,6 +765,23 @@ function lar2obj2D(V::Lar.Points, cc::Lar.ChainComplex)::String
 end
 
 
+#TODO: finish by using a string as an IObuffer
+#"""
+#	lar2tria2lar(V::Lar.Points, cc::Lar.ChainComplex)::Lar.LARmodel
+#	
+#Return a triangulated `LARmodel` starting from a stadard LARmodel.
+#Useful for colour drawing a complex of non-convex cells.
+#
+#"""
+#function lar2tria2lar(V::Lar.Points, cc::Lar.ChainComplex)::Lar.LARmodel
+#	obj = Lar.lar2obj2D(V::Lar.Points, cc::Lar.ChainComplex)
+#	vs, (edges,faces) = Lar.obj2lar2D(obj::AbstractString)::Lar.LARmodel
+#	return (vs, [edges,faces])::Lar.LARmodel
+#end
+
+
+
+
 """ 
 	triangulate2D(V::Lar.Points, 
 			cc::Lar.ChainComplex)::Array{Any, 1}
