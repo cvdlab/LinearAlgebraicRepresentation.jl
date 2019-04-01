@@ -1,9 +1,58 @@
 using LinearAlgebraicRepresentation
 Lar = LinearAlgebraicRepresentation
-using Plasm, SparseArrays
+using Plasm, SparseArrays, DataStructures
 
 
 #-----------------------------------------------------------------
+
+function parallelsplit(V,copEV,sigma,return_edge_map,multiproc)
+    edgenum = size(copEV, 1)
+    edge_map = Array{Array{Int, 1}, 1}(undef,edgenum)
+    rV = Lar.Points(zeros(0, 2))
+    rEV = SparseArrays.spzeros(Int8, 0, 0)
+    finalcells_num = 0
+
+    if (multiproc == true)
+        in_chan = Distributed.RemoteChannel(()->Channel{Int64}(0))
+        out_chan = Distributed.RemoteChannel(()->Channel{Tuple}(0))
+        ordered_dict = SortedDict{Int64,Tuple}()
+
+        @async begin
+            for i in 1:edgenum
+                put!(in_chan,i)
+            end
+            for p in distributed.workers()
+                put!(in_chan,-1)
+            end
+        end
+        for p in distributed.workers()
+            @async Base.remote_do(frag_edge_channel, p, in_chan, out_chan, V, copEV)
+        end
+        for i in 1:edgenum
+            frag_done_job = take!(out_chan)
+            ordered_dict[frag_done_job[1]] = frag_done_job[2]
+        end
+        for (dkey, dval) in ordered_dict
+            i = dkey
+            v, ev = dval
+            newedges_nums = map(x->x+finalcells_num, collect(1:size(ev, 1)))
+            edge_map[i] = newedges_nums
+            finalcells_num += size(ev, 1)
+            rV, rEV = Lar.skel_merge(rV, rEV, v, ev)
+        end
+    else
+        for i in 1:edgenum
+            v, ev = Lar.Arrangement.frag_edge(V, copEV, i)
+            newedges_nums = map(x->x+finalcells_num, collect(1:size(ev, 1)))
+            edge_map[i] = newedges_nums
+            finalcells_num += size(ev, 1)
+            rV, rEV = Lar.skel_merge(rV, rEV, v, ev)
+        end
+    end
+    return V,copEV,sigma,return_edge_map
+end
+
+
 
 """
     planar_arrangement(V::Points, EV::ChainOp, [sigma::Chain], [return_edge_map::Bool], [multiproc::Bool])
@@ -27,64 +76,8 @@ function planar_arrangement(
         return_edge_map::Bool=false, 
         multiproc::Bool=false)
     
-    edgenum = size(copEV, 1)
-    edge_map = Array{Array{Int, 1}, 1}(undef,edgenum)
-    rV = Lar.Points(zeros(0, 2))
-    rEV = SparseArrays.spzeros(Int8, 0, 0)
-    finalcells_num = 0
-
-    if (multiproc == true)
-        in_chan = Distributed.RemoteChannel(()->Channel{Int64}(0))
-        out_chan = Distributed.RemoteChannel(()->Channel{Tuple}(0))
-        
-        ordered_dict = SortedDict{Int64,Tuple}()
-        
-        @async begin
-            for i in 1:edgenum
-                put!(in_chan,i)
-            end
-            for p in distributed.workers()
-                put!(in_chan,-1)
-            end
-        end
-        
-        for p in distributed.workers()
-            @async Base.remote_do(frag_edge_channel, p, in_chan, out_chan, V, copEV)
-        end
-        
-        for i in 1:edgenum
-            frag_done_job = take!(out_chan)
-            ordered_dict[frag_done_job[1]] = frag_done_job[2]
-        end
-        
-        for (dkey, dval) in ordered_dict
-            i = dkey
-            v, ev = dval
-            newedges_nums = map(x->x+finalcells_num, collect(1:size(ev, 1)))
-            
-            edge_map[i] = newedges_nums
-            
-            finalcells_num += size(ev, 1)
-            
-            rV, rEV = Lar.skel_merge(rV, rEV, v, ev)
-        end
-        
-    else
-        for i in 1:edgenum
-            v, ev = Lar.Arrangement.frag_edge(V, copEV, i)
-        
-            newedges_nums = map(x->x+finalcells_num, collect(1:size(ev, 1)))
-            
-            edge_map[i] = newedges_nums
-        
-            finalcells_num += size(ev, 1)
-            rV, rEV = Lar.skel_merge(rV, rEV, v, ev)
-        end
-        
-    end
-    
+	V,copEV,sigma,return_edge_map = parallelsplit(V,copEV,sigma,return_edge_map,multiproc)
     V, copEV = rV, rEV
-
     V, copEV = Lar.Arrangement.merge_vertices!(V, copEV, edge_map)
     
     # Deletes edges outside sigma area
@@ -198,10 +191,49 @@ function cop2lar(cop::Lar.ChainOp)::Lar.Cells
 end
 
 
+function FV2EVs(copEV::Lar.ChainOp, copFE::Lar.ChainOp)
+	EV = [findnz(copEV[k,:])[1] for k=1:size(copEV,1)]
+	FE = [findnz(copFE[k,:])[1] for k=1:size(copFE,1)]
+	EVs = [[EV[e] for e in fe] for fe in FE]
+	return EVs
+end
+
+using PyCall
+
+function lar_exploded(model)
+	function lar_exploded0( sx=1.2, sy=1.2, sz=1.2 )
+		p = PyCall.pyimport("pyplasm")
+		verts,arrayofcells = model
+		out = []
+		for cell in arrayofcells
+			vcell = convert(Lar.Cells,[collect(Set(cat(cell)))])
+		
+			center = sum([verts[:,v] for v in vcell[1]])/length(vcell[1])
+			scaled_center = size(center,1)==2 ? center .* [sx,sy] :  
+												center .* [sx,sy,sz]
+			translation_vector = scaled_center - center
+			vertcell = [verts[:,k]+translation_vector for k in vcell[1]]
+			cellverts = hcat(vertcell...)
+
+			py_verts = Plasm.points2py( cellverts )
+			vdict = DataStructures.OrderedDict( zip( vcell[1], [k for k=1:length(vcell[1])] ))
+			edges = [[vdict[e[1]], vdict[e[2]]] for e in cell]
+			py_cells = Plasm.cells2py( edges )
+			
+			hpc = p["MKPOL"]([ py_verts, py_cells, [] ])
+			push!(out, hpc)
+		end
+		hpc = p["STRUCT"](out)
+		return hpc
+	end
+	return lar_exploded0
+end
+
+
 #-----------------------------------------------------------------
 using LinearAlgebraicRepresentation
 Lar = LinearAlgebraicRepresentation
-using Plasm, SparseArrays
+using Plasm, SparseArrays, PyCall
 
 function randomcuboids(n,scale=1.)
 	assembly = []
@@ -218,7 +250,7 @@ function randomcuboids(n,scale=1.)
 	Lar.struct2lar(Lar.Struct(assembly))
 end
 
-V,EV = randomcuboids(10, .5)
+V,EV = randomcuboids(10, .75)
 V = Plasm.normalize(V,flag=true)
 Plasm.view(Plasm.numbering(.05)((V,[[[k] for k=1:size(V,2)], EV])))
 
@@ -226,11 +258,16 @@ W = convert(Lar.Points, V')
 cop_EV = Lar.coboundary_0(EV::Lar.Cells)
 cop_EW = convert(Lar.ChainOp, cop_EV)
 V, copEV, copFE = Lar.planar_arrangement(W::Lar.Points, cop_EW::Lar.ChainOp)
+
 triangulated_faces = Lar.triangulate2D(V, [copEV, copFE])
-
-#model = lar2tria2lar(U,[copEU, copFUE])  ## To finish in utilities.jl
-
 V = convert(Lar.Points, V')
 TVs = convert(Array{Lar.Cells}, triangulated_faces)
 Plasm.viewlarcolor(V::Lar.Points, TVs::Array{Lar.Cells})
+
+EVs = FV2EVs(copEV, copFE) # polygonal face fragments
+Plasm.viewlarcolor(V::Lar.Points, EVs::Array{Lar.Cells})
+
+model = V,EVs
+Plasm.view(lar_exploded(model)(1.2,1.2,1.2))
+
 #-----------------------------------------------------------------
