@@ -1,6 +1,6 @@
 using LinearAlgebraicRepresentation
 Lar = LinearAlgebraicRepresentation
-using Plasm, SparseArrays, PyCall
+using Plasm
 
 V,EV = Lar.randomcuboids(10, .75)
 V = Plasm.normalize(V,flag=true)
