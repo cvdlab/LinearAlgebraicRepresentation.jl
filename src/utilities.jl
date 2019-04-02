@@ -823,3 +823,40 @@ function triangulate2D(V::Lar.Points, cc::Lar.ChainComplex)::Array{Any, 1}
 
     return triangulated_faces
 end
+
+
+
+
+function cop2lar(cop::Lar.ChainOp)::Lar.Cells
+	[findnz(cop[k,:])[1] for k=1:size(cop,1)]
+end
+
+
+function FV2EVs(copEV::Lar.ChainOp, copFE::Lar.ChainOp)
+	EV = [findnz(copEV[k,:])[1] for k=1:size(copEV,1)]
+	FE = [findnz(copFE[k,:])[1] for k=1:size(copFE,1)]
+	EVs = [[EV[e] for e in fe] for fe in FE]
+	return EVs
+end
+
+
+"""
+	randomcuboids(n,scale=1.0
+
+Generate the `LAR` model of a collection of `n` random cuboids.
+Position, orientation and measure of sides are all random.
+"""
+function randomcuboids(n,scale=1.0)
+	assembly = []
+	for k=1:n
+		corner = rand(Float64, 2)
+		sizes = rand(Float64, 2)
+		V,(_,EV,_) = Lar.cuboid(corner,true,corner+sizes)
+		center = (corner + corner+sizes)/2
+		angle = rand(Float64)*2*pi
+		obj = Lar.Struct([ Lar.t(center...), Lar.r(angle), 
+				Lar.s(scale,scale), Lar.t(-center...), (V,EV) ])
+		push!(assembly, obj)
+	end
+	Lar.struct2lar(Lar.Struct(assembly))
+end
