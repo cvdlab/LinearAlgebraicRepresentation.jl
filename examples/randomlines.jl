@@ -2,8 +2,8 @@ using LinearAlgebraicRepresentation
 Lar = LinearAlgebraicRepresentation
 using Plasm
 
-n = 1000 #1000 #20000
-t = 0.15 #0.4 #0.15
+n = 3000 #1000 #1000 #20000
+t = 0.15 #0.15 #0.4 #0.15
 V = zeros(Float64,2,2*n)
 EV = [zeros(Int64,2) for k=1:n]
 
@@ -20,8 +20,10 @@ end
 V = Plasm.normalize(V)
 model = (V,EV)
 Sigma = Lar.spaceindex(model)
+Plasm.view(Plasm.numbering(.15)((V,[[[k] for k=1:size(V,2)], EV])))
 
-#Plasm.view(V,EV)
+
+Plasm.view(V,EV)
 model = V,EV
 W,EW = Lar.fragmentlines(model)
 
@@ -31,6 +33,7 @@ Plasm.viewexploded(W,EW)(1.2,1.2,1.2)
 
 W,EW = Lar.fragmentlines(model)
 V,EVs = Lar.biconnectedComponent((W,EW::Lar.Cells)) # 2-connected components (H & T)
+
 hpcs = [ Plasm.lar2hpc(V,EVs[i]) for i=1:length(EVs) ]
 Plasm.view([ Plasm.color(Plasm.colorkey[(k%12)==0 ? 12 : k%12])(hpcs[k]) for k=1:(length(hpcs)) ])
 
