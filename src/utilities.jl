@@ -315,6 +315,7 @@ function triangulate(V::Points, cc::ChainComplex)
     triangulated_faces = Array{Any, 1}(undef, copFE.m)
 
     for f in 1:copFE.m
+    @show f    
         if f % 10 == 0
             print(".")
         end
@@ -792,7 +793,7 @@ function triangulate2D(V::Lar.Points, cc::Lar.ChainComplex)::Array{Any, 1}
     copEV, copFE = cc
     triangulated_faces = Array{Any, 1}(undef, copFE.m)
 	
-    for f in 1:copFE.m       
+    for f in 1:copFE.m   
         edges_idxs = copFE[f, :].nzind
         edge_num = length(edges_idxs)
         edges = Array{Int64,1}[] #zeros(Int64, edge_num, 2)
