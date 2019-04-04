@@ -76,7 +76,34 @@ function buildFV(copEV::ChainOp, face::Cell)
     return vs[1:end-1]
 end
 
+################################################### loops on a quadrilateral !!!
 
+julia> face
+264-element SparseVector{Int8,Int64} with 4 stored entries:
+  [1  ]  =  1
+  [2  ]  =  1
+  [5  ]  =  1
+  [12 ]  =  1
+
+julia> EV[1]
+2-element Array{Int64,1}:
+ 66
+ 67
+
+julia> EV[2]
+2-element Array{Int64,1}:
+ 66
+ 73
+
+julia> EV[5]
+2-element Array{Int64,1}:
+ 67
+ 74
+
+julia> EV[12]
+2-element Array{Int64,1}:
+ 73
+ 74
 
 
 

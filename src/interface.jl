@@ -112,7 +112,7 @@ end
 
 Return the `coboundary_0` signed operator `C_0` -> `C_1`.
 """
-coboundary_0(EV::Cells) = boundary_1(EV::Cells)'
+coboundary_0(EV::Cells) = convert(ChainOp,transpose(boundary_1(EV::Cells)))
 
 
 
