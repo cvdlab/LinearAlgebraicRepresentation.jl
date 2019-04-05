@@ -321,8 +321,7 @@ function coboundary_1( V::Lar.Points, FV::Lar.Cells, EV::Lar.Cells, convex=true:
 	return copFE
 end
 
-function coboundary_1( V::Lar.Points, cscFV::Lar.ChainOp, cscEV::Lar.ChainOp, 
-	convex=true::Bool, exterior=false::Bool )::Lar.ChainOp
+function coboundary_1( V::Lar.Points, cscFV::Lar.ChainOp, cscEV::Lar.ChainOp, convex=true::Bool, exterior=false::Bool )::Lar.ChainOp
 
 	cscFE = Lar.u_coboundary_1( cscFV::Lar.ChainOp, cscEV::Lar.ChainOp, convex)	
 	EV = [findnz(cscEV[k,:])[1] for k=1:size(cscEV,1)]

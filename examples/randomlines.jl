@@ -2,8 +2,8 @@ using LinearAlgebraicRepresentation
 Lar = LinearAlgebraicRepresentation
 using Plasm
 
-n = 3000 #1000 #1000 #20000
-t = 0.15 #0.15 #0.4 #0.15
+n = 1000 #1000 #1000 #20000
+t = 0.30 #0.15 #0.4 #0.15
 V = zeros(Float64,2,2*n)
 EV = [zeros(Int64,2) for k=1:n]
 
@@ -20,7 +20,7 @@ end
 V = Plasm.normalize(V)
 model = (V,EV)
 Sigma = Lar.spaceindex(model)
-Plasm.view(Plasm.numbering(.15)((V,[[[k] for k=1:size(V,2)], EV])))
+Plasm.view(Plasm.numbering(.05)((V,[[[k] for k=1:size(V,2)], EV])))
 
 
 Plasm.view(V,EV)

@@ -314,8 +314,23 @@ function triangulate(V::Points, cc::ChainComplex)
 
     triangulated_faces = Array{Any, 1}(undef, copFE.m)
 
+	function vcycle( copEV::Lar.ChainOp, copFE::Lar.ChainOp, f::Int64 )
+		edges,signs = findnz(copFE[f,:])
+		vpairs = [s>0 ? findnz(copEV[e,:])[1] : reverse(findnz(copEV[e,:])[1]) 
+					for (e,s) in zip(edges,signs)]
+		vdict = Dict((v1,v2) for (v1,v2) in  vpairs)
+	
+		v0 = collect(vdict)[1][1]
+		chain_0 = Int64[v0]
+		v = vdict[v0]
+		while v ≠ v0 
+			push!(chain_0,v)
+			v = vdict[v]
+		end
+		return chain_0
+	end
+
     for f in 1:copFE.m
-    @show f    
         if f % 10 == 0
             print(".")
         end
@@ -325,7 +340,8 @@ function triangulate(V::Points, cc::ChainComplex)
         edges = zeros(Int64, edge_num, 2)
 
         
-        fv = buildFV(copEV, copFE[f, :])
+        #fv = Lar.buildFV(copEV, copFE[f, :])
+        fv = vcycle(copEV, copFE, f)
 
         vs = V[fv, :]
 
@@ -348,10 +364,11 @@ function triangulate(V::Points, cc::ChainComplex)
             edges[i, 2] = i == length(fv) ? fv[1] : fv[i+1]
         end
         
-        triangulated_faces[f] = Triangle.constrained_triangulation(vs, fv, edges, fill(true, edge_num))
+        triangulated_faces[f] = 
+        	Triangle.constrained_triangulation(vs, fv, edges, fill(true, edge_num))
 
         tV = (V*M)[:, 1:2]
-        
+       
         area = face_area(tV, copEV, copFE[f, :])
         if area < 0 
             for i in 1:length(triangulated_faces[f])
@@ -708,7 +725,6 @@ function obj2lar2D(path::AbstractString)::Lar.LARmodel
     open(path, "r") do fd
 		for line in eachline(fd)
 			elems = split(line)
-			@show elems
 			if length(elems) > 0
 				if elems[1] == "v"
 					x = parse(Float64, elems[2])
@@ -750,7 +766,8 @@ function lar2obj2D(V::Lar.Points, cc::Lar.ChainComplex)::String
         	round(V[v, 3]; digits=6), "\n")
     end
 
-    triangulated_faces = triangulate2D(V, cc)
+    #triangulated_faces = triangulate2D(V, cc)
+    triangulated_faces = triangulate(V, cc)
 
 	obj = string(obj, "\n")
 	for f in 1:copFE.m

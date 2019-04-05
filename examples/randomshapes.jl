@@ -3,7 +3,7 @@ Lar = LinearAlgebraicRepresentation
 using Plasm
 
 
-function cuboids(n,scale=1.)
+function randomcuboids(n,scale=1.)
 	assembly = []
 	for k=1:n
 		corner = rand(Float64, 2)
@@ -20,7 +20,7 @@ end
 
 
 
-V,EV = cuboids(40, .35)
+V,EV = randomcuboids(100, .2)
 V = Plasm.normalize(V,flag=true)
 model2d = V,EV
 
@@ -30,10 +30,14 @@ for k=1:length(Sigma) println(k,Sigma[k]) end
 Plasm.view(Plasm.numbering(.15)((V,[[[k] for k=1:size(V,2)], EV])))
 Plasm.viewexploded(V,EV)(1.2,1.2,1.2) 	# no numerical errors
 
-W,EW = Lar.fragmentlines((V,EV)) # introduced false edges (measure ≈ 0)
-#W,EW = Lar.simplifyCells(W,EW)
+W,EW = Lar.fragmentlines((V,EV)) 
 Plasm.viewexploded(W,EW)(1.2,1.2,1.2)	
-Plasm.view(Plasm.numbering(.0035)((W,[[[k] for k=1:size(W,2)], EW])))
+Plasm.view(Plasm.numbering(.015)((W,[[[k] for k=1:size(W,2)], EW])))
 
+V,EVs = Lar.biconnectedComponent((W,EW::Lar.Cells)) # 2-connected components (H & T)
+hpcs = [ Plasm.lar2hpc(V,EVs[i]) for i=1:length(EVs) ]
+Plasm.view([ Plasm.color(Plasm.colorkey[(k%12)==0 ? 12 : k%12])(hpcs[k]) for k=1:(length(hpcs)) ])
 
+FVs = convert(Array{Lar.Cells}, triangulated_faces)
+Plasm.viewlarcolor(V::Lar.Points, FVs::Array{Lar.Cells})
 

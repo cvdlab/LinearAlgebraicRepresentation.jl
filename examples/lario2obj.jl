@@ -24,12 +24,12 @@ I,J,Value = SparseArrays.findnz(kFF)
 triples = hcat([[i,j,1] for (i,j,v) in zip(I,J,Value) if v == 2 ]...)
 I = triples[1,:]; J = triples[2,:];  Value = triples[3,:]; 
 copFF = SparseArrays.sparse(I,J,Value)
-FF = [findnz(copFF[k,:])[1] for k=1:length(FV)]
+FF = [findnz(copFF[k,:])[1] for k=1:length(FV)]  
 doubleedges = sort(cat([[intersect(FV[k],FV[f]) for f in ff] 
 	for (k,ff) in enumerate(FF)]))
 EV2 = [doubleedges[k] for k=1:2:length(doubleedges)]
 
-Plasm.view(V,EV)
+Plasm.view(V,EV2)
 
 # Computing copFE
 kEV = Lar.characteristicMatrix(EV);
@@ -42,68 +42,19 @@ copFE = convert(SparseMatrixCSC{Int8,Int64},copFE)
 FE = [findnz(copFE[k,:])[1] for k=1:length(FV)]
 
 
+copFE = Lar.coboundary_1(V,kFV,kEV)
+
+
 V = convert(Lar.Points,V')
-copCE = SparseArrays.ones(Int8,1,size(kEV,1))
-copCE = convert(Lar.ChainOp, copCE)
-cc = [kEV, copFE, copCE]::Lar.ChainComplex
+copCF = SparseArrays.ones(Int8,1,size(kFV,1))
+copCF = convert(Lar.ChainOp, copCF)
+cc = [kEV, copFE, copCF]::Lar.ChainComplex
 
-Lar.triangulate(V::Lar.Points, cc[1:2])
+triangles = cat(Lar.triangulate(V::Lar.Points, cc[1:2]))
+
+V = convert(Lar.Points,V')
+TV = convert(Lar.Cells,triangles)
+Plasm.view(Plasm.hpc_exploded( (V,[TV]) )(1.2,1.2,1.2))
+
+V = convert(Lar.Points,V')
 Lar.lar2obj(V::Lar.Points, cc)
-
-
-######################################################  Bugged !!!  LOOPS !!!
-
-function buildFV(copEV::ChainOp, face::Cell)
-    startv = -1
-    nextv = 0
-    edge = 0
-
-    vs = Array{Int64, 1}()
-
-    while startv != nextv
-        if startv < 0
-            edge = face.nzind[1]
-            startv = copEV[edge,:].nzind[face[edge] < 0 ? 2 : 1]
-            push!(vs, startv)
-        else
-            edge = setdiff(intersect(face.nzind, copEV[:, nextv].nzind), edge)[1]
-        end
-        nextv = copEV[edge,:].nzind[face[edge] < 0 ? 1 : 2]
-        push!(vs, nextv)
-
-    end
-
-    return vs[1:end-1]
-end
-
-################################################### loops on a quadrilateral !!!
-
-julia> face
-264-element SparseVector{Int8,Int64} with 4 stored entries:
-  [1  ]  =  1
-  [2  ]  =  1
-  [5  ]  =  1
-  [12 ]  =  1
-
-julia> EV[1]
-2-element Array{Int64,1}:
- 66
- 67
-
-julia> EV[2]
-2-element Array{Int64,1}:
- 66
- 73
-
-julia> EV[5]
-2-element Array{Int64,1}:
- 67
- 74
-
-julia> EV[12]
-2-element Array{Int64,1}:
- 73
- 74
-
-
-
