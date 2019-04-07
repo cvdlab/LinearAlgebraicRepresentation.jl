@@ -3,24 +3,7 @@ Lar = LinearAlgebraicRepresentation
 using Plasm
 
 
-function randomcuboids(n,scale=1.)
-	assembly = []
-	for k=1:n
-		corner = rand(Float64, 2)
-		sizes = rand(Float64, 2)
-		V,(_,EV,_) = Lar.cuboid(corner,true,corner+sizes)
-		center = (corner + corner+sizes)/2
-		angle = rand(Float64)*2*pi
-		obj = Lar.Struct([ Lar.t(center...), Lar.r(angle), 
-				Lar.s(scale,scale), Lar.t(-center...), (V,EV) ])
-		push!(assembly, obj)
-	end
-	Lar.struct2lar(Lar.Struct(assembly))
-end
-
-
-
-V,EV = randomcuboids(100, .2)
+V,EV = Lar.randomcuboids(100, .2)
 V = Plasm.normalize(V,flag=true)
 model2d = V,EV
 
@@ -38,6 +21,11 @@ V,EVs = Lar.biconnectedComponent((W,EW::Lar.Cells)) # 2-connected components (H 
 hpcs = [ Plasm.lar2hpc(V,EVs[i]) for i=1:length(EVs) ]
 Plasm.view([ Plasm.color(Plasm.colorkey[(k%12)==0 ? 12 : k%12])(hpcs[k]) for k=1:(length(hpcs)) ])
 
+triangulated_faces = Lar.triangulate2D(V, [copEV, copFE])
 FVs = convert(Array{Lar.Cells}, triangulated_faces)
 Plasm.viewlarcolor(V::Lar.Points, FVs::Array{Lar.Cells})
 
+
+
+
+#W, copEV, copFE = Lar.Arrangement.planar_arrangement(W::Lar.Points, cop_EW::Lar.ChainOp)

@@ -27,9 +27,9 @@ copFF = SparseArrays.sparse(I,J,Value)
 FF = [findnz(copFF[k,:])[1] for k=1:length(FV)]  
 doubleedges = sort(cat([[intersect(FV[k],FV[f]) for f in ff] 
 	for (k,ff) in enumerate(FF)]))
-EV2 = [doubleedges[k] for k=1:2:length(doubleedges)]
+EV = [doubleedges[k] for k=1:2:length(doubleedges)]
 
-Plasm.view(V,EV2)
+Plasm.view(V,EV)
 
 # Computing copFE
 kEV = Lar.characteristicMatrix(EV);
@@ -40,21 +40,22 @@ I,J,Value = [triples[k,:] for k=1:size(triples,1)]
 copFE = SparseArrays.sparse(I,J,Value)
 copFE = convert(SparseMatrixCSC{Int8,Int64},copFE)
 FE = [findnz(copFE[k,:])[1] for k=1:length(FV)]
-
-
 copFE = Lar.coboundary_1(V,kFV,kEV)
 
-
-V = convert(Lar.Points,V')
+# Assembling the chain complex cc
 copCF = SparseArrays.ones(Int8,1,size(kFV,1))
 copCF = convert(Lar.ChainOp, copCF)
 cc = [kEV, copFE, copCF]::Lar.ChainComplex
 
-triangles = cat(Lar.triangulate(V::Lar.Points, cc[1:2]))
-
+# View a surface triangulation
 V = convert(Lar.Points,V')
+triangles = cat(Lar.triangulate(V::Lar.Points, cc[1:2]))
 TV = convert(Lar.Cells,triangles)
+V = convert(Lar.Points,V')
 Plasm.view(Plasm.hpc_exploded( (V,[TV]) )(1.2,1.2,1.2))
 
+# Export an OBJ file of the surface
 V = convert(Lar.Points,V')
-Lar.lar2obj(V::Lar.Points, cc)
+open("testfile.obj","w") do f
+    print(f, Lar.lar2obj(V::Lar.Points, cc) )
+end

@@ -2,7 +2,7 @@ using LinearAlgebraicRepresentation
 Lar = LinearAlgebraicRepresentation
 using Plasm
 
-n = 1000 #1000 #20000
+n = 3000 #1000 #20000
 t = 0.15 #0.4 #0.15
 
 function randomlines(n=1000,t=0.2)

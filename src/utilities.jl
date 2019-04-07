@@ -843,8 +843,100 @@ function triangulate2D(V::Lar.Points, cc::Lar.ChainComplex)::Array{Any, 1}
 end
 
 
+"""
+	lar2cop(CV::Lar.Cells)::Lar.ChainOp
+
+Convert an array of array of integer indices to vertices into a sparse matrix.
+
+# Examples
+
+For a single 3D unit cube we get:
+
+```
+julia> V,(VV,EV,FV,CV) = Lar.cuboid([1,1,1],true);
+
+julia> Matrix(Lar.lar2cop(EV))
+12×8 Array{Int8,2}:
+ 1  1  0  0  0  0  0  0
+ 0  0  1  1  0  0  0  0
+ 0  0  0  0  1  1  0  0
+ 0  0  0  0  0  0  1  1
+ 1  0  1  0  0  0  0  0
+ 0  1  0  1  0  0  0  0
+ 0  0  0  0  1  0  1  0
+ 0  0  0  0  0  1  0  1
+ 1  0  0  0  1  0  0  0
+ 0  1  0  0  0  1  0  0
+ 0  0  1  0  0  0  1  0
+ 0  0  0  1  0  0  0  1
+
+julia> Matrix(Lar.lar2cop(FV))
+6×8 Array{Int8,2}:
+ 1  1  1  1  0  0  0  0
+ 0  0  0  0  1  1  1  1
+ 1  1  0  0  1  1  0  0
+ 0  0  1  1  0  0  1  1
+ 1  0  1  0  1  0  1  0
+ 0  1  0  1  0  1  0  1
+
+julia> Matrix(Lar.lar2cop(CV))
+1×8 Array{Int8,2}:
+ 1  1  1  1  1  1  1  1
+```
+"""
+function lar2cop(CV::Lar.Cells)::Lar.ChainOp
+	I = Int64[]; J = Int64[]; Value = Int8[]; 
+	for k=1:size(CV,1)
+		n = length(CV[k])
+		append!(I, k*ones(Int64, n))
+		append!(J, CV[k])
+		append!(Value, ones(Int64, n))
+	end
+	return SparseArrays.sparse(I,J,Value)
+end
 
 
+"""
+	cop2lar(cop::Lar.ChainOp)::Lar.Cells
+
+Convert a sparse array of type `ChainOp` into an array of array of type `Cells`.
+
+Notice that `cop2lar` is the inverse function of `lar2cop`. their composition is the identity function.
+
+# Example
+
+```
+julia> V,(VV,EV,FV,CV) = Lar.cuboid([1,1,1],true);
+
+julia> Lar.cop2lar(Lar.lar2cop(EV))
+12-element Array{Array{Int64,1},1}:
+ [1, 2]
+ [3, 4]
+ [5, 6]
+ [7, 8]
+ [1, 3]
+ [2, 4]
+ [5, 7]
+ [6, 8]
+ [1, 5]
+ [2, 6]
+ [3, 7]
+ [4, 8]
+
+julia> Lar.cop2lar(Lar.lar2cop(FV))
+6-element Array{Array{Int64,1},1}:
+ [1, 2, 3, 4]
+ [5, 6, 7, 8]
+ [1, 2, 5, 6]
+ [3, 4, 7, 8]
+ [1, 3, 5, 7]
+ [2, 4, 6, 8]
+
+julia> Lar.cop2lar(Lar.lar2cop(CV))
+1-element Array{Array{Int64,1},1}:
+ [1, 2, 3, 4, 5, 6, 7, 8]
+```
+"""
 function cop2lar(cop::Lar.ChainOp)::Lar.Cells
 	[findnz(cop[k,:])[1] for k=1:size(cop,1)]
 end
