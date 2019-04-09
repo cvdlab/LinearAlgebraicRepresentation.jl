@@ -379,10 +379,106 @@ function cell_merging(n, containment_graph, V, EVs, boundaries, shells, shell_bb
 end
 
 
-"""
-    planar_arrangement(V::Points, EV::ChainOp, [sigma::Chain], [return_edge_map::Bool], [multiproc::Bool])
+function componentgraph(V, copEV)
+	# compute containment graph of components
+	bicon_comps = Lar.Arrangement.biconnected_components(copEV)
 
-Compute the arrangement on the given cellular complex 1-skeleton in 2D.
+	n = size(bicon_comps, 1)
+	shells = Array{Lar.Chain, 1}(undef, n)
+	boundaries = Array{Lar.ChainOp, 1}(undef, n)
+	EVs = Array{Lar.ChainOp, 1}(undef, n)
+	for p in 1:n
+		ev = copEV[sort(bicon_comps[p]), :]
+		fe = Lar.Arrangement.minimal_2cycles(V, ev)
+		shell_num = Lar.Arrangement.get_external_cycle(
+			V, ev, fe)
+
+		EVs[p] = ev 
+		tokeep = setdiff(1:fe.m, shell_num)
+		boundaries[p] = fe[tokeep, :]
+		shells[p] = fe[shell_num, :]
+	end
+
+	shell_bboxes = []
+	for i in 1:n
+		vs_indexes = (abs.(EVs[i]')*abs.(shells[i])).nzind
+		push!(shell_bboxes, Lar.bbox(V[vs_indexes, :]))
+	end
+	containment_graph = Lar.Arrangement.pre_containment_test(shell_bboxes)
+	containment_graph = Lar.Arrangement.prune_containment_graph(n, V, EVs, shells, containment_graph)
+	Lar.Arrangement.transitive_reduction!(containment_graph) 
+	return n, containment_graph, V, EVs, boundaries, shells, shell_bboxes
+end
+
+function cleandecomposition(V, copEV, sigma)
+    # Deletes edges outside sigma area
+	todel = []
+	new_edges = []
+	map(i->new_edges=union(new_edges, edge_map[i]), sigma.nzind)
+	ev = copEV[new_edges, :]
+	for e in 1:copEV.m
+		if !(e in new_edges)
+
+			vidxs = copEV[e, :].nzind
+			v1, v2 = map(i->V[vidxs[i], :], [1,2])
+			centroid = .5*(v1 + v2)
+			
+			if ! Lar.point_in_face(centroid, V, ev) 
+				push!(todel, e)
+			end
+		end
+	end
+	for i in reverse(todel)
+		for row in edge_map
+	
+			filter!(x->x!=i, row)
+	
+			for j in 1:length(row)
+				if row[j] > i
+					row[j] -= 1
+				end
+			end
+		end
+	end
+	V, copEV = Lar.delete_edges(todel, V, copEV)
+    
+    # biconnected components
+    bicon_comps = Lar.Arrangement.biconnected_components(copEV) # -> arrays of edge indices
+        
+    if isempty(bicon_comps)
+        println("No biconnected components found.")
+        if (return_edge_map)
+            return (nothing, nothing, nothing, nothing)
+        else
+            return (nothing, nothing, nothing)
+        end
+    end
+
+	#remove dangling edges    
+    edges = sort(union(bicon_comps...))
+    todel = sort(setdiff(collect(1:size(copEV,1)), edges))
+    for i in reverse(todel)
+        for row in edge_map
+    
+            filter!(x->x!=i, row)
+    
+            for j in 1:length(row)
+                if row[j] > i
+                    row[j] -= 1
+                end
+            end
+        end
+    end
+    return todel, V, copEV
+end
+
+
+
+
+"""
+    planar_arrangement(V::Points, copEV::ChainOp, [sigma::Chain], [return_edge_map::Bool], [multiproc::Bool])
+
+CCompute the arrangement on the given cellular complex 1-skeleton in 2D.
 
 A cellular complex is arranged when the intersection of every possible pair of cell 
 of the complex is empty and the union of all the cells is the whole Euclidean space.
@@ -401,7 +497,7 @@ function planar_arrangement(
         return_edge_map::Bool=false, 
         multiproc::Bool=false)
     
-	# data structures initialization
+    # data structures initialization
     edgenum = size(copEV, 1)
     edge_map = Array{Array{Int, 1}, 1}(undef,edgenum)
     rV = Lar.Points(zeros(0, 2))
@@ -417,7 +513,6 @@ function planar_arrangement(
         in_chan = Distributed.RemoteChannel(()->Channel{Int64}(0))
         out_chan = Distributed.RemoteChannel(()->Channel{Tuple}(0))
         ordered_dict = SortedDict{Int64,Tuple}()
-        
         @async begin
             for i in 1:edgenum
                 put!(in_chan,i)
@@ -426,16 +521,13 @@ function planar_arrangement(
                 put!(in_chan,-1)
             end
         end
-        
         for p in distributed.workers()
             @async Base.remote_do(frag_edge_channel, p, in_chan, out_chan, V, copEV, bigPI)
         end
-        
         for i in 1:edgenum
             frag_done_job = take!(out_chan)
             ordered_dict[frag_done_job[1]] = frag_done_job[2]
         end
-        
         for (dkey, dval) in ordered_dict
             i = dkey
             v, ev = dval
@@ -444,118 +536,32 @@ function planar_arrangement(
             finalcells_num += size(ev, 1)
             rV, rEV = Lar.skel_merge(rV, rEV, v, ev)
         end
-        
-    else # sequential processing of edge fragmentation
-
-		# iterative fragmentation of vertices
+    else 
+	# sequential (iterative) processing of edge fragmentation 
 		for i in 1:edgenum
-			v, ev = frag_edge(V, copEV, i, bigPI)
+			v, ev = Lar.Arrangement.frag_edge(V, copEV, i, bigPI)
 			newedges_nums = map(x->x+finalcells_num, collect(1:size(ev, 1)))
 			edge_map[i] = newedges_nums
 			finalcells_num += size(ev, 1)
 			rV, rEV = Lar.skel_merge(rV, rEV, v, ev) # block diagonal ...
 		end
-    end
-    
+	end
+	
 	# merging of close vertices
     V, copEV = rV, rEV
     V, copEV = Lar.Arrangement.merge_vertices!(V, copEV, edge_map)
     
-    # Deletes edges outside sigma area
-    if sigma.n > 0
-        todel = []
-        new_edges = []
-        map(i->new_edges=union(new_edges, edge_map[i]), sigma.nzind)
-        ev = copEV[new_edges, :]
-        for e in 1:copEV.m
-            if !(e in new_edges)
+	if sigma.n > 0
+		todel, V, copEV = cleandecomposition(V, copEV, sigma)
+		V, copEV = Lar.delete_edges(todel, V, copEV)
+	end
     
-                vidxs = copEV[e, :].nzind
-                v1, v2 = map(i->V[vidxs[i], :], [1,2])
-                centroid = .5*(v1 + v2)
-                
-                if ! Lar.point_in_face(centroid, V, ev) 
-                    push!(todel, e)
-                end
-            end
-        end
-        for i in reverse(todel)
-            for row in edge_map
-        
-                filter!(x->x!=i, row)
-        
-                for j in 1:length(row)
-                    if row[j] > i
-                        row[j] -= 1
-                    end
-                end
-            end
-        end
-        V, copEV = Lar.delete_edges(todel, V, copEV)
-    end
+	# compute containment graph of 2D components
+    n, containment_graph, V, EVs, boundaries, shells, shell_bboxes = componentgraph(V, copEV)
 
-    # biconnected components
-    bicon_comps = biconnected_components(copEV) # -> arrays of edge indices
-    
-    if isempty(bicon_comps)
-        println("No biconnected components found.")
-        if (return_edge_map)
-            return (nothing, nothing, nothing, nothing)
-        else
-            return (nothing, nothing, nothing)
-        end
-    end
-    
-	#remove dangling edges    
-    edges = sort(union(bicon_comps...))
-    todel = sort(setdiff(collect(1:size(copEV,1)), edges))
-    
-    for i in reverse(todel)
-        for row in edge_map
-    
-            filter!(x->x!=i, row)
-    
-            for j in 1:length(row)
-                if row[j] > i
-                    row[j] -= 1
-                end
-            end
-        end
-    end
-    
-    # compute containment graph of components
-    V, copEV = Lar.delete_edges(todel, V, copEV)
-    bicon_comps = biconnected_components(copEV)
-    n = size(bicon_comps, 1)
-    shells = Array{Lar.Chain, 1}(undef, n)
-    boundaries = Array{Lar.ChainOp, 1}(undef, n)
-    EVs = Array{Lar.ChainOp, 1}(undef, n)
-    for p in 1:n
-        ev = copEV[sort(bicon_comps[p]), :]
-        fe = Lar.Arrangement.minimal_2cycles(V, ev)
-        shell_num = Lar.Arrangement.get_external_cycle(
-        	V, ev, fe)
-    
-        EVs[p] = ev 
-        tokeep = setdiff(1:fe.m, shell_num)
-        boundaries[p] = fe[tokeep, :]
-        shells[p] = fe[shell_num, :]
-    end
-    
-    shell_bboxes = []
-    for i in 1:n
-        vs_indexes = (abs.(EVs[i]')*abs.(shells[i])).nzind
-        push!(shell_bboxes, Lar.bbox(V[vs_indexes, :]))
-    end
-    
-    containment_graph = pre_containment_test(shell_bboxes)
-    containment_graph = prune_containment_graph(n, V, EVs, shells, containment_graph)
-    
-    transitive_reduction!(containment_graph) 
-    
+	# Topological Gift Wrapping ?
     copEV, FE = Lar.Arrangement.cell_merging(
     	n, containment_graph, V, EVs, boundaries, shells, shell_bboxes)
-    
     if (return_edge_map)
         return V, copEV, FE, edge_map
     else
