@@ -21,11 +21,13 @@ V,EVs = Lar.biconnectedComponent((W,EW::Lar.Cells)) # 2-connected components (H 
 hpcs = [ Plasm.lar2hpc(V,EVs[i]) for i=1:length(EVs) ]
 Plasm.view([ Plasm.color(Plasm.colorkey[(k%12)==0 ? 12 : k%12])(hpcs[k]) for k=1:(length(hpcs)) ])
 
+W = convert(Lar.Points, V')
+cop_EV = Lar.coboundary_0(EW::Lar.Cells)
+cop_EW = convert(Lar.ChainOp, cop_EV)
+V, copEV, copFE = Lar.Arrangement.planar_arrangement(W::Lar.Points, cop_EW::Lar.ChainOp)
+
 triangulated_faces = Lar.triangulate2D(V, [copEV, copFE])
 FVs = convert(Array{Lar.Cells}, triangulated_faces)
-Plasm.viewlarcolor(V::Lar.Points, FVs::Array{Lar.Cells})
+Plasm.viewcolor(V::Lar.Points, FVs::Array{Lar.Cells})
 
 
-
-
-#W, copEV, copFE = Lar.Arrangement.planar_arrangement(W::Lar.Points, cop_EW::Lar.ChainOp)

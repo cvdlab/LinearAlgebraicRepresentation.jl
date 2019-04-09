@@ -33,7 +33,7 @@ on mapped coordinates. Close vertices are identified, according to the
 PRECISION number of significant digits.
 """
 function simplifyCells(V,CV)
-	PRECISION = 7
+	PRECISION = 5
 	vertDict = DefaultDict{Array{Float64,1}, Int64}(0)
 	index = 0
 	W = Array{Float64,1}[]
@@ -42,7 +42,6 @@ function simplifyCells(V,CV)
 	for incell in CV
 		outcell = Int64[]
 		for v in incell 
-		@show v,incell
 			vert = V[:,v]
 			key = map(approxVal(PRECISION), vert)
 			if vertDict[key]==0 

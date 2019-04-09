@@ -481,7 +481,7 @@ function fragmentlines(model)
 	end
 	# normalization of output
 	W,EW = hcat(W...),convert(Array{Array{Int64,1},1},EW)
-	V,EV = congruence((W,EW))
+	V,EV = Lar.congruence((W,EW))
 	return V,EV
 end
 

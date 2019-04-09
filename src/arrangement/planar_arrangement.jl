@@ -1,24 +1,24 @@
 Lar = LinearAlgebraicRepresentation
 
-function frag_edge_channel(in_chan, out_chan, V, EV)
+function frag_edge_channel(in_chan, out_chan, V, EV, bigPI)
     run_loop = true
     while run_loop
         edgenum = take!(in_chan)
         if edgenum != -1
-            put!(out_chan, (edgenum, frag_edge(V, EV, edgenum)))
+            put!(out_chan, (edgenum, frag_edge(V, EV, edgenum, bigPI)))
         else
             run_loop = false
         end
     end
 end
 
-function frag_edge(V::Lar.Points, EV::Lar.ChainOp, edge_idx::Int)
+function frag_edge(V::Lar.Points, EV::Lar.ChainOp, edge_idx::Int, bigPI)
     alphas = Dict{Float64, Int}()
     edge = EV[edge_idx, :]
     verts = V[edge.nzind, :]
-    for i in 1:size(EV, 1)
+    for i in bigPI[edge_idx]
         if i != edge_idx
-            intersection = intersect_edges(
+            intersection = Lar.Arrangement.intersect_edges(
             	V, edge, EV[i, :])
             for (point, alpha) in intersection
                 verts = [verts; point]
@@ -26,20 +26,16 @@ function frag_edge(V::Lar.Points, EV::Lar.ChainOp, edge_idx::Int)
             end
         end
     end
-
     alphas[0.0], alphas[1.0] = [1, 2]
-
     alphas_keys = sort(collect(keys(alphas)))
     edge_num = length(alphas_keys)-1
     verts_num = size(verts, 1)
     ev = SparseArrays.spzeros(Int8, edge_num, verts_num)
-
     for i in 1:edge_num
         ev[i, alphas[alphas_keys[i]]] = 1
         ev[i, alphas[alphas_keys[i+1]]] = 1
     end
-
-    verts, ev
+    return verts, ev
 end
 
 function intersect_edges(V::Lar.Points, edge1::Lar.Cell, edge2::Lar.Cell)
@@ -326,6 +322,7 @@ function transitive_reduction!(graph)
         end
     end
 end
+
 function cell_merging(n, containment_graph, V, EVs, boundaries, shells, shell_bboxes)
     function bboxes(V::Lar.Points, indexes::Lar.ChainOp)
         boxes = Array{Tuple{Any, Any}}(undef, indexes.n)
@@ -404,16 +401,21 @@ function planar_arrangement(
         return_edge_map::Bool=false, 
         multiproc::Bool=false)
     
+	# data structures initialization
     edgenum = size(copEV, 1)
     edge_map = Array{Array{Int, 1}, 1}(undef,edgenum)
     rV = Lar.Points(zeros(0, 2))
     rEV = SparseArrays.spzeros(Int8, 0, 0)
     finalcells_num = 0
 
+	# spaceindex computation
+	model = (convert(Lar.Points,V'),Lar.cop2lar(copEV))
+	bigPI = Lar.spaceindex(model::Lar.LAR)
+
+	# multiprocessing of edge fragmentation
     if (multiproc == true)
         in_chan = Distributed.RemoteChannel(()->Channel{Int64}(0))
         out_chan = Distributed.RemoteChannel(()->Channel{Tuple}(0))
-        
         ordered_dict = SortedDict{Int64,Tuple}()
         
         @async begin
@@ -426,7 +428,7 @@ function planar_arrangement(
         end
         
         for p in distributed.workers()
-            @async Base.remote_do(frag_edge_channel, p, in_chan, out_chan, V, copEV)
+            @async Base.remote_do(frag_edge_channel, p, in_chan, out_chan, V, copEV, bigPI)
         end
         
         for i in 1:edgenum
@@ -438,40 +440,33 @@ function planar_arrangement(
             i = dkey
             v, ev = dval
             newedges_nums = map(x->x+finalcells_num, collect(1:size(ev, 1)))
-            
             edge_map[i] = newedges_nums
-            
-            finalcells_num += size(ev, 1)
-            
-            rV, rEV = Lar.skel_merge(rV, rEV, v, ev)
-        end
-        
-    else
-        for i in 1:edgenum
-            v, ev = Lar.Arrangement.frag_edge(V, copEV, i)
-        
-            newedges_nums = map(x->x+finalcells_num, collect(1:size(ev, 1)))
-            
-            edge_map[i] = newedges_nums
-        
             finalcells_num += size(ev, 1)
             rV, rEV = Lar.skel_merge(rV, rEV, v, ev)
         end
         
+    else # sequential processing of edge fragmentation
+
+		# iterative fragmentation of vertices
+		for i in 1:edgenum
+			v, ev = frag_edge(V, copEV, i, bigPI)
+			newedges_nums = map(x->x+finalcells_num, collect(1:size(ev, 1)))
+			edge_map[i] = newedges_nums
+			finalcells_num += size(ev, 1)
+			rV, rEV = Lar.skel_merge(rV, rEV, v, ev) # block diagonal ...
+		end
     end
     
+	# merging of close vertices
     V, copEV = rV, rEV
-
     V, copEV = Lar.Arrangement.merge_vertices!(V, copEV, edge_map)
     
     # Deletes edges outside sigma area
     if sigma.n > 0
         todel = []
-        
         new_edges = []
         map(i->new_edges=union(new_edges, edge_map[i]), sigma.nzind)
         ev = copEV[new_edges, :]
-    
         for e in 1:copEV.m
             if !(e in new_edges)
     
@@ -484,7 +479,6 @@ function planar_arrangement(
                 end
             end
         end
-    
         for i in reverse(todel)
             for row in edge_map
         
@@ -497,11 +491,11 @@ function planar_arrangement(
                 end
             end
         end
-    
         V, copEV = Lar.delete_edges(todel, V, copEV)
     end
-    
-    bicon_comps = biconnected_components(copEV)
+
+    # biconnected components
+    bicon_comps = biconnected_components(copEV) # -> arrays of edge indices
     
     if isempty(bicon_comps)
         println("No biconnected components found.")
@@ -512,6 +506,7 @@ function planar_arrangement(
         end
     end
     
+	#remove dangling edges    
     edges = sort(union(bicon_comps...))
     todel = sort(setdiff(collect(1:size(copEV,1)), edges))
     
@@ -528,10 +523,9 @@ function planar_arrangement(
         end
     end
     
+    # compute containment graph of components
     V, copEV = Lar.delete_edges(todel, V, copEV)
-    
     bicon_comps = biconnected_components(copEV)
-    
     n = size(bicon_comps, 1)
     shells = Array{Lar.Chain, 1}(undef, n)
     boundaries = Array{Lar.ChainOp, 1}(undef, n)

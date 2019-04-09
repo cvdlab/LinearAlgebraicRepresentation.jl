@@ -331,6 +331,6 @@ V, copEV, copFE = test_planar_arrangement(W::Lar.Points, cop_EW::Lar.ChainOp;
 triangulated_faces = Lar.triangulate2D(V, [copEV, copFE])
 V = convert(Lar.Points, V')
 FVs = convert(Array{Lar.Cells}, triangulated_faces)
-Plasm.viewlarcolor(V::Lar.Points, FVs::Array{Lar.Cells})
+Plasm.viewcolor(V::Lar.Points, FVs::Array{Lar.Cells})
 
 #-----------------------------------------------------------------

@@ -888,7 +888,7 @@ function lar2cop(CV::Lar.Cells)::Lar.ChainOp
 	I = Int64[]; J = Int64[]; Value = Int8[]; 
 	for k=1:size(CV,1)
 		n = length(CV[k])
-		append!(I, k*ones(Int64, n))
+		append!(I, k * ones(Int64, n))
 		append!(J, CV[k])
 		append!(Value, ones(Int64, n))
 	end
@@ -912,13 +912,7 @@ julia> Lar.cop2lar(Lar.lar2cop(EV))
 12-element Array{Array{Int64,1},1}:
  [1, 2]
  [3, 4]
- [5, 6]
- [7, 8]
- [1, 3]
- [2, 4]
- [5, 7]
- [6, 8]
- [1, 5]
+   ...
  [2, 6]
  [3, 7]
  [4, 8]
