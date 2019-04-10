@@ -1,29 +1,44 @@
 using LinearAlgebraicRepresentation
-Lar = LinearAlgebraicRepresentation
 using Plasm,SparseArrays
+Lar = LinearAlgebraicRepresentation
 
 
-function test()
-	V,EV = Lar.randomcuboids(30, .75)
-	V = Plasm.normalize(V,flag=true)
-	Plasm.view(Plasm.numbering(.05)((V,[[[k] for k=1:size(V,2)], EV])))
+# input generation
+V,EV = Lar.randomcuboids(30, .35)
+V = Plasm.normalize(V,flag=true)
+Plasm.view(Plasm.numbering(.05)((V,[[[k] for k=1:size(V,2)], EV])))
 
-	W = convert(Lar.Points, V')
-	cop_EV = Lar.coboundary_0(EV::Lar.Cells)
-	cop_EW = convert(Lar.ChainOp, cop_EV)
-	V, copEV, copFE = Lar.Arrangement.planar_arrangement(W::Lar.Points, cop_EW::Lar.ChainOp)
+# subdivision of input edges
+W = convert(Lar.Points, V')
+cop_EV = Lar.coboundary_0(EV::Lar.Cells)
+cop_EW = convert(Lar.ChainOp, cop_EV)
+V, copEV = Lar.planar_arrangement_1(W::Lar.Points, cop_EW::Lar.ChainOp)
 
-	triangulated_faces = Lar.triangulate2D(V, [copEV, copFE])
-	V = convert(Lar.Points, V')
-	FVs = convert(Array{Lar.Cells}, triangulated_faces)
-	Plasm.viewcolor(V::Lar.Points, FVs::Array{Lar.Cells})
+# compute containment graph of components
+bicon_comps = Lar.Arrangement.biconnected_components(copEV)
+# visualization of component graphs
+EW = Lar.cop2lar(copEV)
+W = convert(Lar.Points, V')
+hpcs = [ Plasm.lar2hpc(W,[EW[e] for e in comp]) for comp in bicon_comps ]
+Plasm.view([ Plasm.color(Plasm.colorkey[(k%12)==0 ? 12 : k%12])(hpcs[k]) for k=1:(length(hpcs)) ])
 
-	EVs = Lar.FV2EVs(copEV, copFE) # polygonal face boundaries
-	EVs = convert(Array{Array{Array{Int64,1},1},1}, EVs)
-	Plasm.viewcolor(V::Lar.Points, EVs::Array{Lar.Cells})
+# computation of 2-cells and 2-boundary
+V, copEV, copFE = Lar.planar_arrangement_2(V, copEV, bicon_comps)
 
-	model = V,EVs
-	Plasm.view(Plasm.lar_exploded(model)(1.2,1.2,1.2))
-end
 
-test()
+
+
+# final visualization
+triangulated_faces = Lar.triangulate2D(V, [copEV, copFE])
+V = convert(Lar.Points, V')
+FVs = convert(Array{Lar.Cells}, triangulated_faces)
+Plasm.viewcolor(V::Lar.Points, FVs::Array{Lar.Cells})
+
+EVs = Lar.FV2EVs(copEV, copFE) # polygonal face boundaries
+EVs = convert(Array{Array{Array{Int64,1},1},1}, EVs)
+Plasm.viewcolor(V::Lar.Points, EVs::Array{Lar.Cells})
+
+model = V,EVs
+Plasm.view(Plasm.lar_exploded(model)(1.2,1.2,1.2))
+
+
