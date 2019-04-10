@@ -383,19 +383,30 @@ end
 function componentgraph(V, copEV, bicon_comps)
 
 	n = size(bicon_comps, 1)
+@show n
 	shells = Array{Lar.Chain, 1}(undef, n)
+@show shells
 	boundaries = Array{Lar.ChainOp, 1}(undef, n)
+@show boundaries
 	EVs = Array{Lar.ChainOp, 1}(undef, n)
+@show EVs
 	for p in 1:n
+@show p
 		ev = copEV[sort(bicon_comps[p]), :]
+@show ev
 		fe = Lar.Arrangement.minimal_2cycles(V, ev)
-		shell_num = Lar.Arrangement.get_external_cycle(
-			V, ev, fe)
+@show fe
+		shell_num = Lar.Arrangement.get_external_cycle(V, ev, fe)
+@show shell_num
 
 		EVs[p] = ev 
+@show EVs[p]
 		tokeep = setdiff(1:fe.m, shell_num)
+@show tokeep
 		boundaries[p] = fe[tokeep, :]
+@show boundaries[p]
 		shells[p] = fe[shell_num, :]
+@show shells[p]
 	end
 
 	shell_bboxes = []
@@ -408,6 +419,7 @@ function componentgraph(V, copEV, bicon_comps)
 	Lar.Arrangement.transitive_reduction!(containment_graph) 
 	return n, containment_graph, V, EVs, boundaries, shells, shell_bboxes
 end
+
 
 function cleandecomposition(V, copEV, sigma)
     # Deletes edges outside sigma area
@@ -529,7 +541,7 @@ function planar_arrangement_1(
 			rV, rEV = Lar.skel_merge(rV, rEV, v, ev) # block diagonal ...
 		end
 	end
-	# merging of close vertices
+	# merging of close vertices and edges (2D congruence)
 	V, copEV = rV, rEV
 	V, copEV = Lar.Arrangement.merge_vertices!(V, copEV, edge_map)
 	return V, copEV
@@ -542,9 +554,9 @@ function planar_arrangement_2(V, copEV, bicon_comps,
 	return_edge_map::Bool=false, 
 	multiproc::Bool=false)
 
-
 	n, containment_graph, V, EVs, boundaries, shells, shell_bboxes = 
 		componentgraph(V, copEV, bicon_comps)
+@show containment_graph
 
 	if sigma.n > 0
 		todel, V, copEV = cleandecomposition(V, copEV, sigma)
