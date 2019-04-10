@@ -586,8 +586,11 @@ function planar_arrangement(
 	return_edge_map::Bool=false, 
 	multiproc::Bool=false)
 
+	# edge subdivision
 	V, copEV = Lar.planar_arrangement_1(V::Lar.Points, copEV::Lar.ChainOp)
+	# biconnected components
 	bicon_comps = Lar.Arrangement.biconnected_components(copEV)
+	# 2-complex and containment graph
 	V, copEV, copFE = Lar.planar_arrangement_2(V, copEV, bicon_comps)
 	return V, copEV, copFE
 end
