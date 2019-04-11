@@ -198,14 +198,14 @@ The transformation from quads to triangles works for any 2-complex, embedded in 
 ## 2D example
 ```
 V,FV = Lar.cuboidGrid([4,5])
-triangles = quads2triangles(FV::Lar.Cells)::Lar.Cells
+triangles = Lar.quads2triangles(FV::Lar.Cells)::Lar.Cells
 using Plasm
 Plasm.view((V,[triangles]))
 ```
 ## 3D example
 ```
 V,(VV,EV,FV,CV) = Lar.cuboidGrid([4,5,3],true)
-triangles = quads2triangles(FV::Lar.Cells)::Lar.Cells
+triangles = Lar.quads2triangles(FV::Lar.Cells)::Lar.Cells
 using Plasm
 Plasm.view((V,[triangles]))
 ```
