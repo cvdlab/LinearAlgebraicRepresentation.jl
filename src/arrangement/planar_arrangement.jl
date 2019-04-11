@@ -382,41 +382,38 @@ end
 
 function componentgraph(V, copEV, bicon_comps)
 
+	# arrangement of isolated components
 	n = size(bicon_comps, 1)
-@show n
 	shells = Array{Lar.Chain, 1}(undef, n)
-@show shells
 	boundaries = Array{Lar.ChainOp, 1}(undef, n)
-@show boundaries
 	EVs = Array{Lar.ChainOp, 1}(undef, n)
-@show EVs
 	for p in 1:n
-@show p
+	# for each component
 		ev = copEV[sort(bicon_comps[p]), :]
-@show ev
-		fe = Lar.Arrangement.minimal_2cycles(V, ev)
-@show fe
+		# computation of 2-cells 
+		fe = Lar.Arrangement.minimal_2cycles(V, ev) 
+		# exterior cycle
 		shell_num = Lar.Arrangement.get_external_cycle(V, ev, fe)
-@show shell_num
 
 		EVs[p] = ev 
-@show EVs[p]
 		tokeep = setdiff(1:fe.m, shell_num)
-@show tokeep
 		boundaries[p] = fe[tokeep, :]
-@show boundaries[p]
 		shells[p] = fe[shell_num, :]
-@show shells[p]
 	end
 
+	# computation of bounding boxes of isolated components
 	shell_bboxes = []
 	for i in 1:n
 		vs_indexes = (abs.(EVs[i]')*abs.(shells[i])).nzind
 		push!(shell_bboxes, Lar.bbox(V[vs_indexes, :]))
 	end
+	# computation and reduction of containment graph
 	containment_graph = Lar.Arrangement.pre_containment_test(shell_bboxes)
+@show 1,containment_graph
 	containment_graph = Lar.Arrangement.prune_containment_graph(n, V, EVs, shells, containment_graph)
+@show 2,containment_graph
 	Lar.Arrangement.transitive_reduction!(containment_graph) 
+@show 3,containment_graph
 	return n, containment_graph, V, EVs, boundaries, shells, shell_bboxes
 end
 
@@ -579,7 +576,7 @@ end
 """
     planar_arrangement(V::Points, copEV::ChainOp, [sigma::Chain], [return_edge_map::Bool], [multiproc::Bool])
 
-CCompute the arrangement on the given cellular complex 1-skeleton in 2D.
+Compute the arrangement on the given cellular complex 1-skeleton in 2D.
 
 A cellular complex is arranged when the intersection of every possible pair of cell 
 of the complex is empty and the union of all the cells is the whole Euclidean space.

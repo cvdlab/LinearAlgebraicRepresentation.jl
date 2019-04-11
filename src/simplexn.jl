@@ -135,25 +135,36 @@ end
 
 Compute the `(d-1)`-skeleton (set of `facets`) of a simplicial `d`-complex.
 
-# Examples
+# Example
 ```julia
-julia> V,FV = simplexGrid([1,1]) # 2-dimensional complex
+julia> V,FV = Lar.simplexGrid([1,1]) # 2-dimensional complex
 # output
 ([0 1 0 1; 0 0 1 1], Array{Int64,1}[[1, 2, 3], [2, 3, 4]])
 
 julia> Plasm.view(V,FV)
 
-julia> W,CW = extrudeSimplicial((V,FV), [1])
+julia> W,CW = Lar.extrudeSimplicial((V,FV), [1])
 ([0.0 1.0 … 0.0 1.0; 0.0 0.0 … 1.0 1.0; 0.0 0.0 … 1.0 1.0], 
 Array{Int64,1}[[1,2,3,5],[2,3,5,6],[3,5,6,7],[2,3,4,6],[3,4,6,7],[4,6,7,8]])
 
-julia> FW = simplexFacets(CW)
+julia> FW = Lar.simplexFacets(CW)
 18-element Array{Any,1}:
 [[1,3,5],[5,6,7],[3,5,7],[3,6,7],[4,6,7],[4,7,8],[4,6,8],
 [6,7,8],[3,5,6],[2,3,5],[2,3,4],[3,4,7],[1,2,3],[2,4,6],[2,5,6],
 [1,2,5],[2,3,6],[3,4,6]]
 
 julia> Plasm.view(W,FW)
+```
+
+# Example
+
+```julia
+julia> V,(VV,EV,FV,CV) = Lar.cuboidGrid([3,3,3],true)
+
+julia> TV = Lar.simplexFacets(CV)
+
+julia> Plasm.view(V,TV)
+
 ```
 """
 function simplexFacets(simplices) # TODO: solve bug
@@ -173,4 +184,34 @@ function simplexFacets(simplices) # TODO: solve bug
     return convert(Lar.Cells, out)
 end
 
+
+"""
+	quads2triangles(quads::Cells)::Cells
+	
+Convert an array of *quads* with type `::Lar.Cells` into an array of *triangles*
+with the same type.
+	
+# Examples
+
+The transformation from quads to triangles works for any 2-complex, embedded in any dimensional space
+
+## 2D example
+```
+V,FV = Lar.cuboidGrid([4,5])
+triangles = quads2triangles(FV::Lar.Cells)::Lar.Cells
+using Plasm
+Plasm.view((V,[triangles]))
+```
+## 3D example
+```
+V,(VV,EV,FV,CV) = Lar.cuboidGrid([4,5,3],true)
+triangles = quads2triangles(FV::Lar.Cells)::Lar.Cells
+using Plasm
+Plasm.view((V,[triangles]))
+```
+"""
+function quads2triangles(quads::Lar.Cells)::Lar.Cells
+	pairs = [[ Int[v1,v2,v3], Int[v3,v2,v4]] for (v1,v2,v3,v4) in quads ]
+	return cat(pairs)
+end
 

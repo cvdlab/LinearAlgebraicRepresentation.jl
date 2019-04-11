@@ -34,6 +34,5 @@ Plasm.viewexploded(W,EW)(1.2,1.2,1.2)
 W,EW = Lar.fragmentlines(model)
 V,EVs = Lar.biconnectedComponent((W,EW::Lar.Cells)) # 2-connected components (H & T)
 
-hpcs = [ Plasm.lar2hpc(V,EVs[i]) for i=1:length(EVs) ]
-Plasm.view([ Plasm.color(Plasm.colorkey[(k%12)==0 ? 12 : k%12])(hpcs[k]) for k=1:(length(hpcs)) ])
-
+	model = V,EVs
+	Plasm.view(Plasm.lar_exploded(model)(1.2,1.2,1.2))
