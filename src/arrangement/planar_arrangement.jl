@@ -333,10 +333,9 @@ function cell_merging(n, containment_graph, V, EVs, boundaries, shells, shell_bb
         end
         boxes
     end
-    
-
+    # initiolization
     sums = Array{Tuple{Int, Int, Int}}(undef, 0);
-
+	# assembling child components with father components  
     for father in 1:n
         if sum(containment_graph[:, father]) > 0
             father_bboxes = bboxes(V, abs.(EVs[father]')*abs.(boundaries[father]'))
@@ -353,7 +352,7 @@ function cell_merging(n, containment_graph, V, EVs, boundaries, shells, shell_bb
             end
         end
     end
-
+    # offset assembly initialization 
     EV = vcat(EVs...)
     edgenum = size(EV, 1)
     facenum = sum(map(x->size(x,1), boundaries))
@@ -361,6 +360,7 @@ function cell_merging(n, containment_graph, V, EVs, boundaries, shells, shell_bb
     shells2 = spzeros(Int8, length(shells), edgenum)
     r_offsets = [1]
     c_offset = 1
+    # submatrices construction
     for i in 1:n
         min_row = r_offsets[end]
         max_row = r_offsets[end] + size(boundaries[i], 1) - 1
@@ -371,7 +371,7 @@ function cell_merging(n, containment_graph, V, EVs, boundaries, shells, shell_bb
         push!(r_offsets, max_row + 1)
         c_offset = max_col + 1
     end
-    
+    # offsetting assembly of component submatrices
     for (f, r, c) in sums
         FE[r_offsets[f]+r-1, :] += shells2[c, :]
     end
@@ -387,33 +387,41 @@ function componentgraph(V, copEV, bicon_comps)
 	shells = Array{Lar.Chain, 1}(undef, n)
 	boundaries = Array{Lar.ChainOp, 1}(undef, n)
 	EVs = Array{Lar.ChainOp, 1}(undef, n)
-	for p in 1:n
 	# for each component
+	for p=1:n
 		ev = copEV[sort(bicon_comps[p]), :]
 		# computation of 2-cells 
 		fe = Lar.Arrangement.minimal_2cycles(V, ev) 
 		# exterior cycle
-		shell_num = Lar.Arrangement.get_external_cycle(V, ev, fe)
-
+		global shell_num = Lar.Arrangement.get_external_cycle(V, ev, fe)
+		# decompose each fe (co-boundary local to component)
 		EVs[p] = ev 
-		tokeep = setdiff(1:fe.m, shell_num)
+		global tokeep = setdiff(1:fe.m, shell_num)
 		boundaries[p] = fe[tokeep, :]
 		shells[p] = fe[shell_num, :]
 	end
+	
+#	@show shell_num;
+#	@show [SparseArrays.findnz(EVs[k]) for k=1:length(EVs)];
+#	@show tokeep;
+#	@show [SparseArrays.findnz(boundaries[k]) for k=1:length(boundaries)];
+#	@show [SparseArrays.findnz(shells[k]) for k=1:length(shells)];
 
 	# computation of bounding boxes of isolated components
 	shell_bboxes = []
 	for i in 1:n
 		vs_indexes = (abs.(EVs[i]')*abs.(shells[i])).nzind
+		@show vs_indexes
 		push!(shell_bboxes, Lar.bbox(V[vs_indexes, :]))
+		@show shell_bboxes
 	end
 	# computation and reduction of containment graph
 	containment_graph = Lar.Arrangement.pre_containment_test(shell_bboxes)
-@show 1,containment_graph
+	@show 1,Matrix(containment_graph)
 	containment_graph = Lar.Arrangement.prune_containment_graph(n, V, EVs, shells, containment_graph)
-@show 2,containment_graph
+	@show 2,Matrix(containment_graph)
 	Lar.Arrangement.transitive_reduction!(containment_graph) 
-@show 3,containment_graph
+	@show 3,Matrix(containment_graph)
 	return n, containment_graph, V, EVs, boundaries, shells, shell_bboxes
 end
 
@@ -452,7 +460,7 @@ function cleandecomposition(V, copEV, sigma)
     
     # biconnected components
     bicon_comps = Lar.Arrangement.biconnected_components(copEV) # -> arrays of edge indices
-        
+    @show bicon_comps,0
     if isempty(bicon_comps)
         println("No biconnected components found.")
         if (return_edge_map)
@@ -482,12 +490,20 @@ end
 
 
     
-function planar_arrangement_1(        
-	V::Lar.Points, 	
-	copEV::Lar.ChainOp, 
-	sigma::Lar.Chain=spzeros(Int8, 0), 
-	return_edge_map::Bool=false, 
-	multiproc::Bool=false)
+"""
+	function planar_arrangement_1( V::Lar.Points, copEV::Lar.ChainOp, 
+		sigma::Lar.Chain=spzeros(Int8, 0), 
+		return_edge_map::Bool=false, 
+		multiproc::Bool=false)
+
+Compute the arrangement on the given cellular complex 1-skeleton in 2D.
+First part of arrangement's algorithmic pipeline. 
+
+"""
+function planar_arrangement_1( V, copEV, 
+		sigma::Lar.Chain=spzeros(Int8, 0), 
+		return_edge_map::Bool=false, 
+		multiproc::Bool=false)
 
 	# data structures initialization
 	edgenum = size(copEV, 1)
@@ -544,23 +560,32 @@ function planar_arrangement_1(
 	return V, copEV
 end 
 	
+"""
+	function planar_arrangement_2(V, copEV, bicon_comps, 
+		sigma::Lar.Chain=spzeros(Int8, 0), 
+		return_edge_map::Bool=false, 
+		multiproc::Bool=false)
 
-# compute containment graph of 2D components
+
+Compute the arrangement on the given cellular complex 1-skeleton in 2D.
+Second part of arrangement's algorithmic pipeline. 
+
+"""
 function planar_arrangement_2(V, copEV, bicon_comps, 
-	sigma::Lar.Chain=spzeros(Int8, 0), 
-	return_edge_map::Bool=false, 
-	multiproc::Bool=false)
+		sigma::Lar.Chain=spzeros(Int8, 0), 
+		return_edge_map::Bool=false, 
+		multiproc::Bool=false)
 
+	# Topological Gift Wrapping
 	n, containment_graph, V, EVs, boundaries, shells, shell_bboxes = 
 		componentgraph(V, copEV, bicon_comps)
-@show containment_graph
-
+	@show containment_graph
+	# only in the context of 3D arrangement
 	if sigma.n > 0
 		todel, V, copEV = cleandecomposition(V, copEV, sigma)
 		V, copEV = Lar.delete_edges(todel, V, copEV)
 	end
-
-	# Topological Gift Wrapping ?
+	# final shell poset aggregation and FE output
 	copEV, FE = Lar.Arrangement.cell_merging(
 		n, containment_graph, V, EVs, boundaries, shells, shell_bboxes)
 	if (return_edge_map)
@@ -574,9 +599,11 @@ end
 
 
 """
-    planar_arrangement(V::Points, copEV::ChainOp, [sigma::Chain], [return_edge_map::Bool], [multiproc::Bool])
+    planar_arrangement(V::Points, copEV::ChainOp, 
+    	[sigma::Chain], [return_edge_map::Bool], [multiproc::Bool])
 
 Compute the arrangement on the given cellular complex 1-skeleton in 2D.
+Whole arrangement's algorithmic pipeline. 
 
 A cellular complex is arranged when the intersection of every possible pair of cell 
 of the complex is empty and the union of all the cells is the whole Euclidean space.
@@ -588,12 +615,10 @@ returns the full arranged complex `V`, `EV` and `FE`.
 - `return_edge_map::Bool`: makes the function return also an `edge_map` which maps the edges of the imput to the one of the output. Defaults to `false`.
 - `multiproc::Bool`: Runs the computation in parallel mode. Defaults to `false`.
 """
-function planar_arrangement(
-	V::Lar.Points, 	
-	copEV::Lar.ChainOp, 
-	sigma::Lar.Chain=spzeros(Int8, 0), 
-	return_edge_map::Bool=false, 
-	multiproc::Bool=false)
+function planar_arrangement( V::Lar.Points, copEV::Lar.ChainOp, 
+		sigma::Lar.Chain=spzeros(Int8, 0), 
+		return_edge_map::Bool=false, 
+		multiproc::Bool=false)
 
 	# edge subdivision
 	V, copEV = Lar.planar_arrangement_1(V::Lar.Points, copEV::Lar.ChainOp)

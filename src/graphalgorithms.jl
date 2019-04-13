@@ -159,6 +159,7 @@ function biconnectedComponent(model)
         end
     end
     out = [component for component in out if length(component) >= 1]
+@show out
     EVs = [[map(sort∘collect,edges) for edges in cat(comp) if length(edges)>1] 
     		for comp in out]
     EVs = cat(filter(x->!isempty(x), EVs))
