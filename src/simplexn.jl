@@ -133,7 +133,7 @@ end
 """
 	simplexFacets(simplices::Cells)::Cells
 
-Compute the `(d-1)`-skeleton (set of `facets`) of a simplicial `d`-complex.
+Compute the `(d-1)`-skeleton (unoriented set of `facets`) of a simplicial `d`-complex.
 
 # Example
 ```julia
@@ -167,22 +167,19 @@ julia> Plasm.view(V,TV)
 
 ```
 """
-function simplexFacets(simplices) # TODO: solve bug
-    out = []
-    d = length(simplices[1])
-    for simplex in simplices
-    	non_oriented_facets = [ append!(simplex[1:k-1],simplex[k+1:d]) for k=1:d ]
-    	if (-1)^d == 1
-    		oriented_facets = non_oriented_facets
-    	else
-    		oriented_facets = [ length(f)==2 ? [f[2],f[1]] : [f[2],f[1],f[3:end]]  
-    			for f in non_oriented_facets ]
-    	end
-        append!(out, oriented_facets)
-    end
-    out = collect(Set(out))
-    return convert(Lar.Cells, out)
+function simplexFacets(simplices)
+    out = Array{Int64,1}[]
+	for simplex in simplices
+		for v in simplex
+			facet = setdiff(simplex,v)
+			push!(out, facet)
+		end
+	end
+	# remove duplicate facets
+	return sort(collect(Set(out)))
 end
+
+CV = simplexGrid([1,1,1])
 
 
 """
