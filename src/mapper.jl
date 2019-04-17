@@ -11,7 +11,7 @@ Transform the float `value` to get a `PRECISION` number of significant digits.
 """
 function approxVal(PRECISION)
     function approxVal0(value)
-        out = round(value, sigdigits=PRECISION)
+        out = round(value, digits=PRECISION)
         if out == -0.0
             out = 0.0
         end
@@ -242,13 +242,13 @@ julia> Plasm.view(Lar.sphere()())
 @enum surface triangled=1 single=2
 function sphere(radius=1., angle1=pi, angle2=2*pi, surface=triangled)
     function sphere0(shape=[18, 36])
-        V, CV = simplexGrid(shape)
+        V, CV = Lar.simplexGrid(shape)
         V = [angle1/shape[1] 0;0 angle2/shape[2]]*V
         V = broadcast(+, V, [-angle1/2, -angle2/2])
         W = [V[:, k] for k=1:size(V, 2)]
         V = hcat(map(p->let(u, v)=p;[radius*cos(u)*cos(v);
         	radius*cos(u)*sin(v);radius*sin(u)]end, W)...) 
-        W, CW = simplifyCells(V, CV)
+        W, CW = Lar.simplifyCells(V, CV)
         CW = [triangle for triangle in CW if length(triangle)==3]
         if Int(surface)==1
         	return W, CW
