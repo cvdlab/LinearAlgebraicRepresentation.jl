@@ -1,6 +1,10 @@
 using LinearAlgebraicRepresentation
 Lar = LinearAlgebraicRepresentation
 
+
+"""
+    frag_edge_channel(in_chan, out_chan, V, EV, bigPI)
+"""
 function frag_edge_channel(in_chan, out_chan, V, EV, bigPI)
     run_loop = true
     while run_loop
@@ -13,6 +17,38 @@ function frag_edge_channel(in_chan, out_chan, V, EV, bigPI)
     end
 end
 
+
+"""
+	frag_edge(V, EV, edge_idx, bigPI)
+
+This...
+
+# Examples
+```
+julia> V = [1.0 0.0; 0.0 1.0; 0.0 0.5; 0.5 1.0; 1.0 1.0]; # By Rows!
+
+julia> EV = [[1, 2], [2, 5], [3, 4], [4, 5]];
+
+julia> cop_EV = Lar.coboundary_0(EV::Lar.Cells);
+
+julia> bigPI = Lar.spaceindex((convert(Lar.Points, V'), EV));
+
+julia> Lar.Arrangement.frag_edge(V, copEV, 1, bigPI)[1]
+5×2 Array{Float64,2}:
+ 1.0   0.0 
+ 0.0   1.0 
+ 1.0   0.0 
+ 0.25  0.75
+ 0.0   1.0 
+
+julia> Lar.Arrangement.frag_edge(V, copEV, 1, bigPI)[2]
+2×5 SparseMatrixCSC{Int8,Int64} with 4 stored entries:
+  [1, 1]  =  1
+  [2, 2]  =  1
+  [1, 4]  =  1
+  [2, 4]  =  1
+```
+"""
 function frag_edge(V::Lar.Points, EV::Lar.ChainOp, edge_idx::Int, bigPI)
     alphas = Dict{Float64, Int}()
     edge = EV[edge_idx, :]
@@ -39,6 +75,10 @@ function frag_edge(V::Lar.Points, EV::Lar.ChainOp, edge_idx::Int, bigPI)
     return verts, ev
 end
 
+
+"""
+	intersect_edges(V, edge1, edge2)
+"""
 function intersect_edges(V::Lar.Points, edge1::Lar.Cell, edge2::Lar.Cell)
     err = 10e-8
 
@@ -83,6 +123,10 @@ function intersect_edges(V::Lar.Points, edge1::Lar.Cell, edge2::Lar.Cell)
     return ret
 end
 
+
+"""
+    merge_vertices!(V, EV, edge_map, err=1e-4)
+"""
 function merge_vertices!(V::Lar.Points, EV::Lar.ChainOp, edge_map, err=1e-4)
     vertsnum = size(V, 1)
     edgenum = size(EV, 1)
@@ -144,6 +188,10 @@ function merge_vertices!(V::Lar.Points, EV::Lar.ChainOp, edge_map, err=1e-4)
     return Lar.Points(nV), nEV
 end
 
+
+"""
+    biconnected_components(EV)
+"""
 function biconnected_components(EV::Lar.ChainOp)
     ps = Array{Tuple{Int, Int, Int}, 1}()
     es = Array{Tuple{Int, Int}, 1}()
@@ -240,6 +288,10 @@ function biconnected_components(EV::Lar.ChainOp)
     return bicon_comps
 end
 
+
+"""
+    get_external_cycle(V, EV, FE)
+"""
 function get_external_cycle(V::Lar.Points, EV::Lar.ChainOp, FE::Lar.ChainOp)
     FV = abs.(FE)*EV
     vs = sparsevec(mapslices(sum, abs.(EV), dims=1)').nzind
@@ -272,6 +324,11 @@ function get_external_cycle(V::Lar.Points, EV::Lar.ChainOp, FE::Lar.ChainOp)
         end
     end
 end
+
+
+"""
+    pre_containment_test(bboxes)
+"""
 function pre_containment_test(bboxes)
     n = length(bboxes)
     containment_graph = spzeros(Int8, n, n)
@@ -286,6 +343,11 @@ function pre_containment_test(bboxes)
 
     return containment_graph
 end
+
+
+"""
+    prune_containment_graph(n, V, EVs, shells, graph)
+"""
 function prune_containment_graph(n, V, EVs, shells, graph)
     
     for i in 1:n
@@ -309,6 +371,11 @@ function prune_containment_graph(n, V, EVs, shells, graph)
      end
      return graph
 end
+
+
+"""
+    transitive_reduction!(graph)
+"""
 function transitive_reduction!(graph)
     n = size(graph, 1)
     for j in 1:n
@@ -324,6 +391,10 @@ function transitive_reduction!(graph)
     end
 end
 
+
+"""
+    cell_merging(n, containment_graph, V, EVs, boundaries, shells, shell_bboxes)
+"""
 function cell_merging(n, containment_graph, V, EVs, boundaries, shells, shell_bboxes)
     function bboxes(V::Lar.Points, indexes::Lar.ChainOp)
         boxes = Array{Tuple{Any, Any}}(undef, indexes.n)
@@ -380,6 +451,9 @@ function cell_merging(n, containment_graph, V, EVs, boundaries, shells, shell_bb
 end
 
 
+"""
+    componentgraph(V, copEV, bicon_comps)
+"""
 function componentgraph(V, copEV, bicon_comps)
 
 	# arrangement of isolated components
@@ -426,6 +500,9 @@ function componentgraph(V, copEV, bicon_comps)
 end
 
 
+"""
+    cleandecomposition(V, copEV, sigma)
+"""
 function cleandecomposition(V, copEV, sigma)
     # Deletes edges outside sigma area
 	todel = []
@@ -489,18 +566,81 @@ function cleandecomposition(V, copEV, sigma)
 end
 
 
-    
-"""
-	function planar_arrangement_1( V::Lar.Points, copEV::Lar.ChainOp, 
-		sigma::Lar.Chain=spzeros(Int8, 0), 
-		return_edge_map::Bool=false, 
-		multiproc::Bool=false)
-
-Compute the arrangement on the given cellular complex 1-skeleton in 2D.
-First part of arrangement's algorithmic pipeline. 
+#--------------------------------------------------------------------------------------------------------------------------------
+#								MAIN PIPELINE
+#--------------------------------------------------------------------------------------------------------------------------------
 
 """
-function planar_arrangement_1( V, copEV, 
+	function planar_arrangement_1(V, copEV[, sigma[, return_edge_map[, multiproc]]])
+
+First part of arrangement's algorithmic pipeline.
+
+This function computes the pairwise intersection between each edge of a given 2D cellular complex 1-skeleton.
+The computation is speeded up via the evaluation of the Spatial Index. See [`Lar.spaceindex`](@ref). 
+
+See also: [`Lar.planar_arrangement`](@ref) for the complete pipeline.
+
+---
+
+# WARNING
+This structure expects the vector points organised by rows!
+
+---
+
+# Arguments
+ - `V::Lar.Points`: Vertices of the complex.
+ - `copEV::Lar.ChainOp`: Chain Coboundary of the edge vector.
+
+## Additional Arguments
+ - `sigma::Lar.Chain`: if specified, the arrangement will delete from the output every edge and face outside this cell. (*by defaults* = empty cell, no boundary) ### TO BE IMPLEMENTED
+ - `return_edge_map::Bool`: If set to true, the function will also return an `edge_map` that maps the input edges to the corresponding output ones (*by default* = false) ### TO BE IMPLEMENTED
+ - `multiproc::Bool`: If set to true, execute the arrangement in parallel (*by default* = false, sequential)
+
+## Return
+ - `V::Lar.Poins`: Vertices of the new complex.
+ - `copEV::Lar.ChainOp`: Chain Coboundary of the new edge vector.
+
+---
+
+# Examples
+```jldoctest
+julia> using Plasm
+
+julia> using LinearAlgebraicRepresentation
+
+julia> Lar = LinearAlgebraicRepresentation;
+
+julia> EV = [[1, 2], [3, 4], [1, 3], [2, 4], [5, 6], [7, 8], [5, 7], [6, 8]];
+
+julia> V = [
+           0.0 0.5 0.0 0.5 0.3 1.0 0.3 1.0;
+           0.0 0.0 1.0 1.0 0.5 0.5 1.0 1.0
+       ];
+
+julia> W = convert(Lar.Points, V'); # Infering type for W = V'
+
+julia> cop_EV = Lar.coboundary_0(EV::Lar.Cells);
+
+julia> W1, copEV1 = Lar.planar_arrangement_1(W::Lar.Points, cop_EV::Lar.ChainOp)
+([0.0 0.0; 0.5 0.0; … ; 1.0 0.5; 1.0 1.0], 
+  [1 ,  1]  =  1
+  [4 ,  1]  =  1
+  [1 ,  2]  =  1
+  ⋮
+  [11,  8]  =  1
+  [9 ,  9]  =  1
+  [11,  9]  =  1)
+
+julia> EV1 = Lar.cop2lar(copEV1);
+
+julia> V1 = convert(Lar.Points, W1');
+
+julia> Plasm.view(Plasm.numbering(0.1)((V,[[[k] for k=1:size(V,2)], EV])));
+
+julia> Plasm.view(Plasm.numbering(0.1)((V1,[[[k] for k=1:size(V1,2)], EV1])));
+```
+"""
+function planar_arrangement_1(V::Lar.Points, copEV::Lar.ChainOp, 
 		sigma::Lar.Chain=spzeros(Int8, 0), 
 		return_edge_map::Bool=false, 
 		multiproc::Bool=false)
@@ -558,8 +698,9 @@ function planar_arrangement_1( V, copEV,
 	V, copEV = rV, rEV
 	V, copEV = Lar.Arrangement.merge_vertices!(V, copEV, edge_map)
 	return V, copEV
-end 
-	
+end
+
+
 """
 	function planar_arrangement_2(V, copEV, bicon_comps, 
 		sigma::Lar.Chain=spzeros(Int8, 0), 
@@ -596,7 +737,6 @@ function planar_arrangement_2(V, copEV, bicon_comps,
 	return V, copEV, FE
 end 
 	
-
 
 """
     planar_arrangement(V::Points, copEV::ChainOp, 
