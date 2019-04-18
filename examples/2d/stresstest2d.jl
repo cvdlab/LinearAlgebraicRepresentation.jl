@@ -1,6 +1,9 @@
 using LinearAlgebraicRepresentation
 using Plasm
 Lar = LinearAlgebraicRepresentation
+using IntervalTrees
+using SparseArrays
+using NearestNeighbors
 
 function input_collection(data::Array)::Lar.LAR
 	assembly = Lar.Struct(data)

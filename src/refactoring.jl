@@ -279,9 +279,9 @@ Sigma
 """
 function spaceindex(model::Lar.LAR)::Array{Array{Int,1},1}
 	V,CV = model[1:2]
-	dim = size(V,1)
-	
+	dim = size(V,1)	
 	cellpoints = [ V[:,CV[k]]::Lar.Points for k=1:length(CV) ]
+	#----------------------------------------------------------
 	bboxes = [hcat(Lar.boundingbox(cell)...) for cell in cellpoints]
 	xboxdict = Lar.coordintervals(1,bboxes)
 	yboxdict = Lar.coordintervals(2,bboxes)
@@ -713,5 +713,4 @@ function Output
 end
 
 =#
-
 

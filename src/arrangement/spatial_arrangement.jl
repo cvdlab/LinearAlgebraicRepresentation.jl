@@ -133,8 +133,9 @@ function merge_vertices(V::Lar.Points, EV::Lar.ChainOp, FE::Lar.ChainOp, err=1e-
 end
 
 
+
 """
-    spatial_arrangement(V::Points, EV::ChainOp, FE::ChainOp; [multiproc::Bool])
+    spatial_arrangement(V::Points, copEV::ChainOp, copFE::ChainOp; [multiproc::Bool])
 
 Compute the arrangement on the given cellular complex 2-skeleton in 3D.
 
@@ -146,13 +147,16 @@ The function returns the full arranged complex as a list of vertices V and a cha
 - `multiproc::Bool`: Runs the computation in parallel mode. Defaults to `false`.
 """
 function spatial_arrangement(
-V::Lar.Points, 
-EV::Lar.ChainOp, 
-FE::Lar.ChainOp, multiproc::Bool=false)
+		V::Lar.Points, 
+		copEV::Lar.ChainOp, 
+		copFE::Lar.ChainOp, multiproc::Bool=false)
 
-    fs_num = size(FE, 1)
-    sp_idx = Lar.Arrangement.spatial_index(V, EV, FE)
+	# spaceindex computation
+	FV = Lar.compute_FV( copEV, copFE )
+	model = (convert(Lar.Points,V'), FV)
+	sp_idx = Lar.spaceindex(model::Lar.LAR)
 
+    fs_num = size(copFE, 1)
     global rV = Lar.Points(undef, 0,3)
     global rEV = SparseArrays.spzeros(Int8,0,0)
     global rFE = SparseArrays.spzeros(Int8,0,0)
@@ -183,7 +187,7 @@ FE::Lar.ChainOp, multiproc::Bool=false)
         for sigma in 1:fs_num
             # print(sigma, "/", fs_num, "\r")
             nV, nEV, nFE = Lar.Arrangement.frag_face(
-            	V, EV, FE, sp_idx, sigma)
+            	V, copEV, copFE, sp_idx, sigma)
             a,b,c = Lar.skel_merge(
             	rV, rEV, rFE, nV, nEV, nFE)
             global rV=a; global rEV=b; global rFE=c

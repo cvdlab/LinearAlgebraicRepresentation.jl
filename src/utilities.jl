@@ -967,3 +967,19 @@ function randomcuboids(n,scale=1.0)
 	end
 	Lar.struct2lar(Lar.Struct(assembly))
 end
+
+
+
+"""
+	compute_FV( copEV::Lar.ChainOp, copFE::Lar.ChainOp )::Lar.Cells
+
+Compute the `FV` array of type `Lar.Cells` from two `Lar.ChainOp`, via 
+sparse array product.  To be generalized to open 2-manifolds.
+"""
+function compute_FV( copEV::Lar.ChainOp, copFE::Lar.ChainOp )
+	# TODO: generalize for open 2-manifolds
+	kFV = (x->div(x,2)).(abs.(copFE) * abs.(copEV)) # works only for closed surfaces
+	FV = [SparseArrays.findnz(kFV[k,:])[1] for k=1:size(kFV,1)]
+	return FV
+end
+

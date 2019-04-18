@@ -1,6 +1,9 @@
 using LinearAlgebraicRepresentation
 using Plasm
 Lar = LinearAlgebraicRepresentation
+using IntervalTrees
+using SparseArrays
+using NearestNeighbors
 
 function input_collection(data::Array)::Lar.LAR
 	assembly = Lar.Struct(data)
@@ -8,38 +11,30 @@ function input_collection(data::Array)::Lar.LAR
 end
 
 
-V,(_,EV,FV) = Lar.cuboidGrid([4,1],true);
-W,(_,EW,FW) = Lar.cuboidGrid([1,5],true);
-mycircle(r,n) = Lar.circle(r)(n)
-data2d1 = (V,EV)
-data2d2 = Lar.Struct([ Lar.t(2,2), Lar.r(pi/3), Lar.t(-1.5,-2.5), (W,EW) ])
-data2d3 = Lar.Struct([ Lar.t(2,2), mycircle(2.5,160) ])
-data2d4 = Lar.Struct([ Lar.t(3.5,3.5), mycircle(.25,160) ])
-data2d5a = Lar.Struct([ Lar.t(5,3.5), mycircle(.75,160) ])
-data2d5 = Lar.Struct([ Lar.t(5,3.5), mycircle(.5,160) ])
-data2d6 = Lar.Struct([ Lar.t(5,3.5), mycircle(.25,160) ])
-data = [ data2d1, data2d2, data2d3, data2d4, data2d5,  data2d5a, data2d6 ]
-model2d = input_collection( [ Lar.Struct(data), Lar.t(-pi/6,pi/3), Lar.Struct(data) ] )
-V,EV = model2d
+V,FV = Lar.sphere(2)([3,4])
+#V,FV = Lar.sphere(2)([12,16])
+EV = Lar.simplexFacets(FV)
+#EV = Lar.quads2triangles(FV)
+mysphere = V,FV,EV
+
+data3d1 = mysphere
+data3d2 = Lar.Struct([ Lar.t(0,1,0), mysphere ])
+data3d3 = Lar.Struct([ Lar.t(0,0.5,0), Lar.s(0.4,0.4,0.4), mysphere ])
+data3d4 = Lar.Struct([ Lar.t(4,0,0), Lar.s(0.8,0.8,0.8), mysphere ])
+data3d5 = Lar.Struct([ Lar.t(4,0,0), Lar.s(0.4,0.4,0.4), mysphere ])
+
+model3d = input_collection([ data3d1, data3d2, data3d3, data3d4, data3d5 ])
+V,FV,EV = model3d
 VV = [[k] for k in 1:size(V,2)];
-Plasm.view( Plasm.numbering(.3)((V,[VV, EV])) )
+using Plasm
+Plasm.view( Plasm.numbering(1)((V,[VV, EV, FV])) )
 
+copEV = Lar.coboundary_0(EV)
+copFE = Lar.coboundary_1(V,FV,EV)
 W = convert(Lar.Points, V')
-cop_EV = Lar.coboundary_0(EV::Lar.Cells)
-cop_EW = convert(Lar.ChainOp, cop_EV)
-V, copEV, copFE = Lar.Arrangement.planar_arrangement(W::Lar.Points, cop_EW::Lar.ChainOp)
 
-triangulated_faces = Lar.triangulate2D(V, [copEV, copFE])
-FVs = convert(Array{Lar.Cells}, triangulated_faces)
-V = convert(Lar.Points, V')
-Plasm.viewcolor(V::Lar.Points, FVs::Array{Lar.Cells})
+	model = (W,copFE,copEV)
+	bigPI = Lar.spaceindex(model)
 
-W, copEV, copFE = Lar.Arrangement.planar_arrangement(W::Lar.Points, cop_EW::Lar.ChainOp)
-EVs = Lar.FV2EVs(copEV, copFE) # polygonal face fragments
-V = convert(Lar.Points, W')
-Plasm.viewcolor(V::Lar.Points, EVs::Array{Lar.Cells})
-
-model = V,EVs
-Plasm.view(Plasm.lar_exploded(model)(1.2,1.2,1.2))
-
+#Lar.spatial_arrangement(V::Lar.Points, copEV::Lar.ChainOp, copFE::Lar.ChainOp)
 
