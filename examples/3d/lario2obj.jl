@@ -59,3 +59,5 @@ V = convert(Lar.Points,V')
 open("testfile.obj","w") do f
     print(f, Lar.lar2obj(V::Lar.Points, cc) )
 end
+
+

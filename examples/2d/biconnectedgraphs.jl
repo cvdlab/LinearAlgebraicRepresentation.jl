@@ -2,8 +2,8 @@ using LinearAlgebraicRepresentation
 Lar = LinearAlgebraicRepresentation
 using Plasm
 
-n = 3000 #1000 #20000
-t = 0.15 #0.4 #0.15
+n = 50 #3000 #1000 #20000
+t = 0.75 #0.15 #0.4 #0.15
 
 function randomlines(n=1000,t=0.2)
 	V = zeros(Float64,2,2*n)

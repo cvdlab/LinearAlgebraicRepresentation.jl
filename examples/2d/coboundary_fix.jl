@@ -21,3 +21,10 @@ Matrix(copFE)
 VV = [[k] for k in 1:size(V,2)];
 using Plasm
 Plasm.view( Plasm.numbering(3)((V,[VV, EV, FV])) )
+
+# final solid visualization
+copEV = Lar.coboundary_0(EV)
+W = convert(Lar.Points, V')
+triangulated_faces = Lar.triangulate2D(W, [copEV, copFE])
+FVs = convert(Array{Lar.Cells}, triangulated_faces)
+Plasm.viewcolor(V::Lar.Points, FVs::Array{Lar.Cells})

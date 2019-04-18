@@ -33,8 +33,8 @@ copEV = Lar.coboundary_0(EV)
 copFE = Lar.coboundary_1(V,FV,EV)
 W = convert(Lar.Points, V')
 
-	model = (W,copFE,copEV)
-	bigPI = Lar.spaceindex(model)
+#	model = (W,copFE,copEV)
+#	bigPI = Lar.spaceindex(model)
 
 #Lar.spatial_arrangement(V::Lar.Points, copEV::Lar.ChainOp, copFE::Lar.ChainOp)
 

@@ -17,11 +17,19 @@ EV = Array{Int64,1}[[1, 2], [3, 4], [5, 6], [7, 8], [9, 10], [11, 12], [13, 14],
 using Plasm
 
 V,bases,coboundaries = Lar.chaincomplex(V,EV)
+objs = Lar.lar2obj2D(V, [coboundaries...])  
+open("./villa.obj", "w") do f
+	write(f, objs)
+end
+
+
+
+
 V = convert(Lar.Points,V)
 Plasm.view(V,bases[1])
 Plasm.view(V,bases[2])
 
-ev,fv=bases
+ev,fv = bases
 VV = [[k] for k=1:size(V,2)]
 model = (V, [VV,ev,fv])
 Plasm.view(Plasm.numbering(80.)(model))

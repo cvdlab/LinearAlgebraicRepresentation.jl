@@ -156,11 +156,13 @@ function spatial_arrangement(
 	model = (convert(Lar.Points,V'), FV)
 	sp_idx = Lar.spaceindex(model::Lar.LAR)
 
+	# initializations
     fs_num = size(copFE, 1)
-    global rV = Lar.Points(undef, 0,3)
-    global rEV = SparseArrays.spzeros(Int8,0,0)
-    global rFE = SparseArrays.spzeros(Int8,0,0)
+    rV = Lar.Points(undef, 0,3)
+    rEV = SparseArrays.spzeros(Int8,0,0)
+    rFE = SparseArrays.spzeros(Int8,0,0)
 
+	# multiprocessing of face fragmentation
     if (multiproc == true)
         in_chan = Distributed.RemoteChannel(()->Channel{Int64}(0))
         out_chan = Distributed.RemoteChannel(()->Channel{Tuple}(0))
@@ -184,21 +186,42 @@ function spatial_arrangement(
         end
         
     else
+	# sequential (iterative) processing of face fragmentation 
         for sigma in 1:fs_num
             # print(sigma, "/", fs_num, "\r")
             nV, nEV, nFE = Lar.Arrangement.frag_face(
             	V, copEV, copFE, sp_idx, sigma)
             a,b,c = Lar.skel_merge(
             	rV, rEV, rFE, nV, nEV, nFE)
-            global rV=a; global rEV=b; global rFE=c
+            rV=a; rEV=b; rFE=c
         end
         
     end
 
+	# merging of close vertices, edges and faces (3D congruence)
     rV, rEV, rFE = merge_vertices(rV, rEV, rFE)
+end
     
+function spatial_arrangement_2(
+		rV::Lar.Points, 
+		rcopEV::Lar.ChainOp, 
+		rcopFE::Lar.ChainOp, multiproc::Bool=false)
+
     rCF = minimal_3cycles(rV, rEV, rFE)
 
     return rV, rEV, rFE, rCF
 end
 
+
+function spatial_arrangement(
+		V::Lar.Points, 
+		copEV::Lar.ChainOp, 
+		copFE::Lar.ChainOp, multiproc::Bool=false)
+		
+	# face subdivision
+	rV, rcopEV, rcopFE = spatial_arrangement_1( V, copEV, copFE, multiproc )
+	# graph components
+	bicon_comps = Lar.Arrangement.biconnected_components(copEV)
+	# 3-complex and containment graph
+	rV, rEV, rFE, rCF = spatial_arrangement_2(rV, rcopEV, rcopFE)
+end
