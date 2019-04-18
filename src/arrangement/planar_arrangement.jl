@@ -2,6 +2,10 @@ using LinearAlgebraicRepresentation
 Lar = LinearAlgebraicRepresentation
 
 
+#--------------------------------------------------------------------------------------------------------------------------------
+#                               PIPELINE PART 1
+#--------------------------------------------------------------------------------------------------------------------------------
+
 """
     frag_edge_channel(in_chan, out_chan, V, EV, bigPI)
 """
@@ -21,7 +25,30 @@ end
 """
 	frag_edge(V, EV, edge_idx, bigPI)
 
-This...
+Splits the `edge_idx`-th edge in `EV`.
+
+This method splits the `edge_idx`-th edge in `EV` into several parts by confronting it
+with the others that intersect its bounding box (see also [`Lar.Arrangement.intersect_edges`](@ref)).
+
+The method returns a set of the new vertices that the segment is made of (with redundancies) and
+the associated cochain (with no redundancies).
+
+See also: [`Lar.Arrangement.planar_arrangement_1`](@ref)
+
+---
+
+# WARNING
+This structure expects the vector points organised by rows!
+
+---
+
+# Arguments
+ - `V::Lar.Points`: Vertices of the whole complex.
+ - `copEV::Lar.ChainOp`: Chain Coboundary of the whole edge vector.
+ - `edge_idx::Int`: Intersecting edge index.
+ - `bigPI::Array{Array{Int64,1},1}`: Bounding box of the complex (see also [`Lar.spaceindex`](@ref)).
+
+---
 
 # Examples
 ```
@@ -33,7 +60,7 @@ julia> cop_EV = Lar.coboundary_0(EV::Lar.Cells);
 
 julia> bigPI = Lar.spaceindex((convert(Lar.Points, V'), EV));
 
-julia> Lar.Arrangement.frag_edge(V, copEV, 1, bigPI)[1]
+julia> Lar.Arrangement.frag_edge(V, cop_EV, 1, bigPI)[1]
 5×2 Array{Float64,2}:
  1.0   0.0 
  0.0   1.0 
@@ -41,7 +68,7 @@ julia> Lar.Arrangement.frag_edge(V, copEV, 1, bigPI)[1]
  0.25  0.75
  0.0   1.0 
 
-julia> Lar.Arrangement.frag_edge(V, copEV, 1, bigPI)[2]
+julia> Lar.Arrangement.frag_edge(V, cop_EV, 1, bigPI)[2]
 2×5 SparseMatrixCSC{Int8,Int64} with 4 stored entries:
   [1, 1]  =  1
   [2, 2]  =  1
@@ -49,14 +76,13 @@ julia> Lar.Arrangement.frag_edge(V, copEV, 1, bigPI)[2]
   [2, 4]  =  1
 ```
 """
-function frag_edge(V::Lar.Points, EV::Lar.ChainOp, edge_idx::Int, bigPI)
+function frag_edge(V::Lar.Points, EV::Lar.ChainOp, edge_idx::Int, bigPI::Array{Array{Int64,1},1})::Tuple{Lar.Points, Lar.ChainOp}
     alphas = Dict{Float64, Int}()
     edge = EV[edge_idx, :]
     verts = V[edge.nzind, :]
     for i in bigPI[edge_idx]
-        if i != edge_idx
-            intersection = Lar.Arrangement.intersect_edges(
-            	V, edge, EV[i, :])
+        if i != edge_idx && edge_idx in bigPI[i]    #<------------------------- Could be usefull?
+            intersection = Lar.Arrangement.intersect_edges(V, edge, EV[i, :])
             for (point, alpha) in intersection
                 verts = [verts; point]
                 alphas[alpha] = size(verts, 1)
@@ -189,6 +215,11 @@ function merge_vertices!(V::Lar.Points, EV::Lar.ChainOp, edge_map, err=1e-4)
 end
 
 
+
+#--------------------------------------------------------------------------------------------------------------------------------
+#                                       PIPELINE BICONNECTED COMPONENTS
+#--------------------------------------------------------------------------------------------------------------------------------
+
 """
     biconnected_components(EV)
 """
@@ -288,6 +319,11 @@ function biconnected_components(EV::Lar.ChainOp)
     return bicon_comps
 end
 
+
+
+#--------------------------------------------------------------------------------------------------------------------------------
+#                                       PIPELINE PART 2
+#--------------------------------------------------------------------------------------------------------------------------------
 
 """
     get_external_cycle(V, EV, FE)
@@ -404,7 +440,7 @@ function cell_merging(n, containment_graph, V, EVs, boundaries, shells, shell_bb
         end
         boxes
     end
-    # initiolization
+    # initialization
     sums = Array{Tuple{Int, Int, Int}}(undef, 0);
 	# assembling child components with father components  
     for father in 1:n
@@ -592,8 +628,10 @@ This structure expects the vector points organised by rows!
  - `copEV::Lar.ChainOp`: Chain Coboundary of the edge vector.
 
 ## Additional Arguments
- - `sigma::Lar.Chain`: if specified, the arrangement will delete from the output every edge and face outside this cell. (*by defaults* = empty cell, no boundary) ### TO BE IMPLEMENTED
- - `return_edge_map::Bool`: If set to true, the function will also return an `edge_map` that maps the input edges to the corresponding output ones (*by default* = false) ### TO BE IMPLEMENTED
+ - `sigma::Lar.Chain`: if specified, the arrangement will delete from the output every edge and face outside this cell.
+                        (*by defaults* = empty cell, no boundary) ### TO BE IMPLEMENTED
+ - `return_edge_map::Bool`: If set to true, the function will also return an `edge_map` that maps the input edges to
+                        the corresponding output ones (*by default* = false) ### TO BE IMPLEMENTED
  - `multiproc::Bool`: If set to true, execute the arrangement in parallel (*by default* = false, sequential)
 
 ## Return
@@ -723,7 +761,7 @@ function planar_arrangement_2(V, copEV, bicon_comps,
 	@show containment_graph
 	# only in the context of 3D arrangement
 	if sigma.n > 0
-		todel, V, copEV = cleandecomposition(V, copEV, sigma)
+		todel, V, copEV = Lar.Arrangement.cleandecomposition(V, copEV, sigma)
 		V, copEV = Lar.delete_edges(todel, V, copEV)
 	end
 	# final shell poset aggregation and FE output
@@ -751,8 +789,10 @@ The basic method of the function without the `sigma`, `return_edge_map` and `mul
 returns the full arranged complex `V`, `EV` and `FE`.
 
 ## Additional arguments:
-- `sigma::Chain`: if specified, `planar_arrangement` will delete from the output every edge and face outside this cell. Defaults to an empty cell.
-- `return_edge_map::Bool`: makes the function return also an `edge_map` which maps the edges of the imput to the one of the output. Defaults to `false`.
+- `sigma::Chain`: if specified, `planar_arrangement` will delete from the output every edge and face outside this cell.
+                    Defaults to an empty cell.
+- `return_edge_map::Bool`: makes the function return also an `edge_map` which maps the edges of the imput to the one of the output.
+                    Defaults to `false`.
 - `multiproc::Bool`: Runs the computation in parallel mode. Defaults to `false`.
 """
 function planar_arrangement( V::Lar.Points, copEV::Lar.ChainOp, 
@@ -761,10 +801,10 @@ function planar_arrangement( V::Lar.Points, copEV::Lar.ChainOp,
 		multiproc::Bool=false)
 
 	# edge subdivision
-	V, copEV = Lar.planar_arrangement_1(V::Lar.Points, copEV::Lar.ChainOp)
+	V, copEV = Lar.Arrangement.planar_arrangement_1(V::Lar.Points, copEV::Lar.ChainOp)
 	# biconnected components
-	bicon_comps = Lar.Arrangement.biconnected_components(copEV)
+	bicon_comps = Lar.Arrangement.biconnected_components(copEV::Lar.ChainOp)
 	# 2-complex and containment graph
-	V, copEV, copFE = Lar.planar_arrangement_2(V, copEV, bicon_comps)
+	V, copEV, copFE = Lar.Arrangement.planar_arrangement_2(V::Lar.Points, copEV::Lar.ChainOp, bicon_comps)
 	return V, copEV, copFE
 end
