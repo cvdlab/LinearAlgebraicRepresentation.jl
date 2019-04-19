@@ -42,7 +42,7 @@ function frag_edge_channel( in_chan::Distributed.RemoteChannel{Channel{Int64}},
     while run_loop
         edgenum = take!(in_chan)
         if edgenum != -1
-            put!(out_chan, (edgenum, frag_edge(V, EV, edgenum, bigPI)))
+            put!(out_chan, (edgenum, Lar.Arrangement.frag_edge(V, EV, edgenum, bigPI)))
         else
             run_loop = false
         end
@@ -157,7 +157,7 @@ The Error tollerance is set to 10e-8.
 
 # Examples
 ```jldoctest
-julia> V = [1.0 0.0; 0.0 1.0; 0.0 0.5; 0.5 1.0];
+julia> V = [1.0 0.0; 0.0 1.0; 0.0 0.5; 0.5 1.0]; # By Rows!
 
 julia> EV = [[1, 2], [3, 4]];
 
@@ -169,7 +169,7 @@ julia> Lar.Arrangement.intersect_edges(V, cop_EV[1, :], cop_EV[2, :])
 ```
 
 ```jldoctest
-julia> V = [1.0 0.0; 0.0 1.0; 0.75 0.25; 0.5 0.5];
+julia> V = [1.0 0.0; 0.0 1.0; 0.75 0.25; 0.5 0.5]; # By Rows!
 
 julia> EV = [[1, 2], [3, 4]];
 
@@ -230,9 +230,63 @@ end
 
 
 """
-    merge_vertices!(V, EV, edge_map, err=1e-4)
+    merge_vertices!(V, EV[, edge_map[, err]])
+
+Compact the vertices closer than `err` in a single one.
+
+This method check one at time each vertex `v` in `V` and identifies each other vertex within `err` with `v` itself.
+The cochain `EV` is coherently modified (multiple edges between two vertices are not allowed).
+If an `edge_map` is given in input (this could be usefull during the planar arrangements), then also
+the map is coherently modified and given back in output.
+
+See also: [`Lar.Arrangement.planar_arrangement_1`](@ref)
+
+---
+
+# WARNING
+This structure expects the vector points organised by rows!
+
+---
+
+# Arguments
+ - `V::Lar.Points`: Vertices of the complex.
+ - `EV::Lar.ChainOp`: Chain Coboundary of the edge vector.
+
+## Additional Arguments
+ - `edge_map::Array{Array{Int64,1},1}`: Mapping from a set of edges to the edges of the given cochain.
+        If it is given than it will also be rearranged coherently with the vertices merging (*by default* = [[-1]]).
+ - `err::Float64`: Range of the vertex identification (*by default* = 1e-4).
+
+## Return
+ - `V::Lar.Points`: Merged Vertices.
+ - `EV::Lar.ChainOp`: Merged Cochain of the merged vertices.
+ - `edge_map::Array{Array{Int64,1},1}`: the merged cochain `edge_map` (if given in input).
+
+---
+
+# Examples
+```jldoctest
+julia> V = [0.5 0.5; 0.0 0.0; 0.5 0.5; 1.0 1.0; 0.5 0.5; 1.0 1.0]; # By Rows!
+
+julia> EV = [[1, 4], [3, 2], [5, 6], [1, 6], [5, 3]];
+
+julia> cop_EV = Lar.coboundary_0(EV::Lar.Cells);
+
+julia> Lar.Arrangement.merge_vertices!(V, cop_EV)[1]
+3×2 Array{Float64,2}:
+ 0.5  0.5
+ 0.0  0.0
+ 1.0  1.0
+
+julia> Lar.Arrangement.merge_vertices!(V, cop_EV)[2]
+2×3 SparseArrays.SparseMatrixCSC{Int8,Int64} with 4 stored entries:
+  [1, 1]  =  1
+  [2, 1]  =  1
+  [2, 2]  =  1
+  [1, 3]  =  1
+```
 """
-function merge_vertices!(V::Lar.Points, EV::Lar.ChainOp, edge_map, err=1e-4)
+function merge_vertices!(V::Lar.Points, EV::Lar.ChainOp, edge_map::Array{Array{Int64,1},1}=[[-1]], err=1e-4)
     vertsnum = size(V, 1)
     edgenum = size(EV, 1)
     newverts = zeros(Int, vertsnum)
@@ -281,12 +335,15 @@ function merge_vertices!(V::Lar.Points, EV::Lar.ChainOp, edge_map, err=1e-4)
         etuple2idx[nedges[ei]] = ei
     end
     
-    for i in 1:length(edge_map)
-        row = edge_map[i]
-        row = map(x->edges[x], row)
-        row = filter(t->t[1]!=t[2], row)
-        row = map(x->etuple2idx[x], row)
-        edge_map[i] = row
+    if edge_map != [[-1]]
+        for i in 1:length(edge_map)
+            row = edge_map[i]
+            row = map(x->edges[x], row)
+            row = filter(t->t[1]!=t[2], row)
+            row = map(x->etuple2idx[x], row)
+            edge_map[i] = row
+        end
+        return Lar.Points(nV), nEV, edge_map
     end
     
 
