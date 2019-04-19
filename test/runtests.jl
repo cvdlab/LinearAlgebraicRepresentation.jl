@@ -2,7 +2,8 @@
 #Lar = LinearAlgebraicRepresentation
 
 include("./utilities.jl")
-include("./planar_arrangement.jl")
+#include("./planar_arrangement.jl")
+include("./refactor_planar_arrangement.jl")
 include("./dimension_travel.jl")
 include("./largrid.jl")
 

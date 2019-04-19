@@ -767,7 +767,7 @@ This structure expects the vector points organised by rows!
  - `sigma::Lar.Chain`: if specified, the arrangement will delete from the output every edge and face outside this cell.
                         (*by defaults* = empty cell, no boundary) ### TO BE IMPLEMENTED
  - `return_edge_map::Bool`: If set to true, the function will also return an `edge_map` that maps the input edges to
-                        the corresponding output ones (*by default* = false) ### TO BE IMPLEMENTED
+                        the corresponding output ones (*by default* = false)
  - `multiproc::Bool`: If set to true, execute the arrangement in parallel (*by default* = false, sequential)
 
 ## Return
@@ -870,6 +870,10 @@ function planar_arrangement_1(V::Lar.Points, copEV::Lar.ChainOp,
 	end
 	# merging of close vertices and edges (2D congruence)
 	V, copEV = rV, rEV
+    if return_edge_map
+        V, copEV, edge_map = Lar.Arrangement.merge_vertices!(V, copEV, edge_map)
+        return V, copEV, edge_map
+    end
 	V, copEV = Lar.Arrangement.merge_vertices!(V, copEV, edge_map)
 	return V, copEV
 end
