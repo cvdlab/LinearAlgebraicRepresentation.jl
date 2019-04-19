@@ -44,14 +44,14 @@ the spatial index: it is a mapping ``\mathcal{I}(\sigma)`` from a cell
 where the ``box`` function provides the axis aligned bounding box (AABB) of a cell [fig. 2, c, 
 ``\sigma`` in red and ``\mathcal{I}(\sigma)`` in blue]. The spatial arrangement
 calculation is speeded up by storing the AABBs as dimensional wise intervals
-into an interval tree \cite{interval_trees}. 
+into an interval tree ``\cite{interval_trees}``. 
 Now for each cell ``\sigma`` we transform ``\sigma \cup \mathcal{I}(\sigma)`` 
 in a way that ``\sigma`` lays on the ``x_3=0`` plane [fig. 2, d] and we find the intersections 
 of the ``\mathcal{I}(\sigma)`` cells with ``x_3=0`` plane. So we have a "soup"
 of 1-cells in ``\mathbb{E}^2`` [fig. 2, e], and we fragment each 1-cell 
 with every other cell obtaining a valid 1-skeleton [fig. 2, f].
 From this data it is possible to build the 2-cells using the ALGORITHM 1
-presented and explored by Paoluzzi et al. \cite{Paoluzzi}
+presented and explored by Paoluzzi et al. ``\cite{Paoluzzi}``
 [fig. 2, g, exploded]. The procedure to fragment 1-cells
 on a plane and return a 2-complex is called *planar arrangement*. When the planar arrangement 
 is complete, fragmented ``\sigma`` can be transformed back to its original position
@@ -80,14 +80,14 @@ are to discard: the ones outside the area of ``\sigma`` and the ones
 which are not part of a maximal biconnected component 
 (We can talk about biconnected components because we can consider the 1-skeleton as a graph: 
 0-cells are nodes, 1-cells are edges and the boundary operator is
-a incidence matrix.).
+a incidence matrix).
 The result of this edge pruning outputs a
 1-skeleton [fig. 3, c, exploded].
 
 After this, 2-cells must be computed:
 For each connected component we build a containment tree, which indicates
 which component is spatially inside an other component.
-Computing these relations lets us launch the ALGORITHM 1 \cite{Paoluzzi}
+Computing these relations lets us launch the ALGORITHM 1 ``\cite{Paoluzzi}``
 on each component and then combine the results to create 2-cells with non-intersecting 
 shells [fig. 3, d, 2-cells numbered in green; please note that
 cell 2 has cell 1 as an hole].

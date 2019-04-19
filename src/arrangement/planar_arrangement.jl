@@ -194,7 +194,7 @@ end
 
 Compact the vertices closer than `err` in a single one.
 
-This method check one at time each vertex `v` in `V` and identifies each other vertex within `err` with `v` itself.
+This method check one at time each vertex ``v`` in `V` and identifies each other vertex within `err` with ``v`` itself.
 The cochain `EV` is coherently modified (multiple edges between two vertices are not allowed).
 If an `edge_map` is given in input (this could be usefull during the planar arrangements), then also
 the map is coherently modified and given back in output.

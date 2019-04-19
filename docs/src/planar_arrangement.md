@@ -8,13 +8,15 @@ Lar.planar_arrangement
 
 In general we recall the notation we have used in source code:
  - `V::Lar.Poins` is the 1-cells (Vertices) complex.
- 	**NOTE** that the points are organized by rows (instead of Columns like described in `Lar.Points`).
  - `EV::Lar.Cells` is the 2-cells (Edges) complex.
  - `FV::Lar.` is the 3-cells (Faces) complex.
  - `copEV::Lar.ChainOp`: is the Chain Coboundary of the 2-cells.
  - `copFE::Lar.`: is the Chain Coboundary of the 3-cells.
  - `bigPI::Array{Array{Int64,1},1}`: is the bounding box intersection array:
  	each row is associated to a 2-cell and contains the indices of the other 2-cells intersecting its bounding box.
+
+!!! warning
+	Do remember that in `planar_arrangement` (`Lar.Arrangement` module) matrices store points per row and not per column as described in the documentation of `Lar.Points`.
 
 ## The algorithm
 
@@ -35,11 +37,11 @@ This part of the pipeline is covered by:
 Lar.Arrangement.planar_arrangement_1
 ```
 A small set of optional parameters could be choosen in order to personalize the computation:
- - `sigma::Lar.Chain`: if specified, the arrangement will delete from the output every edge and face outside this cell.
-                        (*by defaults* = empty cell, no boundary)
+ - `sigma::Lar.Chain`: if specified, the arrangement will delete from the output every edge outside this cell
+                        (*by defaults* = empty cell, no boundary).
  - `return_edge_map::Bool`: If set to true, the function will also return an `edge_map` that maps the input edges to
-                        the corresponding output ones
- - `multiproc::Bool`: If set to true, execute the arrangement in parallel (*by default* = false, sequential)
+                        the corresponding output ones.
+ - `multiproc::Bool`: If set to true, execute the arrangement in parallel (*by default* = false, sequential).
 
 
 
@@ -63,7 +65,7 @@ if the parallel way is choosen (namely `frag_edge_channel` is used) then a few m
 
 
 
-In order to do so, at a lower level, each pair of possible intersecting 2-cells are compared via:
+In order to split the edge, at a lower level, each pair of possible intersecting 2-cells are compared via:
 ```@docs
 Lar.Arrangement.intersect_edges
 ```
@@ -75,15 +77,20 @@ Lar.Arrangement.merge_vertices!
 ```
 Here also two optional parameters could be specified:
  - `edge_map::Array{Array{Int64,1},1}`: Mapping from a set of edges to the edges of the given cochain.
-        If it is given in input than a copy of it would be returned in output, with its values coherently rearranged with the vertices merging (*by default* = [[-1]]).
- - `err::Float64`: Range of the vertex identification (*by default* = 1e-4).
+        If it is given in input than a copy of it would be returned in output, with its values coherently rearranged with the vertices merging (*by default* = ``[[-1]]``).
+ - `err::Float64`: Range of the vertex identification (*by default* = ``1e-4``).
 
 !!! note
-	Choosing a good value for `err` is a very important issue. Note that the identification is sequentially made; therefore the following situation could happend:
-	if three vertices are collinear and evenly spaciated, then
-	  - if the second is identified in the third, the first and the third won't be identified;
-	  - if the thiird is identified with the second, then the first and the second will be identified;
-	This situation could be seen in the secon example given by the function documentation.
+    Choosing a good value for `err` is a very important issue.
+    Note that the identification is sequentially made;
+    therefore the following situation could happend:
+    if three vertices are collinear and evenly spaciated, then
+      - if the second is identified in the third,
+      	then the first and the third won't be identified;
+      - if the thiird is identified with the second,
+      	then the first and the second will be identified;
+    
+    This situation could be seen in the secon example given by the function documentation.
 
 ### Biconnected Components Detection.
 
@@ -147,5 +154,6 @@ Plasm.view(Plasm.lar_exploded(model)(1.2,1.2,1.2))
 ```
 
 ![Pipeline visualization](./images/2d-arrangement-pipeline.jpg)
+> **Figure 1:** Pipeline visualization over a sample structure.
 
 
