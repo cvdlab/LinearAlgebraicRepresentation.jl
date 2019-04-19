@@ -8,8 +8,36 @@ Lar = LinearAlgebraicRepresentation
 
 """
     frag_edge_channel(in_chan, out_chan, V, EV, bigPI)
+
+Utility function for parallel edge fragmentation.
+
+This function handles the edge fragmentation in the first part of arrangement's algorithmic pipeline
+(see also [`Lar.Arrangement.planar_arrangement_1`](@ref)) during multiprocessing computation.
+In order to do so it needs two `Distributed.RemoteChannel`s, one with the inputs and one for outputs.
+
+See also: [`Lar.Arrangement.frag_edge`](@ref)
+
+---
+
+# WARNING
+This structure expects the vector points organised by rows!
+
+---
+
+# Arguments
+ - `in_chan::Distributed.RemoteChannel{Channel{Int64}}`: an input channel made of the edges indices to be intersected;
+        the channel must also hold at the end an EoW (`-1`) indicator for each worker thread in use.
+ - `out_chan::Distributed.RemoteChannel{Channel{Int64}}`: a ready-to-use output channel.
+ - `V::Lar.Points`: Vertices of the whole complex.
+ - `copEV::Lar.ChainOp`: Chain Coboundary of the whole edge vector.
+ - `bigPI::Array{Array{Int64,1},1}`: Bounding box of the complex (see also [`Lar.spaceindex`](@ref)).
+
 """
-function frag_edge_channel(in_chan, out_chan, V, EV, bigPI)
+function frag_edge_channel( in_chan::Distributed.RemoteChannel{Channel{Int64}},
+                            out_chan::Distributed.RemoteChannel{Channel{Tuple}},
+                            V::Lar.Points,
+                            EV::Lar.ChainOp,
+                            bigPI::Array{Array{Int64,1},1})
     run_loop = true
     while run_loop
         edgenum = take!(in_chan)
@@ -33,7 +61,9 @@ with the others that intersect its bounding box (see also [`Lar.Arrangement.inte
 The method returns a set of the new vertices that the segment is made of (with redundancies) and
 the associated cochain (with no redundancies).
 
-See also: [`Lar.Arrangement.planar_arrangement_1`](@ref)
+See also:
+ - [`Lar.Arrangement.planar_arrangement_1`](@ref)
+ - [`Lar.Arrangement.frag_edge_channel`](@ref)
 
 ---
 
@@ -51,7 +81,7 @@ This structure expects the vector points organised by rows!
 ---
 
 # Examples
-```
+```jldoctest
 julia> V = [1.0 0.0; 0.0 1.0; 0.0 0.5; 0.5 1.0; 1.0 1.0]; # By Rows!
 
 julia> EV = [[1, 2], [2, 5], [3, 4], [4, 5]];
@@ -104,6 +134,55 @@ end
 
 """
 	intersect_edges(V, edge1, edge2)
+
+Finds the intersection point (if there exists) between the two given edges.
+
+This method compute the points where `edge2` intersect `edge1`.
+If they are collinear only the vertices of `edge2` are considered (see the second example).
+
+See also: [`Lar.Arrangement.frag_edge`](@ref)
+
+---
+
+# WARNING
+This structure expects the vector points organised by rows!
+The Error tollerance is set to 10e-8.
+
+---
+
+# Arguments
+ - `V::Lar.Points`: Vertices of the whole complex.
+ - `edge1::Lar.Cell`: The edge to be intersected.
+ - `edge2::Lar.Cell`: The intersecting edge.
+
+# Examples
+```jldoctest
+julia> V = [1.0 0.0; 0.0 1.0; 0.0 0.5; 0.5 1.0];
+
+julia> EV = [[1, 2], [3, 4]];
+
+julia> cop_EV = Lar.coboundary_0(EV::Lar.Cells);
+
+julia> Lar.Arrangement.intersect_edges(V, cop_EV[1, :], cop_EV[2, :])
+1-element Array{Tuple{Array{T,2} where T,Float64},1}:
+ ([0.25 0.75], 0.75)
+```
+
+```jldoctest
+julia> V = [1.0 0.0; 0.0 1.0; 0.75 0.25; 0.5 0.5];
+
+julia> EV = [[1, 2], [3, 4]];
+
+julia> cop_EV = Lar.coboundary_0(EV::Lar.Cells);
+
+julia> Lar.Arrangement.intersect_edges(V, cop_EV[1, :], cop_EV[2, :])
+2-element Array{Tuple{Array{T,2} where T,Float64},1}:
+ ([0.75 0.25], 0.25)
+ ([0.5 0.5], 0.5) 
+
+julia> Lar.Arrangement.intersect_edges(V, cop_EV[2, :], cop_EV[1, :])
+0-element Array{Tuple{Array{T,2} where T,Float64},1}
+```
 """
 function intersect_edges(V::Lar.Points, edge1::Lar.Cell, edge2::Lar.Cell)
     err = 10e-8
@@ -116,20 +195,20 @@ function intersect_edges(V::Lar.Points, edge1::Lar.Cell, edge2::Lar.Cell)
     v2 = [x4-x3, y4-y3];
     v3 = [x3-x1, y3-y1];
 
-    ang1 = dot(normalize(v1), normalize(v2))
-    ang2 = dot(normalize(v1), normalize(v3))
+    ang1 = Lar.dot(Lar.normalize(v1), Lar.normalize(v2))
+    ang2 = Lar.dot(Lar.normalize(v1), Lar.normalize(v3))
     
     parallel = 1-err < abs(ang1) < 1+err
-    colinear = parallel && (1-err < abs(ang2) < 1+err || -err < norm(v3) < err)
+    colinear = parallel && (1-err < abs(ang2) < 1+err || -err < Lar.norm(v3) < err)
     
 
     if colinear
         o = [x1 y1] 
         v = [x2 y2] - o
-        alpha = 1/dot(v,v')
+        alpha = 1/Lar.dot(v,v')
         ps = [x3 y3; x4 y4]
         for i in 1:2
-            a = alpha*dot(v',(reshape(ps[i, :], 1, 2)-o))
+            a = alpha*Lar.dot(v',(reshape(ps[i, :], 1, 2)-o))
             if 0 < a < 1
                 push!(ret, (ps[i:i, :], a))
             end
