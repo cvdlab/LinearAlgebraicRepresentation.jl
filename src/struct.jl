@@ -277,64 +277,36 @@ end
 function struct2lar(structure)
 	listOfModels = Lar.evalStruct(structure)
 	vertDict= Dict()
-	index,defaultValue,W,FW,EW = 0,0,Array{Float64,1}[],Array{Int64,1}[],Array{Int64,1}[]
+	index,defaultValue = 0,0
+	W = Array{Float64,1}[]	
+	m = length(listOfModels[1])
+	larmodel = [Array{Number,1}[] for k=1:m]
 	
 	for model in listOfModels
-		if  length(model)==2
-			V,FV = model
-		elseif length(model)==3
-			V,FV,EV = model
-		end
-		
-		for incell in FV
-			outcell=[]
-			for v in incell
-				key = map(Lar.approxVal(7), V[:,v])
-				if get(vertDict,key,defaultValue)==defaultValue
-					index += 1
-                   	vertDict[key]=index
-					append!(outcell,index)
-					append!(W,[key])                   
-				else
-					append!(outcell,vertDict[key])
-				end
-			end
-			append!(FW,[outcell])
-		end
-	end
-	if length(listOfModels[1])==3
-		for model in listOfModels
-			V,FV,EV = model
-			for incell in EV
+		V = model[1]
+		for k=2:m
+			for incell in model[k]
 				outcell=[]
 				for v in incell
 					key = map(Lar.approxVal(7), V[:,v])
 					if get(vertDict,key,defaultValue)==defaultValue
 						index += 1
 						vertDict[key]=index
-						append!(outcell,[index])
-						append!(W,[key])                   
+						push!(outcell,index)
+						push!(W,key)                   
 					else
-						append!(outcell,vertDict[key])
+						push!(outcell,vertDict[key])
 					end
 				end
-				append!(EW,[outcell])
+				append!(larmodel[k],[outcell])
 			end
-			
 		end
 	end
 	
-	topology = listOfModels[end]
-	if length(topology)==2
-		#FW = removeDups(FW)
-		larmodel = hcat(W...),FW
-		return larmodel
-	elseif length(topology)==3
-		#FW = removeDups(FW)
-		#EW = removeDups(EW)
-		larmodel = hcat(W...),FW,EW
-		return larmodel
-	end
+	append!(larmodel[1], W)
+	V = hcat(larmodel[1]...)
+	chains = [convert(Lar.Cells, chain) for chain in larmodel[2:end]]
+	return (V, chains...)
 end
 
 """
@@ -411,23 +383,27 @@ function box(model)
 	elseif isa(model,Struct)
 		listOfModels = evalStruct(model)
 		#dim = checkStruct(listOfModels)
-		theMin,theMax = box(listOfModels[1])
-		for theModel in listOfModels[2:end]
-			modelMin,modelMax= box(theModel)
-			for (k,val) in enumerate(modelMin)
-				if val < theMin[k]
-					theMin[k]=val
+		if listOfModels == []
+			return model.box
+		else
+			theMin,theMax = box(listOfModels[1])
+			for theModel in listOfModels[2:end]
+				modelMin,modelMax= box(theModel)
+				for (k,val) in enumerate(modelMin)
+					if val < theMin[k]
+						theMin[k]=val
+					end
 				end
-			end
-			for (k,val) in enumerate(modelMax)
-				if val > theMax[k]
-					theMax[k]=val
+				for (k,val) in enumerate(modelMax)
+					if val > theMax[k]
+						theMax[k]=val
+					end
 				end
 			end
 		end
 		return [theMin,theMax]
 
-	elseif (isa(model,Tuple) ||isa(model,Array))&& (length(model)==2 || length(model)==3)
+	elseif (isa(model,Tuple) ||isa(model,Array))&& (length(model)>=2)
 		V = model[1]
 		theMin = minimum(V, dims=2)
 		theMax = maximum(V, dims=2)
@@ -479,7 +455,7 @@ function traversal(CTM::Matrix, stack, obj, scene=[])
 		if isa(obj.body[i],Matrix)
 			CTM = CTM*obj.body[i]
 		elseif (isa(obj.body[i],Tuple) || isa(obj.body[i],Array)) && 
-			(length(obj.body[i])==2 || length(obj.body[i])==3)
+			(length(obj.body[i])>=2)
 			l = apply(CTM, obj.body[i])
 			push!(scene,l)
 		elseif isa(obj.body[i],Struct)

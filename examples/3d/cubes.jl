@@ -5,8 +5,8 @@ Lar = LinearAlgebraicRepresentation
 store = []
 scaling = 0.75
 V,(VV,EV,FV,CV) = Lar.cuboid([0.25,0.25,0.25],true,[-0.25,-0.25,-0.25])
-mybox = (V,CV)
-for k=1:100
+mybox = (V,CV,FV,EV)
+for k=1:3
 	size = rand()*scaling
 	scale = Lar.s(size,size,size)
 	transl = Lar.t(rand(3)...)
@@ -18,15 +18,16 @@ for k=1:100
 end
 
 s = Lar.Struct(store)
-V,CV = Lar.struct2lar(s)
-V = Plasm.normalize(V)
+V,CV,FV,EV = Lar.struct2lar(s)
+# V = Plasm.normalize3D(V) TODO:  solve MethodError bug
 Plasm.view(V,CV)
 
-W = convert(Lar.Points, V')
 cop_EV = Lar.coboundary_0(EV::Lar.Cells)
 cop_EW = convert(Lar.ChainOp, cop_EV)
-cop_EV = Lar.coboundary_1(EV::Lar.Cells)
-V, copEV, copFE = Lar.Arrangement.spatial_arrangement(W::Lar.Points, cop_EW::Lar.ChainOp, cop_FE::Lar.ChainOp)
+cop_FE = Lar.coboundary_1(V, FV::Lar.Cells, EV::Lar.Cells)
+W = convert(Lar.Points, V')
+V, copEV, copFE = Lar.Arrangement.spatial_arrangement(
+	W::Lar.Points, cop_EW::Lar.ChainOp, cop_FE::Lar.ChainOp)
 
 triangulated_faces = Lar.triangulate2D(V, [copEV, copFE])
 FVs = convert(Array{Lar.Cells}, triangulated_faces)
