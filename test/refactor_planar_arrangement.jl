@@ -15,7 +15,7 @@ Lara = LinearAlgebraicRepresentation.Arrangement
 		[0 1 0 0 1 0] #4->2,5
 		[0 0 1 0 0 1] #5->3,6
 	]))
-	bigPI = Lar.spaceindex((convert(Lar.Points, V'), Lar.cop2lar(copEV)));
+	bigPI = Lar.spaceindex((convert(Lar.Points, V'), Lar.cop2lar(EV)));
 	
 	@testset "intersect_edges" begin
 		@test Lara.intersect_edges(V, EV[1, :], EV[3, :]) == [([2.0 1.0], 0.5)];
