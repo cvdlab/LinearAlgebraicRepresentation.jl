@@ -4,21 +4,18 @@ The **arrangement** is an algorithm which gets two general ``d``-dimensional cel
 *  ``\sigma_1 \cap \sigma_2 = \emptyset,\quad \forall`` couple of cells ``(\sigma_1, \sigma_2)``
 *  ``\bigcup_i\sigma_i = \mathbb{E}^d``
 
-This operation can be seen as a boolean union of two cellular complexes. Here an exploded visualization of the final result of the arrangement algorithm ran on 2 cubes made by ``10\times10\times10`` smaller cubes.
+This operation can be seen as a boolean union of two cellular complexes. Here an exploded visualization of the final result of the arrangement algorithm run on 2 cubes made by ``10\times10\times10`` smaller cubes.
 
 ![10 x 10 Cube](./images/cube10x10.jpg)
 > **Figure 1:** Arrangement of ``2000=2\times10\times10\times10`` cubes
 
-## API
+## Organisation
 
-Every function strictly relative to the arrangement has been collected in the `Lar.Arrangement` sub-module but the two main functions are accessible directly from the `LinearAlgebraicRepresentation` namespace.
+Every function strictly relative to the arrangement has been collected in the `Lar.Arrangement` sub-module but the two main functions are accessible directly from the `LinearAlgebraicRepresentation` namespace. They are:
+ - [`Lar.planar_arrangement`]() that evaluates the arrangements in 2D spaces.
+ - [`Lar.spatial_arrangement`]() that evaluates the arrangements in 3D spaces.
 !!! warning
     `Lar.Arrangement` is the only place in `LinearAlgebraicRepresentation` where `Point` matrices store points per row and not per column as described in the documentation of `Lar.Points`
-
-```@docs
-Lar.spatial_arrangement
-Lar.planar_arrangement
-```
 
 !!! note
     Even if the arrangement algorithm is theoretically dimension independent, we implemented "only" the ``d=2`` and ``d=3`` version of it.

@@ -16,22 +16,6 @@ This function handles the edge fragmentation in the first part of arrangement's 
 In order to do so it needs two `Distributed.RemoteChannel`s, one with the inputs and one for outputs.
 
 See also: [`Lar.Arrangement.frag_edge`](@ref)
-
----
-
-# WARNING
-This structure expects the vector points organised by rows!
-
----
-
-# Arguments
- - `in_chan::Distributed.RemoteChannel{Channel{Int64}}`: an input channel made of the edges indices to be intersected;
-        the channel must also hold at the end an EoW (`-1`) indicator for each worker thread in use.
- - `out_chan::Distributed.RemoteChannel{Channel{Int64}}`: a ready-to-use output channel.
- - `V::Lar.Points`: Vertices of the whole complex.
- - `copEV::Lar.ChainOp`: Chain Coboundary of the whole edge vector.
- - `bigPI::Array{Array{Int64,1},1}`: Bounding box of the complex (see also [`Lar.spaceindex`](@ref)).
-
 """
 function frag_edge_channel( in_chan::Distributed.RemoteChannel{Channel{Int64}},
                             out_chan::Distributed.RemoteChannel{Channel{Tuple}},
@@ -64,19 +48,6 @@ the associated cochain (with no redundancies).
 See also:
  - [`Lar.Arrangement.planar_arrangement_1`](@ref)
  - [`Lar.Arrangement.frag_edge_channel`](@ref)
-
----
-
-# WARNING
-This structure expects the vector points organised by rows!
-
----
-
-# Arguments
- - `V::Lar.Points`: Vertices of the whole complex.
- - `copEV::Lar.ChainOp`: Chain Coboundary of the whole edge vector.
- - `edge_idx::Int`: Intersecting edge index.
- - `bigPI::Array{Array{Int64,1},1}`: Bounding box of the complex (see also [`Lar.spaceindex`](@ref)).
 
 ---
 
@@ -143,17 +114,6 @@ If they are collinear only the vertices of `edge2` are considered (see the secon
 See also: [`Lar.Arrangement.frag_edge`](@ref)
 
 ---
-
-# WARNING
-This structure expects the vector points organised by rows!
-The Error tollerance is set to 10e-8.
-
----
-
-# Arguments
- - `V::Lar.Points`: Vertices of the whole complex.
- - `edge1::Lar.Cell`: The edge to be intersected.
- - `edge2::Lar.Cell`: The intersecting edge.
 
 # Examples
 ```jldoctest
@@ -240,27 +200,6 @@ If an `edge_map` is given in input (this could be usefull during the planar arra
 the map is coherently modified and given back in output.
 
 See also: [`Lar.Arrangement.planar_arrangement_1`](@ref)
-
----
-
-# WARNING
-This structure expects the vector points organised by rows!
-
----
-
-# Arguments
- - `V::Lar.Points`: Vertices of the complex.
- - `EV::Lar.ChainOp`: Chain Coboundary of the edge vector.
-
-## Additional Arguments
- - `edge_map::Array{Array{Int64,1},1}`: Mapping from a set of edges to the edges of the given cochain.
-        If it is given than it will also be rearranged coherently with the vertices merging (*by default* = [[-1]]).
- - `err::Float64`: Range of the vertex identification (*by default* = 1e-4).
-
-## Return
- - `V::Lar.Points`: Merged Vertices.
- - `EV::Lar.ChainOp`: Merged Cochain of the merged vertices.
- - `edge_map::Array{Array{Int64,1},1}`: the merged cochain `edge_map` (if given in input).
 
 ---
 
@@ -751,28 +690,6 @@ This function computes the pairwise intersection between each edge of a given 2D
 The computation is speeded up via the evaluation of the Spatial Index. See [`Lar.spaceindex`](@ref). 
 
 See also: [`Lar.planar_arrangement`](@ref) for the complete pipeline.
-
----
-
-# WARNING
-This structure expects the vector points organised by rows!
-
----
-
-# Arguments
- - `V::Lar.Points`: Vertices of the complex.
- - `copEV::Lar.ChainOp`: Chain Coboundary of the edge vector.
-
-## Additional Arguments
- - `sigma::Lar.Chain`: if specified, the arrangement will delete from the output every edge and face outside this cell.
-                        (*by defaults* = empty cell, no boundary) ### TO BE IMPLEMENTED
- - `return_edge_map::Bool`: If set to true, the function will also return an `edge_map` that maps the input edges to
-                        the corresponding output ones (*by default* = false)
- - `multiproc::Bool`: If set to true, execute the arrangement in parallel (*by default* = false, sequential)
-
-## Return
- - `V::Lar.Poins`: Vertices of the new complex.
- - `copEV::Lar.ChainOp`: Chain Coboundary of the new edge vector.
 
 ---
 

@@ -12,7 +12,10 @@ makedocs(
 		"Home" => "index.md",
 		"L.A.R. Intro" => "lar.md",
 		"Interface" => "interface.md",
-		"Arrangement" => "arrangement.md",
+		"Arrangement" => [
+			"Arrangement module" => "arrangement.md",
+			"Planar arrangement" => "planar_arrangement.md"
+		],
 		"Parametric primitives" => [
 			"Mapper" => "mapper.md",
 			"Assemblies" => "struct.md"
