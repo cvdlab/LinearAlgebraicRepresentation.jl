@@ -32,4 +32,4 @@ deploy:
   keep-history: true
   local-dir: docs/build
   on:
-    branch: master
+    branch: julia-1.0
