@@ -24,9 +24,13 @@ add("LinearAlgebraicRepresentation")
 
 ## Documentation
 
-Go to [the documentation page](https://cvdlab.github.io/LinearAlgebraicRepresentation.jl/)
+BUilding EOnofri julia-1.0 [![Build Status](https://travis-ci.org/eOnofri04/LinearAlgebraicRepresentation.jl.svg?branch=master)](https://travis-ci.org/eOnofri04/LinearAlgebraicRepresentation.jl)
+Go to [the documentation page](https://eonofri04.github.io/LinearAlgebraicRepresentation.jl/)
+
+
 
 ## Authors
 * [Giulio Martella](https://github.com/giuliom95)
 * [Alberto Paoluzzi](https://github.com/apaoluzzi)
 * [Francesco Furiani](https://github.com/furio)
+
