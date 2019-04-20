@@ -400,28 +400,16 @@ function componentgraph(V, copEV, bicon_comps)
 		boundaries[p] = fe[tokeep, :]
 		shells[p] = fe[shell_num, :]
 	end
-	
-#	@show shell_num;
-#	@show [SparseArrays.findnz(EVs[k]) for k=1:length(EVs)];
-#	@show tokeep;
-#	@show [SparseArrays.findnz(boundaries[k]) for k=1:length(boundaries)];
-#	@show [SparseArrays.findnz(shells[k]) for k=1:length(shells)];
-
 	# computation of bounding boxes of isolated components
 	shell_bboxes = []
 	for i in 1:n
 		vs_indexes = (abs.(EVs[i]')*abs.(shells[i])).nzind
-		@show vs_indexes
 		push!(shell_bboxes, Lar.bbox(V[vs_indexes, :]))
-		@show shell_bboxes
 	end
 	# computation and reduction of containment graph
 	containment_graph = Lar.Arrangement.pre_containment_test(shell_bboxes)
-	@show 1,Matrix(containment_graph)
 	containment_graph = Lar.Arrangement.prune_containment_graph(n, V, EVs, shells, containment_graph)
-	@show 2,Matrix(containment_graph)
 	Lar.Arrangement.transitive_reduction!(containment_graph) 
-	@show 3,Matrix(containment_graph)
 	return n, containment_graph, V, EVs, boundaries, shells, shell_bboxes
 end
 
@@ -460,7 +448,6 @@ function cleandecomposition(V, copEV, sigma)
     
     # biconnected components
     bicon_comps = Lar.Arrangement.biconnected_components(copEV) # -> arrays of edge indices
-    @show bicon_comps,0
     if isempty(bicon_comps)
         println("No biconnected components found.")
         if (return_edge_map)
@@ -579,7 +566,6 @@ function planar_arrangement_2(V, copEV, bicon_comps,
 	# Topological Gift Wrapping
 	n, containment_graph, V, EVs, boundaries, shells, shell_bboxes = 
 		componentgraph(V, copEV, bicon_comps)
-	@show containment_graph
 	# only in the context of 3D arrangement
 	if sigma.n > 0
 		todel, V, copEV = cleandecomposition(V, copEV, sigma)

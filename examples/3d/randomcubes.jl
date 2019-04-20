@@ -22,12 +22,17 @@ V,CV,FV,EV = Lar.struct2lar(s)
 # V = Plasm.normalize3D(V) TODO:  solve MethodError bug
 Plasm.view(V,CV)
 
-cop_EV = Lar.coboundary_0(EV::Lar.Cells)
-cop_EW = convert(Lar.ChainOp, cop_EV)
-cop_FE = Lar.coboundary_1(V, FV::Lar.Cells, EV::Lar.Cells)
-W = convert(Lar.Points, V')
-V, copEV, copFE = Lar.Arrangement.spatial_arrangement(
+cop_EV = Lar.coboundary_0(EV::Lar.Cells);
+cop_EW = convert(Lar.ChainOp, cop_EV);
+cop_FE = Lar.coboundary_1(V, FV::Lar.Cells, EV::Lar.Cells);
+W = convert(Lar.Points, V');
+V, copEV, copFE, copCF = Lar.Arrangement.spatial_arrangement(
 	W::Lar.Points, cop_EW::Lar.ChainOp, cop_FE::Lar.ChainOp)
+
+
+
+
+
 
 triangulated_faces = Lar.triangulate2D(V, [copEV, copFE])
 FVs = convert(Array{Lar.Cells}, triangulated_faces)

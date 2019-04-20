@@ -14,8 +14,6 @@ function minimal_2cycles(V::Lar.Points, EV::Lar.ChainOp)
         EV[i, j] = -1
     end
     VE = convert(Lar.ChainOp, SparseArrays.transpose(EV))
-@show V
-@show VE
     EF = Lar.Arrangement.minimal_cycles(edge_angle)(V, VE)
 
     return convert(Lar.ChainOp, SparseArrays.transpose(EF))

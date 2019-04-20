@@ -11,6 +11,7 @@ function frag_face_channel(in_chan, out_chan, V, EV, FE, sp_idx)
         end
     end
 end
+
 function frag_face(V, EV, FE, sp_idx, sigma)
     vs_num = size(V, 1)
 
@@ -134,19 +135,7 @@ end
 
 
 
-"""
-    spatial_arrangement(V::Points, copEV::ChainOp, copFE::ChainOp; [multiproc::Bool])
-
-Compute the arrangement on the given cellular complex 2-skeleton in 3D.
-
-A cellular complex is arranged when the intersection of every possible pair of cell 
-of the complex is empty and the union of all the cells is the whole Euclidean space.
-The function returns the full arranged complex as a list of vertices V and a chain of borders EV, FE, CF.
-
-## Additional arguments:
-- `multiproc::Bool`: Runs the computation in parallel mode. Defaults to `false`.
-"""
-function spatial_arrangement(
+function spatial_arrangement_1(
 		V::Lar.Points, 
 		copEV::Lar.ChainOp, 
 		copFE::Lar.ChainOp, multiproc::Bool=false)
@@ -188,7 +177,7 @@ function spatial_arrangement(
     else
 	# sequential (iterative) processing of face fragmentation 
         for sigma in 1:fs_num
-            # print(sigma, "/", fs_num, "\r")
+            #print(sigma, "/", fs_num, "\r")
             nV, nEV, nFE = Lar.Arrangement.frag_face(
             	V, copEV, copFE, sp_idx, sigma)
             a,b,c = Lar.skel_merge(
@@ -201,18 +190,32 @@ function spatial_arrangement(
 	# merging of close vertices, edges and faces (3D congruence)
     rV, rEV, rFE = merge_vertices(rV, rEV, rFE)
 end
-    
+
+
+
 function spatial_arrangement_2(
 		rV::Lar.Points, 
 		rcopEV::Lar.ChainOp, 
 		rcopFE::Lar.ChainOp, multiproc::Bool=false)
 
-    rCF = minimal_3cycles(rV, rEV, rFE)
+    rcopCF = minimal_3cycles(rV, rcopEV, rcopFE)
 
-    return rV, rEV, rFE, rCF
+    return rV, rcopEV, rcopFE, rcopCF
 end
 
 
+"""
+    spatial_arrangement(V::Points, copEV::ChainOp, copFE::ChainOp; [multiproc::Bool])
+
+Compute the arrangement on the given cellular complex 2-skeleton in 3D.
+
+A cellular complex is arranged when the intersection of every possible pair of cell 
+of the complex is empty and the union of all the cells is the whole Euclidean space.
+The function returns the full arranged complex as a list of vertices V and a chain of borders EV, FE, CF.
+
+## Additional arguments:
+- `multiproc::Bool`: Runs the computation in parallel mode. Defaults to `false`.
+"""
 function spatial_arrangement(
 		V::Lar.Points, 
 		copEV::Lar.ChainOp, 
@@ -220,8 +223,10 @@ function spatial_arrangement(
 		
 	# face subdivision
 	rV, rcopEV, rcopFE = spatial_arrangement_1( V, copEV, copFE, multiproc )
+	
 	# graph components
-	bicon_comps = Lar.Arrangement.biconnected_components(copEV)
+	##bicon_comps = Lar.Arrangement.biconnected_components(copEV)
+	
 	# 3-complex and containment graph
 	rV, rEV, rFE, rCF = spatial_arrangement_2(rV, rcopEV, rcopFE)
 end
