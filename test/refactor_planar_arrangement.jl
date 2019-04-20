@@ -62,3 +62,48 @@ Lara = LinearAlgebraicRepresentation.Arrangement
 		@test Lara.planar_arrangement_1(V, EV)[2] == EVans
 	end
 end
+
+@testset "Biconnected Components" begin
+	@testset "Normal Execution" begin
+		EV = SparseArrays.sparse(Array{Int8, 2}([
+			[1 1 0 0 0 0 0 0 0 0] #1 -> 1,2		|
+			[0 1 1 0 0 0 0 0 0 0] #2 -> 2,3		|
+			[1 0 1 0 0 0 0 0 0 0] #3 -> 3,1		|
+			[0 0 1 1 0 0 0 0 0 0] #4 -> 3,4		 |
+			[0 0 1 0 0 1 0 0 0 0] #5 -> 3,6		 |
+			[0 0 1 0 0 0 1 0 0 0] #6 -> 3,7		-
+			[0 0 0 1 1 0 0 0 0 0] #7 -> 4,5		 |
+			[0 0 0 0 1 1 0 0 0 0] #8 -> 5,6		 |
+			[0 0 0 0 0 0 0 1 1 0] #9 -> 8,9		  |
+			[0 0 0 0 0 0 0 0 1 1] #10-> 9,10	  |
+			[0 0 0 0 0 0 0 1 0 1] #11-> 8,10	  |
+		]));
+		bicomp = sort(Lara.biconnected_components(EV));
+		
+		@test length(Lara.biconnected_components(EV)) == 3;
+		@test sort(bicomp[1]) == [1, 2, 3];
+		@test sort(bicomp[2]) == [4, 5, 7, 8];
+		@test sort(bicomp[3]) == [9, 10, 11];
+	end
+
+	@testset "Void Components" begin
+		EV = SparseArrays.sparse(Array{Int8, 2}([
+			[1 1 0 0] #1 -> 1,2
+			[1 0 1 0] #2 -> 1,3
+			[1 0 0 1] #3 -> 1,4
+		]));
+
+		@test length(Lara.biconnected_components(EV)) == 0;
+	end
+
+	@testset "Couple of Components" begin
+		EV = SparseArrays.sparse(Array{Int8, 2}([
+			[1 1 0] #1 -> 1,2  |
+			[1 1 0] #2 -> 1,2  |
+			[1 0 1] #3 -> 1,2
+		]));
+
+		@test length(Lara.biconnected_components(EV)) == 1;
+		@test sort(Lara.biconnected_components(EV)[1]) == [1, 2];
+	end
+end

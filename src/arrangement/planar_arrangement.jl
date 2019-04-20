@@ -144,7 +144,7 @@ julia> Lar.Arrangement.intersect_edges(V, cop_EV[2, :], cop_EV[1, :])
 0-element Array{Tuple{Array{T,2} where T,Float64},1}
 ```
 """
-function intersect_edges(V::Lar.Points, edge1::Lar.Cell, edge2::Lar.Cell)
+function intersect_edges(V::Lar.Points, edge1::Lar.Cell, edge2::Lar.Cell)::Array{Tuple{Lar.Points, Float64}, 1}
     err = 10e-8
 
     x1, y1, x2, y2 = vcat(map(c->V[c, :], edge1.nzind)...)
@@ -297,8 +297,45 @@ end
 
 """
     biconnected_components(EV)
+
+Compute sets of 2-cells on the same 3-cells biconnected components.
+
+The method evaluate the 2-cells ``σ_i`` wich lies on the same 3-cells biconnected
+component ``χ_j`` and gives back an array that contains an array of ``σ_i`` for each ``j``.
+Do note that if the cochain EV contains more copies of the same 2-cell then
+it will be considered like a 3-cell.
+
+Intermediate part of the Planar Arrangement Pipeline (see also [`Lar.Arrangement.planar_arrangement`](@ref)).
+
+# Examples
+```jldoctest
+julia> EV = SparseArrays.sparse(Array{Int8, 2}([
+    [1 1 0 0 0 0] #1 -> 1,2  |
+    [1 0 1 0 0 0] #2 -> 1,3  |
+    [1 0 0 1 0 0] #3 -> 1,4   |
+    [1 0 0 0 1 0] #4 -> 1,5   |
+    [1 0 0 0 0 1] #5 -> 1,6
+    [0 1 1 0 0 0] #6 -> 2,3  |
+    [0 0 0 1 1 0] #7 -> 4,5   |
+    ]));
+julia> Lar.Arrangement.biconnected_components(EV)
+2-element Array{Array{Int64,1},1}:
+ [2, 6, 1]
+ [4, 7, 3]
+```
+
+```jldoctest
+julia> EV = SparseArrays.sparse(Array{Int8, 2}([
+    [1 1 0] #1 -> 1,2  |
+    [1 1 0] #2 -> 1,2  |
+    [1 0 1] #3 -> 1,2
+    ]));
+julia> Lar.Arrangement.biconnected_components(EV)
+1-element Array{Array{Int64,1},1}:
+ [2, 1]
+```
 """
-function biconnected_components(EV::Lar.ChainOp)
+function biconnected_components(EV::Lar.ChainOp)::Array{Array{Int, 1}, 1}
     ps = Array{Tuple{Int, Int, Int}, 1}()
     es = Array{Tuple{Int, Int}, 1}()
     todel = Array{Int, 1}()
@@ -696,10 +733,6 @@ See also: [`Lar.planar_arrangement`](@ref) for the complete pipeline.
 # Examples
 ```jldoctest
 julia> using Plasm
-
-julia> using LinearAlgebraicRepresentation
-
-julia> Lar = LinearAlgebraicRepresentation;
 
 julia> EV = [[1, 2], [3, 4], [1, 3], [2, 4], [5, 6], [7, 8], [5, 7], [6, 8]];
 

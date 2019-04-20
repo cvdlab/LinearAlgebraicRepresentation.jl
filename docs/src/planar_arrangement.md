@@ -70,6 +70,8 @@ In order to split the edge, at a lower level, each pair of possible intersecting
 Lar.Arrangement.intersect_edges
 ```
 
+
+
 In the end, the 1-cells are identified if they are located spatially very close one to the other (_i.e_ ``\epsilon = 10^{-4}``).
 Of course if two 2-cells share the same endpoints then they are also identified in a unique 2-cell.
 ```@docs
@@ -79,6 +81,8 @@ Here also two optional parameters could be specified:
  - `edge_map::Array{Array{Int64,1},1}`: Mapping from a set of edges to the edges of the given cochain.
         If it is given in input than a copy of it would be returned in output, with its values coherently rearranged with the vertices merging (*by default* = ``[[-1]]``).
  - `err::Float64`: Range of the vertex identification (*by default* = ``1e-4``).
+
+
 
 !!! note
     Choosing a good value for `err` is a very important issue.
@@ -92,7 +96,19 @@ Here also two optional parameters could be specified:
     
     This situation could be seen in the secon example given by the function documentation.
 
+
+
 ### Biconnected Components Detection.
+
+This part of the pipeline is covered by
+```@docs
+Lar.Arrangement.biconnected_components
+```
+As a reader can see the components are evaluated regardless the model geometrical structure;
+in fact the 1-cells are not considered during the computation. This means that the abstract
+graph made by the edges is the only input needed by the function.
+
+
 
 ### 3-Cells Evaluation and Dangling 2-Cells Elimination.
 
