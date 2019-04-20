@@ -24,7 +24,7 @@ add("LinearAlgebraicRepresentation")
 
 ## Documentation
 
-Go to [the documentation page](https://cvdlab.github.io/LinearAlgebraicRepresentation.jl/)
+Go to [the documentation page](https://marteresagh.github.io/LinearAlgebraicRepresentation.jl/)
 
 ## Authors
 * [Giulio Martella](https://github.com/giuliom95)
