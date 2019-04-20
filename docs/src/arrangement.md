@@ -9,11 +9,24 @@ This operation can be seen as a boolean union of two cellular complexes. Here an
 ![10 x 10 Cube](./images/cube10x10.jpg)
 > **Figure 1:** Arrangement of ``2000=2\times10\times10\times10`` cubes
 
+## Graph of recall functions
+A graph is an ordered pair ``G(V,E)`` comprising a set ``V`` of vertices, nodes or points together with a set ``E`` of edges, arcs or lines, which are ``2``-elements subsets of ``V``. In this case, ``V`` is the set of functions of this sub-module and let ``v1``, ``v2`` be elements of ``V``, then ``e=v1v2`` ``\in`` ``E`` if ``v1`` calls ``v2``.
+In the following graph the functions are arranged in colored boxes:
+![dependency graph](./images/dependency_graph.png)
+- yellow boxes is for `spatial_arrangement`
+- red boxes is for `planar_arrangement`
+- green boxes is for `minimal_cycles`
+- blue boxes is for `dimension_travel`
+
+Functions in darker boxes are declared only in the local scope of its father.
+
 ## API
 
-Every function strictly relative to the arrangement has been collected in the `Lar.Arrangement` sub-module but the two main functions are accessible directly from the `LinearAlgebraicRepresentation` namespace.
+Every functions strictly relative to the arrangement has been collected in the `Lar.Arrangement` sub-module but the two main functions are accessible directly from the `LinearAlgebraicRepresentation` namespace.
+
 !!! warning
     `Lar.Arrangement` is the only place in `LinearAlgebraicRepresentation` where `Point` matrices store points per row and not per column as described in the documentation of `Lar.Points`
+
 
 ```@docs
 Lar.spatial_arrangement
@@ -47,14 +60,14 @@ the spatial index: it is a mapping ``\mathcal{I}(\sigma)`` from a cell
 where the ``box`` function provides the axis aligned bounding box (AABB) of a cell [fig. 2, c, 
 ``\sigma`` in red and ``\mathcal{I}(\sigma)`` in blue]. The spatial arrangement
 calculation is speeded up by storing the AABBs as dimensional wise intervals
-into an interval tree \cite{interval_trees}. 
+into an interval tree ``\cite{interval_trees}``. 
 Now for each cell ``\sigma`` we transform ``\sigma \cup \mathcal{I}(\sigma)`` 
-in a way that ``\sigma`` lays on the ``x_3=0`` plane [fig. 2, d] and we find the intersections 
-of the ``\mathcal{I}(\sigma)`` cells with ``x_3=0`` plane. So we have a "soup"
+in a way that ``\sigma`` lays on the ``x_3=0``  plane [fig. 2, d] and we find the intersections 
+of the ``\mathcal{I}(\sigma)`` cells with ``x_3=0``  plane. So we have a "soup"
 of 1-cells in ``\mathbb{E}^2`` [fig. 2, e], and we fragment each 1-cell 
 with every other cell obtaining a valid 1-skeleton [fig. 2, f].
 From this data it is possible to build the 2-cells using the ALGORITHM 1
-presented and explored by Paoluzzi et al. \cite{Paoluzzi}
+presented and explored by Paoluzzi et al. ``\cite{Paoluzzi}``
 [fig. 2, g, exploded]. The procedure to fragment 1-cells
 on a plane and return a 2-complex is called *planar arrangement*. When the planar arrangement 
 is complete, fragmented ``\sigma`` can be transformed back to its original position
@@ -98,3 +111,77 @@ cell 2 has cell 1 as an hole].
     A 2-cell with a non-intersecting shell can be trivially defined
     as a "face with holes"; the correct definition is that it cannot 
     be shrunk to the dimension of a point.
+
+## Main Interface
+
+### Dimension travel
+
+### Minimal cycles
+
+```@docs
+Lar.Arrangement.minimal_2cycles
+```
+
+```@docs
+Lar.Arrangement.minimal_3cycles
+```
+
+### Planar arrangement
+
+```@docs
+Lar.Arrangement.intersect_edges
+```
+
+```@docs
+Lar.Arrangement.frag_edge
+```
+
+```@docs
+Lar.Arrangement.merge_vertices!
+```
+
+```@docs
+Lar.Arrangement.biconnected_components
+```
+
+```@docs
+Lar.Arrangement.get_external_cycle
+```
+
+```@docs
+Lar.Arrangement.pre_containment_test
+```
+
+```@docs
+Lar.Arrangement.prune_containment_graph
+```
+
+```@docs
+Lar.Arrangement.transitive_reduction!
+```
+
+```@docs
+Lar.Arrangement.componentgraph
+```
+
+```@docs
+Lar.Arrangement.cell_merging
+```
+
+```@docs
+Lar.Arrangement.cleandecomposition
+```
+
+```@docs
+Lar.Arrangement.planar_arrangement_1
+```
+
+```@docs
+Lar.Arrangement.planar_arrangement_2
+```
+
+### Spatial arrangement
+
+
+
+
