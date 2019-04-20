@@ -144,7 +144,10 @@ bicon_comps = Lar.Arrangement.biconnected_components(copEV1);
 
 ## 3 - Biconnected Components
 hpcs = [ Plasm.lar2hpc(V1,[EV1[e] for e in comp]) for comp in bicon_comps ]
-Plasm.view([ Plasm.color(Plasm.colorkey[(k%12)==0 ? 12 : k%12])(hpcs[k]) for k = 1 : (length(hpcs)) ])
+Plasm.view([
+	Plasm.color(Plasm.colorkey[(k%12)==0 ? 12 : k%12])(hpcs[k])
+	for k = 1 : (length(hpcs))
+])
 
 # computation of 2-cells and 2-boundary
 W2, copEV2, copFE2 = Lar.planar_arrangement_2(W1, copEV1, bicon_comps)
