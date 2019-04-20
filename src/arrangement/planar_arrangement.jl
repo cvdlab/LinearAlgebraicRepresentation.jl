@@ -13,6 +13,42 @@ function frag_edge_channel(in_chan, out_chan, V, EV, bigPI)
     end
 end
 
+
+"""
+	frag_edge(V::Lar.Points, EV::Lar.ChainOp, edge_idx::Int, bigPI)
+
+Return vertices and edges after intersection.
+# Example
+```julia
+julia> V = [ 0 0; 1 1; 1 0; 0 1];
+
+julia> EV = Int8[ 1 1 0 0;
+                  0 0 1 1; 
+                  ];
+
+julia> EV = sparse(EV);
+
+julia> model = (convert(Lar.Points,V'),Lar.cop2lar(EV));
+
+julia> bigPI = Lar.spaceindex(model::Lar.LAR);
+
+julia> Lar.Arrangement.frag_edge(V, EV, 1, bigPI)
+([0.0 0.0; 1.0 1.0; 0.5 0.5], 
+  [1, 1]  =  1
+  [2, 2]  =  1
+  [1, 3]  =  1
+  [2, 3]  =  1)
+
+julia> Lar.Arrangement.frag_edge(V, EV, 2, bigPI)
+([1.0 0.0; 0.0 1.0; 0.5 0.5], 
+  [1, 1]  =  1
+  [2, 2]  =  1
+  [1, 3]  =  1
+  [2, 3]  =  1)
+
+
+```
+"""
 function frag_edge(V::Lar.Points, EV::Lar.ChainOp, edge_idx::Int, bigPI)
     alphas = Dict{Float64, Int}()
     edge = EV[edge_idx, :]
@@ -39,6 +75,27 @@ function frag_edge(V::Lar.Points, EV::Lar.ChainOp, edge_idx::Int, bigPI)
     return verts, ev
 end
 
+
+"""
+	intersect_edges(V::Lar.Points, edge1::Lar.Cell, edge2::Lar.Cell)
+
+Intersection of two edges. Return, if exist, points of intersection and parameter.
+
+# Example
+```julia
+julia> V=[0 0 ; 1 1; 1/2 0; 1/2 1];
+
+julia> EV = SparseArrays.sparse(Array{Int8, 2}([
+                            [1 1 0 0] #1->1,2
+                            [0 0 1 1] #2->3,4       
+                        ]));
+
+julia> Lar.Arrangement.intersect_edges(V, EV[1, :], EV[2, :])
+1-element Array{Tuple{Array{T,2} where T,Float64},1}:
+ ([0.5 0.5], 0.5)
+
+```
+"""
 function intersect_edges(V::Lar.Points, edge1::Lar.Cell, edge2::Lar.Cell)
     err = 10e-8
 
@@ -83,6 +140,36 @@ function intersect_edges(V::Lar.Points, edge1::Lar.Cell, edge2::Lar.Cell)
     return ret
 end
 
+"""
+	merge_vertices!(V::Lar.Points, EV::Lar.ChainOp, edge_map, err=1e-4)
+
+If two or more vertices are very close, return one vertex and right edges. 
+
+# Example
+```julia
+julia> p0 = 1e-2;
+
+julia> pm = 1-p0;
+
+julia> pp = 1+p0;
+
+julia> V = [ p0  p0; p0 -p0;
+                    pp pm; pp pp
+                  ];
+
+julia> EV = Int8[1 0 1 0 ;
+                 0 1 0 1 ;
+                 1 0 0 1 ;
+                 0 1 1 0 ];
+
+julia> EV = sparse(EV);
+
+julia> Lar.Arrangement.merge_vertices!(V, EV, [],1e-1)
+([0.01 0.01; 1.01 0.99], 
+  [1, 1]  =  1
+  [1, 2]  =  1)
+```
+"""
 function merge_vertices!(V::Lar.Points, EV::Lar.ChainOp, edge_map, err=1e-4)
     vertsnum = size(V, 1)
     edgenum = size(EV, 1)
@@ -144,6 +231,29 @@ function merge_vertices!(V::Lar.Points, EV::Lar.ChainOp, edge_map, err=1e-4)
     return Lar.Points(nV), nEV
 end
 
+"""
+	biconnected_components(EV::Lar.ChainOp)
+
+Find the biconnected components of a graph define by his edges. A biconnected component is a maximal biconnected subgraph. A biconnected graph has no **articulation vertices**. 
+
+# Example
+```julia
+julia> EV = Int8[1 1 0 0 0 0;
+               0 1 1 0 0 0;
+               1 0 1 0 0 0;
+               1 0 0 0 1 0;
+               0 0 0 1 1 0;
+               0 0 0 1 0 1;
+               0 0 0 0 1 1] ;
+
+julia> EV = sparse(EV);
+
+julia> bc = Lar.Arrangement.biconnected_components(EV)
+2-element Array{Array{Int64,1},1}:
+ [3, 2, 1]
+ [7, 6, 5]
+```
+"""
 function biconnected_components(EV::Lar.ChainOp)
     ps = Array{Tuple{Int, Int, Int}, 1}()
     es = Array{Tuple{Int, Int}, 1}()
@@ -240,6 +350,11 @@ function biconnected_components(EV::Lar.ChainOp)
     return bicon_comps
 end
 
+"""
+	get_external_cycle(V::Lar.Points, EV::Lar.ChainOp, FE::Lar.ChainOp)
+
+Get the face's index of external cell in FE. 
+"""
 function get_external_cycle(V::Lar.Points, EV::Lar.ChainOp, FE::Lar.ChainOp)
     FV = abs.(FE)*EV
     vs = sparsevec(mapslices(sum, abs.(EV), dims=1)').nzind
@@ -272,6 +387,13 @@ function get_external_cycle(V::Lar.Points, EV::Lar.ChainOp, FE::Lar.ChainOp)
         end
     end
 end
+
+"""
+	pre_containment_test(bboxes)
+
+Return containment graph. An element **(i,j)** is **1** if the **i-th** cell is contained in the **boundary box** of the **j-th** cell.
+   
+"""
 function pre_containment_test(bboxes)
     n = length(bboxes)
     containment_graph = spzeros(Int8, n, n)
@@ -286,6 +408,12 @@ function pre_containment_test(bboxes)
 
     return containment_graph
 end
+
+"""
+	prune_containment_graph(n, V, EVs, shells, graph)
+
+Check if the origin point of a cell is inside the face area of other cell in the graph.   
+"""
 function prune_containment_graph(n, V, EVs, shells, graph)
     
     for i in 1:n
@@ -309,6 +437,27 @@ function prune_containment_graph(n, V, EVs, shells, graph)
      end
      return graph
 end
+
+"""
+	transitive_reduction!(graph)
+
+Remove elements from containment graph that can be compute for transitivity.
+
+# Example
+```julia
+julia> graph = [0 1 1 1 ; 0 0 1 1 ; 0 0 0 1 ; 0 0 0 0 ];
+
+julia> Lar.Arrangement.transitive_reduction!(graph)
+
+julia> graph
+4×4 Array{Int64,2}:
+ 0  1  0  0
+ 0  0  1  0
+ 0  0  0  1
+ 0  0  0  0
+
+```
+"""
 function transitive_reduction!(graph)
     n = size(graph, 1)
     for j in 1:n
@@ -324,6 +473,12 @@ function transitive_reduction!(graph)
     end
 end
 
+"""
+	cell_merging(n, containment_graph, V, EVs, boundaries, shells, shell_bboxes)
+
+Merge all cells.
+
+"""
 function cell_merging(n, containment_graph, V, EVs, boundaries, shells, shell_bboxes)
     function bboxes(V::Lar.Points, indexes::Lar.ChainOp)
         boxes = Array{Tuple{Any, Any}}(undef, indexes.n)
@@ -379,7 +534,11 @@ function cell_merging(n, containment_graph, V, EVs, boundaries, shells, shell_bb
     return EV, FE
 end
 
+"""
+	componentgraph(V, copEV, bicon_comps)
 
+Return some properties of a graph, in order: `n`, `containment_graph`, `V`, `EVs`, `boundaries`, `shells`, `shell_bboxes`. 
+"""
 function componentgraph(V, copEV, bicon_comps)
 
 	# arrangement of isolated components
@@ -425,7 +584,12 @@ function componentgraph(V, copEV, bicon_comps)
 	return n, containment_graph, V, EVs, boundaries, shells, shell_bboxes
 end
 
+"""
+	cleandecomposition(V, copEV, sigma)
 
+Delete edges outside sigma area.
+
+"""
 function cleandecomposition(V, copEV, sigma)
     # Deletes edges outside sigma area
 	todel = []

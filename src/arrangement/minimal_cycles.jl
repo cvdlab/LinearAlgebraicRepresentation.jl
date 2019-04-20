@@ -1,5 +1,11 @@
 Lar = LinearAlgebraicRepresentation
 
+"""
+	minimal_2cycles(V::Lar.Points, EV::Lar.ChainOp)
+
+Return all cycles of a 2D graph define by its vertices and edges.
+
+"""
 function minimal_2cycles(V::Lar.Points, EV::Lar.ChainOp)
 
     function edge_angle(v::Int, e::Int)
@@ -14,12 +20,17 @@ function minimal_2cycles(V::Lar.Points, EV::Lar.ChainOp)
         EV[i, j] = -1
     end
     VE = convert(Lar.ChainOp, SparseArrays.transpose(EV))
-
+@show V
+@show VE
     EF = Lar.Arrangement.minimal_cycles(edge_angle)(V, VE)
 
     return convert(Lar.ChainOp, SparseArrays.transpose(EF))
 end
 
+"""
+	minimal_3cycles(V::Lar.Points, EV::Lar.ChainOp, FE::Lar.ChainOp)
+
+"""
 function minimal_3cycles(V::Lar.Points, EV::Lar.ChainOp, FE::Lar.ChainOp)
 
     triangulated_faces = Array{Any, 1}(undef, FE.m)
