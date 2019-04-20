@@ -91,7 +91,7 @@ Here also two optional parameters could be specified:
     if three vertices are collinear and evenly spaciated, then
       - if the second is identified in the third,
       	then the first and the third won't be identified;
-      - if the thiird is identified with the second,
+      - if the third is identified with the second,
       	then the first and the second will be identified;
     
     This situation could be seen in the secon example given by the function documentation.
