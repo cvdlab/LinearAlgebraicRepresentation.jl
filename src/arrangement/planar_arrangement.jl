@@ -305,7 +305,11 @@ component ``χ_j`` and gives back an array that contains an array of ``σ_i`` fo
 Do note that if the cochain EV contains more copies of the same 2-cell then
 it will be considered like a 3-cell.
 
-Intermediate part of the Planar Arrangement Pipeline (see also [`Lar.Arrangement.planar_arrangement`](@ref)).
+Intermediate part of Planar Arrangement's algorithmic pipeline.
+
+See also: [`Lar.planar_arrangement`](@ref) for the complete pipeline.
+
+---
 
 # Examples
 ```jldoctest
@@ -439,6 +443,17 @@ end
 
 """
     get_external_cycle(V, EV, FE)
+
+More goes HERE...
+
+See also: [`Lar.Arrangement.planar_arrangement`](@ref).
+
+---
+
+# Examples
+```jldoctest
+
+```
 """
 function get_external_cycle(V::Lar.Points, EV::Lar.ChainOp, FE::Lar.ChainOp)
     FV = abs.(FE)*EV
@@ -476,6 +491,17 @@ end
 
 """
     pre_containment_test(bboxes)
+
+More goes HERE...
+
+See also: [`Lar.Arrangement.planar_arrangement`](@ref).
+
+---
+
+# Examples
+```jldoctest
+
+```
 """
 function pre_containment_test(bboxes)
     n = length(bboxes)
@@ -495,6 +521,17 @@ end
 
 """
     prune_containment_graph(n, V, EVs, shells, graph)
+
+More goes HERE...
+
+See also: [`Lar.Arrangement.planar_arrangement`](@ref).
+
+---
+
+# Examples
+```jldoctest
+
+```
 """
 function prune_containment_graph(n, V, EVs, shells, graph)
     
@@ -523,6 +560,17 @@ end
 
 """
     transitive_reduction!(graph)
+
+More goes HERE...
+
+See also: [`Lar.Arrangement.planar_arrangement`](@ref).
+
+---
+
+# Examples
+```jldoctest
+
+```
 """
 function transitive_reduction!(graph)
     n = size(graph, 1)
@@ -542,6 +590,17 @@ end
 
 """
     cell_merging(n, containment_graph, V, EVs, boundaries, shells, shell_bboxes)
+
+More goes HERE...
+
+See also: [`Lar.Arrangement.planar_arrangement`](@ref).
+
+---
+
+# Examples
+```jldoctest
+
+```
 """
 function cell_merging(n, containment_graph, V, EVs, boundaries, shells, shell_bboxes)
     function bboxes(V::Lar.Points, indexes::Lar.ChainOp)
@@ -601,6 +660,17 @@ end
 
 """
     componentgraph(V, copEV, bicon_comps)
+
+More goes HERE...
+
+See also: [`Lar.Arrangement.planar_arrangement`](@ref).
+
+---
+
+# Examples
+```jldoctest
+
+```
 """
 function componentgraph(V, copEV, bicon_comps)
 
@@ -650,6 +720,17 @@ end
 
 """
     cleandecomposition(V, copEV, sigma)
+
+More goes HERE...
+
+See also: [`Lar.Arrangement.planar_arrangement`](@ref).
+
+---
+
+# Examples
+```jldoctest
+
+```
 """
 function cleandecomposition(V, copEV, sigma)
     # Deletes edges outside sigma area
@@ -830,15 +911,20 @@ end
 
 
 """
-	function planar_arrangement_2(V, copEV, bicon_comps, 
-		sigma::Lar.Chain=spzeros(Int8, 0), 
-		return_edge_map::Bool=false, 
-		multiproc::Bool=false)
+	function planar_arrangement_2(V, copEV, bicon_comps[, sigma[, return_edge_map[, multiproc]]])
 
+Second part of arrangement's algorithmic pipeline.
 
-Compute the arrangement on the given cellular complex 1-skeleton in 2D.
-Second part of arrangement's algorithmic pipeline. 
+More goes HERE...
 
+See also: [`Lar.planar_arrangement`](@ref) for the complete pipeline.
+
+---
+
+# Examples
+```jldoctest
+
+```
 """
 function planar_arrangement_2(V, copEV, bicon_comps, 
 		sigma::Lar.Chain=spzeros(Int8, 0), 
@@ -875,15 +961,15 @@ Whole arrangement's algorithmic pipeline.
 
 A cellular complex is arranged when the intersection of every possible pair of cell 
 of the complex is empty and the union of all the cells is the whole Euclidean space.
-The basic method of the function without the `sigma`, `return_edge_map` and `multiproc` arguments 
-returns the full arranged complex `V`, `EV` and `FE`.
+The method with no additional arguments specified gives back the full arranged complex
+`V`, `EV` and `FE`.
 
 ## Additional arguments:
-- `sigma::Chain`: if specified, `planar_arrangement` will delete from the output every edge and face outside this cell.
-                    Defaults to an empty cell.
-- `return_edge_map::Bool`: makes the function return also an `edge_map` which maps the edges of the imput to the one of the output.
-                    Defaults to `false`.
-- `multiproc::Bool`: Runs the computation in parallel mode. Defaults to `false`.
+  - `sigma::Chain`: if specified, `planar_arrangement` will delete from
+    the output every edge and face outside this cell. Defaults to an empty cell.
+  - `return_edge_map::Bool`: makes the function return also an `edge_map` which
+    maps the edges of the imput to the one of the output. Defaults to `false`.
+  - `multiproc::Bool`: Runs the computation in parallel mode. Defaults to `false`.
 """
 function planar_arrangement( V::Lar.Points, copEV::Lar.ChainOp, 
 		sigma::Lar.Chain=spzeros(Int8, 0), 
