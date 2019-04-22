@@ -28,10 +28,14 @@ The algorithm is divided into the following pipeline:
    - Pairwise 2-Cells Fragmentation.
    - Vertices Identification.
  - Biconnected Components Detection.
- - 3-Cells Evaluation and Dangling 2-Cells Elimination
-   - Topological Gift Wrapping (TGW) algorithm.
-   - Dcomposition Cleaning.
-   - Shell poset aggregation.
+ - 3-Cells Evaluation and Dangling 2-Cells Elimination via Topological Gift Wrapping (TGW) algorithm.
+   - Component graph evaluation (TGW offline part).
+     - Evalution of the external cicle.
+     - Containment graph evaluation.
+     - Pruning of the containment graph.
+     - Transitive ``R`` reduction of ``S`` and generation of forest of flat trees
+   - Decomposition Cleaning (if a boundary has been specified).
+   - Shell poset aggregation (TGW onloine part).
 
 ### Fragmentation of the 2-Cells
 
@@ -114,6 +118,47 @@ graph made by the edges is the only input needed by the function.
 
 
 ### 3-Cells Evaluation and Dangling 2-Cells Elimination.
+
+This part of the pipeline is covered by
+```@docs
+Lar.Arrangement.planar_arrangement_2
+```
+
+
+First of all the components of the graph are evaluated via
+```@docs
+Lar.Arrangement.componentgraph
+```
+
+
+Then, if a special chain ``\sigma`` has been specified, the given decomposition is cleaned
+from all the 2-cells (and consequently from alle the 1-cells) that are located ouside its boundary via
+```@docs
+Lar.Arrangement.cleandecomposition
+```
+
+
+Lastly the 2-cells are merged in order to retrieve the 3-cell of the complex.
+By doing so, all the 2-cells that are not linked to any 3-cell (_i.e._ dangling edges)
+are lost.
+!!! note
+    Do note that the 1-cells are not pruned during this computation.
+    Therefore the vertices associated with dangling edges will still be there.
+
+This last part of the computation is done via:
+```@docs
+Lar.Arrangement.cell_merging
+```
+
+
+#### Component graph evaluation
+
+```@docs
+Lar.Arrangement.get_external_cycle
+Lar.Arrangement.pre_containment_test
+Lar.Arrangement.prune_containment_graph
+Lar.Arrangement.transitive_reduction
+```
 
 ## Examples
 
