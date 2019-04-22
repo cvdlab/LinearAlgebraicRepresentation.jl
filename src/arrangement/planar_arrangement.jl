@@ -444,7 +444,10 @@ end
 """
     get_external_cycle(V, EV, FE)
 
-More goes HERE...
+Evaluates the index of the external 3D-cell.
+
+This method looks for and retrieve the external cycle of the model `(V, EV, FE)`.
+If the cell does not exist then it return a `Nothing` element.
 
 See also: [`Lar.Arrangement.componentgraph`](@ref).
 
@@ -452,7 +455,28 @@ See also: [`Lar.Arrangement.componentgraph`](@ref).
 
 # Examples
 ```jldoctest
+# ``K^4`` graph
+julia> V = [0.0 0.0; 4.0 0.0; 2.0 3.0; 2.0 1.5];
+julia> EV = SparseArrays.sparse(Array{Int8, 2}([
+		[1 1 0 0] #1 -> 1,2
+		[0 1 1 0] #2 -> 2,3
+		[1 0 1 0] #3 -> 3,1
+		[1 0 0 1] #4 -> 1,2
+		[0 1 0 1] #5 -> 2,3
+		[0 0 1 1] #6 -> 3,1
+	]));
+julia> FE = SparseArrays.sparse(Array{Int8, 2}([
+		[1 0 0 1 1 0] #1 -> 1,4,5
+		[0 1 0 0 1 1] #2 -> 2,5,6
+		[0 0 1 1 0 1] #3 -> 3,4,6
+		[1 1 1 0 0 0] #4 -> 1,2,3 External
+	]));
 
+julia> Lar.Arrangement.get_external_cycle(V, EV, FE)
+4
+
+julia> typeof(Lar.Arrangement.get_external_cycle(V, EV, FV[1:3,:]))
+Nothing
 ```
 """
 function get_external_cycle(V::Lar.Points, EV::Lar.ChainOp, FE::Lar.ChainOp)
