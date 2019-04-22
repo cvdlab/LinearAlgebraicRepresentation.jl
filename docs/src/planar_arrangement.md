@@ -23,12 +23,15 @@ In general we recall the notation we have used in source code:
 In this section we will provide a general overview of how the `planar_arrangement` is meant to work.
 
 The algorithm is divided into the following pipeline:
- - Fragmentation of the 2-Cells
-   - Spatial Indexing
-   - Pairwise 2-Cells Fragmentation
-   - Vertices Identification
+ - Fragmentation of the 2-Cells.
+   - Spatial Indexing.
+   - Pairwise 2-Cells Fragmentation.
+   - Vertices Identification.
  - Biconnected Components Detection.
- - 3-Cells Evaluation and Dangling 2-Cells Elimination.
+ - 3-Cells Evaluation and Dangling 2-Cells Elimination
+   - Topological Gift Wrapping (TGW) algorithm.
+   - Dcomposition Cleaning.
+   - Shell poset aggregation.
 
 ### Fragmentation of the 2-Cells
 

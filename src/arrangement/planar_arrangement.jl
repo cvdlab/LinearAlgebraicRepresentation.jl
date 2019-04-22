@@ -446,7 +446,7 @@ end
 
 More goes HERE...
 
-See also: [`Lar.Arrangement.planar_arrangement`](@ref).
+See also: [`Lar.Arrangement.componentgraph`](@ref).
 
 ---
 
@@ -494,7 +494,7 @@ end
 
 More goes HERE...
 
-See also: [`Lar.Arrangement.planar_arrangement`](@ref).
+See also: [`Lar.Arrangement.componentgraph`](@ref).
 
 ---
 
@@ -524,7 +524,7 @@ end
 
 More goes HERE...
 
-See also: [`Lar.Arrangement.planar_arrangement`](@ref).
+See also: [`Lar.Arrangement.componentgraph`](@ref).
 
 ---
 
@@ -563,7 +563,7 @@ end
 
 More goes HERE...
 
-See also: [`Lar.Arrangement.planar_arrangement`](@ref).
+See also: [`Lar.Arrangement.componentgraph`](@ref).
 
 ---
 
@@ -591,9 +591,11 @@ end
 """
     cell_merging(n, containment_graph, V, EVs, boundaries, shells, shell_bboxes)
 
-More goes HERE...
+Cells composing for the Topological Gift Wrapping algorithm.
 
-See also: [`Lar.Arrangement.planar_arrangement`](@ref).
+This is the online part of the TGW algorithm.
+
+See also: [`Lar.Arrangement.planar_arrangement_2`](@ref).
 
 ---
 
@@ -661,9 +663,20 @@ end
 """
     componentgraph(V, copEV, bicon_comps)
 
-More goes HERE...
+Topological Gift Wrapping algorithm on 2D skeletons.
 
-See also: [`Lar.Arrangement.planar_arrangement`](@ref).
+This is the offline part of the TGW algorithm. It takes in input a model and its
+biconnected components mapping and evaluates usefull informations:
+ - number of biconnected components
+ - ?
+ - The 1-cells structure (UNMODIFIED). <----------------------------- Could be removed?
+ - Association between non-dangling 2-cells and their orientation.
+ - Association between 3-cells and 2-cells (with orientation).
+ - Association between 3-cells and their orientation.
+ - Shell bounding boxes
+
+
+See also: [`Lar.Arrangement.planar_arrangement_2`](@ref) for the TGW.
 
 ---
 
@@ -721,18 +734,39 @@ end
 """
     cleandecomposition(V, copEV, sigma)
 
-More goes HERE...
+!!! NOT WORKING
 
-See also: [`Lar.Arrangement.planar_arrangement`](@ref).
+This function clears the model `(V, copEV)` from all edges outside ``σ``.
+
+This function takes a model `(V, copEV)` and a `Lar.Chain` ``σ`` and
+gives back the dropped model and and a vector `todel` of the 2-cells to drop.
 
 ---
 
 # Examples
 ```jldoctest
+julia> V = [0.0 0.0; 2.0 0.0; 4.0 0.0; 1.0 1.5; 3.0 1.5; 2.0 3.0; 2.0 -3.; -2. 3.0; 6.0 3.0];
 
+julia> EV = SparseArrays.sparse(Array{Int8, 2}([
+    [1 0 1 0 0 0 0 0 0] #1 -> 1,3
+    [1 0 0 0 0 1 0 0 0] #2 -> 1,6
+    [0 0 1 0 0 1 0 0 0] #3 -> 3,6
+    [0 1 0 1 0 0 0 0 0] #4 -> 2,4
+    [0 1 0 0 1 0 0 0 0] #5 -> 2,5
+    [0 0 0 1 1 0 0 0 0] #6 -> 4,5
+    [0 0 0 0 0 0 1 1 0] #7 -> 7,8
+    [0 0 0 0 0 0 1 0 1] #8 -> 7,9
+    [0 0 0 0 0 0 0 1 1] #9 -> 8,9
+    ]));
+
+julia> σ = SparseArrays.sparse([0; 0; 0; 1; 1; 1; 0; 0; 0]);
+
+todel, V, EV = Lar.Arrangement.cleandecomposition(V, EV, convert(Lar.Chain, σ))
+
+Plasm.view(convert(Lar.Points, V'), Lar.cop2lar(EV));
 ```
 """
-function cleandecomposition(V, copEV, sigma)
+function cleandecomposition(V::Lar.Points, copEV::Lar.ChainOp, sigma::Lar.Chain)
     # Deletes edges outside sigma area
 	todel = []
 	new_edges = []
@@ -915,7 +949,12 @@ end
 
 Second part of arrangement's algorithmic pipeline.
 
-More goes HERE...
+This function is the complete Topological Gift Wrapping (TGW) algorithm that is firstly
+locally used in order to decompose the 2-cells and then globally to generate the 3-cells
+of the arrangement of the ambient space ``E^3``.
+
+During this process each dangling 2-cell is removed.
+Do note that the isolated 1-cells are not removed by this procedure.
 
 See also: [`Lar.planar_arrangement`](@ref) for the complete pipeline.
 
@@ -923,30 +962,49 @@ See also: [`Lar.planar_arrangement`](@ref) for the complete pipeline.
 
 # Examples
 ```jldoctest
+julia> V = [0.0 0.0; 2.0 0.0; 4.0 0.0; 1.0 1.5; 3.0 1.5; 2.0 3.0; 3.0 3.0];
+julia> W = convert(Lar.Points, V');
+julia> EV = SparseArrays.sparse(Array{Int8, 2}([
+    [1 1 0 0 0 0 0] #1 -> 1,2
+    [0 1 1 0 0 0 0] #2 -> 2,3
+    [1 0 0 1 0 0 0] #3 -> 1,4
+    [0 0 0 1 0 1 0] #4 -> 4,6
+    [0 0 1 0 1 0 0] #5 -> 3,5
+    [0 0 0 0 1 1 0] #6 -> 5,6
+    [0 1 0 1 0 0 0] #7 -> 2,4
+    [0 1 0 0 1 0 0] #8 -> 2,5
+    [0 0 0 1 1 0 0] #9 -> 4,5
+    [0 0 0 0 0 1 1]
+    ]));
 
+julia> Plasm.view(Plasm.numbering(0.5)((W,[[[k] for k=1:size(W,2)], Lar.cop2lar(EV)])));
+
+julia> bicon_comps = Lar.Arrangement.biconnected_components(EV);
+
+julia> V, EV, FE = Lar.Arrangement.planar_arrangement_2(V, EV, bicon_comps);
+
+julia> Plasm.view( Plasm.numbering1(0.5)((V, EV, FE)) );
 ```
 """
-function planar_arrangement_2(V, copEV, bicon_comps, 
+function planar_arrangement_2(V::Lar.Points, copEV::Lar.ChainOp, bicon_comps::Array{Array{Int, 1}, 1}, 
 		sigma::Lar.Chain=spzeros(Int8, 0), 
 		return_edge_map::Bool=false, 
 		multiproc::Bool=false)
 
 	# Topological Gift Wrapping
 	n, containment_graph, V, EVs, boundaries, shells, shell_bboxes = 
-		componentgraph(V, copEV, bicon_comps)
+		Lar.Arrangement.componentgraph(V, copEV, bicon_comps)
 	@show containment_graph
 	# only in the context of 3D arrangement
-	if sigma.n > 0
+	if sigma.n > 0 ## number of columns of sigma > 0
 		todel, V, copEV = Lar.Arrangement.cleandecomposition(V, copEV, sigma)
-		V, copEV = Lar.delete_edges(todel, V, copEV)
+		V, copEV = Lar.delete_edges(todel, V, copEV) # <----------------------non mi è chiaro perchè non è dentro la fun
 	end
 	# final shell poset aggregation and FE output
 	copEV, FE = Lar.Arrangement.cell_merging(
 		n, containment_graph, V, EVs, boundaries, shells, shell_bboxes)
 	if (return_edge_map)
 		return V, copEV, FE, edge_map
-	else
-		return V, copEV, FE
 	end
 	return V, copEV, FE
 end 
