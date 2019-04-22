@@ -1011,8 +1011,8 @@ end
 	
 
 """
-    planar_arrangement(V::Points, copEV::ChainOp, 
-    	[sigma::Chain], [return_edge_map::Bool], [multiproc::Bool])
+    planar_arrangement(V::Points, copEV::ChainOp
+        [, sigma::Chain[, return_edge_map::Bool[, multiproc::Bool]]])
 
 Compute the arrangement on the given cellular complex 1-skeleton in 2D.
 Whole arrangement's algorithmic pipeline. 
@@ -1022,12 +1022,19 @@ of the complex is empty and the union of all the cells is the whole Euclidean sp
 The method with no additional arguments specified gives back the full arranged complex
 `V`, `EV` and `FE`.
 
+See also:
+  - [`Lar.Arrangement.planar_arrangement_1`](@ref)
+  - [`Lar.Arrangement.biconnected_components`](@ref)
+  - [`Lar.Arrangement.planar_arrangement_2`](@ref)
+
 ## Additional arguments:
   - `sigma::Chain`: if specified, `planar_arrangement` will delete from
     the output every edge and face outside this cell. Defaults to an empty cell.
   - `return_edge_map::Bool`: makes the function return also an `edge_map` which
     maps the edges of the imput to the one of the output. Defaults to `false`.
   - `multiproc::Bool`: Runs the computation in parallel mode. Defaults to `false`.
+
+Many examples could be found in Lar Documentation.
 """
 function planar_arrangement( V::Lar.Points, copEV::Lar.ChainOp, 
 		sigma::Lar.Chain=spzeros(Int8, 0), 

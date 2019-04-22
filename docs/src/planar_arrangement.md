@@ -18,7 +18,7 @@ In general we recall the notation we have used in source code:
 !!! warning
     Do remember that in `planar_arrangement` (`Lar.Arrangement` module) matrices store points per row and not per column as described in the documentation of `Lar.Points`.
 
-## The algorithm
+## The Arrangement Algorithm
 
 In this section we will provide a general overview of how the `planar_arrangement` is meant to work.
 
@@ -152,15 +152,20 @@ Lar.Arrangement.cell_merging
 
 
 #### Component graph evaluation
+Component Graph evaluation relies on different functions that could be use separatelly in order to obtain different results.
 
 ```@docs
 Lar.Arrangement.get_external_cycle
 Lar.Arrangement.pre_containment_test
 Lar.Arrangement.prune_containment_graph
-Lar.Arrangement.transitive_reduction
+Lar.Arrangement.transitive_reduction!
 ```
 
 ## Examples
+
+Lastly we close this section by giving a small example of how Planar Arrangement Works.
+Using `Plasm` we are able to visualize the step of the computation grafically.
+
 
 ```julia
 using Plasm
@@ -220,7 +225,8 @@ model = V2,EVs2
 Plasm.view(Plasm.lar_exploded(model)(1.2,1.2,1.2))
 ```
 
+The described commands gives the following representation via Plasm. Here we have reunited all the images in order to clarify the example. It could be seen in (4) that the 1-cells are not removed via the Pipeline. 
 ![Pipeline visualization](./images/2d-arrangement-pipeline.jpg)
 > **Figure 1:** Pipeline visualization over a sample structure.
 
-
+More examples could be find in the `test` and `examples` directory.
