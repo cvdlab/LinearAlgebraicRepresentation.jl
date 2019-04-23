@@ -3,6 +3,20 @@ using LinearAlgebraicRepresentation
 Lar = LinearAlgebraicRepresentation
 using Plasm,SparseArrays
 
+
+@testset "intersect edges" begin
+	V=[0 0 ; 1 1; 1/2 0; 1/2 1];
+	EV = SparseArrays.sparse(Array{Int8, 2}([
+		             [1 1 0 0] #1->1,2
+		             [0 0 1 1] #2->3,4       
+		         ]));
+
+	W=Lar.Arrangement.intersect_edges(V, EV[1, :], EV[2, :])
+	@test W[1][1]==[0.5 0.5]
+	@test W[1][2]==0.5
+ 
+end
+
 @testset "frag_edge" begin
 	V = [ 3 1; 6 8;2 -2;9 6;1 6;10 1]
     
@@ -17,7 +31,7 @@ using Plasm,SparseArrays
 	bigPI = Lar.spaceindex(model::Lar.LAR)
 	for i in 1:edgenum
 		v, ev = Lar.Arrangement.frag_edge(V, EV, i, bigPI)
-		rV, rEV = Lar.skel_merge(rV, rEV, v, ev) # block diagonal ...
+		rV, rEV = Lar.skel_merge(rV, rEV, v, ev) 
 	end
 
 	@test Lar.cop2lar(rEV) == [[1,3],[2,3],[4,6],[5,6],[7,10],[9,10],[8,9]]
@@ -25,18 +39,28 @@ end
 
 
 @testset "merge_vertices!" begin
-	p0 = 1e-2
-	pm = 1-p0
-	pp = 1+p0
-	V = [ p0  p0; p0 -p0; pp  pm; pp  pp]
-	EV = Int8[1 0 1 0 ;
-                  0 1 0 1 ;
-                  1 0 0 1 ;
-                  0 1 1 0 ]
-	EV = sparse(EV)
-	V, EV = Lar.Arrangement.merge_vertices!(V, EV, [],1e-1)
-	@test size(V,1)==2
-	@test size(EV,1)==1
+
+	@testset "close vertices" begin
+		V = [ 0.01 0.01; 0.01 -0.01; 1.01  0.99; 1.01  1.01]
+		EV = Int8[1 0 1 0 ;
+		          0 1 0 1 ;
+		          1 0 0 1 ;
+		          0 1 1 0 ]
+		EV = sparse(EV)
+		V, EV = Lar.Arrangement.merge_vertices!(V, EV, [],1e-1)
+		@test size(V,1)==2
+		@test size(EV,1)==1
+	end
+
+	@testset "double vertices" begin
+		V=[0 0; 0 0; 1 1; 1 1; 2 2 ;2 2]
+		EV=Int8[1 0 1 0;
+		    0 1 0 1]
+		EV = sparse(EV)
+		V, EV = Lar.Arrangement.merge_vertices!(V, EV, [])
+		@test size(V,1)==3
+		@test size(EV,1)==1
+	end
 end
 
 
@@ -118,7 +142,7 @@ end
 
 
 @testset "Containment graph" begin
-	@testset "pre_containment" begin
+	@testset "pre_containment and prune_containment" begin
 
 		V = [ 0 0; 2 0; 0 2; 3/2 3/2; 1/2 3/2;1/2 1/2 ; 3/2 1/2]
 		    
@@ -160,6 +184,28 @@ end
 
 end
 
+@testset "component graph" begin
+	
+	V = [ 0 0; 2 0; 0 1; 3/2 1/2; 3/2 1/2; 1/2 3/2; 3/2 3/2]
+	    
+	EV = Int8[ 1  1  0  0  0  0  0;
+		   0  1  1  0  0  0  0;
+		   1  0  1  0  0  0  0;
+		   0  0  0  1  1  0  0;
+		   0  0  0  0  1  0  1;
+		   0  0  0  0  0  1  1;
+		   0  0  0  1  0  1  0
+		   ]
+	EV = sparse(EV)
+		
+	bc = Lar.Arrangement.biconnected_components(EV)
+
+	n, containment_graph, V, EVs, boundaries, shells, shell_bboxes=Lar.Arrangement.componentgraph(V, EV, bc)
+
+	@test n==2
+	@test boundaries==[[1 1 -1 -1],[1 1 -1]]
+	@test shell_bboxes==[([0.5 0.5], [1.5 1.5]), ([0.0 0.0], [2.0 1.0])]
+end 
 
 @testset "Planar Arrangement" begin
 
