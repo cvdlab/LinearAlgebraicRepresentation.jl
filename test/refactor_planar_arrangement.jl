@@ -215,8 +215,8 @@ end
 			]))];
 
 			@test Lara.componentgraph(W, copEV, bicon_comps)[1] == 1;
-			@test Lara.componentgraph(W, copEV, bicon_comps)[2] == (1, 1);
-			@test Lara.componentgraph(W, copEV, bicon_comps)[3] == V;
+			@test size(Lara.componentgraph(W, copEV, bicon_comps)[2]) == (1, 1);
+			@test Lara.componentgraph(W, copEV, bicon_comps)[3] == W;
 			@test Lara.componentgraph(W, copEV, bicon_comps)[4] == EVs;
 			@test Lara.componentgraph(W, copEV, bicon_comps)[5] == boundaries;
 			@test Lara.componentgraph(W, copEV, bicon_comps)[6] == [sparse(Array{Int8}([-1; -1; 1; 0; 0; 0]))];
@@ -281,11 +281,11 @@ end
 		];
 
 		bboxes = [
-			([0.0 0.0], [1.0 1.0])
 			([0.0 0.0], [0.4 0.4])
 			([0.6 0.0], [1.0 0.4])
 			([0.0 0.6], [0.4 1.0])
 			([0.6 0.6], [1.0 1.0])
+			([0.0 0.0], [1.0 1.0])
 		];
 
 		@testset "External Cycle" begin
@@ -304,11 +304,11 @@ end
 
 		@testset "Containment Boxes" begin
 			pre_containment = SparseArrays.sparse(Array{Int8, 2}([
+				[0 0 0 0 1]
+				[0 0 0 0 1]
+				[0 0 0 0 1]
+				[0 0 0 0 1]
 				[0 0 0 0 0]
-				[1 0 0 0 0]
-				[1 0 0 0 0]
-				[1 0 0 0 0]
-				[1 0 0 0 0]
 			]));
 			@test Lara.pre_containment_test(bboxes) == pre_containment;
 		end
