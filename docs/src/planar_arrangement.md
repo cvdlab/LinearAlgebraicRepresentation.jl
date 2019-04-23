@@ -178,7 +178,7 @@ Then we prune the resulting mapping using:
 Lar.Arrangement.prune_containment_graph
 ```
 In order to do so we take each biconnected component ``\phi`` whose bounding box is inside
-the bounding box of ``\psi`` (``\foreach \psi``) and we check if a point of ``phi`` is or is not
+the bounding box of ``\psi`` (``\forall \psi``) and we check if a point of ``phi`` is or is not
 on the possible ``\psi`` 3-cells.
 Do note that it is sufficient checking one single point since we know in advance
 that each couple of biconnected components is intersection free. Therefore if a single

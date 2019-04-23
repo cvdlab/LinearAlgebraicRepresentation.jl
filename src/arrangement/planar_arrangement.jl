@@ -876,7 +876,11 @@ gives back the dropped model and and a vector `todel` of the 2-cells to drop.
 # Examples
 ```jldoctest
 # Nested Triangles
-julia> V = [0.0 0.0; 2.0 0.0; 4.0 0.0; 1.0 1.5; 3.0 1.5; 2.0 3.0; 2.0 -3.; -2. 3.0; 6.0 3.0];
+julia> V = [
+		0.0 0.0; 2.0 0.0; 4.0 0.0;
+		1.0 1.5; 3.0 1.5; 2.0 3.0;
+		2.0 -3.; -2. 3.0; 6.0 3.0
+	];
 
 julia> copEV = SparseArrays.sparse(Array{Int8, 2}([
     [1 0 1 0 0 0 0 0 0] #1 -> 1,3
@@ -1074,7 +1078,9 @@ end
 
 
 """
-	function planar_arrangement_2(V, copEV, bicon_comps[, sigma[, return_edge_map[, multiproc]]])
+	function planar_arrangement_2(V, copEV, bicon_comps
+		[, sigma[, return_edge_map[, multiproc]]]
+	)
 
 Second part of arrangement's algorithmic pipeline.
 
@@ -1107,7 +1113,9 @@ julia> EV = SparseArrays.sparse(Array{Int8, 2}([
     [0 0 0 0 0 1 1]
     ]));
 
-julia> Plasm.view(Plasm.numbering(0.5)((W,[[[k] for k=1:size(W,2)], Lar.cop2lar(EV)])));
+julia> Plasm.view(Plasm.numbering(0.5)(
+		(W,[[[k] for k=1:size(W,2)], Lar.cop2lar(EV)])
+	));
 
 julia> bicon_comps = Lar.Arrangement.biconnected_components(EV);
 
@@ -1141,8 +1149,9 @@ end
 	
 
 """
-    planar_arrangement(V::Points, copEV::ChainOp
-        [, sigma::Chain[, return_edge_map::Bool[, multiproc::Bool]]])
+	planar_arrangement(V::Points, copEV::ChainOp
+		[, sigma::Chain[, return_edge_map::Bool[, multiproc::Bool]]]
+	)
 
 Compute the arrangement on the given cellular complex 1-skeleton in 2D.
 Whole arrangement's algorithmic pipeline. 
