@@ -115,11 +115,55 @@ end
 @testset "Pipeline Arrangement 2" begin
 	
 	@testset "Containment Boxes on Nested Triangular" begin
-		V = [
-			0.0 8.0 4.0 2.0 6.0 4.0;
-			0.0 0.0 6.0 2.0 2.0 5.0
+		W = [0.0 0.0; 8.0 0.0; 4.0 6.0; 2.0 2.0; 6.0 2.0; 4.0 5.0; 9.0 0.0; 13.0 0.0; 11.0 3.0];
+		copEV = SparseArrays.sparse(Array{Int8, 2}([
+			[1 1 0 0 0 0 0 0 0] #1 -> 1,2
+			[0 1 1 0 0 0 0 0 0] #2 -> 2,3
+			[1 0 1 0 0 0 0 0 0] #3 -> 3,1
+			[0 0 0 1 1 0 0 0 0] #4 -> 4,5
+			[0 0 0 0 1 1 0 0 0] #5 -> 5,6
+			[0 0 0 1 0 1 0 0 0] #6 -> 4,6
+			[0 0 0 0 0 0 1 1 0] #7 -> 7,8
+			[0 0 0 0 0 0 0 1 1] #8 -> 8,9
+			[0 0 0 0 0 0 1 0 1] #9 -> 7,9
+		]));
+
+		EVs = [
+			SparseArrays.sparse(Array{Int8, 2}([
+				[-1  1 0 0 0 0 0 0 0] #1 -> 1,2
+				[ 0 -1 1 0 0 0 0 0 0] #2 -> 2,3
+				[-1  0 1 0 0 0 0 0 0] #3 -> 3,1
+			])),
+			SparseArrays.sparse(Array{Int8, 2}([
+				[0 0 0 -1  1 0 0 0 0] #4 -> 4,5
+				[0 0 0  0 -1 1 0 0 0] #5 -> 5,6
+				[0 0 0 -1  0 1 0 0 0] #6 -> 4,6
+			])),
+			SparseArrays.sparse(Array{Int8, 2}([
+				[0 0 0 0 0 0 -1  1 0] #7 -> 7,8
+				[0 0 0 0 0 0  0 -1 1] #8 -> 8,9
+				[0 0 0 0 0 0 -1  0 1] #9 -> 7,9
+			]))
 		];
-		
+
+		shells = [
+			SparseArrays.sparse(Array{Int8}([-1; -1;  1])),
+			SparseArrays.sparse(Array{Int8}([-1; -1;  1])),
+			SparseArrays.sparse(Array{Int8}([-1; -1;  1])),
+		];
+
+		bicon_comps = [[1, 2, 3], [4, 5, 6], [7, 8, 9]];
+		shell_bboxes = [([0.0 0.0], [8.0 6.0]), ([2.0 2.0], [6.0 5.0]), ([6.0 4.0], [8.0 6.0])];
+		precontainment = sparse(Array{Int8,2}([[0 0 0]; [1 0 0]; [1 0 0]]));
+		containment_graph = sparse(Array{Int8,2}([[0 0 0]; [1 0 0]; [0 0 0]]));
+		transitive = containment_graph;
+
+		@test Lara.pre_containment_test(shell_bboxes) == precontainment;
+		@test Lara.prune_containment_graph(3, W, EVs, shells, containment_graph) == containment_graph;
+
+		Lar.Arrangement.transitive_reduction!(containment_graph)
+
+		@test containment_graph == transitive;
 	end
 
 	@testset "Pipeline Arrangement 2 over K^4" begin
@@ -151,7 +195,7 @@ end
 
 		@testset "Biconnected Components" begin
 			@test length(Lara.biconnected_components(copEV)) == 1;
-			@test sort(Lara.biconnected_components(copEV)[1]) == bicon_comps;
+			@test sort(Lara.biconnected_components(copEV)[1]) == bicon_comps[1];
 		end
 
 		@testset "Complete Component Graph" begin
