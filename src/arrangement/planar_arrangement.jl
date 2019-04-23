@@ -234,7 +234,7 @@ end
 """
 	biconnected_components(EV::Lar.ChainOp)
 
-Find the biconnected components of a graph define by his edges. A biconnected component is a maximal biconnected subgraph. A biconnected graph has no **articulation vertices**. 
+Find the biconnected components of a graph define by its edges. A biconnected component is a maximal biconnected subgraph. A biconnected graph has no **articulation vertices**. 
 
 # Example
 ```julia
@@ -587,7 +587,7 @@ end
 """
 	cleandecomposition(V, copEV, sigma)
 
-Delete edges outside sigma area.
+Delete edges outside sigma area and remove dangling edges in 3D arrangement.
 
 """
 function cleandecomposition(V, copEV, sigma)
@@ -742,7 +742,7 @@ function planar_arrangement_2(V, copEV, bicon_comps,
 
 	# Topological Gift Wrapping
 	n, containment_graph, V, EVs, boundaries, shells, shell_bboxes = 
-		componentgraph(V, copEV, bicon_comps)
+		Lar.Arrangement.componentgraph(V, copEV, bicon_comps)
 	@show containment_graph
 	# only in the context of 3D arrangement
 	if sigma.n > 0
