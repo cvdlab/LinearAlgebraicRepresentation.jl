@@ -7,11 +7,12 @@ Lar.planar_arrangement
 ```
 
 In general we recall the notation we have used in source code:
- - `V::Lar.Poins` is the 1-cells (Vertices) complex.
+ - `V::Lar.Points` is the 1-cells (Vertices) complex by Columns.
+ - `W::Lar.Points` is the 1-cells (Vertices) complex by Rows.
  - `EV::Lar.Cells` is the 2-cells (Edges) complex.
- - `FV::Lar.` is the 3-cells (Faces) complex.
+ - `FV::Lar.Cells` is the 3-cells (Faces) complex.
  - `copEV::Lar.ChainOp`: is the Chain Coboundary of the 2-cells.
- - `copFE::Lar.`: is the Chain Coboundary of the 3-cells.
+ - `copFE::Lar.ChainOp`: is the Chain Coboundary of the 3-cells.
  - `bigPI::Array{Array{Int64,1},1}`: is the bounding box intersection array:
  	each row is associated to a 2-cell and contains the indices of the other 2-cells intersecting its bounding box.
 

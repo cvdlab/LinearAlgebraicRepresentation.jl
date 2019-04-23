@@ -1,5 +1,6 @@
 using LinearAlgebraicRepresentation
 Lar = LinearAlgebraicRepresentation
+Lara = Lar.Arrangement
 
 
 #--------------------------------------------------------------------------------------------------------------------------------
@@ -57,11 +58,11 @@ julia> V = [1.0 0.0; 0.0 1.0; 0.0 0.5; 0.5 1.0; 1.0 1.0]; # By Rows!
 
 julia> EV = [[1, 2], [2, 5], [3, 4], [4, 5]];
 
-julia> cop_EV = Lar.coboundary_0(EV::Lar.Cells);
+julia> copEV = Lar.coboundary_0(EV::Lar.Cells);
 
 julia> bigPI = Lar.spaceindex((convert(Lar.Points, V'), EV));
 
-julia> Lar.Arrangement.frag_edge(V, cop_EV, 1, bigPI)[1]
+julia> Lara.frag_edge(V, copEV, 1, bigPI)[1]
 5×2 Array{Float64,2}:
  1.0   0.0 
  0.0   1.0 
@@ -69,7 +70,7 @@ julia> Lar.Arrangement.frag_edge(V, cop_EV, 1, bigPI)[1]
  0.25  0.75
  0.0   1.0 
 
-julia> Lar.Arrangement.frag_edge(V, cop_EV, 1, bigPI)[2]
+julia> Lara.frag_edge(V, copEV, 1, bigPI)[2]
 2×5 SparseMatrixCSC{Int8,Int64} with 4 stored entries:
   [1, 1]  =  1
   [2, 2]  =  1
@@ -117,30 +118,32 @@ See also: [`Lar.Arrangement.frag_edge`](@ref)
 
 # Examples
 ```jldoctest
+# Cross
 julia> V = [1.0 0.0; 0.0 1.0; 0.0 0.5; 0.5 1.0]; # By Rows!
 
 julia> EV = [[1, 2], [3, 4]];
 
-julia> cop_EV = Lar.coboundary_0(EV::Lar.Cells);
+julia> copEV = Lar.coboundary_0(EV::Lar.Cells);
 
-julia> Lar.Arrangement.intersect_edges(V, cop_EV[1, :], cop_EV[2, :])
+julia> Lara.intersect_edges(V, copEV[1, :], copEV[2, :])
 1-element Array{Tuple{Array{T,2} where T,Float64},1}:
  ([0.25 0.75], 0.75)
 ```
 
 ```jldoctest
+# Collinear
 julia> V = [1.0 0.0; 0.0 1.0; 0.75 0.25; 0.5 0.5]; # By Rows!
 
 julia> EV = [[1, 2], [3, 4]];
 
-julia> cop_EV = Lar.coboundary_0(EV::Lar.Cells);
+julia> copEV = Lar.coboundary_0(EV::Lar.Cells);
 
-julia> Lar.Arrangement.intersect_edges(V, cop_EV[1, :], cop_EV[2, :])
+julia> Lar.Arrangement.intersect_edges(V, copEV[1, :], copEV[2, :])
 2-element Array{Tuple{Array{T,2} where T,Float64},1}:
  ([0.75 0.25], 0.25)
  ([0.5 0.5], 0.5) 
 
-julia> Lar.Arrangement.intersect_edges(V, cop_EV[2, :], cop_EV[1, :])
+julia> Lar.Arrangement.intersect_edges(V, copEV[2, :], copEV[1, :])
 0-element Array{Tuple{Array{T,2} where T,Float64},1}
 ```
 """
@@ -205,19 +208,20 @@ See also: [`Lar.Arrangement.planar_arrangement_1`](@ref)
 
 # Examples
 ```jldoctest
+# Collinear
 julia> V = [0.5 0.5; 0.0 0.0; 0.5 0.5; 1.0 1.0; 0.5 0.5; 1.0 1.0]; # By Rows!
 
 julia> EV = [[1, 4], [3, 2], [5, 6], [1, 6], [5, 3]];
 
-julia> cop_EV = Lar.coboundary_0(EV::Lar.Cells);
+julia> copEV = Lar.coboundary_0(EV::Lar.Cells);
 
-julia> Lar.Arrangement.merge_vertices!(V, cop_EV)[1]
+julia> Lara.merge_vertices!(V, copEV)[1]
 3×2 Array{Float64,2}:
  0.5  0.5
  0.0  0.0
  1.0  1.0
 
-julia> Lar.Arrangement.merge_vertices!(V, cop_EV)[2]
+julia> Lara.merge_vertices!(V, copEV)[2]
 2×3 SparseArrays.SparseMatrixCSC{Int8,Int64} with 4 stored entries:
   [1, 1]  =  1
   [2, 1]  =  1
@@ -313,7 +317,7 @@ See also: [`Lar.planar_arrangement`](@ref) for the complete pipeline.
 
 # Examples
 ```jldoctest
-julia> EV = SparseArrays.sparse(Array{Int8, 2}([
+julia> copEV = SparseArrays.sparse(Array{Int8, 2}([
     [1 1 0 0 0 0] #1 -> 1,2  |
     [1 0 1 0 0 0] #2 -> 1,3  |
     [1 0 0 1 0 0] #3 -> 1,4   |
@@ -322,19 +326,19 @@ julia> EV = SparseArrays.sparse(Array{Int8, 2}([
     [0 1 1 0 0 0] #6 -> 2,3  |
     [0 0 0 1 1 0] #7 -> 4,5   |
     ]));
-julia> Lar.Arrangement.biconnected_components(EV)
+julia> Lara.biconnected_components(copEV)
 2-element Array{Array{Int64,1},1}:
  [2, 6, 1]
  [4, 7, 3]
 ```
 
 ```jldoctest
-julia> EV = SparseArrays.sparse(Array{Int8, 2}([
+julia> copEV = SparseArrays.sparse(Array{Int8, 2}([
     [1 1 0] #1 -> 1,2  |
     [1 1 0] #2 -> 1,2  |
     [1 0 1] #3 -> 1,2
     ]));
-julia> Lar.Arrangement.biconnected_components(EV)
+julia> Lara.biconnected_components(copEV)
 1-element Array{Array{Int64,1},1}:
  [2, 1]
 ```
@@ -457,7 +461,7 @@ See also: [`Lar.Arrangement.componentgraph`](@ref).
 ```jldoctest
 # ``K^4`` graph
 julia> V = [0.0 0.0; 4.0 0.0; 2.0 3.0; 2.0 1.5];
-julia> EV = SparseArrays.sparse(Array{Int8, 2}([
+julia> copEV = SparseArrays.sparse(Array{Int8, 2}([
 		[1 1 0 0] #1 -> 1,2
 		[0 1 1 0] #2 -> 2,3
 		[1 0 1 0] #3 -> 3,1
@@ -465,17 +469,17 @@ julia> EV = SparseArrays.sparse(Array{Int8, 2}([
 		[0 1 0 1] #5 -> 2,3
 		[0 0 1 1] #6 -> 3,1
 	]));
-julia> FE = SparseArrays.sparse(Array{Int8, 2}([
+julia> copFE = SparseArrays.sparse(Array{Int8, 2}([
 		[1 0 0 1 1 0] #1 -> 1,4,5
 		[0 1 0 0 1 1] #2 -> 2,5,6
 		[0 0 1 1 0 1] #3 -> 3,4,6
 		[1 1 1 0 0 0] #4 -> 1,2,3 External
 	]));
 
-julia> Lar.Arrangement.get_external_cycle(V, EV, FE)
+julia> Lara.get_external_cycle(V, copEV, copFE)
 4
 
-julia> typeof(Lar.Arrangement.get_external_cycle(V, EV, FV[1:3,:]))
+julia> typeof(Lara.get_external_cycle(V, copEV, copFE[1:3,:]))
 Nothing
 ```
 """
@@ -531,7 +535,22 @@ See also:
 
 # Examples
 ```jldoctest
+# Planar Tiles
+julia> bboxes = [
+		([0.0 0.0], [1.0 1.0])
+		([0.0 0.0], [0.4 0.4])
+		([0.6 0.0], [1.0 0.4])
+		([0.0 0.6], [0.4 1.0])
+		([0.6 0.6], [1.0 1.0])
+		([2.0 3.0], [2.0 3.0]) # no intersection
+	];
 
+julia> Lara.pre_containment_test(bboxes)
+5×5 SparseMatrixCSC{Int8,Int64} with 4 stored entries:
+  [2, 1]  =  1
+  [3, 1]  =  1
+  [4, 1]  =  1
+  [5, 1]  =  1
 ```
 """
 function pre_containment_test(bboxes)
@@ -553,9 +572,17 @@ end
 """
     prune_containment_graph(n, V, EVs, shells, graph)
 
-More goes HERE...
+Prunes the containment `graph` from the non-intersecting faces.
 
-See also: [`Lar.Arrangement.componentgraph`](@ref).
+This method prunes the containment graph eliminating the intersecting bouning boxes
+that not corresponds to intersectring faces.
+
+Do note that this method expects to work on biconnectet clusters of faces; in fact
+it only checks for one point to see if the faces are intersecting.
+
+See also:
+  - [`Lar.Arrangement.componentgraph`](@ref).
+  - [`Lar.point_in_face`](@ref).
 
 ---
 
@@ -698,13 +725,13 @@ Topological Gift Wrapping algorithm on 2D skeletons.
 
 This is the offline part of the TGW algorithm. It takes in input a model and its
 biconnected components mapping and evaluates usefull informations:
- - Number of biconnected components.
- - Component Graph of the biconnected structure.
- - The 1-cells structure (UNMODIFIED). <----------------------------- Could be removed?
- - Association between non-dangling 2-cells and their orientation.
- - Association between 3-cells and 2-cells (with orientation).
- - Association between 3-cells and their orientation.
- - Shell bounding boxes of the components.
+ 1. Number of biconnected components.
+ 2. Component Graph of the biconnected structure.
+ 3. The 1-cells structure (UNMODIFIED). <----------------------------- Could be removed?
+ 4. Association between non-dangling 2-cells and their orientation (for each component).
+ 5. Association between 3-cells and 2-cells (with orientation, for each component).
+ 6. Association between 3-cells and their orientation (for each component).
+ 7. Shell bounding boxes of the components.
 
 
 See also: [`Lar.Arrangement.planar_arrangement_2`](@ref) for the TGW.
@@ -713,7 +740,73 @@ See also: [`Lar.Arrangement.planar_arrangement_2`](@ref) for the TGW.
 
 # Examples
 ```jldoctest
+# Papillon
+julia> V = [0.0 0.0; 0.0 3.0; 2.0 1.5; 4.0 0.0; 4.0 3.0];
 
+julia> copEV = SparseArrays.sparse(Array{Int8, 2}([
+		[1 1 0 0 0] #1 -> 1,2
+		[0 1 1 0 0] #2 -> 2,3
+		[1 0 1 0 0] #3 -> 3,1
+		[0 0 1 1 0] #4 -> 3,4
+		[0 0 0 1 1] #5 -> 4,5
+		[0 0 1 0 1] #6 -> 3,5
+	]));
+
+julia> copFE = SparseArrays.sparse(Array{Int8, 2}([
+		[1 1 1 0 0 0] #1 -> 1,2,3
+		[0 0 0 1 1 1] #2 -> 4,5,6
+		[1 1 1 1 1 1] #3 -> 1,2,3,4,5,6 External
+	]));
+
+julia> bicon_comps = [[1, 2, 3], [4, 5, 6]];
+
+julia> Lara.componentgraph(V, copEV, bicon_comps)[1]
+2
+
+julia> Lara.componentgraph(V, copEV, bicon_comps)[2]
+2×2 SparseMatrixCSC{Int8,Int64} with 0 stored entries
+
+julia> Lara.componentgraph(V, copEV, bicon_comps)[4]
+2-element Array{SparseMatrixCSC{Int8,Int64},1}:
+ 
+  [1, 1]  =  -1
+  [3, 1]  =  -1
+  [1, 2]  =  1
+  [2, 2]  =  -1
+  [2, 3]  =  1
+  [3, 3]  =  1
+ 
+  [1, 3]  =  -1
+  [3, 3]  =  -1
+  [1, 4]  =  1
+  [2, 4]  =  -1
+  [2, 5]  =  1
+  [3, 5]  =  1
+
+julia> Lara.componentgraph(V, copEV, bicon_comps)[5]
+2-element Array{SparseMatrixCSC{Int8,Int64},1}:
+ 
+  [1, 1]  =  -1
+  [1, 2]  =  -1
+  [1, 3]  =  1
+ 
+  [1, 1]  =  1
+  [1, 2]  =  1
+  [1, 3]  =  -1 
+
+julia> Lara.componentgraph(V, copEV, bicon_comps)[6]
+2-element Array{SparseVector{Int8,Int64},1}:
+   [1]  =  1
+  [2]  =  1
+  [3]  =  -1 
+   [1]  =  -1
+  [2]  =  -1
+  [3]  =  1
+
+julia> Lara.componentgraph(V, copEV, bicon_comps)[7]
+2-element Array{Any,1}:
+ ([0.0 0.0], [2.0 3.0])
+ ([2.0 0.0], [4.0 3.0])
 ```
 """
 function componentgraph(V, copEV, bicon_comps)
@@ -776,9 +869,10 @@ gives back the dropped model and and a vector `todel` of the 2-cells to drop.
 
 # Examples
 ```jldoctest
+# Nested Triangles
 julia> V = [0.0 0.0; 2.0 0.0; 4.0 0.0; 1.0 1.5; 3.0 1.5; 2.0 3.0; 2.0 -3.; -2. 3.0; 6.0 3.0];
 
-julia> EV = SparseArrays.sparse(Array{Int8, 2}([
+julia> copEV = SparseArrays.sparse(Array{Int8, 2}([
     [1 0 1 0 0 0 0 0 0] #1 -> 1,3
     [1 0 0 0 0 1 0 0 0] #2 -> 1,6
     [0 0 1 0 0 1 0 0 0] #3 -> 3,6
@@ -792,9 +886,9 @@ julia> EV = SparseArrays.sparse(Array{Int8, 2}([
 
 julia> σ = SparseArrays.sparse([0; 0; 0; 1; 1; 1; 0; 0; 0]);
 
-todel, V, EV = Lar.Arrangement.cleandecomposition(V, EV, convert(Lar.Chain, σ))
+todel, V, copEV = Lara.cleandecomposition(V, copEV, convert(Lar.Chain, σ))
 
-Plasm.view(convert(Lar.Points, V'), Lar.cop2lar(EV));
+Plasm.view(convert(Lar.Points, V'), Lar.cop2lar(copEV));
 ```
 """
 function cleandecomposition(V::Lar.Points, copEV::Lar.ChainOp, sigma::Lar.Chain)
@@ -878,8 +972,6 @@ See also: [`Lar.planar_arrangement`](@ref) for the complete pipeline.
 
 # Examples
 ```jldoctest
-julia> using Plasm
-
 julia> EV = [[1, 2], [3, 4], [1, 3], [2, 4], [5, 6], [7, 8], [5, 7], [6, 8]];
 
 julia> V = [
@@ -911,7 +1003,7 @@ julia> Plasm.view(Plasm.numbering(0.1)((V1,[[[k] for k=1:size(V1,2)], EV1])));
 ```
 """
 function planar_arrangement_1(V::Lar.Points, copEV::Lar.ChainOp, 
-		sigma::Lar.Chain=spzeros(Int8, 0), 
+		sigma::Lar.Chain=SparseArrays.spzeros(Int8, 0), 
 		return_edge_map::Bool=false, 
 		multiproc::Bool=false)
 
@@ -993,6 +1085,7 @@ See also: [`Lar.planar_arrangement`](@ref) for the complete pipeline.
 
 # Examples
 ```jldoctest
+# Triforce
 julia> V = [0.0 0.0; 2.0 0.0; 4.0 0.0; 1.0 1.5; 3.0 1.5; 2.0 3.0; 3.0 3.0];
 julia> W = convert(Lar.Points, V');
 julia> EV = SparseArrays.sparse(Array{Int8, 2}([
@@ -1065,7 +1158,7 @@ See also:
     maps the edges of the imput to the one of the output. Defaults to `false`.
   - `multiproc::Bool`: Runs the computation in parallel mode. Defaults to `false`.
 
-Many examples could be found in Lar Documentation.
+Many examples could be found in Lar Documentation and `examples` directory.
 """
 function planar_arrangement( V::Lar.Points, copEV::Lar.ChainOp, 
 		sigma::Lar.Chain=spzeros(Int8, 0), 
