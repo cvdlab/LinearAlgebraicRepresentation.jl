@@ -155,10 +155,39 @@ Lar.Arrangement.cell_merging
 #### Component graph evaluation
 Component Graph evaluation relies on different functions that could be use separatelly in order to obtain different results.
 
+First of all we use the following function on each biconnected component
+in order to gain the faces of the complex:
 ```@docs
 Lar.Arrangement.get_external_cycle
+```
+
+
+
+Then a containment graph is build in order to clarify if some biconnected component
+relies in another biconnected component. To do so, the approach is similiar to what
+we did with the 2-cells decomposition. We firstly build the bounding box of each
+component and we check whether they are one inside the other via:
+```@docs
 Lar.Arrangement.pre_containment_test
+```
+
+
+
+Then we prune the resulting mapping using:
+```@docs
 Lar.Arrangement.prune_containment_graph
+```
+In order to do so we take each biconnected component ``\phi`` whose bounding box is inside
+the bounding box of ``\psi`` (``\foreach \psi``) and we check if a point of ``phi`` is or is not
+on the possible ``\psi`` 3-cells.
+Do note that it is sufficient checking one single point since we know in advance
+that each couple of biconnected components is intersection free. Therefore if a single
+point of ``\phi`` is inside a biconnected component ``\psi`` then ``\phi \subset \psi``.
+
+
+However if three or more faces are nested one into the other, then the mapping
+is redundant. We therefore eliminate this redundany by applying:
+```@docs 
 Lar.Arrangement.transitive_reduction!
 ```
 

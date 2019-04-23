@@ -523,9 +523,8 @@ end
 Generate the containment graph associated to `bboxes`.
 
 The function evaluate a `SparseArrays{Int8, n, n}` PRE-containmnet graph in the sense
-that it contains redundancies that must be pruned (where `n = length(bboxes)`)
-
-The graph element `(i, j)` is **1** if the axis aligned bounding box of `bboxes[j]` contains `bboxes[i]`.
+that it stores `1` when the bbox associated to the `i`-th component contains entirely
+the bbox associated to the `j`-th one. (where `n = length(bboxes)`)
 
 See also:
   - [`Lar.Arrangement.componentgraph`](@ref).
@@ -572,23 +571,16 @@ end
 """
     prune_containment_graph(n, V, EVs, shells, graph)
 
-Prunes the containment `graph` from the non-intersecting faces.
+Prunes the containment `graph` from the non-included faces.
 
-This method prunes the containment graph eliminating the intersecting bouning boxes
-that not corresponds to intersectring faces.
+This method prunes the containment graph eliminating the included bouning boxes
+that not corresponds to included faces.
 
-Do note that this method expects to work on biconnectet clusters of faces; in fact
-it only checks for one point to see if the faces are intersecting.
+Do note that this method expects to work on biconnectet clusters of faces.
 
 See also:
   - [`Lar.Arrangement.componentgraph`](@ref).
   - [`Lar.point_in_face`](@ref).
-
----
-
-# Examples
-```jldoctest
-
 ```
 """
 function prune_containment_graph(n, V, EVs, shells, graph)
@@ -619,7 +611,10 @@ end
 """
     transitive_reduction!(graph)
 
-More goes HERE...
+Prune the redundancies in containment `graph`.
+
+The ``m``-layer containment `graph` is reduced to the 1-layer containment `graph`
+where only the first level nested components are considered.
 
 See also: [`Lar.Arrangement.componentgraph`](@ref).
 
@@ -627,7 +622,25 @@ See also: [`Lar.Arrangement.componentgraph`](@ref).
 
 # Examples
 ```jldoctest
+julia> containment = [
+		0 0 0 0 0 0
+		0 0 0 0 0 0
+		1 0 0 0 0 0
+		1 0 0 0 0 0
+		1 0 1 0 0 0
+		1 0 1 0 1 0
+	];
 
+julia> transitive_reduction!(containment)
+
+julia> containment
+6×6 Array{Int64,2}:
+ 0  0  0  0  0  0
+ 0  0  0  0  0  0
+ 1  0  0  0  0  0
+ 1  0  0  0  0  0
+ 0  0  1  0  0  0
+ 0  0  0  0  1  0
 ```
 """
 function transitive_reduction!(graph)
@@ -654,13 +667,6 @@ Cells composing for the Topological Gift Wrapping algorithm.
 This is the online part of the TGW algorithm.
 
 See also: [`Lar.Arrangement.planar_arrangement_2`](@ref).
-
----
-
-# Examples
-```jldoctest
-
-```
 """
 function cell_merging(n, containment_graph, V, EVs, boundaries, shells, shell_bboxes)
     function bboxes(V::Lar.Points, indexes::Lar.ChainOp)
