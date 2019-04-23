@@ -516,9 +516,16 @@ end
 """
     pre_containment_test(bboxes)
 
-More goes HERE...
+Generate the containment graph associated to `bboxes`.
 
-See also: [`Lar.Arrangement.componentgraph`](@ref).
+The function evaluate a `SparseArrays{Int8, n, n}` PRE-containmnet graph in the sense
+that it contains redundancies that must be pruned (where `n = length(bboxes)`)
+
+The graph element `(i, j)` is **1** if the axis aligned bounding box of `bboxes[j]` contains `bboxes[i]`.
+
+See also:
+  - [`Lar.Arrangement.componentgraph`](@ref).
+  - [`Lar.bbox_contains`](@ref).
 
 ---
 
@@ -529,7 +536,7 @@ See also: [`Lar.Arrangement.componentgraph`](@ref).
 """
 function pre_containment_test(bboxes)
     n = length(bboxes)
-    containment_graph = spzeros(Int8, n, n)
+    containment_graph = SparseArrays.spzeros(Int8, n, n)
 
     for i in 1:n
         for j in 1:n
@@ -691,13 +698,13 @@ Topological Gift Wrapping algorithm on 2D skeletons.
 
 This is the offline part of the TGW algorithm. It takes in input a model and its
 biconnected components mapping and evaluates usefull informations:
- - number of biconnected components
- - ?
+ - Number of biconnected components.
+ - Component Graph of the biconnected structure.
  - The 1-cells structure (UNMODIFIED). <----------------------------- Could be removed?
  - Association between non-dangling 2-cells and their orientation.
  - Association between 3-cells and 2-cells (with orientation).
  - Association between 3-cells and their orientation.
- - Shell bounding boxes
+ - Shell bounding boxes of the components.
 
 
 See also: [`Lar.Arrangement.planar_arrangement_2`](@ref) for the TGW.

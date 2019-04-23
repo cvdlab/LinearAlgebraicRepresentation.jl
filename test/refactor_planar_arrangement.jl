@@ -63,6 +63,8 @@ Lara = LinearAlgebraicRepresentation.Arrangement
 	end
 end
 
+#--------------------------------------------------------------------------------------------------------------------------------#--------------------------------------------------------------------------------------------------------------------------------
+
 @testset "Biconnected Components" begin
 	@testset "Normal Execution" begin
 		EV = SparseArrays.sparse(Array{Int8, 2}([
@@ -106,4 +108,66 @@ end
 		@test length(Lara.biconnected_components(EV)) == 1;
 		@test sort(Lara.biconnected_components(EV)[1]) == [1, 2];
 	end
+end
+
+#--------------------------------------------------------------------------------------------------------------------------------
+
+@testset "Pipeline Arrangement 2 over K^4" begin
+	
+	# K^4 + edge
+	V = [0.0 0.0; 4.0 0.0; 2.0 3.0; 2.0 1.5];
+    EV = SparseArrays.sparse(Array{Int8, 2}([
+		[1 1 0 0] #1 -> 1,2
+		[0 1 1 0] #2 -> 2,3
+		[1 0 1 0] #3 -> 3,1
+		[1 0 0 1] #4 -> 1,2
+		[0 1 0 1] #5 -> 2,3
+		[0 0 1 1] #6 -> 3,1
+	]));
+
+	EVs = [SparseArrays.sparse(Array{Int8, 2}([
+		[-1  1  0  0] #1 -> 1,2
+		[ 0 -1  1  0] #2 -> 2,3
+		[-1  0  1  0] #3 -> 3,1
+		[-1  0  0  1] #4 -> 1,2
+		[ 0 -1  0  1] #5 -> 2,3
+		[ 0  0 -1  1] #6 -> 3,1
+	]))];
+
+	FE = SparseArrays.sparse(Array{Int8, 2}([
+		[1 0 0 1 1 0] #1 -> 1,4,5
+		[0 1 0 0 1 1] #2 -> 2,5,6
+		[0 0 1 1 0 1] #3 -> 3,4,6
+		[1 1 1 0 0 0] #4 -> 1,2,3 External
+	]));
+
+	boundaries = [SparseArrays.sparse(Array{Int8, 2}([
+		[ 1  0  0 -1  1  0] #1 -> 1,4,5
+		[ 0  1  0  0 -1  1] #2 -> 2,5,6
+		[ 0  0 -1  1  0 -1] #3 -> 3,4,6
+	]))];
+
+	bicon_comps = [[1, 2, 3, 4, 5, 6]];
+
+    @testset "get_external_cycle" begin
+    	@test Lara.get_external_cycle(V, EV, FE) == 4;
+		@test typeof(Lara.get_external_cycle(V, EV, FV[1:3,:])) == Nothing
+	end
+
+	@testset "Biconnected Components 2" begin
+		@test length(Lara.biconnected_components(EV)) == 1;
+		@test sort(Lara.biconnected_components(EV)[1]) == bicon_comps;
+	end
+
+
+
+	@test Lara.componentgraph(V, copEV, bicon_comps)[1] == 1;
+	@test Lara.componentgraph(V, copEV, bicon_comps)[2] == (1, 1);
+	@test Lara.componentgraph(V, copEV, bicon_comps)[3] == V;
+	@test Lara.componentgraph(V, copEV, bicon_comps)[4] == EVs;
+	@test Lara.componentgraph(V, copEV, bicon_comps)[5] == boundaries;
+	@test Lara.componentgraph(V, copEV, bicon_comps)[6] == [sparse(Array{Int8}([-1; -1; 1; 0; 0; 0]))];
+	@test Lara.componentgraph(V, copEV, bicon_comps)[7] == [([0.0 0.0], [4.0 3.0])];
+	
+
 end
