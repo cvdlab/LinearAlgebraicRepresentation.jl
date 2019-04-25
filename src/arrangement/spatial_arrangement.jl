@@ -1,5 +1,10 @@
 Lar = LinearAlgebraicRepresentation
 
+"""
+	frag_face_channel(in_chan, out_chan, V, EV, FE, sp_idx)
+
+Parallel fragmentation of faces in `FE` against faces in `sp_idx`.
+"""
 function frag_face_channel(in_chan, out_chan, V, EV, FE, sp_idx)
     run_loop = true
     while run_loop
@@ -12,37 +17,69 @@ function frag_face_channel(in_chan, out_chan, V, EV, FE, sp_idx)
     end
 end
 
+
+
+"""
+	frag_face(V, EV, FE, sp_idx, sigma)
+
+`sigma` face fragmentation against faces in `sp_idx[sigma]`
+"""
 function frag_face(V, EV, FE, sp_idx, sigma)
     vs_num = size(V, 1)
 
+	# 2D transformation of sigma face
     sigmavs = (abs.(FE[sigma:sigma,:])*abs.(EV))[1,:].nzind 
     sV = V[sigmavs, :]
     sEV = EV[FE[sigma, :].nzind, sigmavs]
-
-    M = submanifold_mapping(sV)
-    tV = ([V ones(vs_num)]*M)[:, 1:3]
-    
+    M = Lar.Arrangement.submanifold_mapping(sV)
+    tV = ([V ones(vs_num)]*M)[:, 1:3]  # folle convertire *tutti* i vertici
+#if sigma==6
+#@show tV
+#end
     sV = tV[sigmavs, :]
-    
+    # sigma face intersection with faces in sp_idx[sigma]
+#if sigma==6
+#@show sp_idx[sigma];
+#v=convert(Lar.Points, V')
+#ev = [findnz(EV[e,:])[1] for e in append!(sp_idx[sigma],[sigma])]
+#tmpV, tmpEV = Lar.Arrangement.face_int(tV, EV, FE[10, :]) 
+#@show tmpV, tmpEV
+#Plasm.view(Plasm.numbering(0.5)((v,[[[k] for k=1:size(v,2)],ev])))
+#end
     for i in sp_idx[sigma]
-        tmpV, tmpEV = face_int(tV, EV, FE[i, :])
-        
+        tmpV, tmpEV = Lar.Arrangement.face_int(tV, EV, FE[i, :])
         sV, sEV = Lar.skel_merge(sV, sEV, tmpV, tmpEV)
+if sigma==6 && i==7
+@show tmpV, tmpEV
+@show sigma;
+@show i
+tmpV, tmpEV = Lar.Arrangement.face_int(tV, EV, FE[i, :])
+v=convert(Lar.Points, sV')
+ev = [findnz(sEV[k,:])[1] for k=1:size(sEV,1)]
+@show v;
+@show ev;
+#Plasm.view(Plasm.numbering(0.5)((v,[[[k] for k=1:size(v,2)],ev])))
+end
     end
-    
+#if sigma==6
+#@show sigma;
+#v=convert(Lar.Points, sV')
+#ev = [findnz(sEV[k,:])[1] for k=1:size(sEV,1)]
+#@show v;
+#@show ev;
+#Plasm.view(Plasm.numbering(0.5)((v,[[[k] for k=1:size(v,2)],ev])))
+#end
+    # computation of 2D arrangement of sigma face
     sV = sV[:, 1:2]
-    
-
     nV, nEV, nFE = planar_arrangement(sV, sEV, sparsevec(ones(Int8, length(sigmavs))))
-
-    if nV == nothing
+    if nV == nothing ## not possible !! ... (each original face maps to its decomposition)
         return [], spzeros(Int8, 0,0), spzeros(Int8, 0,0)
     end
-
     nvsize = size(nV, 1)
-    nV = [nV zeros(nvsize) ones(nvsize)]*inv(M)[:, 1:3]
+    nV = [nV zeros(nvsize) ones(nvsize)]*inv(M)[:, 1:3] ## ????
     return nV, nEV, nFE
 end
+
 
 function merge_vertices(V::Lar.Points, EV::Lar.ChainOp, FE::Lar.ChainOp, err=1e-4)
     vertsnum = size(V, 1)
@@ -53,43 +90,35 @@ function merge_vertices(V::Lar.Points, EV::Lar.ChainOp, FE::Lar.ChainOp, err=1e-
     V = Array{Float64,2}(V)
     W = convert(Lar.Points, LinearAlgebra.transpose(V))
     kdtree = KDTree(W)
-
-    global todelete = []
-    
+	# remove vertices congruent to a single representative
+    todelete = []
     i = 1
     for vi in 1:vertsnum
         if !(vi in todelete)
             nearvs = Lar.inrange(kdtree, V[vi, :], err)
-    
             newverts[nearvs] .= i
-    
             nearvs = setdiff(nearvs, vi)
             todelete = union(todelete, nearvs)
-    
             i = i + 1
         end
     end
-    
     nV = V[setdiff(collect(1:vertsnum), todelete), :]
     
+    # translate edges to take congruence into account
     edges = Array{Tuple{Int, Int}, 1}(undef, edgenum)
     oedges = Array{Tuple{Int, Int}, 1}(undef, edgenum)
-    
     for ei in 1:edgenum
         v1, v2 = EV[ei, :].nzind
-        
         edges[ei] = Tuple{Int, Int}(sort([newverts[v1], newverts[v2]]))
         oedges[ei] = Tuple{Int, Int}(sort([v1, v2]))
-    
     end
     nedges = union(edges)
-    nedges = filter(t->t[1]!=t[2], nedges)
-    
+    # remove edges of zero length
+    nedges = filter(t->t[1]!=t[2], nedges) 
     nedgenum = length(nedges)
     nEV = spzeros(Int8, nedgenum, size(nV, 1))
     
     etuple2idx = Dict{Tuple{Int, Int}, Int}()
-    
     for ei in 1:nedgenum
     	begin
         	nEV[ei, collect(nedges[ei])] .= 1
@@ -97,7 +126,12 @@ function merge_vertices(V::Lar.Points, EV::Lar.ChainOp, FE::Lar.ChainOp, err=1e-
         end
         etuple2idx[nedges[ei]] = ei
     end
+    for e in 1:nedgenum
+    	v1,v2 = findnz(nEV[e,:])[1]
+    	nEV[e,v1] = -1; nEV[e,v2] = 1
+    end
     
+    # compute new faces to take congruence into account
     faces = [[
         map(x->newverts[x], FE[fi, ei] > 0 ? oedges[ei] : reverse(oedges[ei]))
         for ei in FE[fi, :].nzind
@@ -155,7 +189,6 @@ function spatial_arrangement_1(
     if (multiproc == true)
         in_chan = Distributed.RemoteChannel(()->Channel{Int64}(0))
         out_chan = Distributed.RemoteChannel(()->Channel{Tuple}(0))
-        
         @async begin
             for sigma in 1:fs_num
                 put!(in_chan, sigma)
@@ -164,16 +197,13 @@ function spatial_arrangement_1(
                 put!(in_chan, -1)
             end
         end
-        
         for p in Distributed.workers()
             @async Base.remote_do(
                 frag_face_channel, p, in_chan, out_chan, V, EV, FE, sp_idx)
         end
-        
         for sigma in 1:fs_num
             rV, rEV, rFE = Lar.skel_merge(rV, rEV, rFE, take!(out_chan)...)
         end
-        
     else
 	# sequential (iterative) processing of face fragmentation 
         for sigma in 1:fs_num
@@ -184,11 +214,21 @@ function spatial_arrangement_1(
             	rV, rEV, rFE, nV, nEV, nFE)
             rV=a; rEV=b; rFE=c
         end
-        
+#v=convert(Lar.Points, rV')
+#ev = [findnz(rEV[k,:])[1] for k=1:size(rEV,1)]
+#@show v;
+#@show ev;
+##@show sigma;
+#Plasm.view(Plasm.numbering(0.5)((v,[[[k] for k=1:size(v,2)],ev])))
+
     end
 
 	# merging of close vertices, edges and faces (3D congruence)
     rV, rEV, rFE = merge_vertices(rV, rEV, rFE)
+    @show Matrix(rV)
+    @show Matrix(rEV)
+    @show Matrix(rFE)
+    return rV, rEV, rFE
 end
 
 
@@ -202,6 +242,10 @@ function spatial_arrangement_2(
 
     return rV, rcopEV, rcopFE, rcopCF
 end
+
+using Plasm
+
+
 
 
 """
@@ -225,8 +269,9 @@ function spatial_arrangement(
 	rV, rcopEV, rcopFE = spatial_arrangement_1( V, copEV, copFE, multiproc )
 	
 	# graph components
-	##bicon_comps = Lar.Arrangement.biconnected_components(copEV)
-	
+	bicon_comps = Lar.Arrangement.biconnected_components(copEV)
+@show bicon_comps
+
 	# 3-complex and containment graph
 	rV, rEV, rFE, rCF = spatial_arrangement_2(rV, rcopEV, rcopFE)
 end
