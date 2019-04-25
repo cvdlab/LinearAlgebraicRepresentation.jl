@@ -33,42 +33,12 @@ function frag_face(V, EV, FE, sp_idx, sigma)
     sEV = EV[FE[sigma, :].nzind, sigmavs]
     M = Lar.Arrangement.submanifold_mapping(sV)
     tV = ([V ones(vs_num)]*M)[:, 1:3]  # folle convertire *tutti* i vertici
-#if sigma==6
-#@show tV
-#end
     sV = tV[sigmavs, :]
     # sigma face intersection with faces in sp_idx[sigma]
-#if sigma==6
-#@show sp_idx[sigma];
-#v=convert(Lar.Points, V')
-#ev = [findnz(EV[e,:])[1] for e in append!(sp_idx[sigma],[sigma])]
-#tmpV, tmpEV = Lar.Arrangement.face_int(tV, EV, FE[10, :]) 
-#@show tmpV, tmpEV
-#Plasm.view(Plasm.numbering(0.5)((v,[[[k] for k=1:size(v,2)],ev])))
-#end
     for i in sp_idx[sigma]
         tmpV, tmpEV = Lar.Arrangement.face_int(tV, EV, FE[i, :])
         sV, sEV = Lar.skel_merge(sV, sEV, tmpV, tmpEV)
-if sigma==6 && i==7
-@show tmpV, tmpEV
-@show sigma;
-@show i
-tmpV, tmpEV = Lar.Arrangement.face_int(tV, EV, FE[i, :])
-v=convert(Lar.Points, sV')
-ev = [findnz(sEV[k,:])[1] for k=1:size(sEV,1)]
-@show v;
-@show ev;
-#Plasm.view(Plasm.numbering(0.5)((v,[[[k] for k=1:size(v,2)],ev])))
-end
     end
-#if sigma==6
-#@show sigma;
-#v=convert(Lar.Points, sV')
-#ev = [findnz(sEV[k,:])[1] for k=1:size(sEV,1)]
-#@show v;
-#@show ev;
-#Plasm.view(Plasm.numbering(0.5)((v,[[[k] for k=1:size(v,2)],ev])))
-#end
     # computation of 2D arrangement of sigma face
     sV = sV[:, 1:2]
     nV, nEV, nFE = planar_arrangement(sV, sEV, sparsevec(ones(Int8, length(sigmavs))))
@@ -214,20 +184,10 @@ function spatial_arrangement_1(
             	rV, rEV, rFE, nV, nEV, nFE)
             rV=a; rEV=b; rFE=c
         end
-#v=convert(Lar.Points, rV')
-#ev = [findnz(rEV[k,:])[1] for k=1:size(rEV,1)]
-#@show v;
-#@show ev;
-##@show sigma;
-#Plasm.view(Plasm.numbering(0.5)((v,[[[k] for k=1:size(v,2)],ev])))
-
     end
 
 	# merging of close vertices, edges and faces (3D congruence)
     rV, rEV, rFE = merge_vertices(rV, rEV, rFE)
-    @show Matrix(rV)
-    @show Matrix(rEV)
-    @show Matrix(rFE)
     return rV, rEV, rFE
 end
 
@@ -270,7 +230,6 @@ function spatial_arrangement(
 	
 	# graph components
 	bicon_comps = Lar.Arrangement.biconnected_components(copEV)
-@show bicon_comps
 
 	# 3-complex and containment graph
 	rV, rEV, rFE, rCF = spatial_arrangement_2(rV, rcopEV, rcopFE)
