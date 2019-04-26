@@ -105,6 +105,7 @@ module LinearAlgebraicRepresentation
    include("./integr.jl")
    include("./refactoring.jl")
    include("./graphalgorithms.jl")
+   include("./fragface.jl")
    
    include("./arrangement/arrangement.jl")
    #planar_arrangement_1 = Arrangement.planar_arrangement_1

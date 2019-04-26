@@ -37,8 +37,10 @@ function frag_face(V, EV, FE, sp_idx, sigma)
     # sigma face intersection with faces in sp_idx[sigma]
     for i in sp_idx[sigma]
         tmpV, tmpEV = Lar.Arrangement.face_int(tV, EV, FE[i, :])
+        
         sV, sEV = Lar.skel_merge(sV, sEV, tmpV, tmpEV)
     end
+    
     # computation of 2D arrangement of sigma face
     sV = sV[:, 1:2]
     nV, nEV, nFE = planar_arrangement(sV, sEV, sparsevec(ones(Int8, length(sigmavs))))
@@ -202,8 +204,6 @@ function spatial_arrangement_2(
 
     return rV, rcopEV, rcopFE, rcopCF
 end
-
-using Plasm
 
 
 
