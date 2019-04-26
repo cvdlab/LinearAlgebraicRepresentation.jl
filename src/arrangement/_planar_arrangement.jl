@@ -421,7 +421,7 @@ function cleandecomposition(V, copEV, sigma, edge_map)
     # Deletes edges outside sigma area
 	todel = []
 	new_edges = []
-#	map(i->new_edges=union(new_edges, edge_map[i]), sigma.nzind) # ???
+	map(i->new_edges=union(new_edges, edge_map[i]), sigma.nzind) # ???
 	new_edges = [edge_map[i] for i in sigma.nzind]
 	ev = copEV[new_edges, :] # edges-by-vertices of sigma face after intersection
 	for e in 1:copEV.m
@@ -482,7 +482,7 @@ end
 
     
 """
-	function planar_arrangement_1( V::Lar.Points, copEV::Lar.ChainOp, 
+	planar_arrangement_1( V::Lar.Points, copEV::Lar.ChainOp, 
 		sigma::Lar.Chain=spzeros(Int8, 0), 
 		return_edge_map::Bool=false, 
 		multiproc::Bool=false)
@@ -548,7 +548,7 @@ function planar_arrangement_1( V, copEV,
 	# merging of close vertices and edges (2D congruence)
 	V, copEV = rV, rEV
 	V, copEV = Lar.Arrangement.merge_vertices!(V, copEV, edge_map)
-	return V, copEV
+	return V, copEV, edge_map
 end 
 	
 	
@@ -564,7 +564,7 @@ Compute the arrangement on the given cellular complex 1-skeleton in 2D.
 Second part of arrangement's algorithmic pipeline. 
 Topological Gift Wrapping
 """
-function planar_arrangement_2(V, copEV, bicon_comps, 
+function planar_arrangement_2(V, copEV, bicon_comps, edge_map,
 		sigma::Lar.Chain=spzeros(Int8, 0), 
 		return_edge_map::Bool=false, 
 		multiproc::Bool=false)
@@ -615,12 +615,10 @@ function planar_arrangement( V::Lar.Points, copEV::Lar.ChainOp,
 		multiproc::Bool=false)
 
 	# edge subdivision
-	V, copEV = Lar.planar_arrangement_1(V::Lar.Points, copEV::Lar.ChainOp, 
-    	spzeros(Int8, 0), false, false)    	
+	V, copEV, edge_map = Lar.Arrangement.planar_arrangement_1(V::Lar.Points, copEV::Lar.ChainOp, spzeros(Int8,0), false, false)    	
 	# biconnected components
 	bicon_comps = Lar.Arrangement.biconnected_components(copEV)
 	# 2-complex and containment graph
-	V, copEV, copFE = Lar.planar_arrangement_2(V, copEV, bicon_comps, 
-		sigma, false, false)
+	V, copEV, copFE = Lar.Arrangement.planar_arrangement_2(V, copEV, bicon_comps, edge_map, sigma, false, false)
 	return V, copEV, copFE
 end

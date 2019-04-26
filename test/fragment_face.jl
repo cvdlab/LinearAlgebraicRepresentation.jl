@@ -90,7 +90,7 @@ function sigma_intersect(V, copEV, copFE, sigma, Q, bigpi)
 	#Plasm.view(Z, sigma_lines)
 	# initialization of line storage (to be intersected)
 	linestore = [[Z[:,v1] Z[:,v2]] for (v1,v2) in sigma_lines]
-	b_linenum = length(sigma_lines)
+	linenum = length(sigma_lines)
 	# reindexing of ∏(σ) chain 
 	bigpi_edges = [EV[fe] for fe in FE[bigpi]]
 	bigpi_verts = union(union(bigpi_edges...)...)
@@ -134,11 +134,11 @@ function sigma_intersect(V, copEV, copFE, sigma, Q, bigpi)
 	if z0_lines != []
 		linestore = append!(linestore, union(z0_lines...))
 	end
-	return linestore,b_linenum
+	return linestore,linenum
 end
 
 
-function computeparams(linestore,b_linenum)
+function computeparams(linestore,linenum)
 	m = length(linestore)
 	params = [[] for i=1:m]
 	for h=1:(m-1)
@@ -185,8 +185,8 @@ end
 function fragface(V, EV, FV, FE, space_idx, sigma)
 	bigpi = space_idx[sigma]
 	Q = Lar.face_mapping(V', FV, sigma)
-	linestore, b_linenum = Lar.sigma_intersect(V', EV, FE, sigma, Q, bigpi)
-	lineparams = Lar.computeparams(linestore,b_linenum)
+	linestore, linenum = Lar.sigma_intersect(V', EV, FE, sigma, Q, bigpi)
+	lineparams = Lar.computeparams(linestore,linenum)
 	pairs = collect(zip(lineparams,linestore))
 
 	linepoints = []
@@ -195,10 +195,10 @@ function fragface(V, EV, FV, FE, space_idx, sigma)
 		v1,v2 = line[1:2,1],line[1:2,2]
 		if params==[0.0, 1.0]
 			points = [v1,v2]
-			if k<=b_linenum number += 1 end
+			if k<=linenum number += 1 end
 		elseif length(params)>2 
 			points = [v1+α*(v2-v1) for α ∈ params]
-			if k<=b_linenum number += length(params)-1 end
+			if k<=linenum number += length(params)-1 end
 		end
 		push!(linepoints,points)
 	end
@@ -368,13 +368,13 @@ function computefragments(V, EV, FV, FE, space_idx, sigma)
 	#v,ev = Lar.sigmamodel(V, EV, FE, sigma, space_idx)
 	#Plasm.view(Plasm.numbering(0.4)((v,[ [[k] for k=1:size(v,2)],ev ])))
 
-	verts, edges, b_linenum = Lar.fragface(V, EV, FV, FE, space_idx, sigma) #OK
+	verts, edges, linenum = Lar.fragface(V, EV, FV, FE, space_idx, sigma) #OK
 	v,ev,Q = Lar.sigmamodel(V, EV, FV, FE, sigma, space_idx) #OK
 	classify = Lar.pointInPolygonClassification(v,ev)
 	internal = []
 	for (k,edge)  in enumerate(edges)
 		v1,v2 = edge
-		if k <= b_linenum
+		if k <= linenum
 			push!(internal, edge)
 		else
 			vm = (verts[:,v1]+verts[:,v2])/2
