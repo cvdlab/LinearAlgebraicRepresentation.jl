@@ -56,16 +56,13 @@ function sigmamodel(V, copEV, FV, copFE, sigma, sp_idx)
 	return v,ev,Q
 end
 
+
+
+
 """
+	sigma_intersect(V, EV, FE, sigma, Q, bigpi)
 
-Intersect `sigma` edges with edges in `bigpi`.
-
-# Example 2D
-
-```julia
-
-
-```
+Intersect `sigma` plane `z=0` with edges in transformed `bigpi`.
 """
 function sigma_intersect(V, EV, FE, sigma, Q, bigpi)
 	sigma_edges = EV[FE[sigma]]
@@ -75,6 +72,7 @@ function sigma_intersect(V, EV, FE, sigma, Q, bigpi)
 	# sigma face on z=0 plane
 	S = V[:,sigma_verts] # sigma vertices
 	Z = (Q * [S; ones(1,size(S,2))])[1:3,:] # sigma mapped in z=0
+	#Plasm.view(Z, sigma_lines)
 	# initialization of line storage (to be intersected)
 	linestore = [[Z[:,v1] Z[:,v2]] for (v1,v2) in sigma_lines]
 	linenum = length(sigma_lines)
@@ -87,11 +85,14 @@ function sigma_intersect(V, EV, FE, sigma, Q, bigpi)
 	# bigpi trasformed in 3D according to Q mapping
 	P = V[:,bigpi_verts] # bigpi vertices
 	W = (Q * [P; ones(1,size(P,2))])[1:3,:] # bigpi mapped by Q
+	#Plasm.view(W, union(bigpi_lines...))
 	# filter on bigpi_lines that do not cross z=0
 	filtered_edges = [[[v1,v2] for (v1,v2) in face_lines 
 		if (sign(W[3,v1]) * sign(W[3,v2])) <= 0] 
 			for face_lines in bigpi_lines]
 	filtered_edges = [edge for edge in filtered_edges if edge!=[]]
+	#Plasm.view(W, union(filtered_edges...))
+	#Plasm.view(Plasm.numbering()((W,[[[k] for k=1:size(W,2)],union(filtered_edges...)])))
 	# computation of ordered z=0 points by face
 	facepoints = []
 	for face in filtered_edges
