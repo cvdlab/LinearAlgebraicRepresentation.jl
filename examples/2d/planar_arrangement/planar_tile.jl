@@ -48,8 +48,6 @@ Plasm.view([
 
 # computation of 2-cells and 2-boundary
 
-# n, containment_graph, W2, EVs, boundaries, shells, shell_bboxes = Lara.componentgraph(W1, copEV1, bicon_comps)
-
 n = size(bicon_comps, 1)
 shells = Array{Lar.Chain, 1}(undef, n)
 boundaries = Array{Lar.ChainOp, 1}(undef, n)
@@ -57,9 +55,9 @@ EVs = Array{Lar.ChainOp, 1}(undef, n)
 # for each component
 for p=1:n
 	ev = copEV1[sort(bicon_comps[p]), :]
-	fe = Lara.minimal_2cycles(W1, ev) 
+	fe = Lara.minimal_2cycles(W1, ev)
 	global shell_num = Lara.get_external_cycle(W1, ev, fe)
-	EVs[p] = ev 
+	EVs[p] = ev
 	global tokeep = setdiff(1:fe.m, shell_num)
 	boundaries[p] = fe[tokeep, :]
 	shells[p] = fe[shell_num, :]
@@ -72,9 +70,14 @@ for i in 1:n
 end
 
 containment_graph = Lara.pre_containment_test(shell_bboxes)
-containment_graph = Lara.prune_containment_graph(n, W1, EVs, shells, containment_graph)
-Lara.transitive_reduction!(containment_graph) 
-copEV2, copFE2 = Lara.cell_merging(n, containment_graph, W2, EVs, boundaries, shells, shell_bboxes)
+containment_graph = Lara.prune_containment_graph(
+	n, W1, EVs, shells, containment_graph
+)
+Lara.transitive_reduction!(containment_graph)
+W2 = W1;
+copEV2, copFE2 = Lara.cell_merging(
+	n, containment_graph, W2, EVs, boundaries, shells, shell_bboxes
+)
 
 
 ## 4 - 3-cells identification & dangling 1-cells elimination
@@ -88,7 +91,7 @@ FVs2 = convert(Array{Lar.Cells}, triangulated_faces)
 Plasm.viewcolor(V2::Lar.Points, FVs2::Array{Lar.Cells})
 
 # polygonal face boundaries
-EVs2 = Lar.FV2EVs(copEV2, copFE2) 
+EVs2 = Lar.FV2EVs(copEV2, copFE2)
 EVs2 = convert(Array{Array{Array{Int64,1},1},1}, EVs2)
 Plasm.viewcolor(V2::Lar.Points, EVs2::Array{Lar.Cells})
 
