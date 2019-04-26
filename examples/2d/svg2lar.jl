@@ -1,6 +1,6 @@
 using LinearAlgebraicRepresentation
 Lar = LinearAlgebraicRepresentation
-using Plasm
+using Plasm,SparseArrays
 import Base.show
 
 function show(filename)
@@ -30,7 +30,7 @@ Plasm.view(Plasm.numbering(.125)((V,[[[k] for k=1:size(V,2)], EV])))
 W = convert(Lar.Points, V')
 cop_EV = Lar.coboundary_0(EV::Lar.Cells)
 cop_EW = convert(Lar.ChainOp, cop_EV)
-V, copEV = Lar.planar_arrangement_1(W::Lar.Points, cop_EW::Lar.ChainOp)
+V, copEV, copFE = Lar.planar_arrangement(W::Lar.Points, cop_EW::Lar.ChainOp)
 
 # compute containment graph of components
 bicon_comps = Lar.Arrangement.biconnected_components(copEV)
@@ -42,13 +42,10 @@ hpcs = [ Plasm.lar2hpc(W,[EW[e] for e in comp]) for comp in bicon_comps ]
 Plasm.view([ Plasm.color(Plasm.colorkey[(k%12)==0 ? 12 : k%12])(hpcs[k]) for k=1:(length(hpcs)) ])
 Plasm.view(Plasm.numbering(.125)((W,[[[k] for k=1:size(W,2)], EW])))
 
-# computation of 2-cells and 2-boundary
-V, copEV, copFE = Lar.planar_arrangement_2(V, copEV, bicon_comps)
-
-# visualization of numbered arrangement
-Plasm.view( Plasm.numbering1(0.125)((V, copEV, copFE)) )
-
 # final solid visualization
+FE = [SparseArrays.findnz(copFE[k,:])[1] for k=1:size(copFE,1)]
+FV = [collect(Set(cat(EV[e] for e in FE[f]))) for f=1:length(FE)]
+
 triangulated_faces = Lar.triangulate2D(V, [copEV, copFE])
 V = convert(Lar.Points, V')
 FVs = convert(Array{Lar.Cells}, triangulated_faces)
