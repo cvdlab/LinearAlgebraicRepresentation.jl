@@ -67,7 +67,7 @@ Intersect `sigma` edges with edges in `bigpi`.
 
 ```
 """
-function sigma_intersect(V, EV, FV, sigma, Q, bigpi)
+function sigma_intersect(V, EV, FE, sigma, Q, bigpi)
 	sigma_edges = EV[FE[sigma]]
 	sigma_verts = union(sigma_edges...)
 	sigma_vdict =  Dict(zip(sigma_verts, 1:length(sigma_verts)))
