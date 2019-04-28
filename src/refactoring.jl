@@ -304,7 +304,7 @@ function spaceindex(model::Lar.LAR)::Array{Array{Int,1},1}
 		for (key,boxset) in zboxdict
 			zs[tuple(key...)] = boxset
 		end
-		zcovers = Lar.boxcovering(bboxes, 3, ys)
+		zcovers = Lar.boxcovering(bboxes, 3, zs)
 		covers = [intersect(pair...) for pair in zip(zcovers,covers)]
 	end
 	# remove each cell from its cover

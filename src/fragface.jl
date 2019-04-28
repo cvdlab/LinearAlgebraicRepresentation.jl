@@ -1,4 +1,4 @@
-# t
+using LinearAlgebra
 
 """
 	face_mapping( V, FV, sigma [, err=10e-8] )
@@ -56,8 +56,6 @@ function sigmamodel(V, copEV, FV, copFE, sigma, sp_idx)
 	return v,ev,Q
 end
 
-using Plasm
-
 
 """
 	sigma_intersect(V, EV, FE, sigma, Q, bigpi)
@@ -72,7 +70,7 @@ function sigma_intersect(V, EV, FE, sigma, Q, bigpi)
 	# sigma face on z=0 plane
 	S = V[:,sigma_verts] # sigma vertices
 	Z = (Q * [S; ones(1,size(S,2))])[1:3,:] # sigma mapped in z=0
-	Plasm.view(Z, sigma_lines)
+	#Plasm.view(Z, sigma_lines)
 	# initialization of line storage (to be intersected)
 	linestore = [[Z[:,v1] Z[:,v2]] for (v1,v2) in sigma_lines]
 	linenum = length(sigma_lines)
@@ -82,27 +80,27 @@ function sigma_intersect(V, EV, FE, sigma, Q, bigpi)
 	bigpi_vdict =  Dict(zip(bigpi_verts, 1:length(bigpi_verts)))
 	bigpi_lines = [[sort([bigpi_vdict[v] for v in edge]) for edge in faceedges] 
 		for faceedges in bigpi_edges]
-	# bigpi trasformed in 3D according to Q mapping
+	# bigpi trasformed in 3D according to Q mapping  ==> BUG ??!! :  NO
 	P = V[:,bigpi_verts] # bigpi vertices
 	W = (Q * [P; ones(1,size(P,2))])[1:3,:] # bigpi mapped by Q
-	Plasm.view(W, union(bigpi_lines...))
+	#Plasm.view(W, union(bigpi_lines...))
 	# filter on bigpi_lines that do not cross z=0
 	filtered_edges = [[[v1,v2] for (v1,v2) in face_lines 
 		if (sign(W[3,v1]) * sign(W[3,v2])) <= 0] 
 			for face_lines in bigpi_lines]
 	filtered_edges = [edge for edge in filtered_edges if edge!=[]]
-	Plasm.view(W, union(filtered_edges...))
-	Plasm.view(Plasm.numbering()((W,[[[k] for k=1:size(W,2)],union(filtered_edges...)])))
+	#Plasm.view(W, union(filtered_edges...))
+	#Plasm.view(Plasm.numbering()((W,[[[k] for k=1:size(W,2)],union(filtered_edges...)])))
 	# computation of ordered z=0 points by face
 	facepoints = []
 	for face in filtered_edges
-		points = []
+		points = Array{Float64,1}[]
 		for (v1,v2) in face
 			#v1[3] + (v2[3]-v1[3])*t = 0 # compute parameter of intersection point with z=0
 			if (W[3,v2] - W[3,v1]) != 0
 				t = -W[3,v1] / (W[3,v2] - W[3,v1])  # z1 + (z2-z1)*t = 0
 				point = W[:,v1] + (W[:,v2] - W[:,v1]) * t
-				push!(points,point)
+				push!(points,point) 
 			end
 		end
 		if length(Set(points)) > 1
@@ -110,6 +108,7 @@ function sigma_intersect(V, EV, FE, sigma, Q, bigpi)
 		end
 		# TODO: linearly order facepoints[face]
 	end
+	#Plasm.view(Lar.Struct([ (hcat(collect(edge)...), [[1,2]]) for edge in facepoints ]))
 	# compute z_lines
 	c = collect
 	z0_lines = [[[c(ps)[k] c(ps)[k+1]] for k=1:2:(length(ps)-1)] for ps in facepoints]
@@ -178,12 +177,16 @@ end
 	fragface(V::Lar.Points, EV::Lar.Cells, FV::Lar.Cells, FE::Lar.Cells, 
 		sp_idx::Array, sigma::Int)::Lar.LAR
 	
-
-
 """
-function fragface(V, EV, FV, FE, sp_idx, sigma)
-	bigpi = sp_idx[sigma]
+function fragface(V, cop_EV, cop_FE, sp_idx, sigma)
+	# format conversion of function parameters
+	EV = [findnz(cop_EV[k,:])[1] for k=1:size(cop_EV,1)]
+	FE = [findnz(cop_FE[k,:])[1] for k=1:size(cop_FE,1)]
+	FV = [collect(Set(cat(EV[e] for e in FE[f]))) for f=1:length(FE)]
+	V = convert(Lar.Points, V')
+	
 	Q = face_mapping(V, FV, sigma)
+	bigpi = sp_idx[sigma]
 	linestore, linenum = sigma_intersect(V, EV, FE, sigma, Q, bigpi)
 	lineparams = computeparams(linestore,linenum)
 	pairs = collect(zip(lineparams,linestore))
@@ -205,12 +208,15 @@ function fragface(V, EV, FV, FE, sp_idx, sigma)
 	edges = Array{Array{Int},1}()
 	offset = 0
 	for (h,pointline) in enumerate(linepoints)
+		offset
 		append!(verts, pointline)
 		append!(edges, [[k+offset,k+1+offset] for k=1:length(pointline)-1])
 		offset = length(verts)
 	end
-	verts = hcat(verts...)
-	edges = convert(Lar.Cells, edges)
-	return verts, edges, number
+	#verts = hcat(verts...)
+	#verts = convert(Lar.Points,verts')
+	copEV = Lar.coboundary_0(convert(Lar.Cells,edges))
+	copFE = Lar.coboundary_1(verts,faces,edges)
+	return verts, copEV, copFE
 end
 

@@ -20,5 +20,6 @@ FV = [collect(Set(cat(EV[e] for e in FE[f]))) for f=1:length(FE)]
 
 
 
-verts, edges = fragface(V, EV, FV, FE, sp_idx, sigma)
+verts, edges = Lar.fragface(V, EV, FV, FE, sp_idx, sigma)
+
 Plasm.view(verts, edges)

@@ -179,11 +179,13 @@ function spatial_arrangement_1(
     else
 	# sequential (iterative) processing of face fragmentation 
         for sigma in 1:fs_num
+        @show sigma
             #print(sigma, "/", fs_num, "\r")
-            nV, nEV, nFE = Lar.Arrangement.frag_face(
-            	V, copEV, copFE, sp_idx, sigma)
-            a,b,c = Lar.skel_merge(
-            	rV, rEV, rFE, nV, nEV, nFE)
+            nV, nEV, nFE = Lar.Arrangement.frag_face(V, copEV, copFE, sp_idx, sigma) 
+            
+            # global V, copEV, copFE; local to sigma nV, nEV, nFE
+            #nV, nEV, nFE = Lar.fragface(V, copEV, copFE, sp_idx, sigma) 
+            a,b,c = Lar.skel_merge( rV,rEV,rFE,  nV,nEV,nFE )
             rV=a; rEV=b; rFE=c
         end
     end
@@ -226,7 +228,7 @@ function spatial_arrangement(
 		copFE::Lar.ChainOp, multiproc::Bool=false)
 		
 	# face subdivision
-	rV, rcopEV, rcopFE = spatial_arrangement_1( V, copEV, copFE, multiproc )
+	rV, rcopEV, rcopFE = spatial_arrangement_1( V, copEV, copFE, multiproc ) # copFE global
 	
 	# graph components
 	bicon_comps = Lar.Arrangement.biconnected_components(copEV)
