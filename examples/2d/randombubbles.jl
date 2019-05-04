@@ -10,7 +10,7 @@ function randombubbles()
 		global n = 8
 		while true
 			n = abs(rand(Int8)+1)
-			if n>2 break end 
+			if n>2 break end
 		end
 		scale = Lar.s(0.25,0.25)
 		transl = Lar.t(rand(2)...)

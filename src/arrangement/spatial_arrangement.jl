@@ -28,7 +28,7 @@ function frag_face(V, EV, FE, sp_idx, sigma)
     vs_num = size(V, 1)
 
 	# 2D transformation of sigma face
-    sigmavs = (abs.(FE[sigma:sigma,:])*abs.(EV))[1,:].nzind 
+    sigmavs = (abs.(FE[sigma:sigma,:])*abs.(EV))[1,:].nzind
     sV = V[sigmavs, :]
     sEV = EV[FE[sigma, :].nzind, sigmavs]
     M = Lar.Arrangement.submanifold_mapping(sV)
@@ -37,10 +37,10 @@ function frag_face(V, EV, FE, sp_idx, sigma)
     # sigma face intersection with faces in sp_idx[sigma]
     for i in sp_idx[sigma]
         tmpV, tmpEV = Lar.Arrangement.face_int(tV, EV, FE[i, :])
-        
+
         sV, sEV = Lar.skel_merge(sV, sEV, tmpV, tmpEV)
     end
-    
+
     # computation of 2D arrangement of sigma face
     sV = sV[:, 1:2]
     nV, nEV, nFE = planar_arrangement(sV, sEV, sparsevec(ones(Int8, length(sigmavs))))
@@ -75,7 +75,7 @@ function merge_vertices(V::Lar.Points, EV::Lar.ChainOp, FE::Lar.ChainOp, err=1e-
         end
     end
     nV = V[setdiff(collect(1:vertsnum), todelete), :]
-    
+
     # translate edges to take congruence into account
     edges = Array{Tuple{Int, Int}, 1}(undef, edgenum)
     oedges = Array{Tuple{Int, Int}, 1}(undef, edgenum)
@@ -86,10 +86,10 @@ function merge_vertices(V::Lar.Points, EV::Lar.ChainOp, FE::Lar.ChainOp, err=1e-
     end
     nedges = union(edges)
     # remove edges of zero length
-    nedges = filter(t->t[1]!=t[2], nedges) 
+    nedges = filter(t->t[1]!=t[2], nedges)
     nedgenum = length(nedges)
     nEV = spzeros(Int8, nedgenum, size(nV, 1))
-    
+
     etuple2idx = Dict{Tuple{Int, Int}, Int}()
     for ei in 1:nedgenum
     	begin
@@ -102,48 +102,48 @@ function merge_vertices(V::Lar.Points, EV::Lar.ChainOp, FE::Lar.ChainOp, err=1e-
     	v1,v2 = findnz(nEV[e,:])[1]
     	nEV[e,v1] = -1; nEV[e,v2] = 1
     end
-    
+
     # compute new faces to take congruence into account
     faces = [[
         map(x->newverts[x], FE[fi, ei] > 0 ? oedges[ei] : reverse(oedges[ei]))
         for ei in FE[fi, :].nzind
     ] for fi in 1:facenum]
-    
-    
+
+
     visited = []
     function filter_fn(face)
-    
+
         verts = []
         map(e->verts = union(verts, collect(e)), face)
         verts = Set(verts)
-    
+
         if !(verts in visited)
             push!(visited, verts)
             return true
         end
         return false
     end
-    
+
     nfaces = filter(filter_fn, faces)
-    
+
     nfacenum = length(nfaces)
     nFE = spzeros(Int8, nfacenum, size(nEV, 1))
-    
+
     for fi in 1:nfacenum
         for edge in nfaces[fi]
             ei = etuple2idx[Tuple{Int, Int}(sort(collect(edge)))]
             nFE[fi, ei] = sign(edge[2] - edge[1])
         end
     end
-    
+
     return Lar.Points(nV), nEV, nFE
 end
 
 
 
 function spatial_arrangement_1(
-		V::Lar.Points, 
-		copEV::Lar.ChainOp, 
+		V::Lar.Points,
+		copEV::Lar.ChainOp,
 		copFE::Lar.ChainOp, multiproc::Bool=false)
 
 	# spaceindex computation
@@ -177,14 +177,14 @@ function spatial_arrangement_1(
             rV, rEV, rFE = Lar.skel_merge(rV, rEV, rFE, take!(out_chan)...)
         end
     else
-	# sequential (iterative) processing of face fragmentation 
+	# sequential (iterative) processing of face fragmentation
         for sigma in 1:fs_num
         @show sigma
             #print(sigma, "/", fs_num, "\r")
-            nV, nEV, nFE = Lar.Arrangement.frag_face(V, copEV, copFE, sp_idx, sigma) 
-            
+            nV, nEV, nFE = Lar.Arrangement.frag_face(V, copEV, copFE, sp_idx, sigma)
+
             # global V, copEV, copFE; local to sigma nV, nEV, nFE
-            #nV, nEV, nFE = Lar.fragface(V, copEV, copFE, sp_idx, sigma) 
+            #nV, nEV, nFE = Lar.fragface(V, copEV, copFE, sp_idx, sigma)
             a,b,c = Lar.skel_merge( rV,rEV,rFE,  nV,nEV,nFE )
             rV=a; rEV=b; rFE=c
         end
@@ -198,12 +198,11 @@ end
 
 
 function spatial_arrangement_2(
-		rV::Lar.Points, 
-		rcopEV::Lar.ChainOp, 
+		rV::Lar.Points,
+		rcopEV::Lar.ChainOp,
 		rcopFE::Lar.ChainOp, multiproc::Bool=false)
 
     rcopCF = minimal_3cycles(rV, rcopEV, rcopFE)
-
     return rV, rcopEV, rcopFE, rcopCF
 end
 
@@ -215,7 +214,7 @@ end
 
 Compute the arrangement on the given cellular complex 2-skeleton in 3D.
 
-A cellular complex is arranged when the intersection of every possible pair of cell 
+A cellular complex is arranged when the intersection of every possible pair of cell
 of the complex is empty and the union of all the cells is the whole Euclidean space.
 The function returns the full arranged complex as a list of vertices V and a chain of borders EV, FE, CF.
 
@@ -223,13 +222,12 @@ The function returns the full arranged complex as a list of vertices V and a cha
 - `multiproc::Bool`: Runs the computation in parallel mode. Defaults to `false`.
 """
 function spatial_arrangement(
-		V::Lar.Points, 
-		copEV::Lar.ChainOp, 
+		V::Lar.Points,
+		copEV::Lar.ChainOp,
 		copFE::Lar.ChainOp, multiproc::Bool=false)
-		
+
 	# face subdivision
 	rV, rcopEV, rcopFE = spatial_arrangement_1( V, copEV, copFE, multiproc ) # copFE global
-	
 	# graph components
 	bicon_comps = Lar.Arrangement.biconnected_components(copEV)
 
