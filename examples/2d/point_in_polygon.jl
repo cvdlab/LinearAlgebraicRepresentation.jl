@@ -13,8 +13,8 @@ Plasm.view(Plasm.numbering(.2)((V,[[[k] for k=1:size(V,2)], EV])))
 function pointsinout(V,EV, n=10000)
 	result = [Plasm.lar2hpc(V,EV)]
 	classify = Lar.pointInPolygonClassification(V,EV)
-	Threads.@threads for k=1:n
-		queryPoint = [rand(),rand()]    
+	for k=1:n
+		queryPoint = [rand(),rand()]
 		inOut = classify(queryPoint)
 		# println("k = $k, queryPoint = $queryPoint, inOut = $inOut")
 		if inOut=="p_in"
@@ -28,7 +28,5 @@ function pointsinout(V,EV, n=10000)
 	return result
 end
 
-result = @time pointsinout(V,EV);
+result = pointsinout(V,EV);
 Plasm.view(p["STRUCT"](result))
-
-
