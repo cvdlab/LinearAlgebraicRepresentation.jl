@@ -190,11 +190,14 @@ function spatial_arrangement_1(
         end
     end
 
+@show rV
+@show rEV
+@show rFE
+
 	# merging of close vertices, edges and faces (3D congruence)
     rV, rEV, rFE = merge_vertices(rV, rEV, rFE)
     return rV, rEV, rFE
 end
-
 
 
 function spatial_arrangement_2(
@@ -230,7 +233,6 @@ function spatial_arrangement(
 	rV, rcopEV, rcopFE = spatial_arrangement_1( V, copEV, copFE, multiproc ) # copFE global
 	# graph components
 	bicon_comps = Lar.Arrangement.biconnected_components(copEV)
-
 	# 3-complex and containment graph
 	rV, rEV, rFE, rCF = spatial_arrangement_2(rV, rcopEV, rcopFE)
 end
