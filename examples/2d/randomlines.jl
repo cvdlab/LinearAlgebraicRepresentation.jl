@@ -2,7 +2,7 @@ using LinearAlgebraicRepresentation
 Lar = LinearAlgebraicRepresentation
 using Plasm
 
-function randomlines(n=1000, t=0.3)
+function randomlines(n=300, t=0.4)
 	#n = 1000 #1000 #1000 #20000
 	#t = 0.30 #0.15 #0.4 #0.15
 	V = zeros(Float64,2,2*n)
@@ -29,10 +29,20 @@ function randomlines(n=1000, t=0.3)
 
 	Plasm.viewexploded(W,EW)(1.2,1.2,1.2)
 	W,EW = Lar.fragmentlines(model);
-	V,EVs = Lar.biconnectedComponent((W,EW::Lar.Cells));
+	U,EVs = Lar.biconnectedComponent((W,EW::Lar.Cells));
 	# 2-connected components (H & T)
 
-	model = V,EVs;
+	W = convert(Lar.Points, U')
+	cop_EV = Lar.coboundary_0(EW::Lar.Cells)
+	cop_EW = convert(Lar.ChainOp, cop_EV)
+	V, copEV, copFE = Lar.Arrangement.planar_arrangement(W::Lar.Points, cop_EW::Lar.ChainOp)
+
+	triangulated_faces = Lar.triangulate2D(V, [copEV, copFE])
+	FVs = convert(Array{Lar.Cells}, triangulated_faces)
+	W = convert(Lar.Points, V')
+	Plasm.viewcolor(W::Lar.Points, FVs::Array{Lar.Cells})
+
+	model = U,EVs;
 	Plasm.view(Plasm.lar_exploded(model)(1.2,1.2,1.2))
 end
 

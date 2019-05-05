@@ -44,7 +44,7 @@ Plasm.view(Plasm.numbering(.125)((W,[[[k] for k=1:size(W,2)], EW])))
 
 # final solid visualization
 FE = [SparseArrays.findnz(copFE[k,:])[1] for k=1:size(copFE,1)]
-FV = [collect(Set(cat(EV[e] for e in FE[f]))) for f=1:length(FE)]
+FV = [collect(Set(cat([EW[e] for e in FE[f]]))) for f=1:length(FE)]
 
 triangulated_faces = Lar.triangulate2D(V, [copEV, copFE])
 V = convert(Lar.Points, V')
@@ -57,7 +57,3 @@ Plasm.viewcolor(V::Lar.Points, EVs::Array{Lar.Cells})
 
 model = V,EVs
 Plasm.view(Plasm.lar_exploded(model)(1.2,1.2,1.2))
-
-
-
-
