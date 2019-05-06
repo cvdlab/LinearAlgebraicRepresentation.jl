@@ -15,9 +15,6 @@ function twocubes()
     Plasm.view(V,CV)
 
     cop_EV = Lar.coboundary_0(EV::Lar.Cells);
-
-
-
     cop_EW = convert(Lar.ChainOp, cop_EV);
     cop_FE = Lar.coboundary_1(V, FV::Lar.Cells, EV::Lar.Cells);
     W = convert(Lar.Points, V');
