@@ -139,7 +139,7 @@ function merge_vertices(V::Lar.Points, EV::Lar.ChainOp, FE::Lar.ChainOp, err=1e-
     return Lar.Points(nV), nEV, nFE
 end
 
-
+using Plasm
 
 function spatial_arrangement_1(
 		V::Lar.Points,
@@ -182,18 +182,33 @@ function spatial_arrangement_1(
         @show sigma
             #print(sigma, "/", fs_num, "\r")
             nV, nEV, nFE = Lar.Arrangement.frag_face(V, copEV, copFE, sp_idx, sigma)
-
+# v = convert(Lar.Points, nV')
+# @show v
+# ev = Lar.cop2lar(nEV)
+# @show ev
+# fe = Lar.cop2lar(nFE)
+# @show fe
+# fv = [collect(Set(cat([ev[e] for e in f]))) for f in fe]
+# fv = convert(Lar.Cells, fv)
+# @show fv
+# Plasm.view(Plasm.numbering(0.25)((v,[[[k] for k=1:size(v,2)],ev,fv])))
             # global V, copEV, copFE; local to sigma nV, nEV, nFE
             #nV, nEV, nFE = Lar.fragface(V, copEV, copFE, sp_idx, sigma)
             a,b,c = Lar.skel_merge( rV,rEV,rFE,  nV,nEV,nFE )
             rV=a; rEV=b; rFE=c
         end
+v = convert(Lar.Points, rV')
+@show v
+ev = Lar.cop2lar(rEV)
+@show ev
+fe = Lar.cop2lar(rFE)
+@show fe
+fv = [collect(Set(cat([ev[e] for e in f]))) for f in fe]
+fv = convert(Lar.Cells, fv)
+@show fv
+Plasm.view(Plasm.numbering(0.25)((v,[[[k] for k=1:size(v,2)],ev,fv])))
+Plasm.view(v,fv)
     end
-
-@show rV
-@show rEV
-@show rFE
-
 	# merging of close vertices, edges and faces (3D congruence)
     rV, rEV, rFE = merge_vertices(rV, rEV, rFE)
     return rV, rEV, rFE

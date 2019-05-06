@@ -5,8 +5,9 @@ using Debugger
 
 function twocubes()
     #V,(VV,EV,FV,CV) = Lar.cuboid([0.5,0.5,0.5],true,[-0.5,-0.5,-0.5])
-    V,(VV,EV,FV,CV) = Lar.cuboidGrid([2,2,2],true)
+    V,(VV,EV,FV,CV) = Lar.cuboidGrid([1,2,2],true)
     mybox = (V,CV,FV,EV)
+    #mybox = Lar.Struct([ Lar.t(0,0,1.), mybox ])
 
     twocubes = Lar.Struct([ mybox , Lar.t(0.3,0.4,0.5), Lar.r(pi/5,0,0), Lar.r(0,0,pi/12), mybox ])
     #twocubes = Lar.Struct([ mybox , Lar.t(0.3,0.4,0.5), Lar.r(pi/3,0,0), Lar.r(0,0,pi/6), mybox ])
