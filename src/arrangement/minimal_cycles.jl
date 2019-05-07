@@ -19,7 +19,7 @@ function minimal_2cycles(V::Lar.Points, EV::Lar.ChainOp)
     return convert(Lar.ChainOp, SparseArrays.transpose(EF))
 end
 
-using Debugger
+
 
 function minimal_3cycles(V::Lar.Points, EV::Lar.ChainOp, FE::Lar.ChainOp)
 

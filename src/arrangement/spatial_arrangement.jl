@@ -197,20 +197,24 @@ function spatial_arrangement_1(
             a,b,c = Lar.skel_merge( rV,rEV,rFE,  nV,nEV,nFE )
             rV=a; rEV=b; rFE=c
         end
+    end
+	# merging of close vertices, edges and faces (3D congruence)
+rV, rEV, rFE = merge_vertices(rV, rEV, rFE)
 v = convert(Lar.Points, rV')
 @show v
 ev = Lar.cop2lar(rEV)
+cscEV = fidnz(rEV)
 @show ev
+@show cscEV
 fe = Lar.cop2lar(rFE)
+cscFE = fidnz(rFE)
 @show fe
+@show cscFE
 fv = [collect(Set(cat([ev[e] for e in f]))) for f in fe]
 fv = convert(Lar.Cells, fv)
 @show fv
 Plasm.view(Plasm.numbering(0.25)((v,[[[k] for k=1:size(v,2)],ev,fv])))
 Plasm.view(v,fv)
-    end
-	# merging of close vertices, edges and faces (3D congruence)
-    rV, rEV, rFE = merge_vertices(rV, rEV, rFE)
     return rV, rEV, rFE
 end
 
