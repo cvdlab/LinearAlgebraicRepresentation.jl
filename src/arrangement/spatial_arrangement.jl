@@ -203,11 +203,11 @@ rV, rEV, rFE = merge_vertices(rV, rEV, rFE)
 v = convert(Lar.Points, rV')
 @show v
 ev = Lar.cop2lar(rEV)
-cscEV = fidnz(rEV)
+cscEV = findnz(rEV)
 @show ev
 @show cscEV
 fe = Lar.cop2lar(rFE)
-cscFE = fidnz(rFE)
+cscFE = findnz(rFE)
 @show fe
 @show cscFE
 fv = [collect(Set(cat([ev[e] for e in f]))) for f in fe]

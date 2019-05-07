@@ -291,7 +291,7 @@ end
 
 
 """
-	coboundary_1( V::Lar.Points, FV::Lar.Cells, EV::Lar.Cells)::Lar.ChainOp
+	coboundary_1( FV::Lar.Cells, EV::Lar.Cells)::Lar.ChainOp
 
 Generate the *signed* sparse matrix of the coboundary_1 operator.
 For each row, start with the first incidence number positive (i.e. assign the orientation of the first edge to the 1-cycle of the face), then bounce back and forth between vertex columns/rows of EV and FE.

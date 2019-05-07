@@ -1,107 +1,10 @@
-Lar = LinearAlgebraicRepresentation
-
-function minimal_2cycles(V::Lar.Points, EV::Lar.ChainOp)
-
-    function edge_angle(v::Int, e::Int)
-        edge = EV[e, :]
-        v2 = setdiff(edge.nzind, [v])[1]
-        x, y = V[v2, :] - V[v, :]
-        return atan(y, x)
-    end
-
-    for i in 1:EV.m
-        j = min(EV[i,:].nzind...)
-        EV[i, j] = -1
-    end
-    VE = convert(Lar.ChainOp, SparseArrays.transpose(EV))
-    EF = Lar.Arrangement.minimal_cycles(edge_angle)(V, VE)
-
-    return convert(Lar.ChainOp, SparseArrays.transpose(EF))
-end
-
-
-
-function minimal_3cycles(V::Lar.Points, EV::Lar.ChainOp, FE::Lar.ChainOp)
-
-    triangulated_faces = Array{Any, 1}(undef, FE.m)
-
-    function face_angle(e::Int, f::Int)
-        if !isassigned(triangulated_faces, f)
-            vs_idxs = Array{Int64, 1}()
-            edges_idxs = FE[f, :].nzind
-            edge_num = length(edges_idxs)
-            edges = zeros(Int64, edge_num, 2)
-
-            for (i, ee) in enumerate(edges_idxs)
-                edge = EV[ee, :].nzind
-                edges[i, :] = edge
-                vs_idxs = union(vs_idxs, edge)
-            end
-
-            vs = V[vs_idxs, :]
-
-            v1 = normalize(vs[2, :] - vs[1, :])
-            v2 = [0 0 0]		# added for debug
-            v3 = [0 0 0]
-            err = 1e-8
-            i = 3
-            while -err < norm(v3) < err
-                v2 = normalize(vs[i, :] - vs[1, :])
-                v3 = cross(v1, v2)
-                i = i + 1
-            end
-
-            M = reshape([v1; v2; v3], 3, 3)
-
-            vs = vs*M
-
-            triangulated_faces[f] = Triangle.constrained_triangulation(
-                Array{Float64,2}(vs), vs_idxs, edges, fill(true, edge_num))
-
-        end
-        edge_vs = EV[e, :].nzind
-
-        t = findfirst(x->edge_vs[1] in x && edge_vs[2] in x, triangulated_faces[f])
-
-        v1 = normalize(V[edge_vs[2], :] - V[edge_vs[1], :])
-
-        if abs(v1[1]) > abs(v1[2])
-            invlen = 1. / sqrt(v1[1]*v1[1] + v1[3]*v1[3])
-            v2 = [-v1[3]*invlen, 0, v1[1]*invlen]
-        else
-            invlen = 1. / sqrt(v1[2]*v1[2] + v1[3]*v1[3])
-            v2 = [0, -v1[3]*invlen, v1[2]*invlen]
-        end
-
-        v3 = cross(v1, v2)
-
-        M = reshape([v1; v2; v3], 3, 3)
-
-        triangle = triangulated_faces[f][t]
-        third_v = setdiff(triangle, edge_vs)[1]
-        vs = V[[edge_vs..., third_v], :]*M
-
-        v = vs[3, :] - vs[1, :]
-        angle = atan(v[2], v[3])
-        return angle
-    end
-
-    #EF = FE'
-    EF = convert(Lar.ChainOp, LinearAlgebra.transpose(FE))
-	FC = Lar.Arrangement.minimal_cycles(face_angle, true)(V, EF)
-
-	#FC'
-    return -convert(Lar.ChainOp, LinearAlgebra.transpose(FC))
-end
-
-
 function minimal_cycles(angles_fn::Function, verbose=false)
 
     function _minimal_cycles(V::Lar.Points,
     ld_bounds::Lar.ChainOp)
 
 @show V
-@show findnz(ld_bounds)
+@show ld_bounds
 
         lld_cellsnum, ld_cellsnum = size(ld_bounds)
         count_marks = zeros(Int8, ld_cellsnum)
@@ -176,13 +79,16 @@ function minimal_cycles(angles_fn::Function, verbose=false)
                     if b_ld[adj] == b_ld[pivot]
                         corolla[adj] *= -1
                     end
+@show corolla
                 end
                 c_ld += corolla
                 c_lld = ld_bounds*c_ld
+@show c_lld
             end
             map(s->count_marks[s] += 1, c_ld.nzind)
             map(s->dir_marks[s] = c_ld[s], c_ld.nzind)
             d_bounds = [d_bounds c_ld]
+@show d_bounds
         end
         return d_bounds
 
