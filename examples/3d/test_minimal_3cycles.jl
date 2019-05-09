@@ -100,5 +100,9 @@ function minimal_3cycles(V::Lar.Points, EV::Lar.ChainOp, FE::Lar.ChainOp)
     return -convert(Lar.ChainOp, LinearAlgebra.transpose(FC))
 end
 
+# Juno.@enter debug_function()
+function debug_function()
+	minimal_3cycles(V::Lar.Points, copEV::Lar.ChainOp, copFE::Lar.ChainOp)
 
-minimal_3cycles(V::Lar.Points, copEV::Lar.ChainOp, copFE::Lar.ChainOp)
+end
+# minimal_3cycles(V::Lar.Points, copEV::Lar.ChainOp, copFE::Lar.ChainOp)
