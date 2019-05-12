@@ -29,7 +29,6 @@ using NearestNeighbors
 
 # transform sigma and related faces in space_idx
 function face_mapping(V, FV, sigma, err=LinearAlgebraicRepresentation.ERR )
-@show sigma
 	vs = FV[sigma]; i = 1
 	# compute affinely independent triple
 	n = length(vs)
@@ -37,7 +36,7 @@ function face_mapping(V, FV, sigma, err=LinearAlgebraicRepresentation.ERR )
 	a = normalize(V[:,vs[succ(i)]] - V[:,vs[i]])
 	b = normalize(V[:,vs[succ(succ(i))]] - V[:,vs[i]])
 	c = cross(a,b)
-	while (-err < det([a b c]) < err) 
+	while (-err < det([a b c]) < err)
 		i += 1
 		a = normalize(V[:,vs[succ(i)]] - V[:,vs[i]])
 		b = normalize(V[:,vs[succ(succ(i))]] - V[:,vs[i]])
@@ -49,6 +48,7 @@ function face_mapping(V, FV, sigma, err=LinearAlgebraicRepresentation.ERR )
 	t_vs = W[1:3,:]
 	# translated sigma rotation
 	r1,r2,r3 = t_vs[:,i], t_vs[:,succ(succ(i))], cross(t_vs[:,i], t_vs[:,succ(succ(i))])
+	eye(n) = LinearAlgebra.Matrix{Float64}(I,n,n)
 	R = eye(4)
 	R[1:3,1:3] = inv([r1 r2 r3])
 	mapping = R * T
@@ -91,19 +91,19 @@ function sigma_intersect(V, copEV, copFE, sigma, Q, bigpi)
 	# initialization of line storage (to be intersected)
 	linestore = [[Z[:,v1] Z[:,v2]] for (v1,v2) in sigma_lines]
 	linenum = length(sigma_lines)
-	# reindexing of ∏(σ) chain 
+	# reindexing of ∏(σ) chain
 	bigpi_edges = [EV[fe] for fe in FE[bigpi]]
 	bigpi_verts = union(union(bigpi_edges...)...)
 	bigpi_vdict =  Dict(zip(bigpi_verts, 1:length(bigpi_verts)))
-	bigpi_lines = [[sort([bigpi_vdict[v] for v in edge]) for edge in faceedges] 
+	bigpi_lines = [[sort([bigpi_vdict[v] for v in edge]) for edge in faceedges]
 		for faceedges in bigpi_edges]
 	# bigpi trasformed in 3D according to Q mapping
 	P = V[:,bigpi_verts] # bigpi vertices
 	W = (Q * [P; ones(1,size(P,2))])[1:3,:] # bigpi mapped by Q
 	#Plasm.view(W, union(bigpi_lines...))
 	# filter on bigpi_lines that do not cross z=0
-	filtered_edges = [[[v1,v2] for (v1,v2) in face_lines 
-		if (sign(W[3,v1]) * sign(W[3,v2])) <= 0] 
+	filtered_edges = [[[v1,v2] for (v1,v2) in face_lines
+		if (sign(W[3,v1]) * sign(W[3,v2])) <= 0]
 			for face_lines in bigpi_lines]
 	filtered_edges = [edge for edge in filtered_edges if edge!=[]]
 	#Plasm.view(W, union(filtered_edges...))
@@ -128,7 +128,7 @@ function sigma_intersect(V, copEV, copFE, sigma, Q, bigpi)
 	# compute z_lines
 	c = collect
 	z0_lines = [[[c(ps)[k] c(ps)[k+1]] for k=1:2:(length(ps)-1)] for ps in facepoints]
-	
+
 	# intersecting lines upload in linestore
 	linestore = [[Z[:,v1] Z[:,v2]] for (v1,v2) in sigma_lines]
 	if z0_lines != []
@@ -196,7 +196,7 @@ function fragface(V, EV, FV, FE, space_idx, sigma)
 		if params==[0.0, 1.0]
 			points = [v1,v2]
 			if k<=linenum number += 1 end
-		elseif length(params)>2 
+		elseif length(params)>2
 			points = [v1+α*(v2-v1) for α ∈ params]
 			if k<=linenum number += length(params)-1 end
 		end
@@ -232,8 +232,8 @@ function removevertices(verts, edges, err=LinearAlgebraicRepresentation.ERR)
 	end
 	return cells0D, cells1D
 end
-	
-function merge_vertices(rV::Lar.Points, rEV::Lar.ChainOp, rFE::Lar.ChainOp, 
+
+function merge_vertices(rV::Lar.Points, rEV::Lar.ChainOp, rFE::Lar.ChainOp,
 err=Lar.ERR)
 	verts = rV'
 	edges = [findnz(rEV[e,:])[1] for e=1:size(rEV,1)]
@@ -277,11 +277,11 @@ PRECISION = 5.0
 		end
 		nedges = Set(map(sort,nedges))
 		nedges = sort(collect(nedges), by=x->(x[1],x[2]))
-		nedges = filter( x->x[1]!=x[2], nedges )	
+		nedges = filter( x->x[1]!=x[2], nedges )
 #		nedges = sort(nedges, by=x->(x[1],x[2]))
 #		nedges = sort(collect(Set(nedges)), by=x->(x[1],x[2]))
 #		nedges = filter( x->x[1]!=x[2], nedges )
-#		nedges = convert(Array{Array{Int64,1},1}, nedges)	
+#		nedges = convert(Array{Array{Int64,1},1}, nedges)
 
 		nfaces = Array{Array{Int},1}()
 		for (k,face) in enumerate(faces)
@@ -294,7 +294,7 @@ PRECISION = 5.0
 				push!(nface, vertdict[key1])
 				push!(nface, vertdict[key2])
 			end
-			if nface ≠ [] 
+			if nface ≠ []
 				nface = sort(collect(Set(nface)))
 				push!(nfaces,nface)
 			end
@@ -307,9 +307,9 @@ PRECISION = 5.0
 
 print("before make_quotients ^^^^^^^^^^^^^^^^^^^")
 	V,FV,EV = make_quotients(verts, faces, edges, err)
-	return V,FV,EV	
+	return V,FV,EV
 end
-	
+
 function (verts, edges, err=LinearAlgebraicRepresentation.ERR)
 	vertsnum = size(verts, 2)
 	kdtree = KDTree(verts)
@@ -340,7 +340,7 @@ function (verts, edges, err=LinearAlgebraicRepresentation.ERR)
 	end
 	nedges = Set(map(sort,nedges))
 	nedges = sort(collect(nedges), by=x->(x[1],x[2]))
-	nedges = filter( x->x[1]!=x[2], nedges )	
+	nedges = filter( x->x[1]!=x[2], nedges )
 	return nverts,nedges
 end
 
@@ -383,33 +383,24 @@ function computefragments(V, EV, FV, FE, space_idx, sigma)
 			end
 		end
 	end
-	
+
 	nverts, nedges = Lar.removevertices(verts, internal)
 	w, ev = Lar.mergevertices(nverts, nedges)
 	cop_ev = Lar.build_copEV(ev,true)
 	cop_fe = Lar.Arrangement.minimal_2cycles(w',cop_ev)	#OK
 	shell_num = Lar.Arrangement.get_external_cycle(w', cop_ev, cop_fe)
-	for j=1:cop_fe.n  
-		cop_fe[shell_num,j]=0 
+	for j=1:cop_fe.n
+		cop_fe[shell_num,j]=0
 	end
 	cop_fe = dropzeros(cop_fe)
 	faces = [findnz(cop_fe[e,:])[1] for e=1:size(cop_fe,1) if e≠shell_num]
 	fv = [collect(Set(vcat([ev[e] for e in face]...))) for face in faces]
 	vv = [[k] for k=1:size(w,2)]
 	#Plasm.view(Plasm.numbering(0.4)((w, [vv, ev, fv])))
-		
+
 	w = [ w; zeros(size(w,2))'; ones(size(w,2))' ]
 	v = (inv(Q) * w)[1:3,:]
 	vv = [[k] for k=1:size(w,2)]
 	#Plasm.view(Plasm.numbering(0.4)((v, [vv, ev, fv])))
 	return v', Lar.coboundary_0(ev), cop_fe
 end
-
-
-
-
-
-
-
-
-

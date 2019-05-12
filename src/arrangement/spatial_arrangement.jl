@@ -250,7 +250,9 @@ function spatial_arrangement(
 
 	# face subdivision
 	rV, rcopEV, rcopFE = spatial_arrangement_1( V, copEV, copFE, multiproc ) # copFE global
-	# graph components
+@show rV
+@show findnz(rcopEV)
+@show findnz(rcopFE)
 	bicon_comps = Lar.Arrangement.biconnected_components(copEV)
 	# 3-complex and containment graph
 	rV, rEV, rFE, rCF = spatial_arrangement_2(rV, rcopEV, rcopFE)

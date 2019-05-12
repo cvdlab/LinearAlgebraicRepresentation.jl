@@ -20,8 +20,8 @@ Plasm.view(Plasm.numbering(0.5)( (V,cells[1:end-1]) ))
 ```
 """
 function simplex(n, fullmodel=false)
-	eye = LinearAlgebra.Matrix{Int}(I,n,n)
-	V = [zeros(n,1) eye]
+	eye(n) = LinearAlgebra.Matrix{Int}(I,n,n)
+	V = [zeros(n,1) eye(n)]
 	CV = [collect(1:n+1)]
 	if fullmodel == false
 		return V,CV

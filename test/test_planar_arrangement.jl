@@ -7,8 +7,6 @@ using Distributed
 #-----------------------------------------------------------------
 
 function splitedges(V,copEV,sigma,return_edge_map,multiproc)
-@show multiproc
-
     edgenum = size(copEV, 1)
     edge_map = Array{Array{Int, 1}, 1}(undef,edgenum)
     rV = Lar.Points(zeros(0, 2))
@@ -38,11 +36,11 @@ function splitedges(V,copEV,sigma,return_edge_map,multiproc)
             i = dkey
             v, ev = dval
             newedges_nums = map(x->x+finalcells_num, collect(1:size(ev, 1)))
-            
+
             edge_map[i] = newedges_nums
-            
+
             finalcells_num += size(ev, 1)
-            
+
             rV, rEV = Lar.skel_merge(rV, rEV, v, ev)
         end
     else
@@ -61,29 +59,29 @@ function deleteoutsidesigma(V,copEV,sigma,return_edge_map,edge_map)
     # Deletes edges outside sigma area
     if sigma.n > 0
         todel = []
-        
+
         new_edges = []
         map(i->new_edges=union(new_edges, edge_map[i]), sigma.nzind)
         ev = copEV[new_edges, :]
-    
+
         for e in 1:copEV.m
             if !(e in new_edges)
-    
+
                 vidxs = copEV[e, :].nzind
                 v1, v2 = map(i->V[vidxs[i], :], [1,2])
                 centroid = .5*(v1 + v2)
-                
-                if ! Lar.point_in_face(centroid, V, ev) 
+
+                if ! Lar.point_in_face(centroid, V, ev)
                     push!(todel, e)
                 end
             end
         end
-    
+
         for i in reverse(todel)
             for row in edge_map
-        
+
                 filter!(x->x!=i, row)
-        
+
                 for j in 1:length(row)
                     if row[j] > i
                         row[j] -= 1
@@ -91,7 +89,7 @@ function deleteoutsidesigma(V,copEV,sigma,return_edge_map,edge_map)
                 end
             end
         end
-    
+
         V, copEV = Lar.delete_edges(todel, V, copEV)
     end
     return V,copEV,sigma,return_edge_map,edge_map
@@ -101,16 +99,16 @@ end
 
 function minimal_cycles(angles_fn::Function, verbose=false)
 
-    function _minimal_cycles(V::Lar.Points, 
+    function _minimal_cycles(V::Lar.Points,
     ld_bounds::Lar.ChainOp)
-    
+
         lld_cellsnum, ld_cellsnum = size(ld_bounds)
         count_marks = zeros(Int8, ld_cellsnum)
         dir_marks = zeros(Int8, ld_cellsnum)
         d_bounds = spzeros(Int8, ld_cellsnum, 0)
-        
+
         angles = Array{Array{Int64, 1}, 1}(undef, lld_cellsnum)
-        
+
         function get_seed_cell()
             s = -1
             for i in 1:ld_cellsnum
@@ -131,11 +129,11 @@ function minimal_cycles(angles_fn::Function, verbose=false)
             as = map(a->a[1], as)
             angles[lld] = as
         end
-        
+
         function nextprev(lld::Int64, ld::Int64, norp)
             as = angles[lld]
             #ne = findfirst(as, ld)  (findfirst(isequal(v), A), 0)[1]
-            ne = (findfirst(isequal(ld), as), 0)[1]  
+            ne = (findfirst(isequal(ld), as), 0)[1]
             while true
                 ne += norp
                 if ne > length(as)
@@ -143,21 +141,21 @@ function minimal_cycles(angles_fn::Function, verbose=false)
                 elseif ne < 1
                     ne = length(as)
                 end
-        
+
                 if count_marks[as[ne]] < 2
                     break
                 end
             end
             as[ne]
         end
-        
-        
+
+
         while (sigma = get_seed_cell()) > 0
-        
+
             if verbose
                 print(Int(floor(50 * sum(count_marks) / ld_cellsnum)), "%\r")
             end
-        
+
             c_ld = spzeros(Int8, ld_cellsnum)
             if count_marks[sigma] == 0
                 c_ld[sigma] = 1
@@ -182,11 +180,11 @@ function minimal_cycles(angles_fn::Function, verbose=false)
             map(s->count_marks[s] += 1, c_ld.nzind)
             map(s->dir_marks[s] = c_ld[s], c_ld.nzind)
             d_bounds = [d_bounds c_ld]
-            
+
         end
-        
+
         return d_bounds
-        
+
     end
 
     return _minimal_cycles
@@ -220,9 +218,9 @@ end
 
 Compute the arrangement on the given cellular complex 1-skeleton in 2D.
 
-A cellular complex is arranged when the intersection of every possible pair of cell 
+A cellular complex is arranged when the intersection of every possible pair of cell
 of the complex is empty and the union of all the cells is the whole Euclidean space.
-The basic method of the function without the `sigma`, `return_edge_map` and `multiproc` arguments 
+The basic method of the function without the `sigma`, `return_edge_map` and `multiproc` arguments
 returns the full arranged complex `V`, `EV` and `FE`.
 
 ## Additional arguments:
@@ -231,10 +229,10 @@ returns the full arranged complex `V`, `EV` and `FE`.
 - `multiproc::Bool`: Runs the computation in parallel mode. Defaults to `false`.
 """
 function test_planar_arrangement(
-	V::Lar.Points, 	
-	copEV::Lar.ChainOp; 
-	sigma::Lar.Chain=spzeros(Int8, 0), 
-	return_edge_map::Bool=false, 
+	V::Lar.Points,
+	copEV::Lar.ChainOp;
+	sigma::Lar.Chain=spzeros(Int8, 0),
+	return_edge_map::Bool=false,
 	multiproc::Bool=false)
 
 	V,copEV,sigma,return_edge_map,edge_map,rV, rEV = splitedges(
@@ -245,9 +243,9 @@ function test_planar_arrangement(
 
 	V,copEV,sigma,return_edge_map,edge_map = deleteoutsidesigma(
 							V,copEV,sigma,return_edge_map,edge_map )
-							
+
     bicon_comps = Lar.Arrangement.biconnected_components(copEV)
-    
+
     if isempty(bicon_comps)
         println("No biconnected components found.")
         if (return_edge_map)
@@ -256,15 +254,15 @@ function test_planar_arrangement(
             return (nothing, nothing, nothing)
         end
     end
-    
+
     edges = sort(union(bicon_comps...))
     todel = sort(setdiff(collect(1:size(copEV,1)), edges))
-    
+
     for i in reverse(todel)
         for row in edge_map
-    
+
             filter!(x->x!=i, row)
-    
+
             for j in 1:length(row)
                 if row[j] > i
                     row[j] -= 1
@@ -272,11 +270,11 @@ function test_planar_arrangement(
             end
         end
     end
-    
+
     V, copEV = Lar.delete_edges(todel, V, copEV)
-    
+
     bicon_comps = Lar.Arrangement.biconnected_components(copEV)
-    
+
     n = size(bicon_comps, 1)
     shells = Array{Lar.Chain, 1}(undef, n)
     boundaries = Array{Lar.ChainOp, 1}(undef, n)
@@ -286,33 +284,33 @@ function test_planar_arrangement(
         fe = minimal_2cycles(V, ev)
         shell_num = Lar.Arrangement.get_external_cycle(
         	V, ev, fe)
-    
-        EVs[p] = ev 
+
+        EVs[p] = ev
         tokeep = setdiff(1:fe.m, shell_num)
         boundaries[p] = fe[tokeep, :]
         shells[p] = fe[shell_num, :]
     end
-    
+
     shell_bboxes = []
     for i in 1:n
         vs_indexes = (abs.(EVs[i]')*abs.(shells[i])).nzind
         push!(shell_bboxes, Lar.bbox(V[vs_indexes, :]))
     end
-    
+
     containment_graph = Lar.Arrangement.pre_containment_test(shell_bboxes)
     containment_graph =  Lar.Arrangement.prune_containment_graph(n, V, EVs, shells, containment_graph)
-    
-     Lar.Arrangement.transitive_reduction!(containment_graph) 
-    
+
+     Lar.Arrangement.transitive_reduction!(containment_graph)
+
     copEV, FE = Lar.Arrangement.cell_merging(
     	n, containment_graph, V, EVs, boundaries, shells, shell_bboxes)
-    
+
     if (return_edge_map)
         return V, copEV, FE, edge_map
     else
         return V, copEV, FE
     end
-end 
+end
 
 
 
@@ -325,7 +323,7 @@ Plasm.view(Plasm.numbering(.05)((V,[[[k] for k=1:size(V,2)], EV])))
 W = convert(Lar.Points, V')
 cop_EV = Lar.coboundary_0(EV::Lar.Cells)
 cop_EW = convert(Lar.ChainOp, cop_EV)
-V, copEV, copFE = test_planar_arrangement(W::Lar.Points, cop_EW::Lar.ChainOp; 
+V, copEV, copFE = test_planar_arrangement(W::Lar.Points, cop_EW::Lar.ChainOp;
 	multiproc=false)
 
 triangulated_faces = Lar.triangulate2D(V, [copEV, copFE])

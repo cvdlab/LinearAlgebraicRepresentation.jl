@@ -1,6 +1,12 @@
 using LinearAlgebraicRepresentation
 Lar = LinearAlgebraicRepresentation
 
+"""
+    frag_edge_channel(in_chan, out_chan,
+        V::Lar.Points, EV::Lar.ChainOp, bigPI)
+
+Parallel fragmentation of edges in `EV` using the spatial index `bigPI`.
+"""
 function frag_edge_channel(in_chan, out_chan, V, EV, bigPI)
     run_loop = true
     while run_loop
@@ -13,6 +19,11 @@ function frag_edge_channel(in_chan, out_chan, V, EV, bigPI)
     end
 end
 
+"""
+    frag_edge(V::Lar.Points, EV::Lar.ChainOp, edge_idx::Int, bigPI::Array)
+
+Fragment the edge of index `edge_idx` using the edges indicized in `bigPI`.
+"""
 function frag_edge(V, EV::Lar.ChainOp, edge_idx::Int, bigPI)
     alphas = Dict{Float64, Int}()
     edge = EV[edge_idx, :]
@@ -39,6 +50,12 @@ function frag_edge(V, EV::Lar.ChainOp, edge_idx::Int, bigPI)
     return verts, ev
 end
 
+
+"""
+    intersect_edges(V::Lar.Points, edge1::Lar.Cell, edge2::Lar.Cell)
+
+Intersect two 2D edges (`edge1` and `edge2`).
+"""
 function intersect_edges(V::Lar.Points, edge1::Lar.Cell, edge2::Lar.Cell)
     err = 10e-8
 
@@ -49,14 +66,10 @@ function intersect_edges(V::Lar.Points, edge1::Lar.Cell, edge2::Lar.Cell)
     v1 = [x2-x1, y2-y1];
     v2 = [x4-x3, y4-y3];
     v3 = [x3-x1, y3-y1];
-
     ang1 = dot(normalize(v1), normalize(v2))
     ang2 = dot(normalize(v1), normalize(v3))
-
     parallel = 1-err < abs(ang1) < 1+err
     colinear = parallel && (1-err < abs(ang2) < 1+err || -err < norm(v3) < err)
-
-
     if colinear
         o = [x1 y1]
         v = [x2 y2] - o
@@ -68,7 +81,6 @@ function intersect_edges(V::Lar.Points, edge1::Lar.Cell, edge2::Lar.Cell)
                 push!(ret, (ps[i:i, :], a))
             end
         end
-
     elseif !parallel
         denom = (v2[2])*(v1[1]) - (v2[1])*(v1[2])
         a = ((v2[1])*(-v3[2]) - (v2[2])*(-v3[1])) / denom
@@ -79,10 +91,15 @@ function intersect_edges(V::Lar.Points, edge1::Lar.Cell, edge2::Lar.Cell)
             push!(ret, (p, a))
         end
     end
-
     return ret
 end
 
+
+"""
+    merge_vertices!(V::Lar.Points, EV::Lar.ChainOp, edge_map, err=1e-4)
+
+Merge congruent vertices and edges in `V` and `EV`.
+"""
 function merge_vertices!(V::Lar.Points, EV::Lar.ChainOp, edge_map, err=1e-4)
     vertsnum = size(V, 1)
     edgenum = size(EV, 1)
@@ -91,47 +108,39 @@ function merge_vertices!(V::Lar.Points, EV::Lar.ChainOp, edge_map, err=1e-4)
     V = Array{Float64,2}(V)
     kdtree = KDTree(permutedims(V))
 
+    # merge congruent vertices
     todelete = []
-
     i = 1
     for vi in 1:vertsnum
         if !(vi in todelete)
             nearvs = Lar.inrange(kdtree, V[vi, :], err)
-
             newverts[nearvs] .= i
-
             nearvs = setdiff(nearvs, vi)
             todelete = union(todelete, nearvs)
-
             i = i + 1
         end
     end
-
     nV = V[setdiff(collect(1:vertsnum), todelete), :]
 
+    # merge congruent edges
     edges = Array{Tuple{Int, Int}, 1}(undef, edgenum)
     oedges = Array{Tuple{Int, Int}, 1}(undef, edgenum)
-
     for ei in 1:edgenum
         v1, v2 = EV[ei, :].nzind
-
         edges[ei] = Tuple{Int, Int}(sort([newverts[v1], newverts[v2]]))
         oedges[ei] = Tuple{Int, Int}(sort([v1, v2]))
-
     end
     nedges = union(edges)
     nedges = filter(t->t[1]!=t[2], nedges)
-
     nedgenum = length(nedges)
     nEV = spzeros(Int8, nedgenum, size(nV, 1))
-
+    # maps pairs of vertex indices to edge index
     etuple2idx = Dict{Tuple{Int, Int}, Int}()
-
+    # builds `edge_map`
     for ei in 1:nedgenum
         nEV[ei, collect(nedges[ei])] .= 1
         etuple2idx[nedges[ei]] = ei
     end
-
     for i in 1:length(edge_map)
         row = edge_map[i]
         row = map(x->edges[x], row)
@@ -139,11 +148,17 @@ function merge_vertices!(V::Lar.Points, EV::Lar.ChainOp, edge_map, err=1e-4)
         row = map(x->etuple2idx[x], row)
         edge_map[i] = row
     end
-
-
+    # return new vertices and new edges
     return Lar.Points(nV), nEV
 end
 
+
+"""
+    biconnected_components(EV::Lar.ChainOp)
+
+Compute the biconnected components of the `EV` graph, represented
+by edges as pairs of vertices.
+"""
 function biconnected_components(EV::Lar.ChainOp)
     ps = Array{Tuple{Int, Int, Int}, 1}()
     es = Array{Tuple{Int, Int}, 1}()
