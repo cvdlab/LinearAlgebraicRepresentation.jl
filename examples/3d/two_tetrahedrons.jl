@@ -18,7 +18,6 @@ W = convert(Lar.Points, V');
 V, copEV, copFE, copCF = Lar.Arrangement.spatial_arrangement( W::Lar.Points, cop_EW::Lar.ChainOp, cop_FE::Lar.ChainOp)
 
 println("ECCOMI")
-
 @show Matrix(copCF)
 
 
@@ -30,14 +29,14 @@ W = convert(Lar.Points, V')
 
 Plasm.view(Plasm.numbering(0.25)((W,[[[k] for k=1:size(W,2)],EV,FV])))
 
-# triangulated_faces = Lar.triangulate(V, [copEV, copFE])
-# FVs = convert(Array{Lar.Cells}, triangulated_faces)
-# V = convert(Lar.Points, V')
-# Plasm.viewcolor(V::Lar.Points, FVs::Array{Lar.Cells})
+triangulated_faces = Lar.triangulate(V, [copEV, copFE])
+FVs = convert(Array{Lar.Cells}, triangulated_faces)
+V = convert(Lar.Points, V')
+Plasm.viewcolor(V::Lar.Points, FVs::Array{Lar.Cells})
 
-# EVs = Lar.FV2EVs(copEV, copFE) # polygonal face fragments
-# model = V,EVs
-# Plasm.view(Plasm.lar_exploded(model)(1.2,1.2,1.2))
+EVs = Lar.FV2EVs(copEV, copFE) # polygonal face fragments
+model = V,EVs
+Plasm.view(Plasm.lar_exploded(model)(1.2,1.2,1.2))
 #
 #
 #  @test EVs==[[[1, 2], [1, 3], [2, 5], [3, 4], [5, 6], [4, 6]],
