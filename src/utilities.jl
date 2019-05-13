@@ -1,5 +1,200 @@
 Lar = LinearAlgebraicRepresentation
 
+
+function interior_to_f(triangle,f,V,FV,EV,FE)
+	v1,v2,v3 = triangle
+	u = V[:,v2]-V[:,v1]
+	v = V[:,v3]-V[:,v1]
+	w = cross(u,v)
+	T = [1. 0 0 0; 0 1 0 0; 0 0 1 0; 0 0 0 1]; T[1:3,4] = -V[:,v1]
+	R = [1. 0 0 0; 0 1 0 0; 0 0 1 0; 0 0 0 1]; R[1:3,1:3] = [u v w]; R = R'
+	mapping = R * T
+
+	trianglepoints = [[V[:,v1] V[:,v2] V[:,v3]]; ones(3)']
+	pts = mapping * trianglepoints
+	points2D = [pts[r,:] for r = 1:size(pts,1)
+				if !(all(pts[r,:].==0) || all(pts[r,:].==1) )]
+	p2D = hcat(points2D...)'
+	checkpoint = 0.4995 .* p2D[:,1] + 0.4995 .* p2D[:,2] + 0.001 .* p2D[:,3]
+
+	cellpoints = [V[:,FV[f]]; ones(length(FV[f]))' ]
+	points = mapping * cellpoints
+	verts2D = [points[r,:] for r = 1:size(points,1)
+				if !(all(points[r,:].==0) || all(points[r,:].==1) )]
+	P2D = hcat(verts2D...)'
+
+	vdict = Dict(collect(zip(FV[f], 1:length(FV[f]))))
+	celledges = [[vdict[v] for v in EV[e]] for e in FE[f]]
+
+	out = Lar.pointInPolygonClassification(P2D,celledges)(checkpoint)
+	if out=="p_in"
+		return true
+	else
+		return false
+	end
+end
+
+
+function ordering(triangles,V)
+	normals = []
+	v1,v2,v3 = triangles[1]
+	if v1>v2 v1,v2 = v2,v1 end
+	e3 = normalize(V[:,v2]-V[:,v1])
+	e1 = normalize(V[:,v3]-V[:,v1])
+	e2 = normalize(cross(e1,e3))
+	basis = [e1 e2 e3]
+	transform = inv(basis)
+
+	angles = []
+	for (v1,v2,v3) in triangles
+		w1 = normalize(V[:,v3]-V[:,v1])
+		w2 = transform * w1
+		w3 = cross([0,0,1],w2)
+		push!(normals,w3)
+	end
+	for k=1:length(normals)
+		angle = atan(normals[k][2],normals[k][1])
+		push!(angles,angle)
+	end
+	#pairs = sort(collect(zip(angles,1:length(triangles))))
+	pairs = sort([(angle,k) for (k,angle) in enumerate(angles)])
+	order = [k for (angle,k) in pairs]
+	return order
+end
+
+
+function ord(hinge::Int64, bd1::AbstractSparseVector{Int64,Int64}, V::Array{Float64,2},
+FV::Array{Array{Int64,1},1}, EV::Array{Array{Int64,1},1}, FE::Array{Array{Int64,1},1})
+	cells = SparseArrays.findnz(bd1)[1]
+	triangles = []
+
+	function area(v1,v2,v3)
+		u = V[:,v2]-V[:,v1]
+		v = V[:,v3]-V[:,v1]
+		out = norm(cross(u,v)) # actually, to be divided by two
+		return out
+	end
+
+	for f in cells
+		v1,v2 = EV[hinge]
+		index = findfirst(v -> (area(v1,v2,v)≠0), FV[f])
+		v3 = FV[f][index]
+
+		# test if [v1,v2,v3] interior to f
+		while true
+			if interior_to_f([v1, v2, v3],f,V,FV,EV,FE)
+				push!(triangles, [v1,v2,v3])
+				break
+			else
+				index = findnext(v -> (area(v1,v2,v)≠0), FV[f], index+1)
+				v3 = FV[f][index]
+			end
+		end
+	end
+	order = ordering(triangles,V)
+	return [cells[index] for index in order]
+end
+
+
+function mynext(cycle, pivot)
+	len = length(cycle)
+	ind = findall(x -> x==pivot, cycle)[1]
+	nextIndex = ind==len ? 1 : ind+1
+	return cycle[nextIndex][1]
+end
+
+
+function myprev(cycle, pivot)
+	len = length(cycle)
+	ind = findall(x->x==pivot, cycle)[1]
+	nextIndex = ind==1 ? len : ind-1
+	return cycle[nextIndex][1]
+end
+
+
+function build_copFC(rV, rcopEV, rcopFE)
+#function build_copFC(V,FV,EV,copFE)
+
+	# G&F -> Pao data structures
+	V = convert(Lar.Points, rV')
+	EV = cop2lar(rcopEV)
+	fe = cop2lar(rcopFE)
+	fv = [collect(Set(cat(EV[e] for e in fe[f]))) for f=1:length(fe)]
+	FV = convert(Lar.Cells, fv)
+	copFE = rcopFE
+
+	copEF = copFE'
+	FE = [SparseArrays.findnz(copFE[k,:])[1] for k=1:size(copFE,1)]
+	# Initializations
+	m,n = size(copEF)
+	marks = zeros(Int,n);
+	I = Int64[]; J = Int64[]; W = Int8[];
+	jcol = 0
+	choose(marks) = findfirst(x -> x<2, marks)
+
+	# Main loop (adding one copFC's column stepwise)
+	while sum(marks) < 2n
+		# select a (d−1)-cell, "seed" of the column extraction
+		σ = choose(marks)
+		@show σ
+		@show marks
+		if marks[σ] == 0
+			cd1 = sparsevec([σ], Int8[1], n)
+		elseif marks[σ] == 1
+			cd1 = sparsevec([σ], Int8[-1], n)
+		end
+		# compute boundary cd2 of seed cell
+		cd2 = copEF * cd1
+		# loop until (boundary) cd2 becomes empty
+		while nnz(cd2)≠0
+			corolla = sparsevec([], Int8[], n)
+			# for each “hinge” τ cell
+			for τ ∈ (.*)(SparseArrays.findnz(cd2)...)
+				#compute the  coboundary
+				tau = sparsevec([abs(τ)], [sign(τ)], m)
+				bd1 = transpose(transpose(tau) * copEF)
+				cells2D = SparseArrays.findnz(bd1)[1]
+				# compute the  support
+				pivot = intersect(cells2D, SparseArrays.findnz(cd1)[1])[1]
+				# compute the new adj cell
+				fan = ord(abs(τ),bd1,V,FV,EV,FE) # ord(pivot,bd1)
+				if τ > 0
+					adj = mynext(fan,pivot)
+				elseif τ < 0
+					adj = myprev(fan,pivot)
+				end
+				# orient adj
+				if copEF[abs(τ),adj] ≠ copEF[abs(τ),pivot]
+					corolla[adj] = cd1[pivot]
+				else
+					corolla[adj] = -(cd1[pivot])
+				end
+			end
+			# insert corolla cells in current cd1
+			for (k,val) in zip(SparseArrays.findnz(corolla)...)
+				cd1[k] = val
+			end
+			# compute again the boundary of cd1
+			cd2 = copEF * cd1
+		end
+		for σ ∈ SparseArrays.findnz(cd1)[1]
+			# update the counters of used cells
+			marks[σ] += 1
+		end
+		# append a new column to [∂d+]
+		# copFC += cd1
+		rows, vals = SparseArrays.findnz(cd1)
+		jcol += 1
+		append!(I,rows)
+		append!(J,[ jcol for k=1:nnz(cd1) ])
+		append!(W,vals)
+	end
+	copFC = sparse(I,J,W)
+	return copFC
+end
+
+
+
 """
     bbox(vertices::Points)
 
@@ -93,7 +288,7 @@ The vertices in `V` which remained unconnected after the edge deletion are delet
 function delete_edges(todel, V::Points, EV::ChainOp)
     tokeep = setdiff(collect(1:EV.m), todel)
     EV = EV[tokeep, :]
-    
+
     vertinds = 1:EV.n
     todel = Array{Int64, 1}()
     for i in vertinds
@@ -117,7 +312,7 @@ end
 
 The list of vertex indices that expresses the given `face`.
 
-The returned list is made of the vertex indices ordered following the traversal order to keep a coherent face orientation. 
+The returned list is made of the vertex indices ordered following the traversal order to keep a coherent face orientation.
 The edges are need to understand the topology of the face.
 
 In this method the input face must be expressed as a `Cell`(=`SparseVector{Int8, Int}`) and the edges as `Cells`.
@@ -131,7 +326,7 @@ end
 
 The list of vertex indices that expresses the given `face`.
 
-The returned list is made of the vertex indices ordered following the traversal order to keep a coherent face orientation. 
+The returned list is made of the vertex indices ordered following the traversal order to keep a coherent face orientation.
 The edges are need to understand the topology of the face.
 
 In this method the input face must be expressed as a `Cell`(=`SparseVector{Int8, Int}`) and the edges as `ChainOp`.
@@ -164,7 +359,7 @@ end
 
 The list of vertex indices that expresses the given `face`.
 
-The returned list is made of the vertex indices ordered following the traversal order to keep a coherent face orientation. 
+The returned list is made of the vertex indices ordered following the traversal order to keep a coherent face orientation.
 The edges are need to understand the topology of the face.
 
 In this method the input face must be expressed as a list of vertex indices and the edges as `ChainOp`.
@@ -219,7 +414,7 @@ function build_copFE(FV::Cells, EV::Cells)
 
             push!(f, (edge_idx, sign(edge[2]-edge[1])))
         end
-        
+
         push!(faces, f)
     end
 
@@ -316,14 +511,14 @@ function triangulate(V::Points, cc::ChainComplex)
 
 	function vcycle( copEV::Lar.ChainOp, copFE::Lar.ChainOp, f::Int64 )
 		edges,signs = findnz(copFE[f,:])
-		vpairs = [s>0 ? findnz(copEV[e,:])[1] : reverse(findnz(copEV[e,:])[1]) 
+		vpairs = [s>0 ? findnz(copEV[e,:])[1] : reverse(findnz(copEV[e,:])[1])
 					for (e,s) in zip(edges,signs)]
 		vdict = Dict((v1,v2) for (v1,v2) in  vpairs)
-	
+
 		v0 = collect(vdict)[1][1]
 		chain_0 = Int64[v0]
 		v = vdict[v0]
-		while v ≠ v0 
+		while v ≠ v0
 			push!(chain_0,v)
 			v = vdict[v]
 		end
@@ -334,12 +529,12 @@ function triangulate(V::Points, cc::ChainComplex)
         if f % 10 == 0
             print(".")
         end
-        
+
         edges_idxs = copFE[f, :].nzind
         edge_num = length(edges_idxs)
         edges = zeros(Int64, edge_num, 2)
 
-        
+
         #fv = Lar.buildFV(copEV, copFE[f, :])
         fv = vcycle(copEV, copFE, f)
 
@@ -358,19 +553,19 @@ function triangulate(V::Points, cc::ChainComplex)
         M = reshape([v1; v2; v3], 3, 3)
 
         vs = (vs*M)[:, 1:2]
-        
+
         for i in 1:length(fv)
             edges[i, 1] = fv[i]
             edges[i, 2] = i == length(fv) ? fv[1] : fv[i+1]
         end
-        
-        triangulated_faces[f] = 
+
+        triangulated_faces[f] =
         	Triangle.constrained_triangulation(vs, fv, edges, fill(true, edge_num))
 
         tV = (V*M)[:, 1:2]
-       
+
         area = face_area(tV, copEV, copFE[f, :])
-        if area < 0 
+        if area < 0
             for i in 1:length(triangulated_faces[f])
                 triangulated_faces[f][i] = triangulated_faces[f][i][end:-1:1]
             end
@@ -429,14 +624,14 @@ function point_in_face(point, V::Points, copEV::ChainOp)
                 (x1,y1),(x2,y2) = p1,p2
                 c1,c2 = tilecode(p1),tilecode(p2)
                 c_edge, c_un, c_int = xor(c1, c2), c1|c2, c1&c2
-                
-                if (c_edge == 0) & (c_un == 0) return "p_on" 
+
+                if (c_edge == 0) & (c_un == 0) return "p_on"
                 elseif (c_edge == 12) & (c_un == c_edge) return "p_on"
                 elseif c_edge == 3
                     if c_int == 0 return "p_on"
                     elseif c_int == 4 count += 1 end
                 elseif c_edge == 15
-                    x_int = ((y-y2)*(x1-x2)/(y1-y2))+x2 
+                    x_int = ((y-y2)*(x1-x2)/(y1-y2))+x2
                     if x_int > x count += 1
                     elseif x_int == x return "p_on" end
                 elseif (c_edge == 13) & ((c1==4) | (c2==4))
@@ -447,40 +642,40 @@ function point_in_face(point, V::Points, copEV::ChainOp)
                 elseif c_edge == 11 count = count
                 elseif c_edge == 1
                     if c_int == 0 return "p_on"
-                    elseif c_int == 4 
-                        status, count = crossingTest(1,2,status,count) 
+                    elseif c_int == 4
+                        status, count = crossingTest(1,2,status,count)
                     end
                 elseif c_edge == 2
                     if c_int == 0 return "p_on"
-                    elseif c_int == 4 
-                        status, count = crossingTest(2,1,status,count) 
+                    elseif c_int == 4
+                        status, count = crossingTest(2,1,status,count)
                     end
                 elseif (c_edge == 4) & (c_un == c_edge) return "p_on"
                 elseif (c_edge == 8) & (c_un == c_edge) return "p_on"
                 elseif c_edge == 5
                     if (c1==0) | (c2==0) return "p_on"
-                    else 
-                        status, count = crossingTest(1,2,status,count) 
+                    else
+                        status, count = crossingTest(1,2,status,count)
                     end
                 elseif c_edge == 6
                     if (c1==0) | (c2==0) return "p_on"
-                    else 
-                        status, count = crossingTest(2,1,status,count) 
+                    else
+                        status, count = crossingTest(2,1,status,count)
                     end
                 elseif (c_edge == 9) & ((c1==0) | (c2==0)) return "p_on"
                 elseif (c_edge == 10) & ((c1==0) | (c2==0)) return "p_on"
                 end
             end
-            
-            if (round(count)%2)==1 
+
+            if (round(count)%2)==1
                 return "p_in"
-            else 
+            else
                 return "p_out"
             end
         end
         return pointInPolygonClassification0
     end
-    
+
     return pointInPolygonClassification(V, copEV)(point) == "p_in"
 end
 
@@ -494,56 +689,56 @@ Use this function to export LAR models into OBJ
 # Example
 
 ```julia
-	julia> cube_1 = ([0 0 0 0 1 1 1 1; 0 0 1 1 0 0 1 1; 0 1 0 1 0 1 0 1], 
-	[[1,2,3,4],[5,6,7,8],[1,2,5,6],[3,4,7,8],[1,3,5,7],[2,4,6,8]], 
+	julia> cube_1 = ([0 0 0 0 1 1 1 1; 0 0 1 1 0 0 1 1; 0 1 0 1 0 1 0 1],
+	[[1,2,3,4],[5,6,7,8],[1,2,5,6],[3,4,7,8],[1,3,5,7],[2,4,6,8]],
 	[[1,2],[3,4],[5,6],[7,8],[1,3],[2,4],[5,7],[6,8],[1,5],[2,6],[3,7],[4,8]] )
-	
+
 	julia> cube_2 = Lar.Struct([Lar.t(0,0,0.5), Lar.r(0,0,pi/3), cube_1])
-	
+
 	julia> V, FV, EV = Lar.struct2lar(Lar.Struct([ cube_1, cube_2 ]))
-	
+
 	julia> V, bases, coboundaries = Lar.chaincomplex(V,FV,EV)
-	
+
 	julia> (EV, FV, CV), (copEV, copFE, copCF) = bases, coboundaries
 
 	julia> FV # bases[2]
 	18-element Array{Array{Int64,1},1}:
-	 [1, 3, 4, 6]            
-	 [2, 3, 5, 6]            
-	 [7, 8, 9, 10]           
-	 [1, 2, 3, 7, 8]         
-	 [4, 6, 9, 10, 11, 12]   
-	 [5, 6, 11, 12]          
-	 [1, 4, 7, 9]            
-	 [2, 5, 11, 13]          
-	 [2, 8, 10, 11, 13]      
-	 [2, 3, 14, 15, 16]      
-	 [11, 12, 13, 17]        
+	 [1, 3, 4, 6]
+	 [2, 3, 5, 6]
+	 [7, 8, 9, 10]
+	 [1, 2, 3, 7, 8]
+	 [4, 6, 9, 10, 11, 12]
+	 [5, 6, 11, 12]
+	 [1, 4, 7, 9]
+	 [2, 5, 11, 13]
+	 [2, 8, 10, 11, 13]
+	 [2, 3, 14, 15, 16]
+	 [11, 12, 13, 17]
 	 [11, 12, 13, 18, 19, 20]
-	 [2, 3, 13, 17]          
-	 [2, 13, 14, 18]         
-	 [15, 16, 19, 20]        
-	 [3, 6, 12, 15, 19]      
-	 [3, 6, 12, 17]          
-	 [14, 16, 18, 20]        
+	 [2, 3, 13, 17]
+	 [2, 13, 14, 18]
+	 [15, 16, 19, 20]
+	 [3, 6, 12, 15, 19]
+	 [3, 6, 12, 17]
+	 [14, 16, 18, 20]
 
 	julia> CV # bases[3]
 	3-element Array{Array{Int64,1},1}:
 	 [2, 3, 5, 6, 11, 12, 13, 14, 15, 16, 18, 19, 20]
-	 [2, 3, 5, 6, 11, 12, 13, 17]                    
-	 [1, 2, 3, 4, 6, 7, 8, 9, 10, 11, 12, 13, 17]    
-	 
+	 [2, 3, 5, 6, 11, 12, 13, 17]
+	 [1, 2, 3, 4, 6, 7, 8, 9, 10, 11, 12, 13, 17]
+
 	julia> copEV # coboundaries[1]
 	34×20 SparseMatrixCSC{Int8,Int64} with 68 stored entries: ...
 
 	julia> copFE # coboundaries[2]
 	18×34 SparseMatrixCSC{Int8,Int64} with 80 stored entries: ...
-	
+
 	julia> copCF # coboundaries[3]
 	4×18 SparseMatrixCSC{Int8,Int64} with 36 stored entries: ...
-	
+
 	objs = Lar.lar2obj(V'::Lar.Points, [coboundaries...])
-			
+
 	open("./two_cubes.obj", "w") do f
     	write(f, objs)
 	end
@@ -556,9 +751,9 @@ function lar2obj(V::Points, cc::ChainComplex)
 
     obj = ""
     for v in 1:size(V, 1)
-        obj = string(obj, "v ", 
-        	round(V[v, 1], digits=6), " ", 
-        	round(V[v, 2], digits=6), " ", 
+        obj = string(obj, "v ",
+        	round(V[v, 1], digits=6), " ",
+        	round(V[v, 2], digits=6), " ",
         	round(V[v, 3], digits=6), "\n")
     end
 
@@ -638,7 +833,7 @@ end
 
 Generate the first `n` binary numbers in string padded for max `2^n` length
 """
-function binaryRange(n) 
+function binaryRange(n)
     return string.(range(0, length=2^n), base=2, pad=n)
 end
 
@@ -651,11 +846,11 @@ function space_arrangement(V::Points, EV::ChainOp, FE::ChainOp, multiproc::Bool=
     global rV = Lar.Points(undef, 0,3)
     global rEV = SparseArrays.spzeros(Int8,0,0)
     global rFE = SparseArrays.spzeros(Int8,0,0)
-    
+
     if (multiproc == true)
         in_chan = Distributed.RemoteChannel(()->Channel{Int64}(0))
         out_chan = Distributed.RemoteChannel(()->Channel{Tuple}(0))
-        
+
         @async begin
             for sigma in 1:fs_num
                 put!(in_chan, sigma)
@@ -664,16 +859,16 @@ function space_arrangement(V::Points, EV::ChainOp, FE::ChainOp, multiproc::Bool=
                 put!(in_chan, -1)
             end
         end
-        
+
         for p in Distributed.workers()
             @async Base.remote_do(
                 frag_face_channel, p, in_chan, out_chan, V, EV, FE, sp_idx)
         end
-        
+
         for sigma in 1:fs_num
             rV, rEV, rFE = skel_merge(rV, rEV, rFE, take!(out_chan)...)
         end
-        
+
     else
 
        for sigma in 1:fs_num
@@ -698,11 +893,11 @@ function space_arrangement(V::Points, EV::ChainOp, FE::ChainOp, multiproc::Bool=
 #		rV = vcat(depot_V...)
 #		rEV = SparseArrays.blockdiag(depot_EV...)
 #		rFE = SparseArrays.blockdiag(depot_FE...)
-    
+
     end
 
     rV, rEV, rFE = Lar.Arrangement.merge_vertices(rV, rEV, rFE)
-    
+
     rCF = Arrangement.minimal_3cycles(rV, rEV, rFE)
 
     return rV, rEV, rFE, rCF
@@ -712,7 +907,7 @@ end
 
 ###  2D triangulation
 Lar = LinearAlgebraicRepresentation
-""" 
+"""
 	obj2lar2D(path::AbstractString)::Lar.LARmodel
 
 Read a *triangulation* from file, given its `path`. Return a `LARmodel` object
@@ -747,8 +942,8 @@ function obj2lar2D(path::AbstractString)::Lar.LARmodel
 end
 
 
-""" 
-	lar2obj2D(V::Lar.Points, 
+"""
+	lar2obj2D(V::Lar.Points,
 			cc::Lar.ChainComplex)::String
 
 Produce a *triangulation* from a `LARmodel`. Return a `String` object
@@ -760,9 +955,9 @@ function lar2obj2D(V::Lar.Points, cc::Lar.ChainComplex)::String
 
     global obj = ""
     for v in 1:size(V, 1)
-        	global obj = string(obj, "v ", 
-        	round(V[v, 1]; digits=6), " ", 
-        	round(V[v, 2]; digits=6), " ", 
+        	global obj = string(obj, "v ",
+        	round(V[v, 1]; digits=6), " ",
+        	round(V[v, 2]; digits=6), " ",
         	round(V[v, 3]; digits=6), "\n")
     end
 
@@ -786,7 +981,7 @@ end
 #TODO: finish by using a string as an IObuffer
 #"""
 #	lar2tria2lar(V::Lar.Points, cc::Lar.ChainComplex)::Lar.LARmodel
-#	
+#
 #Return a triangulated `LARmodel` starting from a stadard LARmodel.
 #Useful for colour drawing a complex of non-convex cells.
 #
@@ -800,8 +995,8 @@ end
 
 
 
-""" 
-	triangulate2D(V::Lar.Points, 
+"""
+	triangulate2D(V::Lar.Points,
 			cc::Lar.ChainComplex)::Array{Any, 1}
 
 Compute a *CDT* for each face of a `ChainComplex`. Return an `Array` of triangles.
@@ -809,18 +1004,18 @@ Compute a *CDT* for each face of a `ChainComplex`. Return an `Array` of triangle
 function triangulate2D(V::Lar.Points, cc::Lar.ChainComplex)::Array{Any, 1}
     copEV, copFE = cc
     triangulated_faces = Array{Any, 1}(undef, copFE.m)
-    if size(V,2)==2 
+    if size(V,2)==2
 		V = [V zeros(size(V,1),1)]
 	end
-	
-    for f in 1:copFE.m   
+
+    for f in 1:copFE.m
         edges_idxs = copFE[f, :].nzind
         edge_num = length(edges_idxs)
         edges = Array{Int64,1}[] #zeros(Int64, edge_num, 2)
 
         fv = Lar.buildFV(copEV, copFE[f, :])
         vs = V[fv, :]
-        
+
         for i in 1:length(fv)
         	edge = Int64[0,0]
             edge[1] = fv[i]
@@ -829,13 +1024,13 @@ function triangulate2D(V::Lar.Points, cc::Lar.ChainComplex)::Array{Any, 1}
         end
         edges = hcat(edges...)'
         edges = convert(Array{Int64,2}, edges)
-        
+
         triangulated_faces[f] = Triangle.constrained_triangulation(
         vs, fv, edges, fill(true, edge_num))
         tV = V[:, 1:2]
-        
+
         area = Lar.face_area(tV, copEV, copFE[f, :])
-        if area < 0 
+        if area < 0
             for i in 1:length(triangulated_faces[f])
                 triangulated_faces[f][i] = triangulated_faces[f][i][end:-1:1]
             end
@@ -888,7 +1083,7 @@ julia> Matrix(Lar.lar2cop(CV))
 ```
 """
 function lar2cop(CV::Lar.Cells)::Lar.ChainOp
-	I = Int64[]; J = Int64[]; Value = Int8[]; 
+	I = Int64[]; J = Int64[]; Value = Int8[];
 	for k=1:size(CV,1)
 		n = length(CV[k])
 		append!(I, k * ones(Int64, n))
@@ -961,7 +1156,7 @@ function randomcuboids(n,scale=1.0)
 		V,(_,EV,_) = Lar.cuboid(corner,true,corner+sizes)
 		center = (corner + corner+sizes)/2
 		angle = rand(Float64)*2*pi
-		obj = Lar.Struct([ Lar.t(center...), Lar.r(angle), 
+		obj = Lar.Struct([ Lar.t(center...), Lar.r(angle),
 				Lar.s(scale,scale), Lar.t(-center...), (V,EV) ])
 		push!(assembly, obj)
 	end
@@ -973,7 +1168,7 @@ end
 """
 	compute_FV( copEV::Lar.ChainOp, copFE::Lar.ChainOp )::Lar.Cells
 
-Compute the `FV` array of type `Lar.Cells` from two `Lar.ChainOp`, via 
+Compute the `FV` array of type `Lar.Cells` from two `Lar.ChainOp`, via
 sparse array product.  To be generalized to open 2-manifolds.
 """
 function compute_FV( copEV::Lar.ChainOp, copFE::Lar.ChainOp )
@@ -982,4 +1177,3 @@ function compute_FV( copEV::Lar.ChainOp, copFE::Lar.ChainOp )
 	FV = [SparseArrays.findnz(kFV[k,:])[1] for k=1:size(kFV,1)]
 	return FV
 end
-

@@ -179,7 +179,6 @@ function spatial_arrangement_1(
     else
 	# sequential (iterative) processing of face fragmentation
         for sigma in 1:fs_num
-        @show sigma
             #print(sigma, "/", fs_num, "\r")
             nV, nEV, nFE = Lar.Arrangement.frag_face(V, copEV, copFE, sp_idx, sigma)
 # v = convert(Lar.Points, nV')
@@ -199,22 +198,7 @@ function spatial_arrangement_1(
         end
     end
 	# merging of close vertices, edges and faces (3D congruence)
-rV, rEV, rFE = merge_vertices(rV, rEV, rFE)
-v = convert(Lar.Points, rV')
-@show v
-ev = Lar.cop2lar(rEV)
-cscEV = findnz(rEV)
-@show ev
-@show cscEV
-fe = Lar.cop2lar(rFE)
-cscFE = findnz(rFE)
-@show fe
-@show cscFE
-fv = [collect(Set(cat([ev[e] for e in f]))) for f in fe]
-fv = convert(Lar.Cells, fv)
-@show fv
-Plasm.view(Plasm.numbering(0.25)((v,[[[k] for k=1:size(v,2)],ev,fv])))
-Plasm.view(v,fv)
+	rV, rEV, rFE = merge_vertices(rV, rEV, rFE)
     return rV, rEV, rFE
 end
 
@@ -224,7 +208,15 @@ function spatial_arrangement_2(
 		rcopEV::Lar.ChainOp,
 		rcopFE::Lar.ChainOp, multiproc::Bool=false)
 
-    rcopCF = minimal_3cycles(rV, rcopEV, rcopFE)
+# @show rV
+# @show findnz(rcopEV)
+# @show findnz(rcopFE)
+# rV = [0.0 0.0 0.0; 1.0 0.0 0.0; 0.0 1.0 0.0; 0.0 0.0 1.0; 0.5 0.25 0.25; 0.25 0.5 0.25; 0.25 0.25 0.5; 0.25 0.25 0.25; 1.25 0.25 0.25; 0.25 1.25 0.25; 0.25 0.25 1.25]
+# rcopEV = sparse([1, 2, 4, 1, 3, 5, 2, 3, 6, 4, 5, 6, 7, 8, 10, 11, 7, 9, 12, 13, 8, 9, 15, 16, 10, 12, 15, 11, 14, 17, 13, 14, 18, 16, 17, 18], [1, 1, 1, 2, 2, 2, 3, 3, 3, 4, 4, 4, 5, 5, 5, 5, 6, 6, 6, 6, 7, 7, 7, 7, 8, 8, 8, 9, 9, 9, 10, 10, 10, 11, 11, 11], Int8[-1, -1, -1, 1, -1, -1, 1, 1, -1, 1, 1, 1, -1, -1, -1, -1, 1, -1, -1, -1, 1, 1, -1, -1, 1, 1, 1, 1, -1, -1, 1, 1, -1, 1, 1, 1])
+# rcopFE = sparse([1, 2, 1, 3, 1, 4, 2, 3, 2, 4, 3, 4, 4, 5, 6, 7, 4, 5, 8, 9, 4, 5, 10, 11, 6, 8, 7, 9, 6, 10, 7, 11, 7, 12, 8, 10, 9, 11, 9, 12, 11, 12], [1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 7, 7, 8, 8, 8, 8, 9, 9, 9, 9, 10, 10, 11, 11, 12, 12, 13, 13, 14, 14, 15, 15, 16, 16, 17, 17, 18, 18], Int8[1, 1, -1, 1, 1, 1, -1, -1, 1, -1, 1, 1, -1, 1, 1, -1, 1, -1, 1, -1, -1, 1, 1, -1, -1, -1, 1, 1, 1, -1, -1, 1, 1, 1, 1, 1, -1, -1, 1, -1, 1, 1])
+
+	#rcopCF = Lar.build_copFC(rV, rcopEV, rcopFE)
+	rcopCF = minimal_3cycles(rV, rcopEV, rcopFE)
     return rV, rcopEV, rcopFE, rcopCF
 end
 
@@ -250,9 +242,7 @@ function spatial_arrangement(
 
 	# face subdivision
 	rV, rcopEV, rcopFE = spatial_arrangement_1( V, copEV, copFE, multiproc ) # copFE global
-@show rV
-@show findnz(rcopEV)
-@show findnz(rcopFE)
+
 	bicon_comps = Lar.Arrangement.biconnected_components(copEV)
 	# 3-complex and containment graph
 	rV, rEV, rFE, rCF = spatial_arrangement_2(rV, rcopEV, rcopFE)

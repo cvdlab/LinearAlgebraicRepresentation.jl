@@ -100,9 +100,6 @@ function minimal_cycles(angles_fn::Function, verbose=false)
     function _minimal_cycles(V::Lar.Points,
     ld_bounds::Lar.ChainOp)
 
-@show V
-@show findnz(ld_bounds)
-
         lld_cellsnum, ld_cellsnum = size(ld_bounds)
         count_marks = zeros(Int8, ld_cellsnum)
         dir_marks = zeros(Int8, ld_cellsnum)
@@ -130,7 +127,6 @@ function minimal_cycles(angles_fn::Function, verbose=false)
             as = map(a->a[1], as)
             angles[lld] = as
         end
-@show angles
         function nextprev(lld::Int64, ld::Int64, norp)
             as = angles[lld]
             #ne = findfirst(as, ld)  (findfirst(isequal(v), A), 0)[1]
@@ -152,7 +148,6 @@ function minimal_cycles(angles_fn::Function, verbose=false)
 
 
         while (sigma = get_seed_cell()) > 0
-@show sigma
 
             if verbose
                 print(Int(floor(50 * sum(count_marks) / ld_cellsnum)), "%\r")
