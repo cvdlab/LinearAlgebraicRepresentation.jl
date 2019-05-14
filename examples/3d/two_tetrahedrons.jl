@@ -1,12 +1,10 @@
-using LinearAlgebraicRepresentation
 using Plasm, SparseArrays
+using LinearAlgebraicRepresentation
 Lar = LinearAlgebraicRepresentation
-using Debugger
-using Test
 
 V, (VV,EV,FV,CV) = Lar.simplex(3, true)
 tetra = V, EV,FV,CV
-twotetra = Lar.Struct([ tetra, Lar.t(0.25,0.25,0.25), tetra ])
+twotetra = Lar.Struct([ tetra, Lar.t(0.25,0.25,0.), tetra ])
 V,EV,FV,CV = Lar.struct2lar(twotetra)
 Plasm.view(V,CV)
 

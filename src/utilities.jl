@@ -1032,7 +1032,7 @@ function triangulate2D(V::Lar.Points, cc::Lar.ChainComplex)::Array{Any, 1}
 		mapv = Dict(zip(1:length(fv),fv)) # inverse vertex map
 		ev = [[vmap[e] for e in edges[k,:]] for k=1:size(edges,1)]
 		trias = Lar.triangulate2d(v,ev)
-		triangulated_faces[f] = [[mapv[v] for v in tria] for tria in trias
+		triangulated_faces[f] = [[mapv[v] for v in tria] for tria in trias]
 
         tV = V[:, 1:2]
 

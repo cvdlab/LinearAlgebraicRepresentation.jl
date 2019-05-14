@@ -1,5 +1,7 @@
 using LinearAlgebraicRepresentation
 Lar = LinearAlgebraicRepresentation
+using Plasm
+
 V,(VV,EV,FV) = Lar.simplex(2, true)
 triangle = (V,EV,FV)
 model = Lar.Struct([ triangle, Lar.t(.15,.15), Lar.s(.5,.5), triangle ])
