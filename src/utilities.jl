@@ -1025,8 +1025,15 @@ function triangulate2D(V::Lar.Points, cc::Lar.ChainComplex)::Array{Any, 1}
         edges = hcat(edges...)'
         edges = convert(Array{Int64,2}, edges)
 
-        triangulated_faces[f] = Triangle.constrained_triangulation(
-        vs, fv, edges, fill(true, edge_num))
+		# triangulated_faces[f] = Triangle.constrained_triangulation(
+        # 	vs, fv, edges, fill(true, edge_num))
+		v = convert(Lar.Points, vs'[1:2,:])
+		vmap = Dict(zip(fv,1:length(fv))) # vertex map
+		mapv = Dict(zip(1:length(fv),fv)) # inverse vertex map
+		ev = [[vmap[e] for e in edges[k,:]] for k=1:size(edges,1)]
+		trias = Lar.triangulate2d(v,ev)
+		triangulated_faces[f] = [[mapv[v] for v in tria] for tria in trias
+
         tV = V[:, 1:2]
 
         area = Lar.face_area(tV, copEV, copFE[f, :])
@@ -1176,4 +1183,56 @@ function compute_FV( copEV::Lar.ChainOp, copFE::Lar.ChainOp )
 	kFV = (x->div(x,2)).(abs.(copFE) * abs.(copEV)) # works only for closed surfaces
 	FV = [SparseArrays.findnz(kFV[k,:])[1] for k=1:size(kFV,1)]
 	return FV
+end
+
+
+"""
+    triangulate2d(V, EV)
+
+Contrained Delaunay Triangulation of LAR model (V,EV).
+Discovery and removal of holes from triangulation, by comparing
+original and generated edges.
+"""
+function triangulate2d(V, EV)
+    # data for Constrained Delaunay Triangulation (CDT)
+    points = convert(Array{Float64,2}, V')
+    points_map = Array{Int64,1}(collect(1:1:size(points)[1]))
+    edges_list = convert(Array{Int64,2}, hcat(EV...)')
+    edge_boundary = [true for k=1:size(edges_list,1)]
+    triangles = Triangle.constrained_triangulation(points,points_map,edges_list)
+    # edges of the triangulation
+    ev = map(sort,cat([[[u,v], [v,w], [w,u]] for (u,v,w) in triangles]))
+    # remove duplicated edges from triangulation
+    ev_nodups = collect(Set(ev))
+    ##Plasm.view(Plasm.numbering(0.35)((V,[[[k] for k=1:size(V,2)], ev_nodups])))
+    # dictionary o original edges
+    edge_dict = Dict(zip(EV,1:length(EV)))
+    triaedges = [edge_dict[[u,v]] for (u,v) in ev if haskey(edge_dict, [u,v]) ]
+    # subdivide original edges between inner and outer
+    edge_boundary = Vector{Bool}(undef,length(triaedges))
+    counters = zeros(size(edges_list,1))
+    for e in triaedges
+        counters[e]+=1
+    end
+    edge_boundary = Vector{Bool}(undef,length(triaedges))
+    for e in triaedges
+        edge_boundary[e] = counters[e] == 1 ? false : true
+    end
+    # compute inner triangles
+    inneredges = Array{Array{Int64,1},1}()
+    for (k,value) in enumerate(counters)
+       if value==2
+           push!(inneredges, EV[k], reverse(EV[k]))
+       end
+    end
+    # compute hole(s): wheater all triangle edges are inneredges
+    holes = Array{Array{Int64,1},1}()
+    for (k,(u,v,w)) in enumerate(triangles)
+        triangle = [[u,v],[v,w],[w,u]]
+        if setdiff(triangle,inneredges)==[]
+            push!(holes, triangles[k])
+        end
+    end
+    triangles = [tria for tria in triangles if !(tria in holes)]
+    return triangles
 end

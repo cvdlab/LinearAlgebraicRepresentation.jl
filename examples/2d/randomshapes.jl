@@ -3,7 +3,8 @@ Lar = LinearAlgebraicRepresentation
 using Plasm
 
 function randomshapes()
-	V,EV = Lar.randomcuboids(100, .2)
+	#V,EV = Lar.randomcuboids(100, .2)
+	V,EV = Lar.randomcuboids(3, 1.)
 	V = Plasm.normalize(V,flag=true)
 	model2d = V,EV
 
@@ -13,8 +14,8 @@ function randomshapes()
 	Plasm.view(Plasm.numbering(.15)((V,[[[k] for k=1:size(V,2)], EV])))
 	Plasm.viewexploded(V,EV)(1.2,1.2,1.2) 	# no numerical errors
 
-	W,EW = Lar.fragmentlines((V,EV)) 
-	Plasm.viewexploded(W,EW)(1.2,1.2,1.2)	
+	W,EW = Lar.fragmentlines((V,EV))
+	Plasm.viewexploded(W,EW)(1.2,1.2,1.2)
 	Plasm.view(Plasm.numbering(.015)((W,[[[k] for k=1:size(W,2)], EW])))
 
 	V,EVs = Lar.biconnectedComponent((W,EW::Lar.Cells)) # 2-connected components (H & T)
@@ -26,13 +27,10 @@ function randomshapes()
 	cop_EW = convert(Lar.ChainOp, cop_EV)
 	V, copEV, copFE = Lar.Arrangement.planar_arrangement(W::Lar.Points, cop_EW::Lar.ChainOp)
 
-	triangulated_faces = Lar.triangulate2D(V, [copEV, copFE])
+	triangulated_faces = Lar.triangulate2d(V, [copEV, copFE])
 	FVs = convert(Array{Lar.Cells}, triangulated_faces)
 	W = convert(Lar.Points, V')
 	Plasm.viewcolor(W::Lar.Points, FVs::Array{Lar.Cells})
 end
 
 randomshapes()
-
-
-
