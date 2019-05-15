@@ -513,16 +513,10 @@ function triangulate(V::Points, cc::ChainComplex)
 		edges,signs = findnz(copFE[f,:])
 		vpairs = [s>0 ? findnz(copEV[e,:])[1] : reverse(findnz(copEV[e,:])[1])
 					for (e,s) in zip(edges,signs)]
-		vdict = Dict((v1,v2) for (v1,v2) in  vpairs)
-
-		v0 = collect(vdict)[1][1]
-		chain_0 = Int64[v0]
-		v = vdict[v0]
-		while v ≠ v0
-			push!(chain_0,v)
-			v = vdict[v]
-		end
-		return chain_0
+		vs = collect(Set(cat([[v1,v2] for (v1,v2) in vpairs])))
+		vdict = Dict(zip(vs,1:length(vs)))
+		edges = [[vdict[v1], vdict[v2]] for (v1,v2) in vpairs]
+		return vs, edges
 	end
 
     for f in 1:copFE.m
@@ -534,33 +528,31 @@ function triangulate(V::Points, cc::ChainComplex)
         edge_num = length(edges_idxs)
         edges = zeros(Int64, edge_num, 2)
 
-
         #fv = Lar.buildFV(copEV, copFE[f, :])
-        fv = vcycle(copEV, copFE, f)
+        fv,edges = vcycle(copEV, copFE, f)
 
         vs = V[fv, :]
 
-        v1 = normalize(vs[2, :] - vs[1, :])
+        v1 = LinearAlgebra.normalize(vs[2, :] - vs[1, :])
         v2 = [0 0 0]
         v3 = [0 0 0]
         err = 1e-8
         i = 3
-        while -err < norm(v3) < err
-            v2 = normalize(vs[i, :] - vs[1, :])
-            v3 = cross(v1, v2)
+        while -err < LinearAlgebra.norm(v3) < err
+            v2 = LinearAlgebra.normalize(vs[i, :] - vs[1, :])
+            v3 = LinearAlgebra.cross(v1, v2)
             i = i + 1
         end
-        M = reshape([v1; v2; v3], 3, 3)
+        M = [v1 v2 v3]
 
         vs = (vs*M)[:, 1:2]
 
-        for i in 1:length(fv)
-            edges[i, 1] = fv[i]
-            edges[i, 2] = i == length(fv) ? fv[1] : fv[i+1]
-        end
+		v = convert(Lar.Points, vs'[1:2,:])
+		vmap = Dict(zip(fv,1:length(fv))) # vertex map
+		mapv = Dict(zip(1:length(fv),fv)) # inverse vertex map
 
-        triangulated_faces[f] =
-        	Triangle.constrained_triangulation(vs, fv, edges, fill(true, edge_num))
+		trias = Lar.triangulate2d(v,edges)
+		triangulated_faces[f] = [[mapv[v] for v in tria] for tria in trias]
 
         tV = (V*M)[:, 1:2]
 
@@ -1196,7 +1188,7 @@ original and generated edges.
 function triangulate2d(V, EV)
     # data for Constrained Delaunay Triangulation (CDT)
     points = convert(Array{Float64,2}, V')
-    points_map = Array{Int64,1}(collect(1:1:size(points)[1]))
+	points_map = Array{Int64,1}(collect(1:1:size(points)[1]))
     edges_list = convert(Array{Int64,2}, hcat(EV...)')
     edge_boundary = [true for k=1:size(edges_list,1)]
     triangles = Triangle.constrained_triangulation(points,points_map,edges_list)
@@ -1207,19 +1199,35 @@ function triangulate2d(V, EV)
     ##Plasm.view(Plasm.numbering(0.35)((V,[[[k] for k=1:size(V,2)], ev_nodups])))
     # dictionary o original edges
     edge_dict = Dict(zip(EV,1:length(EV)))
-    triaedges = [edge_dict[[u,v]] for (u,v) in ev if haskey(edge_dict, [u,v]) ]
+
+	triaedges = Array{Int64,1}(undef,0)
+	for (u,v) in ev
+		if haskey(edge_dict, [u,v])
+			push!(triaedges, edge_dict[[u,v]])
+		elseif haskey(edge_dict, [v,u])
+			push!(triaedges, edge_dict[[v,u]])
+		end
+	end
+
+@show triaedges
     # subdivide original edges between inner and outer
     edge_boundary = Vector{Bool}(undef,length(triaedges))
+@show edge_boundary
     counters = zeros(size(edges_list,1))
+@show counters
     for e in triaedges
         counters[e]+=1
     end
+@show counters
     edge_boundary = Vector{Bool}(undef,length(triaedges))
+@show edge_boundary
     for e in triaedges
         edge_boundary[e] = counters[e] == 1 ? false : true
     end
+@show edge_boundary
     # compute inner triangles
     inneredges = Array{Array{Int64,1},1}()
+@show inneredges
     for (k,value) in enumerate(counters)
        if value==2
            push!(inneredges, EV[k], reverse(EV[k]))
