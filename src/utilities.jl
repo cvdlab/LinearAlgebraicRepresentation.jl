@@ -488,6 +488,18 @@ function vequals(v1, v2)
     return length(v1) == length(v2) && all(map((x1, x2)->-err < x1-x2 < err, v1, v2))
 end
 
+
+function vcycle( copEV::Lar.ChainOp, copFE::Lar.ChainOp, f::Int64 )
+	edges,signs = findnz(copFE[f,:])
+	vpairs = [s>0 ? findnz(copEV[e,:])[1] : reverse(findnz(copEV[e,:])[1])
+				for (e,s) in zip(edges,signs)]
+	vs = collect(Set(cat([[v1,v2] for (v1,v2) in vpairs])))
+	vdict = Dict(zip(vs,1:length(vs)))
+	edges = [[vdict[v1], vdict[v2]] for (v1,v2) in vpairs]
+	return vs, edges
+end
+
+
 """
     triangulate(model::LARmodel)
 
@@ -508,16 +520,6 @@ function triangulate(V::Points, cc::ChainComplex)
     copEV, copFE = cc
 
     triangulated_faces = Array{Any, 1}(undef, copFE.m)
-
-	function vcycle( copEV::Lar.ChainOp, copFE::Lar.ChainOp, f::Int64 )
-		edges,signs = findnz(copFE[f,:])
-		vpairs = [s>0 ? findnz(copEV[e,:])[1] : reverse(findnz(copEV[e,:])[1])
-					for (e,s) in zip(edges,signs)]
-		vs = collect(Set(cat([[v1,v2] for (v1,v2) in vpairs])))
-		vdict = Dict(zip(vs,1:length(vs)))
-		edges = [[vdict[v1], vdict[v2]] for (v1,v2) in vpairs]
-		return vs, edges
-	end
 
     for f in 1:copFE.m
         if f % 10 == 0

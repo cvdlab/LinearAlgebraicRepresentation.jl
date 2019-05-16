@@ -40,9 +40,13 @@ function minimal_3cycles(V::Lar.Points, EV::Lar.ChainOp, FE::Lar.ChainOp)
                 vs_idxs = union(vs_idxs, edge)
             end
 
-            vs = V[vs_idxs, :]
+            #vs = V[vs_idxs, :]
+			fv,edges = Lar.vcycle(EV, FE, f)
 
-            v1 = normalize(vs[2, :] - vs[1, :])
+			vs = V[fv, :]
+
+
+            v1 = LinearAlgebra.normalize(vs[2, :] - vs[1, :])
             v2 = [0 0 0]		# added for debug
             v3 = [0 0 0]
             err = 1e-8
@@ -52,15 +56,23 @@ function minimal_3cycles(V::Lar.Points, EV::Lar.ChainOp, FE::Lar.ChainOp)
                 v3 = cross(v1, v2)
                 i = i + 1
             end
-
             M = reshape([v1; v2; v3], 3, 3)
 
-            vs = vs*M
-
+            #vs = vs*M
+			vs = (vs*M)[:, 1:2]
 @show f
-            triangulated_faces[f] = Triangle.constrained_triangulation(
-                Array{Float64,2}(vs), vs_idxs, edges, fill(true, edge_num))
+            # triangulated_faces[f] = Triangle.constrained_triangulation(
+            #     Array{Float64,2}(vs), vs_idxs, edges, fill(true, edge_num))
+			v = convert(Lar.Points, vs'[1:2,:])
+			vmap = Dict(zip(fv,1:length(fv))) # vertex map
+			mapv = Dict(zip(1:length(fv),fv)) # inverse vertex map
+
+			trias = Lar.triangulate2d(v,edges)
+			triangulated_faces[f] = [[mapv[v] for v in tria] for tria in trias]
+
 @show triangulated_faces[f]
+
+
         end
         edge_vs = EV[e, :].nzind
 
