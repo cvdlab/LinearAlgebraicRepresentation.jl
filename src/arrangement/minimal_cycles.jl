@@ -27,8 +27,6 @@ function minimal_3cycles(V::Lar.Points, EV::Lar.ChainOp, FE::Lar.ChainOp)
 
     function face_angle(e::Int, f::Int)
         if !isassigned(triangulated_faces, f)
-@show e
-@show f
             vs_idxs = Array{Int64, 1}()
             edges_idxs = FE[f, :].nzind
             edge_num = length(edges_idxs)
@@ -60,7 +58,7 @@ function minimal_3cycles(V::Lar.Points, EV::Lar.ChainOp, FE::Lar.ChainOp)
 
             #vs = vs*M
 			vs = (vs*M)[:, 1:2]
-@show f
+
             # triangulated_faces[f] = Triangle.constrained_triangulation(
             #     Array{Float64,2}(vs), vs_idxs, edges, fill(true, edge_num))
 			v = convert(Lar.Points, vs'[1:2,:])
@@ -69,9 +67,6 @@ function minimal_3cycles(V::Lar.Points, EV::Lar.ChainOp, FE::Lar.ChainOp)
 
 			trias = Lar.triangulate2d(v,edges)
 			triangulated_faces[f] = [[mapv[v] for v in tria] for tria in trias]
-
-@show triangulated_faces[f]
-
 
         end
         edge_vs = EV[e, :].nzind
@@ -142,7 +137,6 @@ function minimal_cycles(angles_fn::Function, verbose=false)
             as = map(a->a[1], as)
             angles[lld] = as
         end
-@show angles
         function nextprev(lld::Int64, ld::Int64, norp)
             as = angles[lld]
             #ne = findfirst(as, ld)  (findfirst(isequal(v), A), 0)[1]

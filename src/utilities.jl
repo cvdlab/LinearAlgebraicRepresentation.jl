@@ -521,19 +521,6 @@ function triangulate(V::Points, cc::ChainComplex)
 
     triangulated_faces = Array{Any, 1}(undef, copFE.m)
 
-<<<<<<< HEAD
-=======
-	function vcycle( copEV::Lar.ChainOp, copFE::Lar.ChainOp, f::Int64 )
-		edges,signs = findnz(copFE[f,:])
-		vpairs = [s>0 ? findnz(copEV[e,:])[1] : reverse(findnz(copEV[e,:])[1])
-					for (e,s) in zip(edges,signs)]
-		vs = collect(Set(cat([[v1,v2] for (v1,v2) in vpairs])))
-		vdict = Dict(zip(vs,1:length(vs)))
-		edges = [[vdict[v1], vdict[v2]] for (v1,v2) in vpairs]
-		return vs, edges
-	end
-
->>>>>>> 3dcc4cf2dbe8b9759e50c424446fb4c95769de6f
     for f in 1:copFE.m
         if f % 10 == 0
             print(".")
@@ -1224,25 +1211,18 @@ function triangulate2d(V, EV)
 		end
 	end
 
-@show triaedges
     # subdivide original edges between inner and outer
     edge_boundary = Vector{Bool}(undef,length(triaedges))
-@show edge_boundary
     counters = zeros(size(edges_list,1))
-@show counters
     for e in triaedges
         counters[e]+=1
     end
-@show counters
     edge_boundary = Vector{Bool}(undef,length(triaedges))
-@show edge_boundary
     for e in triaedges
         edge_boundary[e] = counters[e] == 1 ? false : true
     end
-@show edge_boundary
     # compute inner triangles
     inneredges = Array{Array{Int64,1},1}()
-@show inneredges
     for (k,value) in enumerate(counters)
        if value==2
            push!(inneredges, EV[k], reverse(EV[k]))

@@ -4,11 +4,7 @@ Lar = LinearAlgebraicRepresentation
 
 V, (VV,EV,FV,CV) = Lar.simplex(3, true)
 tetra = V, EV,FV,CV
-<<<<<<< HEAD
-twotetra = Lar.Struct([ tetra, Lar.t(0.25,0.25,0.25), tetra ])
-=======
-twotetra = Lar.Struct([ tetra, Lar.t(0.25,0.,0.25), tetra ])
->>>>>>> 3dcc4cf2dbe8b9759e50c424446fb4c95769de6f
+twotetra = Lar.Struct([ tetra, Lar.t(0.,0.25,0.25), tetra ])
 V,EV,FV,CV = Lar.struct2lar(twotetra)
 Plasm.view(V,CV)
 
@@ -18,10 +14,6 @@ cop_FE = Lar.coboundary_1(V, FV::Lar.Cells, EV::Lar.Cells);
 W = convert(Lar.Points, V');
 
 V, copEV, copFE, copCF = Lar.Arrangement.spatial_arrangement( W::Lar.Points, cop_EW::Lar.ChainOp, cop_FE::Lar.ChainOp)
-
-println("ECCOMI")
-@show Matrix(copCF)
-
 
 EV = Lar.cop2lar(copEV)
 FE = [findnz(copFE[k,:])[1] for k=1:size(copFE,1)]

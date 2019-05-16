@@ -3,12 +3,11 @@ Lar = LinearAlgebraicRepresentation
 using Plasm
 
 function randomshapes()
-	V,EV = Lar.randomcuboids(100, .2)
+	V,EV = Lar.randomcuboids(100, .4)
 	V = Plasm.normalize(V,flag=true)
 	model2d = V,EV
 
 	Sigma =  Lar.spaceindex(model2d);
-	for k=1:length(Sigma) println(k,Sigma[k]) end
 
 	Plasm.view(Plasm.numbering(.15)((V,[[[k] for k=1:size(V,2)], EV])))
 	Plasm.viewexploded(V,EV)(1.2,1.2,1.2) 	# no numerical errors
