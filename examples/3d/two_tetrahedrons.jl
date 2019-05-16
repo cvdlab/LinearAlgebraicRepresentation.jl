@@ -4,7 +4,11 @@ Lar = LinearAlgebraicRepresentation
 
 V, (VV,EV,FV,CV) = Lar.simplex(3, true)
 tetra = V, EV,FV,CV
+<<<<<<< HEAD
 twotetra = Lar.Struct([ tetra, Lar.t(0.25,0.25,0.25), tetra ])
+=======
+twotetra = Lar.Struct([ tetra, Lar.t(0.25,0.,0.25), tetra ])
+>>>>>>> 3dcc4cf2dbe8b9759e50c424446fb4c95769de6f
 V,EV,FV,CV = Lar.struct2lar(twotetra)
 Plasm.view(V,CV)
 

@@ -521,6 +521,19 @@ function triangulate(V::Points, cc::ChainComplex)
 
     triangulated_faces = Array{Any, 1}(undef, copFE.m)
 
+<<<<<<< HEAD
+=======
+	function vcycle( copEV::Lar.ChainOp, copFE::Lar.ChainOp, f::Int64 )
+		edges,signs = findnz(copFE[f,:])
+		vpairs = [s>0 ? findnz(copEV[e,:])[1] : reverse(findnz(copEV[e,:])[1])
+					for (e,s) in zip(edges,signs)]
+		vs = collect(Set(cat([[v1,v2] for (v1,v2) in vpairs])))
+		vdict = Dict(zip(vs,1:length(vs)))
+		edges = [[vdict[v1], vdict[v2]] for (v1,v2) in vpairs]
+		return vs, edges
+	end
+
+>>>>>>> 3dcc4cf2dbe8b9759e50c424446fb4c95769de6f
     for f in 1:copFE.m
         if f % 10 == 0
             print(".")

@@ -4,7 +4,11 @@ Lar = LinearAlgebraicRepresentation
 
 function twocubes()
     #V,(VV,EV,FV,CV) = Lar.cuboid([0.5,0.5,0.5],true,[-0.5,-0.5,-0.5])
+<<<<<<< HEAD
     V,(VV,EV,FV,CV) = Lar.cuboidGrid([3,3,3],true)
+=======
+    V,(VV,EV,FV,CV) = Lar.cuboidGrid([1,1,1],true)
+>>>>>>> 3dcc4cf2dbe8b9759e50c424446fb4c95769de6f
     mybox = (V,CV,FV,EV)
     #mybox = Lar.Struct([ Lar.t(0,0,1.), mybox ])
 
