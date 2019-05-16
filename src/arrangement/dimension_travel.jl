@@ -20,7 +20,7 @@ function spatial_index(V::Lar.Points, EV::Lar.ChainOp, FE::Lar.ChainOp)
 
     for fi in 1:faces_num
         vidxs = (abs.(FE[fi:fi,:])*abs.(EV))[1,:].nzind
-        intervals = map((l,u)->IntervalsType(l,u,fi), 
+        intervals = map((l,u)->IntervalsType(l,u,fi),
         	Lar.bbox(V[vidxs, :])...)
         boxes1D = vcat(boxes1D, intervals)
     end
@@ -34,21 +34,20 @@ function spatial_index(V::Lar.Points, EV::Lar.ChainOp, FE::Lar.ChainOp)
         end
         mapreduce(x->x, intersect, cells)
     end
-    
+
     mapping = Array{Int64,1}[]
     for fi in 1:faces_num
         cell_indexes = setdiff(intersect_intervals(boxes1D[fi, :]), [fi])
         push!(mapping, cell_indexes)
     end
-    
+
     mapping
 end
 
 function face_int(V::Lar.Points, EV::Lar.ChainOp, face::Lar.Cell)
-
     vs = Lar.buildFV(EV, face)
     retV = Lar.Points(undef, 0, 3)
-    
+
     visited_verts = []
     for i in 1:length(vs)
         o = V[vs[i],:]
@@ -66,7 +65,7 @@ function face_int(V::Lar.Points, EV::Lar.ChainOp, face::Lar.Cell)
                 if -err < alpha < err || 1-err < alpha < 1+err
                     if !(Lar.vin(p, visited_verts))
                         push!(visited_verts, p)
-                        retV = [retV; reshape(p, 1, 3)] 
+                        retV = [retV; reshape(p, 1, 3)]
                     end
                 else
                     retV = [retV; reshape(p, 1, 3)]
@@ -83,7 +82,7 @@ function face_int(V::Lar.Points, EV::Lar.ChainOp, face::Lar.Cell)
         vnum = 0
         retV = Lar.Points(undef, 0, 3)
     end
-    enum = Int(vnum / 2)
+    enum = (÷)(vnum, 2)
     retEV = spzeros(Int8, enum, vnum)
 
     for i in 1:enum
@@ -92,4 +91,3 @@ function face_int(V::Lar.Points, EV::Lar.ChainOp, face::Lar.Cell)
 
     retV, retEV
 end
-
