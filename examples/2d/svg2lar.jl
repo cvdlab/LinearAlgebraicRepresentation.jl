@@ -1,13 +1,11 @@
+using Plasm,SparseArrays
 using LinearAlgebraicRepresentation
 Lar = LinearAlgebraicRepresentation
-using Plasm,SparseArrays
 import Base.show
 
 function show(filename)
 	V, EV = Plasm.svg2lar(filename)
-	#Plasm.view(Plasm.numbering(.075)((V,[[[k] for k=1:size(V,2)], EV])))
-	V, EV = Plasm.svg2lar(filename, flag=false)
-	#Plasm.view(Plasm.numbering(2)((V,[[[k] for k=1:size(V,2)], EV])))
+	Plasm.view(V,EV)
 	return V, EV
 end
 
@@ -20,11 +18,7 @@ end
 #show("/Users/paoluzzi/Documents/dev/Plasm.jl/test/svg/interior.svg")
 #show("/Users/paoluzzi/Documents/dev/Plasm.jl/test/svg/holes.svg")
 
-V,EV = show("/Users/paoluzzi/Documents/dev/Plasm.jl/test/svg/holes.svg")
-
-
-V = Plasm.normalize(V,flag=true)
-Plasm.view(Plasm.numbering(.125)((V,[[[k] for k=1:size(V,2)], EV])))
+V,EV = show("/Users/paoluzzi/Documents/dev/Plasm.jl/test/svg/Lar.svg")
 
 # subdivision of input edges
 W = convert(Lar.Points, V')
@@ -40,9 +34,8 @@ EW = Lar.cop2lar(copEV)
 W = convert(Lar.Points, V')
 hpcs = [ Plasm.lar2hpc(W,[EW[e] for e in comp]) for comp in bicon_comps ]
 Plasm.view([ Plasm.color(Plasm.colorkey[(k%12)==0 ? 12 : k%12])(hpcs[k]) for k=1:(length(hpcs)) ])
-Plasm.view(Plasm.numbering(.125)((W,[[[k] for k=1:size(W,2)], EW])))
 
-# final solid visualization
+# final solid visualizations
 FE = [SparseArrays.findnz(copFE[k,:])[1] for k=1:size(copFE,1)]
 FV = [collect(Set(cat([EW[e] for e in FE[f]]))) for f=1:length(FE)]
 

@@ -7,7 +7,7 @@ function randombubbles()
 	mycircle(r,n) = Lar.circle(r)(n)
 	for k=1:30
 		r = rand()
-		global n = 8
+		n = 8
 		while true
 			n = abs(rand(Int8)+1)
 			if n>2 break end

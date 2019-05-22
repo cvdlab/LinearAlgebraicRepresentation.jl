@@ -6,7 +6,7 @@ using PyCall
 
 p = PyCall.pyimport("pyplasm")
 
-filename = "/Users/paoluzzi/Documents/dev/Plasm.jl/test/svg/tile.svg"
+filename = "/Users/paoluzzi/Documents/dev/Plasm.jl/test/svg/Lar.svg"
 V,EV = Plasm.svg2lar(filename)
 Plasm.view(Plasm.numbering(.2)((V,[[[k] for k=1:size(V,2)], EV])))
 
@@ -28,5 +28,5 @@ function pointsinout(V,EV, n=10000)
 	return result
 end
 
-result = pointsinout(V,EV);
+result = pointsinout(V,EV,20000);
 Plasm.view(p["STRUCT"](result))

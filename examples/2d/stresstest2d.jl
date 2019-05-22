@@ -24,8 +24,7 @@ function stresstest2d()
 	data = [ data2d1, data2d2, data2d3, data2d4, data2d5,  data2d5a, data2d6 ]
 	model2d = input_collection( [ Lar.Struct(data), Lar.t(-pi/6,pi/3), Lar.Struct(data) ] )
 	V,EV = model2d
-	VV = [[k] for k in 1:size(V,2)];
-	Plasm.view( Plasm.numbering(.05)((V,[VV, EV])) )
+	Plasm.view( V, EV )
 
 	W = convert(Lar.Points, V')
 	cop_EV = Lar.coboundary_0(EV::Lar.Cells)
@@ -47,5 +46,3 @@ function stresstest2d()
 end
 
 stresstest2d()
-
-
