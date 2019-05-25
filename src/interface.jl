@@ -326,7 +326,6 @@ function coboundary_1( V::Lar.Points, cscFV::Lar.ChainOp, cscEV::Lar.ChainOp, co
 	cscFE = Lar.u_coboundary_1( cscFV::Lar.ChainOp, cscEV::Lar.ChainOp, convex)
 	EV = [findnz(cscEV[k,:])[1] for k=1:size(cscEV,1)]
 	cscEV = sparse(Lar.coboundary_0( EV::Lar.Cells ))
-	cycle
 	for f=1:size(cscFE,1)
 		chain = findnz(cscFE[f,:])[1]	#	dense
 		cycle = spzeros(Int8,cscFE.n)	#	sparse

@@ -17,6 +17,7 @@ end
 #show("/Users/paoluzzi/Documents/dev/Plasm.jl/test/svg/tile.svg")
 #show("/Users/paoluzzi/Documents/dev/Plasm.jl/test/svg/interior.svg")
 #show("/Users/paoluzzi/Documents/dev/Plasm.jl/test/svg/holes.svg")
+show("/Users/paoluzzi/Documents/dev/Plasm.jl/test/svg/Lar.svg")
 
 V,EV = show("/Users/paoluzzi/Documents/dev/Plasm.jl/test/svg/Lar.svg")
 
