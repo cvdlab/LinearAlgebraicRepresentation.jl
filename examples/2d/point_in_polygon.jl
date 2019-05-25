@@ -3,12 +3,13 @@ Lar = LinearAlgebraicRepresentation
 using Plasm
 using NearestNeighbors
 using PyCall
+using Revise
 
 p = PyCall.pyimport("pyplasm")
 
 filename = "/Users/paoluzzi/Documents/dev/Plasm.jl/test/svg/Lar.svg"
 V,EV = Plasm.svg2lar(filename)
-Plasm.view(Plasm.numbering(.2)((V,[[[k] for k=1:size(V,2)], EV])))
+Plasm.view(V, EV)
 
 function pointsinout(V,EV, n=10000)
 	result = [Plasm.lar2hpc(V,EV)]

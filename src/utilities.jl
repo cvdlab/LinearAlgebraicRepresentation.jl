@@ -271,7 +271,8 @@ end
 
 Merge two **2-skeletons**
 """
-function skel_merge(V1::Points, EV1::ChainOp, FE1::ChainOp, V2::Points, EV2::ChainOp, FE2::ChainOp)
+function skel_merge(V1::Lar.Points, EV1::Lar.ChainOp, FE1::Lar.ChainOp,
+					V2::Lar.Points, EV2::Lar.ChainOp, FE2::Lar.ChainOp)
     FE = blockdiag(FE1,FE2)
     V, EV = skel_merge(V1, EV1, V2, EV2)
     return V, EV, FE
@@ -530,40 +531,50 @@ function triangulate(V::Points, cc::ChainComplex)
         edge_num = length(edges_idxs)
         edges = zeros(Int64, edge_num, 2)
 
+if f==6
+	@show  findnz(copEV)
+	@show  findnz(copFE)
+	@show  f
+end
         #fv = Lar.buildFV(copEV, copFE[f, :])
-        fv,edges = vcycle(copEV, copFE, f)
+        fv, edges = Lar.vcycle(copEV, copFE, f)
+if f==6 @show fv, edges end
 
-        vs = V[fv, :]
-
+		vs = V[fv, :]
+@show vs # by row
         v1 = LinearAlgebra.normalize(vs[2, :] - vs[1, :])
-        v2 = [0 0 0]
-        v3 = [0 0 0]
+        v2 = [0, 0, 0]
+        v3 = [0, 0, 0]
         err = 1e-8
         i = 3
         while -err < LinearAlgebra.norm(v3) < err
             v2 = LinearAlgebra.normalize(vs[i, :] - vs[1, :])
             v3 = LinearAlgebra.cross(v1, v2)
-            i = i + 1
+            i = i % size(vs,1) + 1
         end
-        M = [v1 v2 v3]
-
+        M = reshape([v1; v2; v3], 3, 3)
+if f==6 @show M, edges end
         vs = (vs*M)[:, 1:2]
-
+if f==6 @show vs, edges end
 		v = convert(Lar.Points, vs'[1:2,:])
+if f==6 @show v, edges end
 		vmap = Dict(zip(fv,1:length(fv))) # vertex map
 		mapv = Dict(zip(1:length(fv),fv)) # inverse vertex map
 
 		trias = Lar.triangulate2d(v,edges)
+@show trias
 		triangulated_faces[f] = [[mapv[v] for v in tria] for tria in trias]
-
-        tV = (V*M)[:, 1:2]
-
-        area = face_area(tV, copEV, copFE[f, :])
-        if area < 0
-            for i in 1:length(triangulated_faces[f])
-                triangulated_faces[f][i] = triangulated_faces[f][i][end:-1:1]
-            end
-        end
+@show triangulated_faces[f]
+# @show v
+#         tV = ( M*[v; ones(1, size(v,2))] )[1:2, :]
+# @show tV
+#         area = face_area(tV, copEV, copFE[f, :])
+# @show area
+#         if area < 0
+#             for i in 1:length(triangulated_faces[f])
+#                 triangulated_faces[f][i] = triangulated_faces[f][i][end:-1:1]
+#             end
+#         end
     end
 
     return triangulated_faces
@@ -736,23 +747,22 @@ Use this function to export LAR models into OBJ
 	open("./two_cubes.obj", "w") do f
     	write(f, objs)
 	end
-
-
 ```
 """
 function lar2obj(V::Points, cc::ChainComplex)
     copEV, copFE, copCF = cc
+	V = convert(Lar.Points, V') # out V by rows
 
     obj = ""
     for v in 1:size(V, 1)
         obj = string(obj, "v ",
-        	round(V[v, 1], digits=6), " ",
-        	round(V[v, 2], digits=6), " ",
-        	round(V[v, 3], digits=6), "\n")
+    	round(V[v, 1], digits=6), " ",
+    	round(V[v, 2], digits=6), " ",
+    	round(V[v, 3], digits=6), "\n")
     end
 
     print("Triangulating")
-    triangulated_faces = triangulate(V, cc[1:2])
+    triangulated_faces = Lar.triangulate(V, cc[1:2])
     println("DONE")
 
     for c in 1:copCF.m
@@ -837,9 +847,9 @@ function space_arrangement(V::Points, EV::ChainOp, FE::ChainOp, multiproc::Bool=
     fs_num = size(FE, 1)
     sp_idx = Lar.Arrangement.spatial_index(V, EV, FE)
 
-    global rV = Lar.Points(undef, 0,3)
-    global rEV = SparseArrays.spzeros(Int8,0,0)
-    global rFE = SparseArrays.spzeros(Int8,0,0)
+    rV = Lar.Points(undef, 0,3)
+    rEV = SparseArrays.spzeros(Int8,0,0)
+    rFE = SparseArrays.spzeros(Int8,0,0)
 
     if (multiproc == true)
         in_chan = Distributed.RemoteChannel(()->Channel{Int64}(0))
@@ -871,7 +881,7 @@ function space_arrangement(V::Points, EV::ChainOp, FE::ChainOp, multiproc::Bool=
            	V, EV, FE, sp_idx, sigma)
            a,b,c = Lar.skel_merge(
            	rV, rEV, rFE, nV, nEV, nFE)
-           global rV=a; global rEV=b; global rFE=c
+           rV=a; rEV=b; rFE=c
        end
 
 #		depot_V = Array{Array{Float64,2},1}(undef,fs_num)
@@ -947,9 +957,9 @@ function lar2obj2D(V::Lar.Points, cc::Lar.ChainComplex)::String
     copEV, copFE = cc
     V = [V zeros(size(V, 1))]
 
-    global obj = ""
+    obj = ""
     for v in 1:size(V, 1)
-        	global obj = string(obj, "v ",
+        	obj = string(obj, "v ",
         	round(V[v, 1]; digits=6), " ",
         	round(V[v, 2]; digits=6), " ",
         	round(V[v, 3]; digits=6), "\n")
@@ -1164,6 +1174,23 @@ function randomcuboids(n,scale=1.0)
 	Lar.struct2lar(Lar.Struct(assembly))
 end
 
+function randomcubes(n,scale=1.0)
+	assembly = []
+	for k=1:n
+		corner = rand(Float64, 3)
+		sizes = rand(Float64, 3)
+		V,(_,EV,FV,_) = Lar.cuboid(corner,true,corner+sizes)
+		center = (corner + corner+sizes)/2
+		angle1 = rand(Float64)*2*pi
+		angle2 = rand(Float64)*2*pi
+		obj = Lar.Struct([ Lar.t(center...),
+				Lar.r(0,angle2,0),Lar.r(0,0,angle1),
+				Lar.s(scale,scale,scale), Lar.t(-center...), (V,EV,FV) ])
+		push!(assembly, obj)
+	end
+	Lar.struct2lar(Lar.Struct(assembly))
+end
+
 
 
 """
@@ -1185,7 +1212,7 @@ end
 
 Contrained Delaunay Triangulation of LAR model (V,EV).
 Discovery and removal of holes from triangulation, by comparing
-original and generated edges.
+original and generated edges. `V` is given by column.
 """
 function triangulate2d(V, EV)
     # data for Constrained Delaunay Triangulation (CDT)
@@ -1193,6 +1220,7 @@ function triangulate2d(V, EV)
 	points_map = Array{Int64,1}(collect(1:1:size(points)[1]))
     edges_list = convert(Array{Int64,2}, hcat(EV...)')
     edge_boundary = [true for k=1:size(edges_list,1)]
+@show points, points_map, edges_list
     triangles = Triangle.constrained_triangulation(points,points_map,edges_list)
     # edges of the triangulation
     ev = map(sort,cat([[[u,v], [v,w], [w,u]] for (u,v,w) in triangles]))
@@ -1212,14 +1240,9 @@ function triangulate2d(V, EV)
 	end
 
     # subdivide original edges between inner and outer
-    edge_boundary = Vector{Bool}(undef,length(triaedges))
     counters = zeros(size(edges_list,1))
     for e in triaedges
         counters[e]+=1
-    end
-    edge_boundary = Vector{Bool}(undef,length(triaedges))
-    for e in triaedges
-        edge_boundary[e] = counters[e] == 1 ? false : true
     end
     # compute inner triangles
     inneredges = Array{Array{Int64,1},1}()

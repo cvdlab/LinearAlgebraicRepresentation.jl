@@ -4,7 +4,7 @@ Lar = LinearAlgebraicRepresentation
 
 function twocubes()
     #V,(VV,EV,FV,CV) = Lar.cuboid([0.5,0.5,0.5],true,[-0.5,-0.5,-0.5])
-    V,(VV,EV,FV,CV) = Lar.cuboidGrid([3,3,3],true)
+    V,(VV,EV,FV,CV) = Lar.cuboidGrid([2,2,1],true)
     mybox = (V,CV,FV,EV)
     #mybox = Lar.Struct([ Lar.t(0,0,1.), mybox ])
 
@@ -25,7 +25,8 @@ function twocubes()
     FV = convert(Lar.Cells, FV)
     W = convert(Lar.Points, V')
 
-    Plasm.view(Plasm.numbering(0.25)((W,[[[k] for k=1:size(W,2)],EV,FV])))
+    #Plasm.view(Plasm.numbering(0.25)((W,[[[k] for k=1:size(W,2)],EV,FV])))
+    Plasm.view(W,EV)
 
     triangulated_faces = Lar.triangulate(V, [copEV, copFE])
     FVs = convert(Array{Lar.Cells}, triangulated_faces)

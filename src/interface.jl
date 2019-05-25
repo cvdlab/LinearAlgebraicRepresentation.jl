@@ -158,7 +158,7 @@ Plasm.view( Plasm.numbering(3)((V,[VV, EV, FV])) )
 ```
 """
 function fix_redundancy(target_mat, cscFV,cscEV) # incidence numbers > 2#E
-	global nfixs = 0
+	nfixs = 0
 	faces2fix = []
 	edges2fix = []
 	# target_mat and cscFV (ref_mat) should have same length per row !
@@ -166,7 +166,7 @@ function fix_redundancy(target_mat, cscFV,cscEV) # incidence numbers > 2#E
 		nedges = sum(findnz(target_mat[face,:])[2])
 		nverts = sum(findnz(cscFV[face,:])[2])
 		if nedges != nverts
-			global nfixs += nedges - nverts
+			nfixs += nedges - nverts
 			#println("face $face, nedges=$nedges, nverts=$nverts")
 			push!(faces2fix,face)
 		end
@@ -326,10 +326,10 @@ function coboundary_1( V::Lar.Points, cscFV::Lar.ChainOp, cscEV::Lar.ChainOp, co
 	cscFE = Lar.u_coboundary_1( cscFV::Lar.ChainOp, cscEV::Lar.ChainOp, convex)
 	EV = [findnz(cscEV[k,:])[1] for k=1:size(cscEV,1)]
 	cscEV = sparse(Lar.coboundary_0( EV::Lar.Cells ))
-	global cycle
+	cycle
 	for f=1:size(cscFE,1)
 		chain = findnz(cscFE[f,:])[1]	#	dense
-		global cycle = spzeros(Int8,cscFE.n)	#	sparse
+		cycle = spzeros(Int8,cscFE.n)	#	sparse
 
 		edge = findnz(cscFE[f,:])[1][1]; sign = 1
 		cycle[edge] = sign
@@ -617,29 +617,29 @@ julia> cscCF # coboundaries[3]
 4×18 SparseMatrixCSC{Int8,Int64} with 36 stored entries: ...
 ```
 """
-function chaincomplex(W,FW,EW)
-	V = convert(Points, LinearAlgebra.transpose(W))
-	EW = map(sort, EW)
-	EV = build_copEV(EW)
-	FE = build_copFE(FW,EW)
-	V,cscEV,cscFE,cscCF = space_arrangement(V,EV,FE)
+function chaincomplex(V,FV,EV)
+	W = convert(Lar.Points, copy(V)');
+    cop_EV = Lar.coboundary_0(EV::Lar.Cells);
+    cop_FE = Lar.coboundary_1(V, FV::Lar.Cells, EV::Lar.Cells);
 
-	ne,nv = size(cscEV)
-	nf = size(cscFE,1)
-	nc = size(cscCF,1)
-	EV = [findall(!iszero, cscEV[e,:]) for e=1:ne]
-	FV = [collect(Set(vcat([EV[e] for e in findall(!iszero, cscFE[f,:])]...)))  for f=1:nf]
-	CV = [collect(Set(vcat([FV[f] for f in findall(!iszero, cscCF[c,:])]...)))  for c=2:nc]
+    W, copEV, copFE, copCF = Lar.Arrangement.spatial_arrangement( W::Lar.Points, cop_EV::Lar.ChainOp, cop_FE::Lar.ChainOp)
+@show "ECCOMI"
+	ne,nv = size(copEV)
+	nf = size(copFE,1)
+	nc = size(copCF,1)
+	EV = [findall(!iszero, copEV[e,:]) for e=1:ne]
+	FV = [collect(Set(vcat([EV[e] for e in findall(!iszero, copFE[f,:])]...)))  for f=1:nf]
+	CV = [collect(Set(vcat([FV[f] for f in findall(!iszero, copCF[c,:])]...)))  for c=2:nc]
 	function ord(cells)
 		return [sort(cell) for cell in cells]
 	end
-	temp = copy(convert(ChainOp, LinearAlgebra.transpose(cscEV)))
+	temp = copy(convert(ChainOp, LinearAlgebra.transpose(copEV)))
 	for k=1:size(temp,2)
 		h = findall(!iszero, temp[:,k])[1]
 		temp[h,k] = -1
 	end
-	cscEV = convert(ChainOp, LinearAlgebra.transpose(temp))
-	bases, coboundaries = (ord(EV),ord(FV),ord(CV)), (cscEV,cscFE,cscCF)
+	copEV = convert(ChainOp, LinearAlgebra.transpose(temp))
+	bases, coboundaries = (ord(EV),ord(FV),ord(CV)), (copEV,copFE,copCF)
 	W = convert(Points, (LinearAlgebra.transpose(V')))
 	return W,bases,coboundaries
 end

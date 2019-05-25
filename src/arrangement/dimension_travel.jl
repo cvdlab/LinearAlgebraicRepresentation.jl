@@ -16,7 +16,7 @@ function spatial_index(V::Lar.Points, EV::Lar.ChainOp, FE::Lar.ChainOp)
     d = 3
     faces_num = size(FE, 1)
     IntervalsType = IntervalValue{Float64, Int64}
-    global boxes1D = Array{IntervalsType, 2}(undef, 0, d)
+    boxes1D = Array{IntervalsType, 2}(undef, 0, d)
 
     for fi in 1:faces_num
         vidxs = (abs.(FE[fi:fi,:])*abs.(EV))[1,:].nzind

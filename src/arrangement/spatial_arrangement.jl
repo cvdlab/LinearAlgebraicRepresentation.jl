@@ -149,11 +149,11 @@ function spatial_arrangement_1(
 	# spaceindex computation
 	FV = Lar.compute_FV( copEV, copFE )
 	model = (convert(Lar.Points,V'), FV)
-	sp_idx = Lar.spaceindex(model::Lar.LAR)
+	sp_idx = Lar.spaceindex(model)
 
 	# initializations
     fs_num = size(copFE, 1)
-    rV = Lar.Points(undef, 0,3)
+    rV = Array{Float64,2}(undef,0,3)
     rEV = SparseArrays.spzeros(Int8,0,0)
     rFE = SparseArrays.spzeros(Int8,0,0)
 
@@ -181,6 +181,7 @@ function spatial_arrangement_1(
         for sigma in 1:fs_num
             #print(sigma, "/", fs_num, "\r")
             nV, nEV, nFE = Lar.Arrangement.frag_face(V, copEV, copFE, sp_idx, sigma)
+			#nV, nEV, nFE = Lar.fragface(V, copEV, copFE, sp_idx, sigma)
 # v = convert(Lar.Points, nV')
 # @show v
 # ev = Lar.cop2lar(nEV)
@@ -191,10 +192,8 @@ function spatial_arrangement_1(
 # fv = convert(Lar.Cells, fv)
 # @show fv
 # Plasm.view(Plasm.numbering(0.25)((v,[[[k] for k=1:size(v,2)],ev,fv])))
-            # global V, copEV, copFE; local to sigma nV, nEV, nFE
-            #nV, nEV, nFE = Lar.fragface(V, copEV, copFE, sp_idx, sigma)
             a,b,c = Lar.skel_merge( rV,rEV,rFE,  nV,nEV,nFE )
-            rV=a; rEV=b; rFE=c
+            rV=a;  rEV=b;  rFE=c
         end
     end
 	# merging of close vertices, edges and faces (3D congruence)
@@ -229,7 +228,7 @@ The function returns the full arranged complex as a list of vertices V and a cha
 - `multiproc::Bool`: Runs the computation in parallel mode. Defaults to `false`.
 """
 function spatial_arrangement(
-		V::Lar.Points,
+		V::Lar.Points, # by rows
 		copEV::Lar.ChainOp,
 		copFE::Lar.ChainOp, multiproc::Bool=false)
 

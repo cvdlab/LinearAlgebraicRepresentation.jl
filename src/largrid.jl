@@ -63,10 +63,10 @@ julia> larGrid(10)(1)
 """
 function larGrid(n::Int)
     function larGrid1(d::Int)::Array{Int64,2}
-        if d==0 
+        if d==0
          return grid_0(n)
-        elseif d==1 
-         return grid_1(n) 
+        elseif d==1
+         return grid_1(n)
         end
     end
     return larGrid1
@@ -76,7 +76,7 @@ end
 
 """
 	cart(args::Array{Array{Any,1},1})::Array{Tuple,1}
-	
+
 Cartesian product of collections given in the
  unary `Array` argument. Return an `Array` of `Tuple`. The number ``n`` of output `Tuple` is equal to the *product of sizes* of input `args`
 
@@ -144,7 +144,7 @@ julia> [index2addr([3,6])(collect(index)) for index in cart([ 0:2, 0:5 ])]'
 # output
 1×18 RowVector{Int64,Array{Int64,1}}:
  1  2  3  4  5  6  7  8  9  10  11  12  13  14  15  16  17  18
- 
+
 julia> index2addr([3,6])([0,0])
 # output
 1
@@ -158,11 +158,11 @@ function index2addr( shape::Array{Int64,2} )
     n = length(shape)
     theShape = append!(shape[2:end],1)
     weights = [prod(theShape[k:end]) for k in range(1, length=n)]
-    
+
     function index2addr0( multiIndex::Array{Int,1} )::Int
         return dot(collect(multiIndex), weights) + 1
     end
-    
+
     return index2addr0
 end
 
@@ -219,8 +219,8 @@ julia> vertGrid = larVertProd([v1, v1, v0])
 
 julia> cellGrid = larCellProd([c1, c1, c0])
 27-element Array{Array{Int64,1},1}:
- [1, 4, 13, 16]  
- [2, 5, 14, 17]  
+ [1, 4, 13, 16]
+ [2, 5, 14, 17]
  ...  ... ...
  [32, 35, 44, 47]
  [33, 36, 45, 48]
@@ -237,11 +237,11 @@ function larCellProd(cellLists::Array{Cells,1})::Cells
    shapes = [length(item) for item in cellLists]
    subscripts = cart([collect(range(0, length=shape)) for shape in shapes])
    indices = [collect(tuple) .+ 1 for tuple in subscripts]
-   
-   jointCells = [cart([cells[k] for (k,cells) in zip(index,cellLists)]) 
+
+   jointCells = [cart([cells[k] for (k,cells) in zip(index,cellLists)])
    				for index in indices]
-   convertIt = index2addr([ (length(cellLists[k][1]) > 1) ? shape .+ 1 : shape 
-      for (k,shape) in enumerate(shapes) ])     
+   convertIt = index2addr([ (length(cellLists[k][1]) > 1) ? shape .+ 1 : shape
+      for (k,shape) in enumerate(shapes) ])
    [vcat(map(convertIt, map(collect,jointCells[j]))...) for j in 1:length(jointCells)]
 end
 
@@ -258,10 +258,10 @@ Filter the `array` of codes  (`Boolean` `String`) of *``n`` bits* depending on t
 julia> filterByOrder(3)
 # output
 4-element Array{Array{Array{Int8,1},1},1}:
- Array{Int8,1}[Int8[0, 0, 0]]                              
+ Array{Int8,1}[Int8[0, 0, 0]]
  Array{Int8,1}[Int8[0, 0, 1], Int8[0, 1, 0], Int8[1, 0, 0]]
  Array{Int8,1}[Int8[0, 1, 1], Int8[1, 0, 1], Int8[1, 1, 0]]
- Array{Int8,1}[Int8[1, 1, 1]]                              
+ Array{Int8,1}[Int8[1, 1, 1]]
 ```"""
 function filterByOrder(n::Int)Array{Array{Array{Int8,1},1},1}
    terms = [[parse(Int8,bit) for bit in collect(term)] for term in Lar.binaryRange(n)]
@@ -272,7 +272,7 @@ end
 
 """
 	larGridSkeleton( shape::Array{Int,1} )( d::Int )::Cells
-	
+
 Produce the `d`-dimensional skeleton (set of `d`-cells) of a cuboidal grid of given `shape`.
 
 # Example
@@ -304,13 +304,13 @@ julia> Lar.larGridSkeleton([1,1,1])(3)
 function larGridSkeleton(shape)
     n = length(shape)
     function larGridSkeleton0( d::Int )::Cells
-    
+
     	@assert d<=n
-    	
+
         components = filterByOrder(n)[d .+ 1]
         apply(fun,a) = fun(a)
-		componentCellLists = [ [map(f,x)  for (f,x) in  zip( [larGrid(dim) 
-			for dim in shape], convert(Array{Int64,1},component) ) ]  
+		componentCellLists = [ [map(f,x)  for (f,x) in  zip( [larGrid(dim)
+			for dim in shape], convert(Array{Int64,1},component) ) ]
 				for component in components ]
         colList(arr) = [arr[:,k]  for k in 1:size(arr,2)]
         out = [ larCellProd(map(colList,cellLists)) for cellLists in componentCellLists ]
@@ -333,7 +333,7 @@ julia> larImageVerts([1024,1024])
 2×1050625 Array{Int64,2}:
  0  0  0  0  0  0  0  0  0  0   0   0 … 1024  1024  1024  1024  1024  1024  1024  1024
  0  1  2  3  4  5  6  7  8  9  10  11 … 1017  1018  1019  1020  1021  1022  1023  1024
- 
+
 julia> larImageVerts([1,1,1])
 # output
 3×8 Array{Int64,2}:
@@ -352,7 +352,7 @@ end
 
 """
 	larCuboids( shape, filled=false )::Union( Cells, Array{Cells,1} )
-	
+
 Multi-dimensional generator function.
 Generate either a solid *``d``-grid* of unit *``d``-cuboids* in ``d``-dimensional space, or the array of ``p``-skeletons (``0 <=p<= d``), depending on the Boolean variable `filled`. ``0``-cuboids are points, ``1``-cuboids are segments, , ``2``-cuboids are squares,  ``3``-cuboids are cubes, etc. The `shape=[a,b,c]` value determines the number ``a x b x c`` of ``d``-cells. Notice that `d = length(shape)`
 """
@@ -418,8 +418,8 @@ function larModelProduct( modelOne, modelTwo )
     (V, cells1) = modelOne
     (W, cells2) = modelTwo
 
-    vertices = DataStructures.OrderedDict(); 
-    global k = 1
+    vertices = DataStructures.OrderedDict();
+    k = 1
     for j in 1:size(V,2)
        v = V[:,j]
         for i in 1:size(W,2)
@@ -427,24 +427,24 @@ function larModelProduct( modelOne, modelTwo )
             id = [v;w]
             if haskey(vertices, id) == false
                 vertices[id] = k
-                global k = k + 1
+                k = k + 1
             end
         end
     end
-    
+
     cells = []
     for c1 in cells1
         for c2 in cells2
             cell = []
             for vc in c1
-                for wc in c2 
+                for wc in c2
                     push!(cell, vertices[[V[:,vc];W[:,wc]]] )
                 end
             end
             push!(cells, cell)
         end
     end
-    
+
 
     vertexmodel = []
     for v in keys(vertices)
@@ -467,4 +467,3 @@ function larModelProduct( twoModels::Array{LAR,1} )::LAR
     modelOne, modelTwo = twoModels
     larModelProduct(modelOne, modelTwo)
 end
-
