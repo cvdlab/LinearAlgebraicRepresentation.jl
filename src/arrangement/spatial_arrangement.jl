@@ -235,6 +235,18 @@ function spatial_arrangement(
 	# face subdivision
 	rV, rcopEV, rcopFE = Lar.Arrangement.spatial_arrangement_1( V, copEV, copFE, multiproc ) # copFE global
 
+	# test input consistency
+@show rV;
+@show SparseArrays.findnz(rcopEV);
+@show SparseArrays.findnz(rcopFE);
+	EV = Lar.cop2lar(rcopEV)
+	W = convert(Lar.Points, rV')
+@show W;
+@show EV;
+bicon_comps = Lar.Arrangement.biconnected_components(copEV)
+	#W,bicon_comps = Lar.biconnectedComponent((W,EV))
+	@error "comps# = $(length(bicon_comps))"
+
 	bicon_comps = Lar.Arrangement.biconnected_components(copEV)
 	# 3-complex and containment graph
 	rV, rEV, rFE, rCF = Lar.Arrangement.spatial_arrangement_2(rV, rcopEV, rcopFE)

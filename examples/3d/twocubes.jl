@@ -5,7 +5,7 @@ using Revise
 
 function twocubes()
     #V,(VV,EV,FV,CV) = Lar.cuboid([0.5,0.5,0.5],true,[-0.5,-0.5,-0.5])
-    V,(VV,EV,FV,CV) = Lar.cuboidGrid([4,4,4],true)
+    V,(VV,EV,FV,CV) = Lar.cuboidGrid([2,1,2],true)
     mybox = (V,CV,FV,EV)
     #mybox = Lar.Struct([ Lar.t(0,0,1.), mybox ])
 

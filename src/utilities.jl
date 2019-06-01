@@ -402,33 +402,29 @@ end
 
 The signed `ChainOp` from 1-cells (edges) to 2-cells (faces)
 """
-function build_copFE(FV::Cells, EV::Cells)
-    faces = []
+function build_copFE(FV::Lar.Cells, EV::Lar.Cells)
+	copFE = Lar.u_coboundary_1(FV, EV) # unsigned
+	faceedges = [findnz(copFE[f,:])[1] for f=1:size(copFE,1)]
 
-    for face in FV
-        f = []
-        for (i,v) in enumerate(face)
-            edge = [v, face[(i==length(face)) ? 1 : i+1]]
-            ord_edge = sort(edge)
-
-            edge_idx = findfirst(e->e==ord_edge, EV)
-
-            push!(f, (edge_idx, sign(edge[2]-edge[1])))
-        end
-
-        push!(faces, f)
-    end
-
-    FE = spzeros(Int8, length(faces), length(EV))
-
-    for (i,f) in enumerate(faces)
-        for e in f
-            FE[i, e[1]] = e[2]
-        end
-    end
-
-    return FE
+	f_edgepairs = Array{Array{Int64,1}}[]
+	for f=1:size(copFE,1)
+		edgepairs = Array{Int64,1}[]
+		for v in FV[f]
+			push!(edgepairs, [e for e in faceedges[f] if v in EV[e]])
+		end
+		push!(f_edgepairs, edgepairs)
+	end
+	for f=1:size(copFE,1)
+		for (e1,e2) in f_edgepairs[f]
+			v = intersect(EV[e1], EV[e2])[1]
+			copFE[f,e1] = EV[e1][2]==v ? 1 : -1
+			copFE[f,e2] = EV[e2][1]==v ? 1 : -1
+		end
+	end
+	return copFE
 end
+
+
 
 """
     build_copEV(EV::Cells, signed=true)
@@ -1220,7 +1216,6 @@ function triangulate2d(V, EV)
 	points_map = Array{Int64,1}(collect(1:1:size(points)[1]))
     edges_list = convert(Array{Int64,2}, hcat(EV...)')
     edge_boundary = [true for k=1:size(edges_list,1)]
-@show points, points_map, edges_list
     triangles = Triangle.constrained_triangulation(points,points_map,edges_list)
     # edges of the triangulation
     ev = map(sort,cat([[[u,v], [v,w], [w,u]] for (u,v,w) in triangles]))
