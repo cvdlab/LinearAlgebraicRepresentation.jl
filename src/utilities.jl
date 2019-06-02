@@ -1220,10 +1220,11 @@ function triangulate2d(V, EV)
     # edges of the triangulation
     ev = map(sort,cat([[[u,v], [v,w], [w,u]] for (u,v,w) in triangles]))
     # remove duplicated edges from triangulation
-    ev_nodups = collect(Set(ev))
+    ev_nodups = sort(collect(Set(ev)))
     ##Plasm.view(Plasm.numbering(0.35)((V,[[[k] for k=1:size(V,2)], ev_nodups])))
     # dictionary o original edges
-    edge_dict = Dict(zip(EV,1:length(EV)))
+	edge_dict = Dict(zip(EV,1:length(EV)))
+	#edge_dict = Dict(zip(ev_nodups,1:length(ev_nodups)))
 
 	triaedges = Array{Int64,1}(undef,0)
 	for (u,v) in ev
@@ -1246,7 +1247,7 @@ function triangulate2d(V, EV)
            push!(inneredges, EV[k], reverse(EV[k]))
        end
     end
-    # compute hole(s): wheater all triangle edges are inneredges
+    # compute hole(s): wheater all (some?) triangle edges are inneredges
     holes = Array{Array{Int64,1},1}()
     for (k,(u,v,w)) in enumerate(triangles)
         triangle = [[u,v],[v,w],[w,u]]
@@ -1256,4 +1257,22 @@ function triangulate2d(V, EV)
     end
     triangles = [tria for tria in triangles if !(tria in holes)]
     return triangles
+end
+function triangulate2d(V, EV)
+    # data for Constrained Delaunay Triangulation (CDT)
+    points = convert(Array{Float64,2}, V')
+	points_map = Array{Int64,1}(collect(1:1:size(points)[1]))
+    edges_list = convert(Array{Int64,2}, hcat(EV...)')
+    edge_boundary = [true for k=1:size(edges_list,1)]
+    trias = Triangle.constrained_triangulation(points,points_map,edges_list)
+	innertriangles = Array{Int64,1}[]
+	for (u,v,w) in trias
+		point = (points[u,:]+points[v,:]+points[w,:])./3
+		copEV = Lar.lar2cop(EV)
+		inner = Lar.point_in_face(point, points::Lar.Points, copEV::Lar.ChainOp)
+		if inner
+			push!(innertriangles,[u,v,w])
+		end
+	end
+    return innertriangles
 end

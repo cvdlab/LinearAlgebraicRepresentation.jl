@@ -23,7 +23,9 @@ end
 
 function minimal_3cycles(V::Lar.Points, EV::Lar.ChainOp, FE::Lar.ChainOp)
 
-    triangulated_faces = Array{Any, 1}(undef, FE.m)
+	triangulated_faces = Array{Any, 1}(undef, FE.m)
+
+@show "started TGW"
 
     function face_angle(e::Int, f::Int)
         if !isassigned(triangulated_faces, f)
@@ -64,10 +66,8 @@ function minimal_3cycles(V::Lar.Points, EV::Lar.ChainOp, FE::Lar.ChainOp)
 			v = convert(Lar.Points, vs'[1:2,:])
 			vmap = Dict(zip(fv,1:length(fv))) # vertex map
 			mapv = Dict(zip(1:length(fv),fv)) # inverse vertex map
-
 			trias = Lar.triangulate2d(v,edges)
 			triangulated_faces[f] = [[mapv[v] for v in tria] for tria in trias]
-
         end
         edge_vs = EV[e, :].nzind
 
@@ -158,8 +158,7 @@ function minimal_cycles(angles_fn::Function, verbose=false)
 
 
         while (sigma = get_seed_cell()) > 0
-
-            if verbose
+			if verbose
                 print(Int(floor(50 * sum(count_marks) / ld_cellsnum)), "%\r")
             end
 
