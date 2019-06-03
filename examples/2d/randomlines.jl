@@ -46,4 +46,4 @@ function randomlines(n=300, t=0.4)
 	Plasm.view(Plasm.lar_exploded(model)(1.2,1.2,1.2))
 end
 
-randomlines()
+randomlines(30,2)
