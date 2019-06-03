@@ -192,6 +192,7 @@ function spatial_arrangement_1(
 # fv = convert(Lar.Cells, fv)
 # @show fv
 # Plasm.view(Plasm.numbering(0.25)((v,[[[k] for k=1:size(v,2)],ev,fv])))
+			nV = convert(Lar.Points, nV)
             a,b,c = Lar.skel_merge( rV,rEV,rFE,  nV,nEV,nFE )
             rV=a;  rEV=b;  rFE=c
         end

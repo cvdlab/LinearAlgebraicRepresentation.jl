@@ -167,7 +167,8 @@ function biconnected_components(EV::Lar.ChainOp)
     bicon_comps = Array{Array{Int, 1}, 1}()
     hivtx = 1
 
-    function an_edge(point)
+    function an_edge(point) # TODO: fix bug
+        # error? : BoundsError: attempt to access 0×0 SparseMatrix ...
         edges = setdiff(EV[:, point].nzind, todel)
         if length(edges) == 0
             edges = [false]
@@ -513,6 +514,7 @@ function planar_arrangement_1( V, copEV,
             newedges_nums = map(x->x+finalcells_num, collect(1:size(ev, 1)))
             edge_map[i] = newedges_nums
             finalcells_num += size(ev, 1)
+            rV = convert(Lar.Points, rV)
             rV, rEV = Lar.skel_merge(rV, rEV, v, ev)
         end
     end
@@ -575,6 +577,10 @@ function planar_arrangement(
         return_edge_map::Bool=false,
         multiproc::Bool=false)
 
+@show sigma
+@show V
+@show findnz(copEV)
+
 #planar_arrangement_1
 	V,copEV,sigma,edge_map=Lar.Arrangement.planar_arrangement_1(V,copEV,sigma,return_edge_map,multiproc)
 # cleandecomposition
@@ -585,6 +591,9 @@ function planar_arrangement(
     bicon_comps = Lar.Arrangement.biconnected_components(copEV)
     #EV = Lar.cop2lar(copEV)
     #V,bicon_comps = Lar.biconnectedComponent((V,EV))
+
+@show V;
+@show copEV;
 
 	if isempty(bicon_comps)
     	println("No biconnected components found.")
