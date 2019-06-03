@@ -1,4 +1,5 @@
 using DataStructures
+using Plasm
 Lar = LinearAlgebraicRepresentation
 
 cuboidGrid = larCuboids
