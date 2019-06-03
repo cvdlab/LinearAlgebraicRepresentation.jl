@@ -28,7 +28,7 @@ function extendlines(V::Lar.Points, EV::Lar.Cells, s=1.001)
 	return V, EV
 end
 
-n=30; t=2
+n=300; t=0.4
 V = zeros(Float64,2,2*n)
 EV = [zeros(Int64,2) for k=1:n]
 
