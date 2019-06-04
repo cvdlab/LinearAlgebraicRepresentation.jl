@@ -622,7 +622,6 @@ function chaincomplex(V,FV,EV)
     cop_FE = Lar.coboundary_1(V, FV::Lar.Cells, EV::Lar.Cells);
 
     W, copEV, copFE, copCF = Lar.Arrangement.spatial_arrangement( W::Lar.Points, cop_EV::Lar.ChainOp, cop_FE::Lar.ChainOp)
-@show "ECCOMI"
 	ne,nv = size(copEV)
 	nf = size(copFE,1)
 	nc = size(copCF,1)

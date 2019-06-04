@@ -26,12 +26,6 @@ end
 """
 function frag_face(V, EV, FE, sp_idx, sigma)
 
-@show V;
-@show findnz(EV);
-@show findnz(FE);
-@show sp_idx;
-@show sigma;
-
     vs_num = size(V, 1)
 
 	# 2D transformation of sigma face
@@ -50,8 +44,6 @@ function frag_face(V, EV, FE, sp_idx, sigma)
 
     # computation of 2D arrangement of sigma face
     sV = sV[:, 1:2]
-@show sV;
-@show findnz(sEV);
     nV, nEV, nFE = planar_arrangement(sV, sEV, sparsevec(ones(Int8, length(sigmavs))))
     if nV == nothing ## not possible !! ... (each original face maps to its decomposition)
         return [], spzeros(Int8, 0,0), spzeros(Int8, 0,0)
@@ -148,17 +140,10 @@ function merge_vertices(V::Lar.Points, EV::Lar.ChainOp, FE::Lar.ChainOp, err=1e-
     return Lar.Points(nV), nEV, nFE
 end
 
-using Plasm
-
 function spatial_arrangement_1(
 		V::Lar.Points,
 		copEV::Lar.ChainOp,
 		copFE::Lar.ChainOp, multiproc::Bool=false)
-println(">>>>>>>>>>>>>>>>>>>>")
-@show V;
-@show findnz(copEV);
-@show findnz(copFE);
-println("<<<<<<<<<<<<<<<<<<<<")
 
 	# spaceindex computation
 	FV = Lar.compute_FV( copEV, copFE )
@@ -196,16 +181,6 @@ println("<<<<<<<<<<<<<<<<<<<<")
             #print(sigma, "/", fs_num, "\r")
             nV, nEV, nFE = Lar.Arrangement.frag_face(V, copEV, copFE, sp_idx, sigma)
 			#nV, nEV, nFE = Lar.fragface(V, copEV, copFE, sp_idx, sigma)
-# v = convert(Lar.Points, nV')
-# @show v
-# ev = Lar.cop2lar(nEV)
-# @show ev
-# fe = Lar.cop2lar(nFE)
-# @show fe
-# fv = [collect(Set(cat([ev[e] for e in f]))) for f in fe]
-# fv = convert(Lar.Cells, fv)
-# @show fv
-# Plasm.view(Plasm.numbering(0.25)((v,[[[k] for k=1:size(v,2)],ev,fv])))
 			nV = convert(Lar.Points, nV)
             a,b,c = Lar.skel_merge( rV,rEV,rFE,  nV,nEV,nFE )
             rV=a;  rEV=b;  rFE=c
@@ -249,15 +224,6 @@ function spatial_arrangement(
 
 	# face subdivision
 	rV, rcopEV, rcopFE = Lar.Arrangement.spatial_arrangement_1( V, copEV, copFE, multiproc ) # copFE global
-
-# 	# test input consistency
-# @show rV;
-# @show SparseArrays.findnz(rcopEV);
-# @show SparseArrays.findnz(rcopFE);
-# 	EV = Lar.cop2lar(rcopEV)
-# 	W = convert(Lar.Points, rV')
-# @show W;
-# @show EV;
 	bicon_comps = Lar.Arrangement.biconnected_components(rcopEV)
 	#W,bicon_comps = Lar.biconnectedComponent((W,EV))
 	@error "comps# = $(length(bicon_comps))"
