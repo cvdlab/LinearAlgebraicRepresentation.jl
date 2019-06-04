@@ -588,8 +588,8 @@ function planar_arrangement(
 	end
 
     bicon_comps = Lar.Arrangement.biconnected_components(copEV)
-    #EV = Lar.cop2lar(copEV)
-    #V,bicon_comps = Lar.biconnectedComponent((V,EV))
+    # EV = Lar.cop2lar(copEV)
+    # V,bicon_comps = Lar.biconnectedComponent((V,EV))
 
 	if isempty(bicon_comps)
     	println("No biconnected components found.")

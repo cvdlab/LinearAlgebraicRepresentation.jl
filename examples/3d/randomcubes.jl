@@ -28,6 +28,10 @@ cop_EW = convert(Lar.ChainOp, cop_EV);
 cop_FE = Lar.coboundary_1(V, FV::Lar.Cells, EV::Lar.Cells);
 W = convert(Lar.Points, V');
 
+@show W;
+@show findnz(cop_EW);
+@show findnz(cop_FE);
+
 V, copEV, copFE, copCF = Lar.Arrangement.spatial_arrangement(
 	W::Lar.Points, cop_EW::Lar.ChainOp, cop_FE::Lar.ChainOp)
 
