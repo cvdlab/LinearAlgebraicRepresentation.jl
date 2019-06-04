@@ -20,11 +20,7 @@ function randomshapes()
 	EV, FV, CV = bases
 	copEV, copFE, copCF = coboundaries
 
-@show W
-@show EV, FV, CV
-@show findnz(copEV), findnz(copFE), findnz(copCF)
-
-	W = convert(Lar.Points, V')
+	W = convert(Lar.Points, W')
 	triangulated_faces = Lar.triangulate(W, [copEV, copFE])
 	FVs = convert(Array{Lar.Cells}, triangulated_faces)
 	Plasm.viewcolor(V::Lar.Points, FVs::Array{Lar.Cells})

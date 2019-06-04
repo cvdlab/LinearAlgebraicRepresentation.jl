@@ -91,10 +91,7 @@ function minimal_3cycles(V::Lar.Points, EV::Lar.ChainOp, FE::Lar.ChainOp)
 
     #EF = FE'
     EF = convert(Lar.ChainOp, LinearAlgebra.transpose(FE))
-@show face_angle;
-@show V;
-@show findnz(EF);
-	FC = Lar.Arrangement.minimal_cycles(face_angle, true)(V, EF)
+x	FC = Lar.Arrangement.minimal_cycles(face_angle, true)(V, EF)
 
 	#FC'
     return -convert(Lar.ChainOp, LinearAlgebra.transpose(FC))

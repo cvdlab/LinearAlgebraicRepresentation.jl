@@ -160,6 +160,7 @@ Compute the biconnected components of the `EV` graph, represented
 by edges as pairs of vertices.
 """
 function biconnected_components(EV::Lar.ChainOp)
+
     ps = Array{Tuple{Int, Int, Int}, 1}()
     es = Array{Tuple{Int, Int}, 1}()
     todel = Array{Int, 1}()
@@ -577,12 +578,10 @@ function planar_arrangement(
         return_edge_map::Bool=false,
         multiproc::Bool=false)
 
-@show sigma
-@show V
-@show findnz(copEV)
 
 #planar_arrangement_1
 	V,copEV,sigma,edge_map=Lar.Arrangement.planar_arrangement_1(V,copEV,sigma,return_edge_map,multiproc)
+
 # cleandecomposition
 	if sigma.n > 0
 		V,copEV=Lar.Arrangement.cleandecomposition(V, copEV, sigma, edge_map)
@@ -591,9 +590,6 @@ function planar_arrangement(
     bicon_comps = Lar.Arrangement.biconnected_components(copEV)
     #EV = Lar.cop2lar(copEV)
     #V,bicon_comps = Lar.biconnectedComponent((V,EV))
-
-@show V;
-@show copEV;
 
 	if isempty(bicon_comps)
     	println("No biconnected components found.")

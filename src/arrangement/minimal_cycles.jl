@@ -25,8 +25,6 @@ function minimal_3cycles(V::Lar.Points, EV::Lar.ChainOp, FE::Lar.ChainOp)
 
 	triangulated_faces = Array{Any, 1}(undef, FE.m)
 
-@show "started TGW"
-
     function face_angle(e::Int, f::Int)
         if !isassigned(triangulated_faces, f)
             vs_idxs = Array{Int64, 1}()

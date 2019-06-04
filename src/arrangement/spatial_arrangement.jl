@@ -25,6 +25,13 @@ end
 `sigma` face fragmentation against faces in `sp_idx[sigma]`
 """
 function frag_face(V, EV, FE, sp_idx, sigma)
+
+@show V;
+@show findnz(EV);
+@show findnz(FE);
+@show sp_idx;
+@show sigma;
+
     vs_num = size(V, 1)
 
 	# 2D transformation of sigma face
@@ -43,6 +50,8 @@ function frag_face(V, EV, FE, sp_idx, sigma)
 
     # computation of 2D arrangement of sigma face
     sV = sV[:, 1:2]
+@show sV;
+@show findnz(sEV);
     nV, nEV, nFE = planar_arrangement(sV, sEV, sparsevec(ones(Int8, length(sigmavs))))
     if nV == nothing ## not possible !! ... (each original face maps to its decomposition)
         return [], spzeros(Int8, 0,0), spzeros(Int8, 0,0)
@@ -145,6 +154,11 @@ function spatial_arrangement_1(
 		V::Lar.Points,
 		copEV::Lar.ChainOp,
 		copFE::Lar.ChainOp, multiproc::Bool=false)
+println(">>>>>>>>>>>>>>>>>>>>")
+@show V;
+@show findnz(copEV);
+@show findnz(copFE);
+println("<<<<<<<<<<<<<<<<<<<<")
 
 	# spaceindex computation
 	FV = Lar.compute_FV( copEV, copFE )
@@ -236,15 +250,15 @@ function spatial_arrangement(
 	# face subdivision
 	rV, rcopEV, rcopFE = Lar.Arrangement.spatial_arrangement_1( V, copEV, copFE, multiproc ) # copFE global
 
-	# test input consistency
-@show rV;
-@show SparseArrays.findnz(rcopEV);
-@show SparseArrays.findnz(rcopFE);
-	EV = Lar.cop2lar(rcopEV)
-	W = convert(Lar.Points, rV')
-@show W;
-@show EV;
-	bicon_comps = Lar.Arrangement.biconnected_components(copEV)
+# 	# test input consistency
+# @show rV;
+# @show SparseArrays.findnz(rcopEV);
+# @show SparseArrays.findnz(rcopFE);
+# 	EV = Lar.cop2lar(rcopEV)
+# 	W = convert(Lar.Points, rV')
+# @show W;
+# @show EV;
+	bicon_comps = Lar.Arrangement.biconnected_components(rcopEV)
 	#W,bicon_comps = Lar.biconnectedComponent((W,EV))
 	@error "comps# = $(length(bicon_comps))"
 	# 3-complex and containment graph

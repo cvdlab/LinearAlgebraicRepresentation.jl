@@ -7,7 +7,7 @@ store = []
 scaling = 0.95
 V,(VV,EV,FV,CV) = Lar.cuboid([0.25,0.25,0.25],true,[-0.25,-0.25,-0.25])
 mybox = (V,CV,FV,EV)
-for k=1:15
+for k=1:10
 	size = rand()*scaling
 	scale = Lar.s(size,size,size)
 	transl = Lar.t(rand(3)...)
@@ -30,7 +30,6 @@ W = convert(Lar.Points, V');
 
 V, copEV, copFE, copCF = Lar.Arrangement.spatial_arrangement(
 	W::Lar.Points, cop_EW::Lar.ChainOp, cop_FE::Lar.ChainOp)
-
 
 
 triangulated_faces = Lar.triangulate2D(V, [copEV, copFE])
