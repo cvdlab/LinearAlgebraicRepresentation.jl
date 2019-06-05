@@ -226,7 +226,7 @@ function spatial_arrangement(
 	rV, rcopEV, rcopFE = Lar.Arrangement.spatial_arrangement_1( V, copEV, copFE, multiproc ) # copFE global
 	bicon_comps = Lar.Arrangement.biconnected_components(rcopEV)
 	#W,bicon_comps = Lar.biconnectedComponent((W,EV))
-	@error "comps# = $(length(bicon_comps))"
+	#@error "comps# = $(length(bicon_comps))"
 	# 3-complex and containment graph
 	rV, rEV, rFE, rCF = Lar.Arrangement.spatial_arrangement_2(rV, rcopEV, rcopFE)
 end

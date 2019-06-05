@@ -1,13 +1,13 @@
 using LinearAlgebraicRepresentation
-using Plasm
+using Plasm, LinearAlgebra
 Lar = LinearAlgebraicRepresentation
 using Revise, SparseArrays
 
 store = []
-scaling = .75
+scaling = 1.75
 V,(VV,EV,FV,CV) = Lar.cuboid([0.25,0.25,0.25],true,[-0.25,-0.25,-0.25])
 mybox = (V,CV,FV,EV)
-for k=1:15
+for k=1:5
 	size = rand()*scaling
 	scale = Lar.s(size,size,size)
 	transl = Lar.t(rand(3)...)
@@ -35,12 +35,15 @@ W = convert(Lar.Points, V');
 V, copEV, copFE, copCF = Lar.Arrangement.spatial_arrangement(
 	W::Lar.Points, cop_EW::Lar.ChainOp, cop_FE::Lar.ChainOp)
 
+cc = [copEV, copFE, copCF]
+output = Lar.lar2obj(V::Lar.Points, cc::Lar.ChainComplex)
 
-triangulated_faces = Lar.triangulate2D(V, [copEV, copFE])
-FVs = convert(Array{Lar.Cells}, triangulated_faces)
-V = convert(Lar.Points, V')
-Plasm.viewcolor(V::Lar.Points, FVs::Array{Lar.Cells})
+f = open("test/out3d.obj", "w")
+print(f, output)
+close(f)
 
-EVs = Lar.FV2EVs(copEV, copFE) # polygonal face fragments
-model = V,EVs
-Plasm.view(Plasm.lar_exploded(model)(1.2,1.2,1.2))
+V,EVs,FVs = Lar.obj2lar("test/out3d.obj")
+
+for k=1:length(FVs)
+	Plasm.view(V, FVs[k])
+end

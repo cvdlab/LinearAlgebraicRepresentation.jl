@@ -511,8 +511,8 @@ end
 
 Full constrained Delaunnay triangulation of the given 3-dimensional model (given with topology as a `ChainComplex`)
 """
-function triangulate(V::Points, cc::ChainComplex)
-    copEV, copFE = cc
+function triangulate(V::Lar.Points, cc::Lar.ChainComplex)
+	copEV, copFE = cc[1:2]
 
     triangulated_faces = Array{Any, 1}(undef, copFE.m)
 
@@ -731,10 +731,11 @@ Use this function to export LAR models into OBJ
 	end
 ```
 """
-function lar2obj(V::Points, cc::ChainComplex)
+function lar2obj(V::Lar.Points, cc::Lar.ChainComplex)
     copEV, copFE, copCF = cc
-	V = convert(Lar.Points, V') # out V by rows
-
+	if size(V,2) > 3
+		V = convert(Lar.Points, V') # out V by rows
+	end
     obj = ""
     for v in 1:size(V, 1)
         obj = string(obj, "v ",
@@ -767,25 +768,28 @@ end
 
 Read OBJ file at `path` and create a 2-skeleton as `Tuple{Points, ChainComplex}` from it.
 
-This function does not care about eventual internal grouping inside the OBJ file.
+This function does care about eventual internal grouping inside the OBJ file.
 """
 function obj2lar(path)
     vs = Array{Float64, 2}(undef, 0, 3)
-    edges = Array{Array{Int, 1}, 1}()
-    faces = Array{Array{Int, 1}, 1}()
+    edges = Array{Array{Array{Int, 1}, 1}, 1}()
+    faces = Array{Array{Array{Int, 1}, 1}, 1}()
+	push!(edges, Array{Array{Int, 1}, 1}[])
+	push!(faces, Array{Array{Int, 1}, 1}[])
+	g = 1
 
     open(path, "r") do fd
         for line in eachline(fd)
             elems = split(line)
             if length(elems) > 0
                 if elems[1] == "v"
-
+					# parse and store a vertex
                     x = parse(Float64, elems[2])
                     y = parse(Float64, elems[3])
                     z = parse(Float64, elems[4])
                     vs = [vs; x y z]
 
-                elseif elems[1] == "f"
+				elseif elems[1] == "f"
                     # Ignore the vertex tangents and normals
                     v1 = parse(Int, split(elems[2], "/")[1])
                     v2 = parse(Int, split(elems[3], "/")[1])
@@ -795,23 +799,34 @@ function obj2lar(path)
                     e2 = sort([v2, v3])
                     e3 = sort([v1, v3])
 
-                    if !(e1 in edges)
-                        push!(edges, e1)
-                    end
-                    if !(e2 in edges)
-                        push!(edges, e2)
-                    end
-                    if !(e3 in edges)
-                        push!(edges, e3)
-                    end
+                    # if !(e1 in edges)
+                    #     push!(edges[g], e1)
+                    # end
+                    # if !(e2 in edges)
+                    #     push!(edges[g], e2)
+                    # end
+                    # if !(e3 in edges)
+                    #     push!(edges[g], e3)
+                    # end
+					push!(edges[g], e1)
+					push!(edges[g], e2)
+					push!(edges[g], e3)
 
-                    push!(faces, sort([v1, v2, v3]))
-                end
+                    push!(faces[g], sort([v1, v2, v3]))
+
+				elseif elems[1] == "g"
+					#start a new group of edges and faces
+					#println(line)
+					g += 1
+					push!(edges, Array{Array{Int, 1}, 1}[])
+					push!(faces, Array{Array{Int, 1}, 1}[])
+				end
             end
         end
     end
 
-    return vs, build_cops(edges, faces)
+	#return vs, build_cops(edges, faces)
+	return convert(Lar.Points, vs'), edges[2:end], faces[2:end]
 end
 
 """
