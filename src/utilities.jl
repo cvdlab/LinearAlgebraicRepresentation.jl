@@ -753,7 +753,8 @@ function lar2obj(V::Lar.Points, cc::Lar.ChainComplex)
         for f in copCF[c, :].nzind
             triangles = triangulated_faces[f]
             for tri in triangles
-                t = copCF[c, f] > 0 ? tri : tri[end:-1:1]
+                #t = copCF[c, f] > 0 ? tri : tri[end:-1:1]
+				t = tri
                 obj = string(obj, "f ", t[1], " ", t[2], " ", t[3], "\n")
             end
         end
@@ -797,17 +798,8 @@ function obj2lar(path)
 
                     e1 = sort([v1, v2])
                     e2 = sort([v2, v3])
-                    e3 = sort([v1, v3])
+                    e3 = sort([v3, v1])
 
-                    # if !(e1 in edges)
-                    #     push!(edges[g], e1)
-                    # end
-                    # if !(e2 in edges)
-                    #     push!(edges[g], e2)
-                    # end
-                    # if !(e3 in edges)
-                    #     push!(edges[g], e3)
-                    # end
 					push!(edges[g], e1)
 					push!(edges[g], e2)
 					push!(edges[g], e3)
