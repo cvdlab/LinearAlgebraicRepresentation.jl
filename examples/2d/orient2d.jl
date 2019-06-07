@@ -22,4 +22,5 @@ Plasm.view( Plasm.numbering(3)((V,[VV, EV, FV])) )
 convex = false;
 exterior = true;
 copFE = Lar.coboundary_1( V::Lar.Points, FV::Lar.Cells, EV::Lar.Cells, convex,exterior );
+
 [ collect(1:size(copFE,2))'; Matrix(copFE) ]

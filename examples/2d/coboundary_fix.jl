@@ -26,5 +26,8 @@ Plasm.view( Plasm.numbering(3)((V,[VV, EV, FV])) )
 copEV = Lar.coboundary_0(EV)
 W = convert(Lar.Points, V')
 triangulated_faces = Lar.triangulate2D(W, [copEV, copFE])
+#triangulated_faces = Lar.triangulate2d(V, EV)
 FVs = convert(Array{Lar.Cells}, triangulated_faces)
 Plasm.viewcolor(V::Lar.Points, FVs::Array{Lar.Cells})
+
+#TODO: debug ...

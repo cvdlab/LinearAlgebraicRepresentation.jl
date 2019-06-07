@@ -28,7 +28,7 @@ function extendlines(V::Lar.Points, EV::Lar.Cells, s=1.001)
 	return V, EV
 end
 
-n=300; t=0.4
+n=100; t=0.6
 V = zeros(Float64,2,2*n)
 EV = [zeros(Int64,2) for k=1:n]
 
@@ -47,7 +47,7 @@ model = (V,EV)
 Sigma = Lar.spaceindex(model)
 
 Plasm.view(Plasm.numbering(.1)((V,[[[k] for k=1:size(V,2)], EV])))
-Z,EZ = extendlines(V,EV)
+Z,EZ = extendlines(V,EV,1.1)
 Plasm.view(Plasm.numbering(.1)((Z,[[[k] for k=1:size(Z,2)], EZ])))
 
 Plasm.view(V,EV)

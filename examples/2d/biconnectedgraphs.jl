@@ -2,8 +2,8 @@ using LinearAlgebraicRepresentation
 Lar = LinearAlgebraicRepresentation
 using Plasm
 
-n = 50 #3000 #1000 #20000
-t = 0.75 #0.15 #0.4 #0.15
+n = 200 #3000 #1000 #20000
+t = 0.35 #0.15 #0.4 #0.15
 
 function randomlines(n=1000,t=0.2)
 	V = zeros(Float64,2,2*n)
@@ -32,4 +32,3 @@ Plasm.viewexploded(W,EW)(1.2,1.2,1.2)
 V,EVs = Lar.biconnectedComponent((W,EW::Lar.Cells)) # 2-connected components (H & T)
 hpcs = [ Plasm.lar2hpc(V,EVs[i]) for i=1:length(EVs) ]
 Plasm.view([ Plasm.color(Plasm.colorkey[(k%12)==0 ? 12 : k%12])(hpcs[k]) for k=1:(length(hpcs)) ])
-
