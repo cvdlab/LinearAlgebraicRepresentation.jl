@@ -3,6 +3,7 @@ using Plasm
 Lar = LinearAlgebraicRepresentation
 using Revise, SparseArrays
 
+#include("")
 store = []
 scaling = .75
 V,(VV,EV,FV,CV) = Lar.cuboid([0.25,0.25,0.25],true,[-0.25,-0.25,-0.25])
