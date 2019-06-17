@@ -11,7 +11,7 @@
 [![Arxiv](http://img.shields.io/badge/Arxiv-1710.07819-b31b1b.svg)](https://arxiv.org/abs/1710.07819)
 
 
-Official Julia implementation of [LAR](http://dx.doi.org/10.1016/j.cad.2013.08.044), the Linear Algebraic Representation for Solid Modeling.
+Official Julia implementation of [LAR](http://dx.doi.org/10.1016/j.cad.2013.08.044), the Linear Algebraic Representation for Solid Modeling. Helper packages are [Plasm.jl](https://github.com/cvdlab/Plasm.jl) and [ViewerGL.jl](https://github.com/cvdlab/ViewerGL.jl).
 
 ## Installing
 
