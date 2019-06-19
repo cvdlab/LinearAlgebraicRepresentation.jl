@@ -485,10 +485,17 @@ end
 
 
 function vcycle( copEV::Lar.ChainOp, copFE::Lar.ChainOp, f::Int64 )
-	edges,signs = findnz(copFE[f,:])
-	vpairs = [s>0 ? findnz(copEV[e,:])[1] : reverse(findnz(copEV[e,:])[1])
+	edges,signs = SparseArrays.findnz(copFE[f,:])
+	vpairs = [s>0 ? SparseArrays.findnz(copEV[e,:])[1] :
+					reverse(SparseArrays.findnz(copEV[e,:])[1])
 				for (e,s) in zip(edges,signs)]
-	vs = collect(Set(cat([[v1,v2] for (v1,v2) in vpairs])))
+	a = [[v1,v2] for (v1,v2) in vpairs]
+	function mycat(a::Lar.Cells)
+		out=[]
+		for cell in a append!(out,cell) end
+		return out
+	end
+	vs = collect(Set(mycat(a)))
 	vdict = Dict(zip(vs,1:length(vs)))
 	edges = [[vdict[v1], vdict[v2]] for (v1,v2) in vpairs]
 	return vs, edges
