@@ -423,8 +423,8 @@ function apply(affineMatrix, larmodel)
 	W = [V; fill(1.0, (1,n))]
 	V = (affineMatrix * W)[1:m,1:n]
 
-	data[1] = V
-	larmodel = Tuple(data)
+	larmodel[1] = V
+	larmodel = Tuple(larmodel)
 	return larmodel
 end
 
