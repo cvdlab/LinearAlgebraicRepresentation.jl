@@ -413,12 +413,11 @@ function box(model)
 end
 
 """
-	apply(affineMatrix::Array{Float64,2}, larmodel::Union{LAR,LARmodel})
+	apply(affineMatrix::Array{Float64,2}, larmodel)
 
 """
 function apply(affineMatrix, larmodel)
-	data = collect(larmodel)
-	V = data[1]
+	V = larmodel[1]
 
 	m,n = size(V)
 	W = [V; fill(1.0, (1,n))]
