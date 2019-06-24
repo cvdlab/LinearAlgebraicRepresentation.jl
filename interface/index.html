@@ -207,7 +207,7 @@ julia&gt; Matrix(characteristicMatrix(EV))
 0  1  0  0  0  1  0  0
 0  0  1  0  0  0  1  0
 0  0  0  1  0  0  0  1
-```</code></pre></div></div><a class="source-link" target="_blank" href="https://github.com/cvdlab/LinearAlgebraicRepresentation.jl/blob/d4a1ebf77129b5b22ef1c80fd958e14184bb5350/src/interface.jl#L3-L44">source</a></section><section class="docstring"><div class="docstring-header"><a class="docstring-binding" id="LinearAlgebraicRepresentation.boundary_1" href="#LinearAlgebraicRepresentation.boundary_1"><code>LinearAlgebraicRepresentation.boundary_1</code></a> — <span class="docstring-category">Function</span>.</div><div><div><pre><code class="language-julia">	boundary_1( EV::Cells )::ChainOp
+```</code></pre></div></div><a class="source-link" target="_blank" href="https://github.com/cvdlab/LinearAlgebraicRepresentation.jl/blob/139885838bdbe7a70508b4fc62b1af65f5778a5b/src/interface.jl#L3-L44">source</a></section><section class="docstring"><div class="docstring-header"><a class="docstring-binding" id="LinearAlgebraicRepresentation.boundary_1" href="#LinearAlgebraicRepresentation.boundary_1"><code>LinearAlgebraicRepresentation.boundary_1</code></a> — <span class="docstring-category">Function</span>.</div><div><div><pre><code class="language-julia">	boundary_1( EV::Cells )::ChainOp
 
 Computation of sparse signed boundary operator ``C_1 -&gt; C_0``.
 
@@ -244,9 +244,9 @@ julia&gt; Matrix(boundary_1(EV::Cells))
 0   0   1   0   0   0   0  -1   0   1   0   0
 0   0   0  -1   0   0   1   0   0   0   1   0
 0   0   0   1   0   0   0   1   0   0   0   1
-```</code></pre></div></div><a class="source-link" target="_blank" href="https://github.com/cvdlab/LinearAlgebraicRepresentation.jl/blob/d4a1ebf77129b5b22ef1c80fd958e14184bb5350/src/interface.jl#L59-L98">source</a></section><section class="docstring"><div class="docstring-header"><a class="docstring-binding" id="LinearAlgebraicRepresentation.coboundary_0" href="#LinearAlgebraicRepresentation.coboundary_0"><code>LinearAlgebraicRepresentation.coboundary_0</code></a> — <span class="docstring-category">Function</span>.</div><div><div><pre><code class="language-julia">	coboundary_0(EV::Lar.Cells)
+```</code></pre></div></div><a class="source-link" target="_blank" href="https://github.com/cvdlab/LinearAlgebraicRepresentation.jl/blob/139885838bdbe7a70508b4fc62b1af65f5778a5b/src/interface.jl#L59-L98">source</a></section><section class="docstring"><div class="docstring-header"><a class="docstring-binding" id="LinearAlgebraicRepresentation.coboundary_0" href="#LinearAlgebraicRepresentation.coboundary_0"><code>LinearAlgebraicRepresentation.coboundary_0</code></a> — <span class="docstring-category">Function</span>.</div><div><div><pre><code class="language-julia">	coboundary_0(EV::Lar.Cells)
 
-Return the `coboundary_0` signed operator `C_0` -&gt; `C_1`.</code></pre></div></div><a class="source-link" target="_blank" href="https://github.com/cvdlab/LinearAlgebraicRepresentation.jl/blob/d4a1ebf77129b5b22ef1c80fd958e14184bb5350/src/interface.jl#L110-L114">source</a></section><section class="docstring"><div class="docstring-header"><a class="docstring-binding" id="LinearAlgebraicRepresentation.u_coboundary_1" href="#LinearAlgebraicRepresentation.u_coboundary_1"><code>LinearAlgebraicRepresentation.u_coboundary_1</code></a> — <span class="docstring-category">Function</span>.</div><div><div><pre><code class="language-julia">	u_coboundary_1( FV::Cells, EV::::Cells)::ChainOp
+Return the `coboundary_0` signed operator `C_0` -&gt; `C_1`.</code></pre></div></div><a class="source-link" target="_blank" href="https://github.com/cvdlab/LinearAlgebraicRepresentation.jl/blob/139885838bdbe7a70508b4fc62b1af65f5778a5b/src/interface.jl#L110-L114">source</a></section><section class="docstring"><div class="docstring-header"><a class="docstring-binding" id="LinearAlgebraicRepresentation.u_coboundary_1" href="#LinearAlgebraicRepresentation.u_coboundary_1"><code>LinearAlgebraicRepresentation.u_coboundary_1</code></a> — <span class="docstring-category">Function</span>.</div><div><div><pre><code class="language-julia">	u_coboundary_1( FV::Cells, EV::::Cells)::ChainOp
 
 Compute the sparse *unsigned* coboundary_1 operator ``C_1 -&gt; C_2``.
 Notice that the output matrix is `m x n`, where `m` is the number of faces, and `n` 
@@ -279,9 +279,9 @@ julia&gt; Matrix(u_coboundary_1(FV,EV))
 0  0  0  0  0  1  0  1  0  1  0  1
 
 julia&gt; unsigned_boundary_2 = u_coboundary_1(FV,EV)&#39;;
-```</code></pre></div></div><a class="source-link" target="_blank" href="https://github.com/cvdlab/LinearAlgebraicRepresentation.jl/blob/d4a1ebf77129b5b22ef1c80fd958e14184bb5350/src/interface.jl#L119-L154">source</a></section><section class="docstring"><div class="docstring-header"><a class="docstring-binding" id="LinearAlgebraicRepresentation.u_boundary_2" href="#LinearAlgebraicRepresentation.u_boundary_2"><code>LinearAlgebraicRepresentation.u_boundary_2</code></a> — <span class="docstring-category">Function</span>.</div><div><div><pre><code class="language-julia">	u_boundary_2(FV::Lar.Cells, EV::Lar.Cells)::Lar.ChainOp
+```</code></pre></div></div><a class="source-link" target="_blank" href="https://github.com/cvdlab/LinearAlgebraicRepresentation.jl/blob/139885838bdbe7a70508b4fc62b1af65f5778a5b/src/interface.jl#L119-L154">source</a></section><section class="docstring"><div class="docstring-header"><a class="docstring-binding" id="LinearAlgebraicRepresentation.u_boundary_2" href="#LinearAlgebraicRepresentation.u_boundary_2"><code>LinearAlgebraicRepresentation.u_boundary_2</code></a> — <span class="docstring-category">Function</span>.</div><div><div><pre><code class="language-julia">	u_boundary_2(FV::Lar.Cells, EV::Lar.Cells)::Lar.ChainOp
 
-Return the unsigned `boundary_2` operator `C_2` -&gt; `C_1`.</code></pre></div></div><a class="source-link" target="_blank" href="https://github.com/cvdlab/LinearAlgebraicRepresentation.jl/blob/d4a1ebf77129b5b22ef1c80fd958e14184bb5350/src/interface.jl#L176-L180">source</a></section><section class="docstring"><div class="docstring-header"><a class="docstring-binding" id="LinearAlgebraicRepresentation.coboundary_1" href="#LinearAlgebraicRepresentation.coboundary_1"><code>LinearAlgebraicRepresentation.coboundary_1</code></a> — <span class="docstring-category">Function</span>.</div><div><div><pre><code class="language-julia">	coboundary_1( FV::Cells, EV::Cells)::ChainOp
+Return the unsigned `boundary_2` operator `C_2` -&gt; `C_1`.</code></pre></div></div><a class="source-link" target="_blank" href="https://github.com/cvdlab/LinearAlgebraicRepresentation.jl/blob/139885838bdbe7a70508b4fc62b1af65f5778a5b/src/interface.jl#L176-L180">source</a></section><section class="docstring"><div class="docstring-header"><a class="docstring-binding" id="LinearAlgebraicRepresentation.coboundary_1" href="#LinearAlgebraicRepresentation.coboundary_1"><code>LinearAlgebraicRepresentation.coboundary_1</code></a> — <span class="docstring-category">Function</span>.</div><div><div><pre><code class="language-julia">	coboundary_1( FV::Cells, EV::Cells)::ChainOp
 
 Compute the sparse *signed* coboundary_1 operator ``C_1 -&gt; C_2``.
 The sparse matrix generated by `coboundary_1` contains by row a representation 
@@ -318,7 +318,7 @@ julia&gt; boundary_2(FV,EV) = coboundary_1(FV,EV)&#39;
 0   0  -1   0   0   1
 0   0   0   1  -1   0
 0   0   0  -1   0  -1
-```</code></pre></div></div><a class="source-link" target="_blank" href="https://github.com/cvdlab/LinearAlgebraicRepresentation.jl/blob/d4a1ebf77129b5b22ef1c80fd958e14184bb5350/src/interface.jl#L199-L238">source</a></section><section class="docstring"><div class="docstring-header"><a class="docstring-binding" id="LinearAlgebraicRepresentation.chaincomplex" href="#LinearAlgebraicRepresentation.chaincomplex"><code>LinearAlgebraicRepresentation.chaincomplex</code></a> — <span class="docstring-category">Function</span>.</div><div><div><pre><code class="language-julia">	chaincomplex( W::Points, EW::Cells )::Tuple{Array{Cells,1},Array{ChainOp,1}}
+```</code></pre></div></div><a class="source-link" target="_blank" href="https://github.com/cvdlab/LinearAlgebraicRepresentation.jl/blob/139885838bdbe7a70508b4fc62b1af65f5778a5b/src/interface.jl#L199-L238">source</a></section><section class="docstring"><div class="docstring-header"><a class="docstring-binding" id="LinearAlgebraicRepresentation.chaincomplex" href="#LinearAlgebraicRepresentation.chaincomplex"><code>LinearAlgebraicRepresentation.chaincomplex</code></a> — <span class="docstring-category">Function</span>.</div><div><div><pre><code class="language-julia">	chaincomplex( W::Points, EW::Cells )::Tuple{Array{Cells,1},Array{ChainOp,1}}
 
 Chain 2-complex construction from basis of 1-cells. 
 
@@ -364,7 +364,7 @@ julia&gt; Matrix(coboundaries[2]) # coboundary_1: faces as oriented 1-cycles of 
 0  0  0  0  0  0  0 -1  0  0  1  0  0  0  0  0  0  0  0  0  0  1 -1  0
 0  0  0  0  0  0 -1  0  0  1  0  0  0  0  0  0  0  0  0  0  1 -1  0  0
 0  0  0  0  0  0  0  0 -1  0  0  1  0  0  0  0  0  0  0  0  0  0  1 -1
-```</code></pre></div></div><a class="source-link" target="_blank" href="https://github.com/cvdlab/LinearAlgebraicRepresentation.jl/blob/d4a1ebf77129b5b22ef1c80fd958e14184bb5350/src/interface.jl#L281-L329">source</a><div><div><pre><code class="language-none">	chaincomplex( W::Points, FW::Cells, EW::Cells )
+```</code></pre></div></div><a class="source-link" target="_blank" href="https://github.com/cvdlab/LinearAlgebraicRepresentation.jl/blob/139885838bdbe7a70508b4fc62b1af65f5778a5b/src/interface.jl#L281-L329">source</a><div><div><pre><code class="language-none">	chaincomplex( W::Points, FW::Cells, EW::Cells )
 		::Tuple{ Array{Cells,1}, Array{ChainOp,1} }
 
 Chain 3-complex construction from bases of 2- and 1-cells. 
@@ -423,4 +423,4 @@ julia&gt; cscFE # coboundaries[2]
 
 julia&gt; cscCF # coboundaries[3]
 4×18 SparseMatrixCSC{Int8,Int64} with 36 stored entries: ...
-```</code></pre></div></div><a class="source-link" target="_blank" href="https://github.com/cvdlab/LinearAlgebraicRepresentation.jl/blob/d4a1ebf77129b5b22ef1c80fd958e14184bb5350/src/interface.jl#L354-L415">source</a></section><footer><hr/><a class="previous" href="../lar/"><span class="direction">Previous</span><span class="title">L.A.R. Intro</span></a><a class="next" href="../arrangement/"><span class="direction">Next</span><span class="title">Arrangement</span></a></footer></article></body></html>
+```</code></pre></div></div><a class="source-link" target="_blank" href="https://github.com/cvdlab/LinearAlgebraicRepresentation.jl/blob/139885838bdbe7a70508b4fc62b1af65f5778a5b/src/interface.jl#L354-L415">source</a></section><footer><hr/><a class="previous" href="../lar/"><span class="direction">Previous</span><span class="title">L.A.R. Intro</span></a><a class="next" href="../arrangement/"><span class="direction">Next</span><span class="title">Arrangement</span></a></footer></article></body></html>
