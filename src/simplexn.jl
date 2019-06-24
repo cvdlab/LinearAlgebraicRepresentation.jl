@@ -1,10 +1,46 @@
 Lar = LinearAlgebraicRepresentation
 
+"""
+	simplex(n::Int, fullmodel=false::Bool)::Union{Lar.LAR, Lar.LARmodel}
+
+Return a `LAR` model of the *`n`-dimensional simplex* in *`n`-space*.
+
+When `fullmodel==true` return a `LARmodel`, including the faces, from dimension `1` to `n`.
+
+# Example
+```
+using LinearAlgebraicRepresentation, Plasm, LinearAlgebra
+Lar = LinearAlgebraicRepresentation
+
+model = Lar.simplex(2)
+Plasm.view( Lar.simplex(2) )
+
+V, cells = Lar.simplex(3, true)
+Plasm.view(Plasm.numbering(0.5)( (V,cells[1:end-1]) ))
+```
+"""
+function simplex(n, fullmodel=false)
+	eye(n) = LinearAlgebra.Matrix{Int}(I,n,n)
+	V = [zeros(n,1) eye(n)]
+	CV = [collect(1:n+1)]
+	if fullmodel == false
+		return V,CV
+	else
+		h = n
+		cells = [CV]
+		while h != 0
+			push!(cells, simplexFacets(cells[end]))
+			h -= 1
+		end
+		return V,reverse(cells)
+	end
+end
+
 
 """
 	extrudeSimplicial(model::LAR, pattern::Array)::LAR
-	
-Algorithm for multimensional extrusion of a simplicial complex. 
+
+Algorithm for multimensional extrusion of a simplicial complex.
 Can be applied to 0-, 1-, 2-, ... simplicial models, to get a 1-, 2-, 3-, .... model.
 The pattern `Array` is used to specify how to decompose the added dimension.
 
@@ -31,7 +67,7 @@ function extrudeSimplicial(model::Lar.LAR, pattern)
     d, m = length(FV[1]), length(pattern)
     coords = collect(cumsum(append!([0], abs.(pattern))))
     offset, outcells, rangelimit, i = length(V), [], d*m, 0
-    for cell in FV  
+    for cell in FV
     	i += 1
         tube = [v+k*offset for k in range(0, length=m+1) for v in cell]
         cellTube = [tube[k:k+d] for k in range(1, length=rangelimit)]
@@ -45,7 +81,7 @@ function extrudeSimplicial(model::Lar.LAR, pattern)
         end
     end
     outVertices = [vcat(v, [z]) for z in coords for v in V]
-    cellGroups = convert(Array{Array{Int, 1}, 1}, cellGroups) 
+    cellGroups = convert(Array{Array{Int, 1}, 1}, cellGroups)
     outModel = outVertices, cellGroups
     hcat(outVertices...), cellGroups
 end
@@ -54,7 +90,7 @@ function extrudeSimplicial(model::Union{Any,Lar.Cells}, pattern)
     d, m = length(FV[1]), length(pattern)
     coords = collect(cumsum(append!([0], abs.(pattern))))
     offset, outcells, rangelimit, i = length(V), [], d*m, 0
-    for cell in FV  
+    for cell in FV
     	i += 1
         tube = [v+k*offset for k in range(0, length=m+1) for v in cell]
         cellTube = [tube[k:k+d] for k in range(1, length=rangelimit)]
@@ -68,7 +104,7 @@ function extrudeSimplicial(model::Union{Any,Lar.Cells}, pattern)
         end
     end
     outVertices = [vcat(v, [z]) for z in coords for v in V]
-    cellGroups = convert(Array{Array{Int, 1}, 1}, cellGroups) 
+    cellGroups = convert(Array{Array{Int, 1}, 1}, cellGroups)
     outModel = outVertices, cellGroups
     hcat(outVertices...), cellGroups
 end
@@ -77,7 +113,7 @@ end
 
 """
 	simplexGrid(shape::Array)::LAR
-	
+
 Generate a simplicial complex decomposition of a cubical grid of ``d``-cuboids, where ``d`` is the length of `shape` array. Vertices (0-cells) of the grid have `Int64` coordinates.
 
 # Examples
@@ -133,21 +169,21 @@ end
 """
 	simplexFacets(simplices::Cells)::Cells
 
-Compute the `(d-1)`-skeleton (set of `facets`) of a simplicial `d`-complex.
+Compute the `(d-1)`-skeleton (unoriented set of `facets`) of a simplicial `d`-complex.
 
-# Examples
+# Example
 ```julia
-julia> V,FV = simplexGrid([1,1]) # 2-dimensional complex
+julia> V,FV = Lar.simplexGrid([1,1]) # 2-dimensional complex
 # output
 ([0 1 0 1; 0 0 1 1], Array{Int64,1}[[1, 2, 3], [2, 3, 4]])
 
 julia> Plasm.view(V,FV)
 
-julia> W,CW = extrudeSimplicial((V,FV), [1])
-([0.0 1.0 … 0.0 1.0; 0.0 0.0 … 1.0 1.0; 0.0 0.0 … 1.0 1.0], 
+julia> W,CW = Lar.extrudeSimplicial((V,FV), [1])
+([0.0 1.0 … 0.0 1.0; 0.0 0.0 … 1.0 1.0; 0.0 0.0 … 1.0 1.0],
 Array{Int64,1}[[1,2,3,5],[2,3,5,6],[3,5,6,7],[2,3,4,6],[3,4,6,7],[4,6,7,8]])
 
-julia> FW = simplexFacets(CW)
+julia> FW = Lar.simplexFacets(CW)
 18-element Array{Any,1}:
 [[1,3,5],[5,6,7],[3,5,7],[3,6,7],[4,6,7],[4,7,8],[4,6,8],
 [6,7,8],[3,5,6],[2,3,5],[2,3,4],[3,4,7],[1,2,3],[2,4,6],[2,5,6],
@@ -155,22 +191,59 @@ julia> FW = simplexFacets(CW)
 
 julia> Plasm.view(W,FW)
 ```
+
+# Example
+
+```julia
+julia> V,(VV,EV,FV,CV) = Lar.cuboidGrid([3,3,3],true)
+
+julia> TV = Lar.simplexFacets(CV)
+
+julia> Plasm.view(V,TV)
+
+```
 """
 function simplexFacets(simplices)
-    out = []
-    d = length(simplices[1])
-    for simplex in simplices
-    	non_oriented_facets = [ append!(simplex[1:k-1],simplex[k+1:d]) for k=1:d ]
-    	if (-1)^d == 1
-    		oriented_facets = non_oriented_facets
-    	else
-    		oriented_facets = [ length(f)==2 ? [f[2],f[1]] : [f[2],f[1],f[3:end]]  
-    			for f in non_oriented_facets ]
-    	end
-        append!(out, oriented_facets)
-    end
-    out = collect(Set(out))
-    return convert(Lar.Cells, out)
+    out = Array{Int64,1}[]
+	for simplex in simplices
+		for v in simplex
+			facet = setdiff(simplex,v)
+			push!(out, facet)
+		end
+	end
+	# remove duplicate facets
+	return sort(collect(Set(out)))
 end
 
+CV = simplexGrid([1,1,1])
 
+
+"""
+	quads2triangles(quads::Cells)::Cells
+
+Convert an array of *quads* with type `::Lar.Cells` into an array of *triangles*
+with the same type.
+
+# Examples
+
+The transformation from quads to triangles works for any 2-complex, embedded in any dimensional space
+
+## 2D example
+```
+V,FV = Lar.cuboidGrid([4,5])
+triangles = Lar.quads2triangles(FV::Lar.Cells)::Lar.Cells
+using Plasm
+Plasm.view((V,[triangles]))
+```
+## 3D example
+```
+V,(VV,EV,FV,CV) = Lar.cuboidGrid([4,5,3],true)
+triangles = Lar.quads2triangles(FV::Lar.Cells)::Lar.Cells
+using Plasm
+Plasm.view((V,[triangles]))
+```
+"""
+function quads2triangles(quads::Lar.Cells)::Lar.Cells
+	pairs = [[ Int[v1,v2,v3], Int[v3,v2,v4]] for (v1,v2,v3,v4) in quads ]
+	return cat(pairs)
+end

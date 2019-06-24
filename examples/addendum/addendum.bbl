@@ -1,0 +1,16 @@
+\providecommand{\bysame}{\leavevmode\hbox to3em{\hrulefill}\thinspace}
+\providecommand{\MR}{\relax\ifhmode\unskip\space\fi MR }
+% \MRhref is called by the amsart/book/proc definition of \MR.
+\providecommand{\MRhref}[2]{%
+  \href{http://www.ams.org/mathscinet-getitem?mr=#1}{#2}
+}
+\providecommand{\href}[2]{#2}
+\begin{thebibliography}{1}
+
+\bibitem{TSAS}
+Alberto Paoluzzi, Vadim Shapiro, Antonio DiCarlo, Francesco Furiani, Giulio
+  Martella, and Giorgio Scorzelli, \emph{Topological computing of arrangements
+  with (co)chains}, submitted to Transactions on Spatial Algorithms and Systems, ACM, New York, NY
+  (August 2017).
+
+\end{thebibliography}

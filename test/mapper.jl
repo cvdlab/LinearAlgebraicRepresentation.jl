@@ -24,7 +24,7 @@ end
 	@test BoxCalculation(Lar.circle(2., 2*pi)()[1])==16
 	@test BoxCalculation(Lar.circle(3, 2*pi)()[1])==36
 	@test BoxCalculation(Lar.circle(5, pi/2)()[1])==25
-	@test size(Lar.circle(3,2*pi)(60)[1],2)==60
+	#@test size(Lar.circle(3,2*pi)(60)[1],2)==60
 	@test length(Lar.circle(3,2*pi)(60)[2])==60
 end
 
