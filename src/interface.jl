@@ -711,7 +711,3 @@ julia> larFV = Lar.cop2lar(copFV)
 function lar2cop(lar::Lar.Cells)::Lar.ChainOp
 	return Lar.characteristicMatrix(lar)
 end
-
-V,FV = Lar.cuboidGrid([2,2])
-copFV = lar2cop(FV)
-larFV = cop2lar(copFV)

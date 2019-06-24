@@ -247,3 +247,27 @@ function quads2triangles(quads::Lar.Cells)::Lar.Cells
 	pairs = [[ Int[v1,v2,v3], Int[v3,v2,v4]] for (v1,v2,v3,v4) in quads ]
 	return cat(pairs)
 end
+
+
+function sparsetranspose(S::SparseMatrixCSC{Int8,Int64})::SparseMatrixCSC{Int8,Int64}
+	I,J,V = SparseArrays.findnz(S)
+	return SparseArrays.sparse(J,I,V)
+end
+
+function simplexBoundary_3(CV,FV)
+	K_2 = Lar.characteristicMatrix(FV)
+	K_3 = Lar.characteristicMatrix(CV)
+
+	FC = K_2 * sparsetranspose(K_3)
+
+	I,J,Vs = SparseArrays.findnz(FC)
+	triples = hcat([[I[k],J[k],1] for k=1:length(Vs) if Vs[k]==3]...)
+	simplBoundary_3 =
+		SparseArrays.sparse(triples[1,:],triples[2,:],triples[3,:])
+
+	chain_3 = ones(Int,length(CV))
+	incidence_numbers = simplBoundary_3 * chain_3
+	chain_2 = [k for k=1:length(incidence_numbers) if incidence_numbers[k]==1]
+
+	return boundary_triangles = FV[chain_2]
+return
