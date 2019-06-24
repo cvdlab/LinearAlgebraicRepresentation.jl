@@ -270,4 +270,4 @@ function simplexBoundary_3(CV,FV)
 	chain_2 = [k for k=1:length(incidence_numbers) if incidence_numbers[k]==1]
 
 	return boundary_triangles = FV[chain_2]
-return
+end
