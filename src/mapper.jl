@@ -33,7 +33,7 @@ on mapped coordinates. Close vertices are identified, according to the
 PRECISION number of significant digits.
 """
 function simplifyCells(V,CV)
-	PRECISION = 7
+	PRECISION = 5
 	vertDict = DefaultDict{Array{Float64,1}, Int64}(0)
 	index = 0
 	W = Array{Float64,1}[]
@@ -42,7 +42,8 @@ function simplifyCells(V,CV)
 	for incell in CV
 		outcell = Int64[]
 		for v in incell 
-			key = map(approxVal(PRECISION), V[:,v])
+			vert = V[:,v]
+			key = map(approxVal(PRECISION), vert)
 			if vertDict[key]==0 
 				index += 1
 				vertDict[key] = index
@@ -241,13 +242,13 @@ julia> Plasm.view(Lar.sphere()())
 @enum surface triangled=1 single=2
 function sphere(radius=1., angle1=pi, angle2=2*pi, surface=triangled)
     function sphere0(shape=[18, 36])
-        V, CV = simplexGrid(shape)
+        V, CV = Lar.simplexGrid(shape)
         V = [angle1/shape[1] 0;0 angle2/shape[2]]*V
         V = broadcast(+, V, [-angle1/2, -angle2/2])
         W = [V[:, k] for k=1:size(V, 2)]
         V = hcat(map(p->let(u, v)=p;[radius*cos(u)*cos(v);
         	radius*cos(u)*sin(v);radius*sin(u)]end, W)...) 
-        W, CW = simplifyCells(V, CV)
+        W, CW = Lar.simplifyCells(V, CV)
         CW = [triangle for triangle in CW if length(triangle)==3]
         if Int(surface)==1
         	return W, CW

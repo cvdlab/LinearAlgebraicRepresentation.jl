@@ -90,7 +90,7 @@ julia> Lar.r(0,0,pi/4)
  0.707107   0.707107  0.0  0.0
  0.0        0.0       1.0  0.0
  0.0        0.0       0.0  1.0
- 
+
 julia> Lar.r(1,1,1)		# 3D rotation about the ``x=y=z`` axis, with angle ``1.7320508`` angle
 # return
 4×4 Array{Float64,2}:
@@ -113,7 +113,7 @@ function r(args...)
 
      if n == 3 # rotation in 3D
         mat = Matrix{Float64}(LinearAlgebra.I, 4, 4)
-        angle = norm(args); 
+        angle = norm(args);
         if norm(args) != 0.0
 			axis = normalize(args)
 			COS = cos(angle); SIN= sin(angle)
@@ -152,11 +152,11 @@ end
 
 """
 	Struct
-	
+
 A *container* of geometrical objects is defined by applying the function `Struct` to
 the array of contained objects. Each value is defined in local coordinates and may be transformed by affine transformation tensors.
 
-The value returned from the application of `Struct` to an `Array{Any, 1}` of `LAR` values, `matrices`, and `Struct` values is a value of 
+The value returned from the application of `Struct` to an `Array{Any, 1}` of `LAR` values, `matrices`, and `Struct` values is a value of
 `Struct type`.  The coordinate system of this value is the one associated with the first object of the `Struct` arguments.  Also,
 the resulting geometrical value is often associated with a variable name.
 
@@ -200,7 +200,7 @@ mutable struct Struct
 	name::AbstractString
 	dim
 	category::AbstractString
-	
+
 	function Struct()
 		self = new([],Any,"new",Any,"feature")
 		self.name = string(objectid(self))
@@ -215,7 +215,7 @@ mutable struct Struct
 		self.dim = length(self.box[1])
 		return self
 	end
-	
+
 	function Struct(data::Array,name)
 		self = Struct()
 		self.body=[item for item in data]
@@ -234,7 +234,7 @@ mutable struct Struct
 		self.category = string(category)
 		return self
 	end
-	
+
 end
 
 	function name(self::Struct)
@@ -243,7 +243,7 @@ end
 	function category(self::Struct)
 		return self.category
 	end
-	
+
 	function len(self::Struct)
 		return length(self.body)
 	end
@@ -274,67 +274,39 @@ end
 	struct2lar(structure::Struct)::Union{LAR,LARmodel}
 
 """
-function struct2lar(structure)
+function struct2lar(structure) # TODO: extend to true `LARmodels`
 	listOfModels = Lar.evalStruct(structure)
 	vertDict= Dict()
-	index,defaultValue,W,FW,EW = 0,0,Array{Float64,1}[],Array{Int64,1}[],Array{Int64,1}[]
-	
+	index,defaultValue = 0,0
+	W = Array{Float64,1}[]
+	m = length(listOfModels[1])
+	larmodel = [Array{Number,1}[] for k=1:m]
+
 	for model in listOfModels
-		if  length(model)==2
-			V,FV = model
-		elseif length(model)==3
-			V,FV,EV = model
-		end
-		
-		for incell in FV
-			outcell=[]
-			for v in incell
-				key = map(Lar.approxVal(7), V[:,v])
-				if get(vertDict,key,defaultValue)==defaultValue
-					index += 1
-                   	vertDict[key]=index
-					append!(outcell,index)
-					append!(W,[key])                   
-				else
-					append!(outcell,vertDict[key])
-				end
-			end
-			append!(FW,[outcell])
-		end
-	end
-	if length(listOfModels[1])==3
-		for model in listOfModels
-			V,FV,EV = model
-			for incell in EV
+		V = model[1]
+		for k=2:m
+			for incell in model[k]
 				outcell=[]
 				for v in incell
 					key = map(Lar.approxVal(7), V[:,v])
 					if get(vertDict,key,defaultValue)==defaultValue
 						index += 1
 						vertDict[key]=index
-						append!(outcell,[index])
-						append!(W,[key])                   
+						push!(outcell,index)
+						push!(W,key)
 					else
-						append!(outcell,vertDict[key])
+						push!(outcell,vertDict[key])
 					end
 				end
-				append!(EW,[outcell])
+				append!(larmodel[k],[outcell])
 			end
-			
 		end
 	end
-	
-	topology = listOfModels[end]
-	if length(topology)==2
-		#FW = removeDups(FW)
-		larmodel = hcat(W...),FW
-		return larmodel
-	elseif length(topology)==3
-		#FW = removeDups(FW)
-		#EW = removeDups(EW)
-		larmodel = hcat(W...),FW,EW
-		return larmodel
-	end
+
+	append!(larmodel[1], W)
+	V = hcat(larmodel[1]...)
+	chains = [convert(Lar.Cells, chain) for chain in larmodel[2:end]]
+	return (V, chains...)
 end
 
 """
@@ -354,14 +326,14 @@ function embedTraversal(cloned::Struct,obj::Struct,n::Int,suffix::String)
 				end
 			end
 			push!(cloned.body,[newMat])
-		elseif (isa(obj.body[i],Tuple) ||isa(obj.body[i],Array))&& length(obj.body[i])==3 
+		elseif (isa(obj.body[i],Tuple) ||isa(obj.body[i],Array))&& length(obj.body[i])==3
 			V,FV,EV = deepcopy(obj.body[i])
 			dimadd = n
 			ncols = size(V,2)
 			nmat = zeros(dimadd,ncols)
 			V = [V;zeros(dimadd,ncols)]
 			push!(cloned.body,[(V,FV,EV)])
-		elseif  (isa(obj.body[i],Tuple) ||isa(obj.body[i],Array))&& length(obj.body[i])==2 
+		elseif  (isa(obj.body[i],Tuple) ||isa(obj.body[i],Array))&& length(obj.body[i])==2
 			V,EV = deepcopy(obj.body[i])
 			dimadd = n
 			ncols = size(V,2)
@@ -411,23 +383,27 @@ function box(model)
 	elseif isa(model,Struct)
 		listOfModels = evalStruct(model)
 		#dim = checkStruct(listOfModels)
-		theMin,theMax = box(listOfModels[1])
-		for theModel in listOfModels[2:end]
-			modelMin,modelMax= box(theModel)
-			for (k,val) in enumerate(modelMin)
-				if val < theMin[k]
-					theMin[k]=val
+		if listOfModels == []
+			return model.box
+		else
+			theMin,theMax = box(listOfModels[1])
+			for theModel in listOfModels[2:end]
+				modelMin,modelMax= box(theModel)
+				for (k,val) in enumerate(modelMin)
+					if val < theMin[k]
+						theMin[k]=val
+					end
 				end
-			end
-			for (k,val) in enumerate(modelMax)
-				if val > theMax[k]
-					theMax[k]=val
+				for (k,val) in enumerate(modelMax)
+					if val > theMax[k]
+						theMax[k]=val
+					end
 				end
 			end
 		end
 		return [theMin,theMax]
 
-	elseif (isa(model,Tuple) ||isa(model,Array))&& (length(model)==2 || length(model)==3)
+	elseif (isa(model,Tuple) ||isa(model,Array))&& (length(model)>=2)
 		V = model[1]
 		theMin = minimum(V, dims=2)
 		theMax = maximum(V, dims=2)
@@ -437,20 +413,15 @@ function box(model)
 end
 
 """
-	apply(affineMatrix::Array{Float64,2}, larmodel::Union{LAR,LARmodel})
+	apply(affineMatrix::Array{Float64,2}, larmodel)
 
 """
 function apply(affineMatrix, larmodel)
-	data = collect(larmodel)
-	V = data[1]
-	
+	V,EV = larmodel
 	m,n = size(V)
-	W = [V; fill(1.0, (1,n))]
+	W = [V; ones(1,size(V,2))]
 	V = (affineMatrix * W)[1:m,1:n]
-
-	data[1] = V	
-	larmodel = Tuple(data)
-	return larmodel
+	return V,EV
 end
 
 """
@@ -463,7 +434,7 @@ function checkStruct(lst)
 		dim = size(obj,1)-1
 	elseif (isa(obj,Tuple) || isa(obj,Array))
 		dim = length(obj[1][:,1])
-	
+
 	elseif isa(obj,Struct)
 		dim = length(obj.box[1])
 	end
@@ -478,12 +449,12 @@ function traversal(CTM::Matrix, stack, obj, scene=[])
 	for i = 1:length(obj.body)
 		if isa(obj.body[i],Matrix)
 			CTM = CTM*obj.body[i]
-		elseif (isa(obj.body[i],Tuple) || isa(obj.body[i],Array)) && 
-			(length(obj.body[i])==2 || length(obj.body[i])==3)
+		elseif (isa(obj.body[i],Tuple) || isa(obj.body[i],Array)) &&
+			(length(obj.body[i])>=2)
 			l = apply(CTM, obj.body[i])
 			push!(scene,l)
 		elseif isa(obj.body[i],Struct)
-			push!(stack,CTM)	
+			push!(stack,CTM)
 			traversal(CTM,stack,obj.body[i],scene)
 			CTM = pop!(stack)
 		end
@@ -498,6 +469,6 @@ end
 function evalStruct(self::Struct)
 	dim = checkStruct(self.body)
    	CTM, stack = Matrix{Float64}(LinearAlgebra.I, dim+1, dim+1), []
-   	scene = traversal(CTM, stack, self, []) 
+   	scene = traversal(CTM, stack, self, [])
 	return scene
 end

@@ -73,59 +73,91 @@ Lar = LinearAlgebraicRepresentation
 	 end
 
 	@testset "signed_coboundary_1 Tests" begin
-		V,(VV,EV,FV,CV) = Lar.cuboid([1.,1.,1.], true);
-		signed_coboundary_1 = Lar.coboundary_1( FV,EV );
+		FV = [[1,2,3,4,5,17,16,12],
+		[1,2,3,4,6,7,8,9,10,11,12,13,14,15],
+		[4,5,9,11,12,13,14,15,16,17],
+		[2,3,6,7], [8,9,10,11]]
 
-		@test size(signed_coboundary_1)==(6,12)
-		@test typeof(signed_coboundary_1)==SparseMatrixCSC{Int8,Int64}
-		@test nnz(signed_coboundary_1)==24
+		EV = [[1,2],[2,3],[3,4],[4,5],[1,12],[2,6],[3,7],[4,9],[5,17],[6,7],[8,9],
+		[8,10],[9,11],[10,11],[11,15],[12,13],[12,16],[13,14],[14,15],[16,17]]
+
+		V = [0   2   5   7  10   2   5   3   7  3  7  0  3  3  7  0  10;
+			16  16  16  16  16  13  13  11  11  8  8  5  5  2  2  0   0]
+		signed_coboundary_1 = Lar.coboundary_1( V,FV,EV,false,true );
+
+		@test size(Matrix(signed_coboundary_1))==(5,20)
+		@test typeof(signed_coboundary_1)==SparseArrays.SparseMatrixCSC{Int8,Int64}
+		@test nnz(signed_coboundary_1)==40
 		@test signed_coboundary_1[1,1]==-1
-		@test signed_coboundary_1[6,12]==-1
+		@test signed_coboundary_1[3,20]==-1
 		@test Matrix(signed_coboundary_1)==
-		[-1   1   0  0   1  -1  0   0  0   0   0   0;
-		  0   0  -1  1   0   0  1  -1  0   0   0   0;
-		 -1   0   1  0   0   0  0   0  1  -1   0   0;
-		  0  -1   0  1   0   0  0   0  0   0   1  -1;
-		  0   0   0  0  -1   0  1   0  1   0  -1   0;
-		  0   0   0  0   0  -1  0   1  0   1   0  -1]
+		[-1  -1  -1  -1   1   0   0   0  -1   0   0   0   0   0   0   0   1   0   0   1;
+		  1   0   1   0  -1   1  -1   1   0   1  -1   1   0   1   1  -1   0  -1  -1   0;
+		  0   0   0   1   0   0   0  -1   1   0   0   0  -1   0  -1   1  -1   1   1  -1;
+		  0   1   0   0   0  -1   1   0   0  -1   0   0   0   0   0   0   0   0   0   0;
+		  0   0   0   0   0   0   0   0   0   0   1  -1   1  -1   0   0   0   0   0   0]
 	end
 
-@testset "chaincomplex 2D Tests" begin
-	W = 
-	 [0.0  0.0  0.0  0.0  1.0  1.0  1.0  1.0  2.0  2.0  2.0  2.0  3.0  3.0  3.0  3.0;
-	  0.0  1.0  2.0  3.0  0.0  1.0  2.0  3.0  0.0  1.0  2.0  3.0  0.0  1.0  2.0  3.0]
-	EW = 
-	[[1, 2],[2, 3],[3, 4],[5, 6],[6, 7],[7, 8],[9, 10],[10, 11],[11, 12],[13, 14],
-	 [14, 15],[15, 16],[1, 5],[2, 6],[3, 7],[4, 8],[5, 9],[6, 10],[7, 11],[8, 12],
-	 [9, 13],[10, 14],[11, 15],[12, 16]]
-	V,bases,coboundaries = Lar.chaincomplex(W,EW)
 
-	@test length(bases[1])==24	# edges
-	@test typeof(bases[1])==Array{Array{Int64,1},1}	# edges
+	@testset "coboundary_1 with non-convex cells Tests" begin
+		V = [5  0  6  9  5  3  0  5  8  10  10  10  0  0  3  9  8  6  5;
+			 9  9  5  5  5  6  6  0  0   9   5   0  0  3  3  8  3  8  3]
 
-	@test length(bases[2])==9 # faces -- previously unknown !!
-	@test typeof(bases[2])==Array{Array{Int64,1},1} # faces 
+		EV = [[1,2],[3,4],[3,5],[1,10],[16,18],[7,14],[6,15],[8,13],[13,14],[10,11],
+		[11,12],[8,19],[9,17],[1,5],[17,19],[6,7],[14,15],[4,11],[3,18],[4,16],[8,9],[9,12],[2,7]]
 
-	@test size(coboundaries[1])==(24, 16) # coboundary_1 
-	@test typeof(coboundaries[1])==SparseArrays.SparseMatrixCSC{Int8,Int64} 
-	# coboundary_1 
-	@test SparseArrays.nnz(coboundaries[1])==48 # coboundary_1 
+		FV = [[1,2,7,6,15,14,13,8,19,17,9,12,11,4,3,5],
+		[3,4,16,18],[6,7,14,15],[1,3,4,5,10,11,16,18],
+		[8,9,17,19],[1,2,7,14,13,8,9,12,11,10]]
 
-	@test size(coboundaries[2])==(9,24) # coboundary_2: oriented 2-cycles of faces
-	@test typeof(coboundaries[2])==SparseArrays.SparseMatrixCSC{Int8,Int64} 
-	@test SparseArrays.nnz(coboundaries[2])==36 
-	# coboundary_2: oriented 2-cycles of faces
-	@test Matrix(coboundaries[2]) ==
-	[-1  0  0  1  0  0  0  0  0  0  0  0  1 -1  0  0  0  0  0  0  0  0  0  0;
-	  0 -1  0  0  1  0  0  0  0  0  0  0  0  1 -1  0  0  0  0  0  0  0  0  0;
-	  0  0 -1  0  0  1  0  0  0  0  0  0  0  0  1 -1  0  0  0  0  0  0  0  0;
-	  0  0  0 -1  0  0  1  0  0  0  0  0  0  0  0  0  1 -1  0  0  0  0  0  0;
-	  0  0  0  0 -1  0  0  1  0  0  0  0  0  0  0  0  0  1 -1  0  0  0  0  0;
-	  0  0  0  0  0 -1  0  0  1  0  0  0  0  0  0  0  0  0  1 -1  0  0  0  0;
-	  0  0  0  0  0  0  0 -1  0  0  1  0  0  0  0  0  0  0  0  0  0  1 -1  0;
-	  0  0  0  0  0  0 -1  0  0  1  0  0  0  0  0  0  0  0  0  0  1 -1  0  0;
-	  0  0  0  0  0  0  0  0 -1  0  0  1  0  0  0  0  0  0  0  0  0  0  1 -1]
-end
+		copFE = Lar.coboundary_1( V::Lar.Points, FV::Lar.Cells, EV::Lar.Cells, false,true );
+
+		@test Matrix(copFE) ==
+		[-1  0  0  1  0 -1  0  1  1  1  1  0  0  0  0  0  0  0  0  0 -1 -1 -1;
+		  1 -1  1  0  0  0  1 -1 -1  0 -1  1 -1 -1 -1 -1 -1 -1  0  0  0  1  1;
+		  0  1  0  0  1  0  0  0  0  0  0  0  0  0  0  0  0  0 -1  1  0  0  0;
+		  0  0  0  0  0  1 -1  0  0  0  0  0  0  0  0  1  1  0  0  0  0  0  0;
+		  0  0 -1 -1 -1  0  0  0  0 -1  0  0  0  1  0  0  0  1  1 -1  0  0  0;
+		  0  0  0  0  0  0  0  0  0  0  0 -1  1  0  1  0  0  0  0  0  1  0  0]
+	end
+
+
+	@testset "chaincomplex 2D Tests" begin
+		W = 
+		 [0.0  0.0  0.0  0.0  1.0  1.0  1.0  1.0  2.0  2.0  2.0  2.0  3.0  3.0  3.0  3.0;
+		  0.0  1.0  2.0  3.0  0.0  1.0  2.0  3.0  0.0  1.0  2.0  3.0  0.0  1.0  2.0  3.0]
+		EW = 
+		[[1, 2],[2, 3],[3, 4],[5, 6],[6, 7],[7, 8],[9, 10],[10, 11],[11, 12],[13, 14],
+		 [14, 15],[15, 16],[1, 5],[2, 6],[3, 7],[4, 8],[5, 9],[6, 10],[7, 11],[8, 12],
+		 [9, 13],[10, 14],[11, 15],[12, 16]]
+		V,bases,coboundaries = Lar.chaincomplex(W,EW)
+
+		@test length(bases[1])==24	# edges
+		@test typeof(bases[1])==Array{Array{Int64,1},1}	# edges
+
+		@test length(bases[2])==9 # faces -- previously unknown !!
+		@test typeof(bases[2])==Array{Array{Int64,1},1} # faces 
+
+		@test size(coboundaries[1])==(24, 16) # coboundary_1 
+		@test typeof(coboundaries[1])==SparseArrays.SparseMatrixCSC{Int8,Int64} 
+		# coboundary_1 
+		@test SparseArrays.nnz(coboundaries[1])==48 # coboundary_1 
+
+		@test size(coboundaries[2])==(9,24) # coboundary_2: oriented 2-cycles of faces
+		@test typeof(coboundaries[2])==SparseArrays.SparseMatrixCSC{Int8,Int64} 
+		@test SparseArrays.nnz(coboundaries[2])==36 
+		# coboundary_2: oriented 2-cycles of faces
+		@test Matrix(coboundaries[2]) ==
+		[-1  0  0  1  0  0  0  0  0  0  0  0  1 -1  0  0  0  0  0  0  0  0  0  0;
+		  0 -1  0  0  1  0  0  0  0  0  0  0  0  1 -1  0  0  0  0  0  0  0  0  0;
+		  0  0 -1  0  0  1  0  0  0  0  0  0  0  0  1 -1  0  0  0  0  0  0  0  0;
+		  0  0  0 -1  0  0  1  0  0  0  0  0  0  0  0  0  1 -1  0  0  0  0  0  0;
+		  0  0  0  0 -1  0  0  1  0  0  0  0  0  0  0  0  0  1 -1  0  0  0  0  0;
+		  0  0  0  0  0 -1  0  0  1  0  0  0  0  0  0  0  0  0  1 -1  0  0  0  0;
+		  0  0  0  0  0  0  0 -1  0  0  1  0  0  0  0  0  0  0  0  0  0  1 -1  0;
+		  0  0  0  0  0  0 -1  0  0  1  0  0  0  0  0  0  0  0  0  0  1 -1  0  0;
+		  0  0  0  0  0  0  0  0 -1  0  0  1  0  0  0  0  0  0  0  0  0  0  1 -1]
+	end
 
 #	@testset "chaincomplex 3D Tests" begin
 #		cube_1 = ([0 0 0 0 1 1 1 1; 0 0 1 1 0 0 1 1; 0 1 0 1 0 1 0 1], 
