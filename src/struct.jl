@@ -417,15 +417,11 @@ end
 
 """
 function apply(affineMatrix, larmodel)
-	V = larmodel[1]
-
+	V,EV = larmodel
 	m,n = size(V)
-	W = [V; fill(1.0, (1,n))]
+	W = [V; ones(1,size(V,2))]
 	V = (affineMatrix * W)[1:m,1:n]
-
-	larmodel[1] = V
-	larmodel = Tuple(larmodel)
-	return larmodel
+	return V,EV
 end
 
 """
