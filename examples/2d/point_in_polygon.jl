@@ -3,7 +3,6 @@ Lar = LinearAlgebraicRepresentation
 using Plasm
 using NearestNeighbors
 using PyCall
-using Revise
 
 p = PyCall.pyimport("pyplasm")
 
@@ -19,15 +18,15 @@ function pointsinout(V,EV, n=10000)
 		inOut = classify(queryPoint)
 		# println("k = $k, queryPoint = $queryPoint, inOut = $inOut")
 		if inOut=="p_in"
-			push!(result, p["MK"](queryPoint))
+			push!(result, p."MK"(queryPoint))
 		elseif inOut=="p_out"
-			push!(result, Plasm.color("red")(p["MK"](queryPoint)))
+			push!(result, Plasm.color("red")(p."MK"(queryPoint)))
 		elseif inOut=="p_on"
-			push!(result, Plasm.color("green")(p["MK"](queryPoint)))
+			push!(result, Plasm.color("green")(p."MK".(queryPoint)))
 		end
 	end
 	return result
 end
 
-result = pointsinout(V,EV,20000);
-Plasm.view(p["STRUCT"](result))
+result = pointsinout(V,EV);
+Plasm.view(p."STRUCT"(result))
