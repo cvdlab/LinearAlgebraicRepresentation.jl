@@ -10,57 +10,46 @@ Lar = LinearAlgebraicRepresentation
 	@test Lar.checkStruct(square)==2
 end
 
-@testset "apply Tests" begin
-	square = ([[0; 0] [0; 1] [1; 0] [1; 1]], [[1, 2, 3,
+@testset "2D" begin
+	square = ([[0.; 0] [0; 1] [1; 0] [1; 1]], [[1, 2, 3,
 			4]], [[1,2], [1,3], [2,4], [3,4]])
-	@testset "2D" begin
-		@testset "apply Translation 2D" begin
-			@test typeof(Lar.apply(Lar.t(-0.5,-0.5),square))== 
-			Tuple{Array{Float64,2},Array{Array{Int64,1},1},
-			Array{Array{Int64,1},1}}
-			@test Lar.apply(Lar.t(-0.5,-0.5),square)==
-			([-0.5 -0.5 0.5 0.5; -0.5 0.5 -0.5 0.5], 
-			Array{Int64,1}[[1, 2, 3, 4]], Array{Int64,1}[[1, 2], [1, 3], [2, 4], [3, 4]])
-		end
-		@testset "apply Scaling 2D" begin
-			@test typeof(Lar.apply(Lar.s(-0.5,-0.5),square))==
-			Tuple{Array{Float64,2},Array{Array{Int64,1},1},Array{Array{Int64,1},1}}
-			@test Lar.apply(Lar.s(-0.5,-0.5),square)==
-			([0.0 0.0 -0.5 -0.5; 0.0 -0.5 0.0 -0.5], Array{Int64,1}[[1, 2, 3, 4]], 
-			Array{Int64,1}[[1, 2], [1, 3], [2, 4], [3, 4]])
-		end
-		@testset "apply Rotation 2D" begin
-			@test typeof(Lar.apply(Lar.r(0),square))==
-			Tuple{Array{Float64,2},Array{Array{Int64,1},1},Array{Array{Int64,1},1}}
-			@test Lar.apply(Lar.r(0),square)==square
-		end
+	@testset "apply Translation 2D" begin
+		@test typeof(Lar.apply(Lar.t(-0.5,-0.5),square))==Tuple{Array{Float64,2},Array{Array{Int64,1},1}}
+		@test Lar.apply(Lar.t(-0.5,-0.5),square)==([-0.5 -0.5 0.5 0.5; -0.5 0.5 -0.5 0.5], Array{Int64,1}[[1, 2, 3, 4]])
+	end
+	@testset "apply Scaling 2D" begin
+		@test typeof(Lar.apply(Lar.s(-0.5,-0.5),square))==Tuple{Array{Float64,2},Array{Array{Int64,1},1}}
+		@test Lar.apply(Lar.s(-0.5,-0.5),square)==([0.0 0.0 -0.5 -0.5; 0.0 -0.5 0.0 -0.5], Array{Int64,1}[[1, 2, 3, 4]])
+	end
+	@testset "apply Rotation 2D" begin
+		@test typeof(Lar.apply(Lar.r(0),square))==Tuple{Array{Float64,2},Array{Array{Int64,1},1}}
+		@test Lar.apply(Lar.r(0),square)==([0.0 0.0 1.0 1.0; 0.0 1.0 0.0 1.0], Array{Int64,1}[[1, 2, 3, 4]])
 	end
 end
 
 @testset "3D" begin
 	cube=Lar.cuboid([1,1,1])
 	@testset "apply Translation 3D" begin
-		@test typeof(Lar.apply(Lar.t(-0.5,-0.5,-0.5),cube))==
-		Tuple{Array{Float64,2},Array{Array{Int64,1},1}}
-		@test Lar.apply(Lar.t(-0.5, -0.5, -0.5),cube) == 
-		([-0.5 -0.5 -0.5 -0.5 0.5 0.5 0.5 0.5; 
-		-0.5 -0.5 0.5 0.5 -0.5 -0.5 0.5 0.5; -0.5 0.5 -0.5 0.5 -0.5 0.5 -0.5 0.5], 
+		@test typeof(Lar.apply(Lar.t(-0.5,-0.5,-0.5),cube))==Tuple{Array{Float64,2},Array{Array{Int64,1},1}}
+		@test Lar.apply(Lar.t(-0.5, -0.5, -0.5),cube) ==
+		([-0.5 -0.5 -0.5 -0.5 0.5 0.5 0.5 0.5;
+		-0.5 -0.5 0.5 0.5 -0.5 -0.5 0.5 0.5; -0.5 0.5 -0.5 0.5 -0.5 0.5 -0.5 0.5],
 		Array{Int64,1}[[1, 2, 3, 4, 5, 6, 7, 8]])
-	end 
+	end
 	@testset "apply Scaling 3D" begin
 		@test typeof(Lar.apply(Lar.s(-0.5,-0.5,-0.5),cube))==
 		Tuple{Array{Float64,2},Array{Array{Int64,1},1}}
-		@test Lar.apply(Lar.s(-0.5, -0.5, -0.5),cube) == 
-		([0.0 0.0 0.0 0.0 -0.5 -0.5 -0.5 -0.5; 
-		0.0 0.0 -0.5 -0.5 0.0 0.0 -0.5 -0.5; 0.0 -0.5 0.0 -0.5 0.0 -0.5 0.0 -0.5], 
+		@test Lar.apply(Lar.s(-0.5, -0.5, -0.5),cube) ==
+		([0.0 0.0 0.0 0.0 -0.5 -0.5 -0.5 -0.5;
+		0.0 0.0 -0.5 -0.5 0.0 0.0 -0.5 -0.5; 0.0 -0.5 0.0 -0.5 0.0 -0.5 0.0 -0.5],
 		Array{Int64,1}[[1, 2, 3, 4, 5, 6, 7, 8]])
 	end
 	@testset "apply Rotation 3D" begin
 		@test typeof(Lar.apply(Lar.r(pi,0,0),cube))==
 		Tuple{Array{Float64,2},Array{Array{Int64,1},1}}
 		@test Lar.apply(Lar.r(0, 0, 0),cube) ==
-		 ([0.0 0.0 0.0 0.0 1.0 1.0 1.0 1.0; 0.0 0.0 1.0 1.0 0.0 0.0 1.0 1.0; 
-		 0.0 1.0 0.0 1.0 0.0 1.0 0.0 1.0], Array{Int64,1}[[1, 2, 3, 4, 5, 6, 7, 8]]) 
+		 ([0.0 0.0 0.0 0.0 1.0 1.0 1.0 1.0; 0.0 0.0 1.0 1.0 0.0 0.0 1.0 1.0;
+		 0.0 1.0 0.0 1.0 0.0 1.0 0.0 1.0], Array{Int64,1}[[1, 2, 3, 4, 5, 6, 7, 8]])
 	end
 end
 
@@ -101,22 +90,22 @@ end
 #	square = Lar.cuboid([1,1])
 #	x = Lar.Struct([square])
 #	@test length(Lar.embedTraversal(Lar.Struct(),x,1,"New").body[2][1][1])==
-#	length(x.body[1][1][1])+1 
+#	length(x.body[1][1][1])+1
 #	#in this case n=1, but generally:
 #	# length(length(embedTraversal(x,x,1,"New")=length(x.body[1][1][1])+n
 #	@test length(embedTraversal(deepcopy(x),deepcopy(x),3,"New").body[2][1][1])?==
 #	length(x.body[1][1][1])+3
-#	@test typeof(embedTraversal(deepcopy(x),deepcopy(x),1,"New"))==Struct		
+#	@test typeof(embedTraversal(deepcopy(x),deepcopy(x),1,"New"))==Struct
 #end
 
 #@testset "embedStruct Tests" begin
 #	square = Lar.cuboid([1,1])
-#	x = Lar.Struct([square])	
-#	@test length(Lar.embedStruct(1)(x).body[1][1][1])==length(x.body[1][1][1])+1 
-#	#in this case n = 1, but generally: 
+#	x = Lar.Struct([square])
+#	@test length(Lar.embedStruct(1)(x).body[1][1][1])==length(x.body[1][1][1])+1
+#	#in this case n = 1, but generally:
 #	#length(embedStruct(n)(x).body[1][1][1])=length(x.body[1][1][1])+n
 #	@test length(Lar.embedStruct(3)(x).body[1][1][1])==length(x.body[1][1][1])+3
-#	@test typeof(Lar.embedStruct(1)(x))==Struct		
+#	@test typeof(Lar.embedStruct(1)(x))==Struct
 #end
 
 @testset "removeDups Tests" begin
@@ -139,7 +128,7 @@ end
       table = Lar.apply(Lar.t(-0.5,-0.5),square)
       structure = Lar.Struct([repeat([table,Lar.r(pi/2)],outer=2)...])
       @test typeof(Lar.struct2lar(structure))==
-      		Tuple{Array{Float64,2},Array{Array{Int64,1},1}}      
+      		Tuple{Array{Float64,2},Array{Array{Int64,1},1}}
 	  @test size(Lar.struct2lar(structure)[1])==(2, 4)
    end
    @testset "struct2lar 3D" begin
