@@ -1,7 +1,7 @@
 using LinearAlgebraicRepresentation
 using Plasm, LinearAlgebra
 Lar = LinearAlgebraicRepresentation
-using Revise, SparseArrays
+using SparseArrays
 
 store = []
 scaling = 1.75

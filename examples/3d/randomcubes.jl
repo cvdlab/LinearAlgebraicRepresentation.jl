@@ -1,7 +1,7 @@
 using LinearAlgebraicRepresentation
 using Plasm
 Lar = LinearAlgebraicRepresentation
-using Revise, SparseArrays
+using SparseArrays
 
 #include("")
 store = []

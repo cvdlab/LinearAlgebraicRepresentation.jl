@@ -6,10 +6,10 @@ desc = "LAR, the Linear Algebraic Representation for Solid Modeling."
 version = "0.1.0"
 
 [deps]
-DataStructures = "864edb3b-99cc-5e75-8d2d-829cb0a9cfe8"
-IntervalTrees = "524e6230-43b7-53ae-be76-1e9e4d08d11b"
-NearestNeighbors = "b8a86587-4115-5ab1-83bc-aa920d37bbce"
-SparseArrays = "2f01184e-e22b-5df5-ae63-d93ebab69eaf"
+#DataStructures = "864edb3b-99cc-5e75-8d2d-829cb0a9cfe8"
+#IntervalTrees = "524e6230-43b7-53ae-be76-1e9e4d08d11b"
+#NearestNeighbors = "b8a86587-4115-5ab1-83bc-aa920d37bbce"
+#SparseArrays = "2f01184e-e22b-5df5-ae63-d93ebab69eaf"
 Triangle = "56f361f5-126b-55db-87fb-1c71988fcde4"
 
 [extras]

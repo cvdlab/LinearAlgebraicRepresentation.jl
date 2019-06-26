@@ -1,7 +1,6 @@
 using Plasm, SparseArrays
 using LinearAlgebraicRepresentation
 Lar = LinearAlgebraicRepresentation
-using Revise
 
 V, (VV,EV,FV,CV) = Lar.simplex(3, true)
 tetra = V, EV,FV,CV

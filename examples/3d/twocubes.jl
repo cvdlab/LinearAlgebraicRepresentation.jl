@@ -1,7 +1,6 @@
 using LinearAlgebraicRepresentation
 using Plasm, SparseArrays
 Lar = LinearAlgebraicRepresentation
-using Revise
 
 function twocubes()
     #V,(VV,EV,FV,CV) = Lar.cuboid([0.5,0.5,0.5],true,[-0.5,-0.5,-0.5])

@@ -1,7 +1,7 @@
 using LinearAlgebraicRepresentation
 using Plasm, LinearAlgebra
 Lar = LinearAlgebraicRepresentation
-using Revise, SparseArrays
+using SparseArrays
 
 include("./LARinput.jl")
 
