@@ -770,6 +770,24 @@ function lar2obj(V::Lar.Points, cc::Lar.ChainComplex)
     return obj
 end
 
+"""
+	lar2obj(V::Lar.Points, TV::Lar.Cells)::String
+```
+```
+"""
+function lar2obj(V::Lar.Points, TV::Lar.Cells)
+	obj = ""
+    for v in 1:size(V, 1)
+        obj = string(obj, "v ",
+    	round(V[1,v], digits=6), " ",
+    	round(V[2,v], digits=6), " ",
+    	round(V[3,v], digits=6), "\n")
+	end
+	for tri in TV
+		#t = copCF[c, f] > 0 ? tri : tri[end:-1:1]
+		obj = string(obj, "f ", tri[1], " ", tri[2], " ", tri[3], "\n")
+	end
+end
 
 """
     obj2lar(path)
