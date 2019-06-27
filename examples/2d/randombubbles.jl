@@ -1,5 +1,7 @@
 using LinearAlgebraicRepresentation
 Lar = LinearAlgebraicRepresentation
+using ViewerGL
+GL = ViewerGL
 
 function randombubbles()
 	store = []
@@ -18,19 +20,23 @@ function randombubbles()
 	end
 	s = Lar.Struct(store)
 	V,EV = Lar.struct2lar(s)
-	V = Plasm.normalize(V)
+	V = GL.normalize2(V)
 	#Plasm.view(V,EV)
 	GL.VIEW([ GL.GLLines(V,EV) ])
-	V,FVs = Lar.arrange2D(V,EV)
+
+	W,EW = Lar.fragmentlines((V,EV))
+	V,FVs,EVs = Lar.arrange2D(W,EW)
 end
 
 # ////////////////////////////////////////////////////////////
 
 # generation of 2D arrangement
-V,FVs = randombubbles()
+V,FVs,EVs = randombubbles()
 
 # native OpenGL visualization
 GL.VIEW(GL.GLExplode(V,FVs,1.2,1.2,1.2));
 GL.VIEW(GL.GLExplode(V,FVs,1.2,1.2,1.2,3));
 GL.VIEW(GL.GLExplode(V,FVs,1.2,1.2,1.2,99));
 GL.VIEW(GL.GLExplode(V,FVs,1.,1.,1.,99));
+
+GL.VIEW(GL.GLExplode(V,EVs,1.2,1.2,1.2,12));
