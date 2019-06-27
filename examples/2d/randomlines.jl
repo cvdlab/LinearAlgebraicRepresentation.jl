@@ -28,44 +28,17 @@ function randlines(n=300, t=0.4)
 	W,EW = Lar.fragmentlines(model);
 	U,EVs = Lar.biconnectedComponent((W,EW::Lar.Cells));
 	EV = convert(Lar.Cells, cat(EVs))
-	V,FVs = Lar.arrange2D(U,EV)
+	V,FVs,EVs = Lar.arrange2D(U,EV)
 end
 
-# generation of 2D arrangement
-V,FVs = randlines()
 
 # ////////////////////////////////////////////////////////////
+
+# generation of 2D arrangement
+V,FVs,EVs = randlines()
 
 # native OpenGL visualization
 GL.VIEW(GL.GLExplode(V,FVs,1.2,1.2,1.2));
 GL.VIEW(GL.GLExplode(V,FVs,1.2,1.2,1.2,3));
 GL.VIEW(GL.GLExplode(V,FVs,1.2,1.2,1.2,99));
 GL.VIEW(GL.GLExplode(V,FVs,1.,1.,1.,99));
-
-
-#=
-# ////////////////////////////////////////////////////////////
-# actual scaling of barycenters of cells
-assembly = GL.explodecells(V,FVs,1.2,1.2,1.2) # sx,sy,sz > 1.0
-meshes = Any[]
-for k=1:length(assembly)-1
-	# Lar model with constant lemgth of cells, i.e a GRID object !!
-	mesh = assembly[k]
-	# NO color --- assumed WHITE !!
-	push!(meshes, GL.GLGrid(mesh) )
-end
-GL.VIEW(meshes);
-
-# ////////////////////////////////////////////////////////////
-# actual scaling of barycenters of cells
-assembly = GL.explodecells(V,FVs,1.2,1.2,1.2) # sx,sy,sz > 1.0
-meshes = Any[]
-for k=1:length(assembly)-1
-	# Lar model with constant lemgth of cells, i.e a GRID object !!
-	mesh = assembly[k]
-	# cyclic color + random color components
-	color = GL.COLORS[k%12+1] - (rand(Float64,4)*0.1)
-	push!(meshes, GL.GLGrid(mesh, color) )
-end
-GL.VIEW(meshes);
-=#
