@@ -51,47 +51,44 @@ function randomlines(n=300, t=0.4)
 	#Plasm.view(Plasm.lar_exploded(model)(1.2,1.2,1.2))
 end
 
+# generation of 2D arrangement
 V,FVs = randomlines(30,2)
 
-function explodecells(V,FVs,sx=1.2,sy=1.2,sz=1.2)
-	V,FVs
-	outVerts, outCells = [],[]
-	grids = []
-	for FV in FVs
-		vertidx = sort(collect(Set(cat(FV))))
-		vcell = V[:,vertidx]
-		vdict = Dict(zip(vertidx,1:length(vertidx)))
+# ////////////////////////////////////////////////////////////
 
-		center = sum(vcell,dims=2)/size(vcell,2)
-		scaled_center = size(center,1)==2 ? center .* [sx;sy] : center .* [sx;sy;sz]
-		translation_vector = scaled_center - center
-		cellverts = vcell .+ translation_vector
-		newcells = [[vdict[v] for v in cell] for cell in FV]
-
-		mesh = cellverts, newcells
-		push!(grids, mesh)
-	end
-	return grids
-end
-
-
-assembly = explodecells(V,FVs,1,1,1)
+# no scaling the barycenters of cells
+assembly = GL.explodecells(V,FVs,1,1,1)
 meshes = Any[]
 for k=1:length(assembly)-1
+	# Lar model with constant lemgth of cells, i.e a GRID object !!
 	mesh = assembly[k]
-	color = GL.COLORS[k%12+1] - (rand(Float64,4)*0.1)
+	color = GL.COLORS[k%12+1] - (rand(Float64,4)*0.1) # random color
 	push!(meshes, GL.GLGrid(mesh,color) )
 end
-
+# OpenGL visualization
 GL.VIEW(meshes);
 
-
-assembly = explodecells(V,FVs,1.2,1.2,1.2)
+# ////////////////////////////////////////////////////////////
+# actual scaling of barycenters of cells
+assembly = GL.explodecells(V,FVs,1.2,1.2,1.2) # sx,sy,sz > 1.0
 meshes = Any[]
 for k=1:length(assembly)-1
+	# Lar model with constant lemgth of cells, i.e a GRID object !!
 	mesh = assembly[k]
-	color = GL.COLORS[k%12+1] - (rand(Float64,4)*0.1)
-	push!(meshes, GL.GLGrid(mesh,color) )
+	# NO color --- assumed WHITE !!
+	push!(meshes, GL.GLGrid(mesh) )
 end
+GL.VIEW(meshes);
 
+# ////////////////////////////////////////////////////////////
+# actual scaling of barycenters of cells
+assembly = GL.explodecells(V,FVs,1.2,1.2,1.2) # sx,sy,sz > 1.0
+meshes = Any[]
+for k=1:length(assembly)-1
+	# Lar model with constant lemgth of cells, i.e a GRID object !!
+	mesh = assembly[k]
+	# cyclic color + random color components
+	color = GL.COLORS[k%12+1] - (rand(Float64,4)*0.1)
+	push!(meshes, GL.GLGrid(mesh, color) )
+end
 GL.VIEW(meshes);
