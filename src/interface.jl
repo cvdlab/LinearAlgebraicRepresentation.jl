@@ -656,3 +656,17 @@ function collection2model(collection)
 	end
 	return W,FW,EW
 end
+
+
+
+function arrange2D(V,EV)
+	cop_EV = Lar.coboundary_0(EV::Lar.Cells)
+	cop_EW = convert(Lar.ChainOp, cop_EV)
+	W = convert(Lar.Points,V')
+	V, copEV, copFE = Lar.Arrangement.planar_arrangement(W::Lar.Points, cop_EW::Lar.ChainOp)
+
+	triangulated_faces = Lar.triangulate2D(V, [copEV, copFE])
+	FVs = convert(Array{Lar.Cells}, triangulated_faces)
+	V = convert(Lar.Points,V')
+	return V,FVs
+end
