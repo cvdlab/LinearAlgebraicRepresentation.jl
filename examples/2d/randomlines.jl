@@ -36,34 +36,14 @@ V,FVs = randlines()
 
 # ////////////////////////////////////////////////////////////
 
-# no scaling the barycenters of cells
-assembly = GL.explodecells(V,FVs,1,1,1)
-meshes = Any[]
-for k=1:length(assembly)-1
-	# Lar model with constant lemgth of cells, i.e a GRID object !!
-	mesh = assembly[k]
-	color = GL.COLORS[k%12+1] - (rand(Float64,4)*0.1) # random color
-	push!(meshes, GL.GLGrid(mesh,color) )
-end
-# OpenGL visualization
-GL.VIEW(meshes);
+# native OpenGL visualization
+GL.VIEW(GL.GLExplode(V,FVs,1.2,1.2,1.2));
+GL.VIEW(GL.GLExplode(V,FVs,1.2,1.2,1.2,3));
+GL.VIEW(GL.GLExplode(V,FVs,1.2,1.2,1.2,99));
+GL.VIEW(GL.GLExplode(V,FVs,1.,1.,1.,99));
 
 
-
-# ////////////////////////////////////////////////////////////
-function GLExplode(V,FV,sx=1.2,sy=1.2,sz=1.2)
-	assembly = GL.explodecells(V,FV,1.2,1.2,1.2)
-	meshes = Any[]
-	for k=1:length(assembly)-1
-		# Lar model with constant lemgth of cells, i.e a GRID object !!
-		mesh = assembly[k]
-		# NO color --- assumed WHITE !!
-		push!(meshes, GL.GLGrid(mesh) )
-	end
-	return meshes
-end
-
-
+#=
 # ////////////////////////////////////////////////////////////
 # actual scaling of barycenters of cells
 assembly = GL.explodecells(V,FVs,1.2,1.2,1.2) # sx,sy,sz > 1.0
@@ -88,3 +68,4 @@ for k=1:length(assembly)-1
 	push!(meshes, GL.GLGrid(mesh, color) )
 end
 GL.VIEW(meshes);
+=#

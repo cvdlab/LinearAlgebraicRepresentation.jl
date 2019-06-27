@@ -1,5 +1,4 @@
 using LinearAlgebraicRepresentation
-using Plasm
 Lar = LinearAlgebraicRepresentation
 
 function randombubbles()
@@ -20,21 +19,18 @@ function randombubbles()
 	s = Lar.Struct(store)
 	V,EV = Lar.struct2lar(s)
 	V = Plasm.normalize(V)
-	Plasm.view(V,EV)
-
-	W = convert(Lar.Points, V')
-	cop_EV = Lar.coboundary_0(EV::Lar.Cells)
-	cop_EW = convert(Lar.ChainOp, cop_EV)
-	V, copEV, copFE = Lar.Arrangement.planar_arrangement(W::Lar.Points, cop_EW::Lar.ChainOp)
-
-	triangulated_faces = Lar.triangulate2D(V, [copEV, copFE])
-	FVs = convert(Array{Lar.Cells}, triangulated_faces)
-	V = convert(Lar.Points, V')
-	Plasm.viewcolor(V::Lar.Points, FVs::Array{Lar.Cells})
-
-	EVs = Lar.FV2EVs(copEV, copFE) # polygonal face fragments
-	model = V,EVs
-	Plasm.view(Plasm.lar_exploded(model)(1.2,1.2,1.2))
+	#Plasm.view(V,EV)
+	GL.VIEW([ GL.GLLines(V,EV) ])
+	V,FVs = Lar.arrange2D(V,EV)
 end
 
-randombubbles()
+# ////////////////////////////////////////////////////////////
+
+# generation of 2D arrangement
+V,FVs = randombubbles()
+
+# native OpenGL visualization
+GL.VIEW(GL.GLExplode(V,FVs,1.2,1.2,1.2));
+GL.VIEW(GL.GLExplode(V,FVs,1.2,1.2,1.2,3));
+GL.VIEW(GL.GLExplode(V,FVs,1.2,1.2,1.2,99));
+GL.VIEW(GL.GLExplode(V,FVs,1.,1.,1.,99));
