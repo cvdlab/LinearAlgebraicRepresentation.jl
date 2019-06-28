@@ -416,7 +416,7 @@ end
 	apply(affineMatrix::Array{Float64,2}, larmodel)
 
 """
-function apply(affineMatrix, larmodel)
+function apply(affineMatrix::Array{Float64,2}, larmodel)
 	V,EV = larmodel
 	m,n = size(V)
 	W = [V; ones(1,size(V,2))]
