@@ -1,11 +1,12 @@
 using LinearAlgebraicRepresentation
 Lar = LinearAlgebraicRepresentation
-using Plasm
+using ViewerGL
+GL = ViewerGL
 
 n = 200 #3000 #1000 #20000
 t = 0.35 #0.15 #0.4 #0.15
 
-function randomlines(n=1000,t=0.2)
+function randlines(n=1000,t=0.2)
 	V = zeros(Float64,2,2*n)
 	EV = [zeros(Int64,2) for k=1:n]
 	for k=1:n
@@ -17,18 +18,20 @@ function randomlines(n=1000,t=0.2)
 		V[:,n+k] = (v2-vm)*t + transl
 		EV[k] = [k,n+k]
 	end
-	V = Plasm.normalize(V)
+	V = GL.normalize2(V)
 	model = (V,EV)
 	return model
 end
 
-model = randomlines(n,t)
+model = randlines(n,t)
 Sigma = Lar.spaceindex(model)
-Plasm.view(model)
+GL.VIEW([ GL.GLLines(model...)] )
+
+W,EW = Lar.fraglines(1.5,1.5,1.5)(model)
+GL.VIEW([ GL.GLLines(W,EW,GL.COLORS[1])] );
 
 W,EW = Lar.fragmentlines(model)
-Plasm.viewexploded(W,EW)(1.2,1.2,1.2)
-
 V,EVs = Lar.biconnectedComponent((W,EW::Lar.Cells)) # 2-connected components (H & T)
-hpcs = [ Plasm.lar2hpc(V,EVs[i]) for i=1:length(EVs) ]
-Plasm.view([ Plasm.color(Plasm.colorkey[(k%12)==0 ? 12 : k%12])(hpcs[k]) for k=1:(length(hpcs)) ])
+
+graphs = [ GL.GLLines(V,EVs[k],GL.COLORS[k%12]) for k=1:length(EVs) ]
+GL.VIEW(graphs);

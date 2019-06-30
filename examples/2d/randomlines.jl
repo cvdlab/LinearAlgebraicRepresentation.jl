@@ -1,6 +1,5 @@
 using LinearAlgebraicRepresentation
 Lar = LinearAlgebraicRepresentation
-#using Plasm
 using ViewerGL
 GL = ViewerGL
 
