@@ -4,7 +4,11 @@ GL = ViewerGL
 
 filename = "/Users/paoluzzi/Documents/dev/Plasm.jl/test/svg/Lar.svg"
 V,EV = Plasm.svg2lar(filename)
-GL.VIEW([ GL.GLLines(V,EV,GL.COLORS[1]) ]);
+
+GL.VIEW([
+	GL.GLLines(V,EV,GL.COLORS[1]),
+	GL.GLAxis(GL.Point3d(0,0,0),GL.Point3d(1,1,1))
+]);
 
 function pointsinout(V,EV, n=10000)
 	point_in = []
@@ -29,7 +33,7 @@ end
 
 points_in, points_out, points_on = pointsinout(V,EV);
 pointsin = [vcat(points_in...) zeros(length(points_in),1)]
-pointsout = [vcat(points_out...) zeros(length(points_in),1)]
+pointsout = [vcat(points_out...) zeros(length(points_out),1)]
 
 polygon = [GL.GLLines(V,EV,GL.COLORS[1])];
 in_mesh = [GL.GLPoints(pointsin, GL.COLORS[2])]
