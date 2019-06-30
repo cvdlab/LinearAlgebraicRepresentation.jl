@@ -1,32 +1,39 @@
-using LinearAlgebraicRepresentation
+using LinearAlgebraicRepresentation, ViewerGL
 Lar = LinearAlgebraicRepresentation
-using Plasm
-using NearestNeighbors
-using PyCall
-
-p = PyCall.pyimport("pyplasm")
+GL = ViewerGL
 
 filename = "/Users/paoluzzi/Documents/dev/Plasm.jl/test/svg/Lar.svg"
 V,EV = Plasm.svg2lar(filename)
-Plasm.view(V, EV)
+GL.VIEW([ GL.GLLines(V,EV,GL.COLORS[1]) ]);
 
 function pointsinout(V,EV, n=10000)
-	result = [Plasm.lar2hpc(V,EV)]
+	point_in = []
+	point_out = []
+	point_on = []
 	classify = Lar.pointInPolygonClassification(V,EV)
 	for k=1:n
-		queryPoint = [rand(),rand()]
+		queryPoint = rand(1,2)
 		inOut = classify(queryPoint)
 		# println("k = $k, queryPoint = $queryPoint, inOut = $inOut")
 		if inOut=="p_in"
-			push!(result, p."MK"(queryPoint))
+			push!(point_in, queryPoint);
 		elseif inOut=="p_out"
-			push!(result, Plasm.color("red")(p."MK"(queryPoint)))
+			push!(point_out, queryPoint);
 		elseif inOut=="p_on"
-			push!(result, Plasm.color("green")(p."MK".(queryPoint)))
+			push!(point_on, queryPoint);
 		end
 	end
-	return result
+	#GL.GLPoints(queryPoint,GL.COLORS[2])
+	return point_in,point_out,point_on
 end
 
-result = pointsinout(V,EV);
-Plasm.view(p."STRUCT"(result))
+points_in, points_out, points_on = pointsinout(V,EV);
+pointsin = [vcat(points_in...) zeros(length(points_in),1)]
+pointsout = [vcat(points_out...) zeros(length(points_in),1)]
+
+polygon = [GL.GLLines(V,EV,GL.COLORS[1])];
+in_mesh = [GL.GLPoints(pointsin, GL.COLORS[2])]
+out_mesh = [GL.GLPoints(pointsout, GL.COLORS[3])]
+
+result = cat([polygon,in_mesh,out_mesh])
+GL.VIEW(result);
