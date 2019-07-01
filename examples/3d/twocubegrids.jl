@@ -40,4 +40,4 @@ function twocubegrids(n,m,p)
     GL.VIEW(GL.GLExplode(V,EVs,1.5,1.5,1.5,99));
 end
 
-twocubegrids(5,5,5)
+twocubegrids(5,5,5);
