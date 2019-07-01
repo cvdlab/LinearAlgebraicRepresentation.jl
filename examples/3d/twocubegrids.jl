@@ -1,19 +1,19 @@
 # generator code
 
 using LinearAlgebraicRepresentation
-using Plasm, SparseArrays
+using SparseArrays
 Lar = LinearAlgebraicRepresentation
 L = LinearAlgebraicRepresentation
 
-function twocubes()
-    #V,(VV,EV,FV,CV) = Lar.cuboid([0.5,0.5,0.5],true,[-0.5,-0.5,-0.5])
-    V,(VV,EV,FV,CV) = Lar.cuboidGrid([2,2,2],true)
+function twocubegrids(n,m,p)
+    V,(VV,EV,FV,CV) = Lar.cuboidGrid([n,m,p],true)
     mybox = (V,CV,FV,EV)
 
-    twocubes = Lar.Struct([mybox, L.t(0.3,0.4,0.5), L.r(pi/5,0,0), L.r(0,0,pi/12), mybox])
+    twocubs = Lar.Struct([mybox, L.t(0.3,0.4,0.5), L.r(pi/5,0,0), L.r(0,0,pi/12), mybox])
     #twocubes = Lar.Struct([mybox, L.t(0.3,0.4,0.5), L.r(pi/3,0,0), L.r(0,0,pi/6), mybox])
-    V,CV,FV,EV = Lar.struct2lar(twocubes)
-    Plasm.view(V,CV)
+    V,CV,FV,EV = Lar.struct2lar(twocubs)
+    GL.VIEW([ GL.GLGrid(V,FV, GL.Point4d(1,1,1,0.2)) ]);
+
 
     cop_EV = Lar.coboundary_0(EV::Lar.Cells);
     cop_EW = convert(Lar.ChainOp, cop_EV);
@@ -21,22 +21,23 @@ function twocubes()
     W = convert(Lar.Points, V');
 
     V, copEV, copFE, copCF = Lar.Arrangement.spatial_arrangement( W, cop_EW, cop_FE)
+
     EV = Lar.cop2lar(copEV)
     FE = [findnz(copFE[k,:])[1] for k=1:size(copFE,1)]
     FV = [collect(Set(cat(EV[e] for e in FE[f]))) for f=1:length(FE)]
     FV = convert(Lar.Cells, FV)
     W = convert(Lar.Points, V')
+    WW = [[k] for k=1:size(W,2)]
 
-    Plasm.view(Plasm.numbering(0.25)((W,[[[k] for k=1:size(W,2)],EV,FV])))
+    GL.VIEW(GL.numbering(.2)((W,[WW,EV])));
 
     triangulated_faces = Lar.triangulate(V, [copEV, copFE])
     FVs = convert(Array{Lar.Cells}, triangulated_faces)
     V = convert(Lar.Points, V')
-    Plasm.viewcolor(V::Lar.Points, FVs::Array{Lar.Cells})
+    GL.VIEW(GL.GLExplode(V,FVs,1.5,1.5,1.5,99));
 
     EVs = Lar.FV2EVs(copEV, copFE) # polygonal face fragments
-    model = V,EVs
-    Plasm.view(Plasm.lar_exploded(model)(1.2,1.2,1.2))
+    GL.VIEW(GL.GLExplode(V,EVs,1.5,1.5,1.5,99));
 end
 
-twocubes()
+twocubegrids(5,5,5)
