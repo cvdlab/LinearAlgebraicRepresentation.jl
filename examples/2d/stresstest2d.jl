@@ -24,25 +24,22 @@ function stresstest2d()
 	data = [ data2d1, data2d2, data2d3, data2d4, data2d5,  data2d5a, data2d6 ]
 	model2d = input_collection( [ Lar.Struct(data), Lar.t(-pi/6,pi/3), Lar.Struct(data) ] )
 	V,EV = model2d
-	Plasm.view( V, EV )
+	GL.VIEW([ GL.GLLines(V,EV, GL.COLORS[1]) ]);
 
 	W = convert(Lar.Points, V')
 	cop_EV = Lar.coboundary_0(EV::Lar.Cells)
 	cop_EW = convert(Lar.ChainOp, cop_EV)
 	V, copEV, copFE = Lar.Arrangement.planar_arrangement(W::Lar.Points, cop_EW::Lar.ChainOp)
-
 	triangulated_faces = Lar.triangulate2D(V, [copEV, copFE])
 	FVs = convert(Array{Lar.Cells}, triangulated_faces)
 	V = convert(Lar.Points, V')
-	Plasm.viewcolor(V::Lar.Points, FVs::Array{Lar.Cells})
+	GL.VIEW(GL.GLExplode(V,FVs,1.2,1.2,1.2,99));
 
 	W, copEV, copFE = Lar.Arrangement.planar_arrangement(W::Lar.Points, cop_EW::Lar.ChainOp)
 	EVs = Lar.FV2EVs(copEV, copFE) # polygonal face fragments
 	V = convert(Lar.Points, W')
-	Plasm.viewcolor(V::Lar.Points, EVs::Array{Lar.Cells})
-
-	model = V,EVs
-	Plasm.view(Plasm.lar_exploded(model)(1.2,1.2,1.2))
+	GL.VIEW(GL.GLExplode(V,EVs,1.2,1.2,1.2,99));
+	GL.VIEW(GL.GLExplode(V,EVs,1.2,1.2,1.2,1));
 end
 
 stresstest2d()

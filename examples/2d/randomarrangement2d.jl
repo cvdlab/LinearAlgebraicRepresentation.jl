@@ -1,11 +1,10 @@
-using LinearAlgebraicRepresentation
+using LinearAlgebraicRepresentation,ViewerGL
 Lar = LinearAlgebraicRepresentation
-using Plasm
+GL = ViewerGL
 
-function randomarrangement2d()
-	V,EV = Lar.randomcuboids(25, .4)
-	V = Plasm.normalize(V,flag=true)
-	Plasm.view(Plasm.numbering(.05)((V,[[[k] for k=1:size(V,2)], EV])))
+function randomarrangement2d(V,EV)
+	VV = [[k] for k=1:size(V,2)]
+	#GL.VIEW( GL.numbering(0.1)((V,[VV, EV])) );
 
 	W = convert(Lar.Points, V')
 	cop_EV = Lar.coboundary_0(EV::Lar.Cells)
@@ -15,18 +14,20 @@ function randomarrangement2d()
 	triangulated_faces = Lar.triangulate2D(V, [copEV, copFE])
 	FVs = convert(Array{Lar.Cells}, triangulated_faces)
 	V = convert(Lar.Points, V')
-	Plasm.viewcolor(V::Lar.Points, FVs::Array{Lar.Cells})
+	#GL.VIEW(GL.GLExplode(V,FVs,1.2,1.2,1.2,99));
 
 	W, copEV, copFE = Lar.Arrangement.planar_arrangement(W::Lar.Points, cop_EW::Lar.ChainOp)
 	EVs = Lar.FV2EVs(copEV, copFE) # polygonal face fragments
 	V = convert(Lar.Points, W')
-	Plasm.viewcolor(V::Lar.Points, EVs::Array{Lar.Cells})
+	#GL.VIEW(GL.GLExplode(V,EVs,1.2,1.2,1.2,1));
 
-	model = V,EVs
+	return V,EVs,FVs
 end
 
-model = randomarrangement2d()
-Plasm.view(Plasm.lar_exploded(model)(1.2,1.2,1.2))
+V,EV = Lar.randomcuboids(100, .4)
+V = GL.normalize2(V,flag=true)
 
-
-
+W,EVs,FVs = randomarrangement2d(V,EV)
+GL.VIEW(GL.GLExplode(W,EVs,1.2,1.2,1.2,1));
+GL.VIEW(GL.GLExplode(W,FVs,1.2,1.2,1.2,99));
+GL.VIEW(GL.GLExplode(W,FVs,1,1,1,99));
