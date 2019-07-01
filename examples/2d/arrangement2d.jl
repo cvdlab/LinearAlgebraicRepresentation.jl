@@ -1,8 +1,8 @@
-using LinearAlgebraicRepresentation
-Lar = LinearAlgebraicRepresentation
 using SparseArrays
 using ViewerGL
 GL = ViewerGL
+using LinearAlgebraicRepresentation
+Lar = LinearAlgebraicRepresentation
 
 
 # input generation
