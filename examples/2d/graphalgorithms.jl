@@ -5,7 +5,6 @@ Lar = LinearAlgebraicRepresentation
 #2) Lar.edge_biconnect:  	from Tarjan, '72	(SIAM J. Computing, 1)
 #3) Lar.biconnectedComponent:  from Hopcroft, Tarjan, '73 (ACM Communications )
 =#
-
 using ViewerGL
 GL = ViewerGL
 

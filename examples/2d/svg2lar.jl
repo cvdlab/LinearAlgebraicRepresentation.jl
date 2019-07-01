@@ -1,25 +1,24 @@
-using Plasm,SparseArrays
 using LinearAlgebraicRepresentation
 Lar = LinearAlgebraicRepresentation
 import Base.show
+using ViewerGL,SparseArrays
+GL = ViewerGL
 
 function show(filename)
-	V, EV = Plasm.svg2lar(filename)
-	Plasm.view(V,EV)
+	V, EV = Lar.svg2lar(filename)
+	GL.VIEW([ GL.GLLines(V,EV) ])
 	return V, EV
 end
 
-#show("/Users/paoluzzi/Documents/dev/Plasm.jl/test/svg/new.svg")
-#show("/Users/paoluzzi/Documents/dev/Plasm.jl/test/svg/curved.svg")
-#show("/Users/paoluzzi/Documents/dev/Plasm.jl/test/svg/twopaths.svg")
-#show("/Users/paoluzzi/Documents/dev/Plasm.jl/test/svg/paths.svg")
-#show("/Users/paoluzzi/Documents/dev/Plasm.jl/test/svg/boundarytest2.svg")
-#show("/Users/paoluzzi/Documents/dev/Plasm.jl/test/svg/tile.svg")
-#show("/Users/paoluzzi/Documents/dev/Plasm.jl/test/svg/interior.svg")
-#show("/Users/paoluzzi/Documents/dev/Plasm.jl/test/svg/holes.svg")
-show("/Users/paoluzzi/Documents/dev/Plasm.jl/test/svg/Lar.svg")
-
-V,EV = show("/Users/paoluzzi/Documents/dev/Plasm.jl/test/svg/Lar.svg")
+#show("./test/svg/new.svg")
+#show("./test/svg/curved.svg")
+#show("./test/svg/twopaths.svg")
+#show("./test/svg/paths.svg")
+#show("./test/svg/boundarytest2.svg")
+#show("./test/svg/tile.svg")
+#show("./test/svg/interior.svg")
+#show("./test/svg/holes.svg")
+V,EV = show("./test/svg/tile.svg")
 
 # subdivision of input edges
 W = convert(Lar.Points, V')
@@ -33,21 +32,24 @@ bicon_comps = Lar.Arrangement.biconnected_components(copEV)
 # visualization of component graphs
 EW = Lar.cop2lar(copEV)
 W = convert(Lar.Points, V')
-hpcs = [ Plasm.lar2hpc(W,[EW[e] for e in comp]) for comp in bicon_comps ]
-Plasm.view([ Plasm.color(Plasm.colorkey[(k%12)==0 ? 12 : k%12])(hpcs[k]) for k=1:(length(hpcs)) ])
+V,EVs = Lar.biconnectedComponent((W,EW::Lar.Cells)) # 2-connected components
+VV = [[k] for k=1:size(V,2)]
+meshes = [ GL.numbering(.1)((V, (VV,EVs[k])), GL.COLORS[k]) for k=1:length(EVs) ]
+GL.VIEW( cat(meshes) );
 
 # final solid visualizations
 FE = [SparseArrays.findnz(copFE[k,:])[1] for k=1:size(copFE,1)]
 FV = [collect(Set(cat([EW[e] for e in FE[f]]))) for f=1:length(FE)]
-
+V = convert(Lar.Points, V')
 triangulated_faces = Lar.triangulate2D(V, [copEV, copFE])
 V = convert(Lar.Points, V')
 FVs = convert(Array{Lar.Cells}, triangulated_faces)
-Plasm.viewcolor(V::Lar.Points, FVs::Array{Lar.Cells})
+GL.VIEW(GL.GLExplode(V,FVs,1,1,1,99));  # TODO:  fix inner holes
+
+V,FVs,EVs = arrange2d(V,EV)
+GL.VIEW(GL.GLExplode(V,EVs,1.2,1.2,1.2,99));
+GL.VIEW(GL.GLExplode(V,FVs,1,1,1,99));  # TODO:  fix inner holes
 
 EVs = Lar.FV2EVs(copEV, copFE) # polygonal face boundaries
 EVs = convert(Array{Array{Array{Int64,1},1},1}, EVs)
-Plasm.viewcolor(V::Lar.Points, EVs::Array{Lar.Cells})
-
-model = V,EVs
-Plasm.view(Plasm.lar_exploded(model)(1.2,1.2,1.2))
+GL.VIEW(GL.GLExplode(V,EVs,1,1,1,4));  # TODO:  fix inner holes

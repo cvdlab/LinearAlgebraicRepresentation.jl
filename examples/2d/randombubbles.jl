@@ -29,7 +29,6 @@ function randombubbles()
 end
 
 # ////////////////////////////////////////////////////////////
-
 # generation of 2D arrangement
 V,FVs,EVs = randombubbles()
 
@@ -39,4 +38,4 @@ GL.VIEW(GL.GLExplode(V,FVs,1.2,1.2,1.2,3));
 GL.VIEW(GL.GLExplode(V,FVs,1.2,1.2,1.2,99));
 GL.VIEW(GL.GLExplode(V,FVs,1.,1.,1.,99));
 
-GL.VIEW(GL.GLExplode(V,EVs,1.2,1.2,1.2,12));
+GL.VIEW(GL.GLExplode(V,EVs,1.2,1.2,1.2));

@@ -666,7 +666,7 @@ function arrange2D(V,EV)
 	V, copEV, copFE = Lar.Arrangement.planar_arrangement(W::Lar.Points, cop_EW::Lar.ChainOp)
 	EVs = Lar.FV2EVs(copEV, copFE) # polygonal face fragments
 
-	triangulated_faces = Lar.triangulate2D(V, [copEV, copFE])
+	triangulated_faces = Lar.triangulate2d(V, [copEV, copFE])
 	FVs = convert(Array{Lar.Cells}, triangulated_faces)
 	V = convert(Lar.Points,V')
 	return V,FVs,EVs

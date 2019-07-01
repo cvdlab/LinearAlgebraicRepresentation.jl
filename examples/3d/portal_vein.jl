@@ -15,5 +15,3 @@ GL.VIEW([ GL.GLGrid(V,FW,GL.COLORS[2]) ]);
 TV = cat([[[v1,v2,v3],[v1,v4,v3]] for (v1,v2,v3,v4) in FV])
 TV = convert(Lar.Cells,TV)
 GL.VIEW([ GL.GLGrid(V,TV,GL.COLORS[1]) ]);
-
-Lar.lar2obj
