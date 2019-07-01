@@ -1,3 +1,4 @@
+using LinearAlgebraicRepresentation
 Lar = LinearAlgebraicRepresentation
 
 """
@@ -115,7 +116,7 @@ function r(args...)
         mat = Matrix{Float64}(LinearAlgebra.I, 4, 4)
         angle = norm(args);
         if norm(args) != 0.0
-			axis = normalize(args)
+			axis = args #normalize(args)
 			COS = cos(angle); SIN= sin(angle)
 			if axis[2]==axis[3]==0.0    # rotation about x
 				mat[2,2] = COS;    mat[2,3] = -SIN;
@@ -413,16 +414,21 @@ function box(model)
 end
 
 """
-	apply(affineMatrix::Array{Float64,2}, larmodel)
-
+	apply(affineMatrix::Array{Float64,2}, larmodel::Union{LAR,LARmodel})
 """
-function apply(affineMatrix::Array{Float64,2}, larmodel)
-	V,EV = larmodel
+function apply(affineMatrix, larmodel)
+	data = collect(larmodel)
+	V = data[1]
+
 	m,n = size(V)
-	W = [V; ones(1,size(V,2))]
+	W = [V; fill(1.0, (1,n))]
 	V = (affineMatrix * W)[1:m,1:n]
-	return V,EV
+
+	data[1] = V
+	larmodel = Tuple(data)
+	return larmodel
 end
+
 
 """
 	checkStruct(lst)

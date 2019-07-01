@@ -14,16 +14,16 @@ end
 	square = ([[0.; 0] [0; 1] [1; 0] [1; 1]], [[1, 2, 3,
 			4]], [[1,2], [1,3], [2,4], [3,4]])
 	@testset "apply Translation 2D" begin
-		@test typeof(Lar.apply(Lar.t(-0.5,-0.5),square))==Tuple{Array{Float64,2},Array{Array{Int64,1},1}}
-		@test Lar.apply(Lar.t(-0.5,-0.5),square)==([-0.5 -0.5 0.5 0.5; -0.5 0.5 -0.5 0.5], Array{Int64,1}[[1, 2, 3, 4]])
+		@test typeof(Lar.apply(Lar.t(-0.5,-0.5),square))==Tuple{Array{Float64,2},Array{Array{Int64,1},1},Array{Array{Int64,1},1}}
+		@test Lar.apply(Lar.t(-0.5,-0.5),square)==([-0.5 -0.5 0.5 0.5; -0.5 0.5 -0.5 0.5], Array{Int64,1}[[1, 2, 3, 4]], Array{Int64,1}[[1, 2], [1, 3], [2, 4], [3, 4]])
 	end
 	@testset "apply Scaling 2D" begin
-		@test typeof(Lar.apply(Lar.s(-0.5,-0.5),square))==Tuple{Array{Float64,2},Array{Array{Int64,1},1}}
-		@test Lar.apply(Lar.s(-0.5,-0.5),square)==([0.0 0.0 -0.5 -0.5; 0.0 -0.5 0.0 -0.5], Array{Int64,1}[[1, 2, 3, 4]])
+		@test typeof(Lar.apply(Lar.s(-0.5,-0.5),square))==Tuple{Array{Float64,2},Array{Array{Int64,1},1},Array{Array{Int64,1},1}}
+		@test Lar.apply(Lar.s(-0.5,-0.5),square)==([0.0 0.0 -0.5 -0.5; 0.0 -0.5 0.0 -0.5], Array{Int64,1}[[1, 2, 3, 4]], Array{Int64,1}[[1, 2], [1, 3], [2, 4], [3, 4]])
 	end
 	@testset "apply Rotation 2D" begin
-		@test typeof(Lar.apply(Lar.r(0),square))==Tuple{Array{Float64,2},Array{Array{Int64,1},1}}
-		@test Lar.apply(Lar.r(0),square)==([0.0 0.0 1.0 1.0; 0.0 1.0 0.0 1.0], Array{Int64,1}[[1, 2, 3, 4]])
+		@test typeof(Lar.apply(Lar.r(0),square))==Tuple{Array{Float64,2},Array{Array{Int64,1},1},Array{Array{Int64,1},1}}
+		@test Lar.apply(Lar.r(0),square)==([0.0 0.0 1.0 1.0; 0.0 1.0 0.0 1.0], Array{Int64,1}[[1, 2, 3, 4]], Array{Int64,1}[[1, 2], [1, 3], [2, 4], [3, 4]])
 	end
 end
 
