@@ -1,6 +1,8 @@
 using LinearAlgebraicRepresentation
 Lar = LinearAlgebraicRepresentation
-using Triangle, Plasm, LinearAlgebra
+using ViewerGL
+GL = ViewerGL
+using Triangle, LinearAlgebra
 
 # input of primitive shapes
 V,(VV,EV,FV) = Lar.simplex(2, true)
@@ -19,12 +21,16 @@ model = Lar.Struct([
         ])
 # visualization of generated wire-frame model
 V,EV = Lar.struct2lar(model)
-Plasm.view(Plasm.numbering(0.35)((V,[VV, EV])))
+GL.VIEW(GL.numbering(.4)((V,[VV, EV])));
 
 triangles = Lar.triangulate2d(V, EV)
-Plasm.view(V,triangles)
+GL.VIEW([ GL.GLGrid(V,triangles) ]);
 
+# generate edges
 ev = map(sort,cat([[[u,v], [v,w], [w,u]] for (u,v,w) in triangles]))
 # remove duplicated edges from triangulation
-ev_nodups = collect(Set(ev))
-Plasm.view(Plasm.numbering(0.35)((V,[VV, ev_nodups, triangles])))
+nodupev = collect(Set(ev))
+
+GL.VIEW(GL.numbering(.3)((V,[VV, nodupev])));
+GL.VIEW([ GL.GLGrid(V,triangles) ]);
+GL.VIEW(GL.numbering(.25)((V,[VV, nodupev, triangles])));
