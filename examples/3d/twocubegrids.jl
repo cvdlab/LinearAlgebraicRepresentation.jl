@@ -10,10 +10,9 @@ function twocubegrids(n,m,p)
     mybox = (V,CV,FV,EV)
 
     twocubs = Lar.Struct([mybox, L.t(.3,.4,.5), L.r(pi/5,0,0), L.r(0,0,pi/12), mybox])
-    #twocubes = Lar.Struct([mybox, L.t(0.3,0.4,0.5), L.r(pi/3,0,0), L.r(0,0,pi/6), mybox])
+
     V,CV,FV,EV = Lar.struct2lar(twocubs)
     GL.VIEW([ GL.GLGrid(V,FV, GL.Point4d(1,1,1,0.2)) ]);
-
 
     cop_EV = Lar.coboundary_0(EV::Lar.Cells);
     cop_EW = convert(Lar.ChainOp, cop_EV);
