@@ -33,9 +33,9 @@ end
 V,FVs,EVs = randombubbles()
 
 # native OpenGL visualization
-GL.VIEW(GL.GLExplode(V,FVs,1.2,1.2,1.2));
-GL.VIEW(GL.GLExplode(V,FVs,1.2,1.2,1.2,3));
-GL.VIEW(GL.GLExplode(V,FVs,1.2,1.2,1.2,99));
-GL.VIEW(GL.GLExplode(V,FVs,1.,1.,1.,99));
+GL.VIEW(GL.GLExplode(V,FVs,1.2,1.2,1.2,1,1));
+GL.VIEW(GL.GLExplode(V,FVs,1.2,1.2,1.2,3,1));
+GL.VIEW(GL.GLExplode(V,FVs,1.,1.,1.,99,1));
+GL.VIEW(GL.GLExplode(V,FVs,1.2,1.2,1.2,99,1));
 
-GL.VIEW(GL.GLExplode(V,EVs,1.2,1.2,1.2));
+GL.VIEW(GL.GLExplode(V,EVs,1.2,1.2,1.2,1,1));
