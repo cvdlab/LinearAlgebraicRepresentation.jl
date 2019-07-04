@@ -25,7 +25,7 @@ end
 	@test BoxCalculation(Lar.circle(3, 2*pi)()[1])==36
 	@test BoxCalculation(Lar.circle(5, pi/2)()[1])==25
 	#@test size(Lar.circle(3,2*pi)(60)[1],2)==60
-	@test length(Lar.circle(3,2*pi)(60)[2])==60
+	@test length(Lar.circle(3,2*pi)([60])[2])==60
 end
 
 @testset "helix" begin
@@ -69,7 +69,7 @@ end
 	@test BoxCalculation(Lar.ring(1.,5,pi/2)()[1])==25
 	#(radius*2)^2
 	@test size(Lar.ring(1,5,pi/2)()[1],2)==74
-	@test length(Lar.ring(5,10,pi/6)()[2])==36
+	@test length(Lar.ring(5,10,pi/6)()[2])==72
 end
 
 @testset "cylinder" begin
@@ -78,7 +78,7 @@ end
 	@test BoxCalculation(Lar.cylinder(1,4,pi)()[1])==8
 	#((radius*2)^2)*height
 	@test size(Lar.cylinder(3.4,20,pi/7)()[1],2)==74
-	@test length(Lar.cylinder(3.4,20,pi/7)()[2])==36
+	@test length(Lar.cylinder(3.4,20,pi/7)()[2])==72
 end
 
 @testset "sphere" begin

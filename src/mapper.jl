@@ -186,7 +186,8 @@ julia> GL.VIEW([
 function ring(r=1., R=2., angle=2*pi)
     function ring0(shape=[36, 1])
         V, CV = cuboidGrid(shape)
-		CV = cat([[[u,v,w],[w,v,t]] for (u,v,w,t) in CV])
+		CV = [[[u,v,w],[w,v,t]] for (u,v,w,t) in CV]
+		CV = reduce(append!,CV)
         V = [angle/shape[1] 0;0 (R-r)/shape[2]]*V
         V = broadcast(+, V, [0, r])
         W = [V[:, k] for k=1:size(V, 2)]
@@ -214,7 +215,8 @@ julia> GL.VIEW([
 function cylinder(radius=.5, height=2., angle=2*pi)
     function cylinder0(shape=[36, 1])
         V, CV = Lar.cuboidGrid(shape)
-		CV = cat([[[u,v,w],[w,v,t]] for (u,v,w,t) in CV])
+		CV = [[[u,v,w],[w,v,t]] for (u,v,w,t) in CV]
+		CV = reduce(append!,CV)
         V = [angle/shape[1] 0.0 ; 0.0 1.0/shape[2]]*V
         W = [V[:, k] for k=1:size(V, 2)]
         V = hcat(map(p->let(u, v)=p;[radius*cos(u);radius*sin(u);
