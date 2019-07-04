@@ -154,7 +154,7 @@ end
 @testset "LarCuboids Tests" begin
       @testset "Simple shape" begin
             shape = [3,2,1]
-            cubes = Lar.larCuboids(shape,true)
+            cubes = Lar.cuboidGrid(shape,true)
             verts, cells = cubes
             @test typeof(verts) == Array{Float64,2}
             VV,EV,FV,CV = cells
@@ -165,11 +165,11 @@ end
 
       @testset "$shape" for shape in [[3,2,1],[1,1,1],[3,3,10]]
             endShape = shape .+ 1
-            cubes = Lar.larCuboids(shape,true);
+            cubes = Lar.cuboidGrid(shape,true);
             verts, cells = cubes;
             VV,EV,FV,CV = cells;
-            @test size(Lar.larCuboids(shape)[1],2) == prod(collect(endShape))
-            @test length(Lar.larCuboids(shape)[2]) == prod(shape)
+            @test size(Lar.cuboidGrid(shape)[1],2) == prod(collect(endShape))
+            @test length(Lar.cuboidGrid(shape)[2]) == prod(shape)
             @test typeof(verts) == Array{Float64,2}
 	      @test typeof(VV) == Array{Array{Int64,1},1}
 	      @test typeof(EV) == Array{Array{Int64,1},1}
@@ -179,9 +179,9 @@ end
 
       @testset "$shape" for shape in [[3,2],[1,1],[3,10]]
             endShape = shape .+ 1
-            @test size(Lar.larCuboids(shape)[1],2) == prod(collect(endShape))
-            @test length(Lar.larCuboids(shape)[2]) == prod(shape)
-            cubes = Lar.larCuboids(shape,true)
+            @test size(Lar.cuboidGrid(shape)[1],2) == prod(collect(endShape))
+            @test length(Lar.cuboidGrid(shape)[2]) == prod(shape)
+            cubes = Lar.cuboidGrid(shape,true)
             verts, cells = cubes
             @test typeof(verts) == Array{Float64,2}
             VV,EV,FV = cells
@@ -192,9 +192,9 @@ end
 
       @testset "$shape" for shape in [[3],[1],[10]]
             endShape = shape .+ 1
-            @test size(Lar.larCuboids(shape)[1],2) == prod(collect(endShape))
-            @test length(Lar.larCuboids(shape)[2]) == prod(shape)
-            cubes = Lar.larCuboids(shape,true)
+            @test size(Lar.cuboidGrid(shape)[1],2) == prod(collect(endShape))
+            @test length(Lar.cuboidGrid(shape)[2]) == prod(shape)
+            cubes = Lar.cuboidGrid(shape,true)
             verts, cells = cubes
             @test typeof(verts) == Array{Float64,2}
             VV,EV = cells

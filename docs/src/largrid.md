@@ -106,7 +106,7 @@ Lar.larGridSkeleton
 ```
 
 ```@docs
-Lar.larCuboids
+Lar.cuboidGrid
 ```
 
 ```@docs

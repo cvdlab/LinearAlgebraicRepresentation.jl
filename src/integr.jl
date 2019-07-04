@@ -209,7 +209,7 @@ function volume(P::LAR)::Float64
     return III(P, 0, 0, 0)
 end
 
-#v,(vv,ev,fv,cv) = p.larCuboids((1,1,1),true)
+#v,(vv,ev,fv,cv) = p.cuboidGrid((1,1,1),true)
 #V = hcat([Array{Float64,1}(v[k,:]) for k=1:size(v,1)]...)
 #FV = hcat([Array{Int64,1}(fv[k,:]+1) for k=1:size(fv,1)]...)
 #EV = hcat([Array{Int64,1}(ev[k,:]+1) for k=1:size(ev,1)]...)
