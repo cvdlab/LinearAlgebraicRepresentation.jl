@@ -77,7 +77,7 @@ julia> GL.VIEW([
 function circle(radius=1., angle=2*pi)
     function circle0(shape=[36])
         V, CV = cuboidGrid(shape)
-        V = (angle/shape)*V
+        V = (angle/shape[1])*V
         V = hcat(map(u->[radius*cos(u); radius*sin(u)], V)...)
         W, CW = simplifyCells(V, CV)
         return W, CW

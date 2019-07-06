@@ -5,8 +5,8 @@ GL = ViewerGL
 
 function randombubbles()
 	store = []
-	mycircle(r,n) = Lar.circle(r)(n)
-	for k=1:30
+	mycircle(r,n) = Lar.circle(r)([n])
+	for k=1:50
 		r = rand()
 		n = 8
 		while true
@@ -21,7 +21,6 @@ function randombubbles()
 	s = Lar.Struct(store)
 	V,EV = Lar.struct2lar(s)
 	V = GL.normalize2(V)
-	#Plasm.view(V,EV)
 	GL.VIEW([ GL.GLLines(V,EV) ])
 
 	W,EW = Lar.fragmentlines((V,EV))
@@ -39,3 +38,4 @@ GL.VIEW(GL.GLExplode(V,FVs,1.,1.,1.,99,1));
 GL.VIEW(GL.GLExplode(V,FVs,1.2,1.2,1.2,99,1));
 
 GL.VIEW(GL.GLExplode(V,EVs,1.2,1.2,1.2,1,1));
+GL.VIEW(GL.GLExplode(V,EVs,1,1,1,1,1));
