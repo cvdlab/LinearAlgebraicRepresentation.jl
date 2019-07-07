@@ -1,5 +1,7 @@
 julia 1.0+
-NearestNeighbors
-IntervalTrees
-DataStructures
 Triangle
+LinearAlgebra
+DataStructures
+IntervalTrees
+NearestNeighbors
+SparseArrays
