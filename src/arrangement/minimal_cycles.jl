@@ -1,3 +1,4 @@
+using LinearAlgebraicRepresentation
 Lar = LinearAlgebraicRepresentation
 
 function minimal_2cycles(V::Lar.Points, EV::Lar.ChainOp)
