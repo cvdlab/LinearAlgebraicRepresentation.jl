@@ -76,11 +76,11 @@ julia> GL.VIEW([
 """
 function circle(radius=1., angle=2*pi)
     function circle0(shape=[36])
-        V, CV = cuboidGrid(shape)
+        V, EV = cuboidGrid(shape)
         V = (angle/shape[1])*V
         V = hcat(map(u->[radius*cos(u); radius*sin(u)], V)...)
-        W, CW = simplifyCells(V, CV)
-        return W, CW
+        W, EW = simplifyCells(V, EV)
+        return W, EW
     end
     return circle0
 end
@@ -105,11 +105,11 @@ julia> GL.VIEW([
 function helix(radius=1., pitch=1., nturns=2)
     function helix0(shape=36*nturns)
         angle = nturns*2*pi
-        V, CV = cuboidGrid([shape])
+        V, EV = cuboidGrid([shape])
         V = (angle/shape)*V
         V = hcat(map(u->[radius*cos(u);radius*sin(u);(pitch/(2*pi))*u], V)...)
-        W, CW = simplifyCells(V, CV)
-        return W, CW
+        W, EW = simplifyCells(V, EV)
+        return W, EW
     end
     return helix0
 end
@@ -130,13 +130,14 @@ julia> GL.VIEW([
 """
 function disk(radius=1., angle=2*pi)
     function disk0(shape=[36, 2])
-        V, CV = simplexGrid(shape)
+        V, FV = simplexGrid(shape)
         V = [angle/shape[1] 0;0 radius/shape[2]]*V
         W = [V[:, k] for k=1:size(V, 2)]
         V = hcat(map(p->let(u, v)=p;[v*cos(u);v*sin(u)] end, W)...)
-        W, CW = simplifyCells(V, CV)
-        CW = [cell for cell in CW if length(cell)==3]
-        return W, CW
+        W, FW = simplifyCells(V, FV)
+        FW = [cell for cell in FW if length(cell)==3]
+		#EW = Lar.simplexFacets(FW)
+        return W, FW #, EW
     end
     return disk0
 end
