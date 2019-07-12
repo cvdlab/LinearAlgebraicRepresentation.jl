@@ -28,7 +28,7 @@ model3d = input_collection([ data3d5 ])#, data3d2, data3d3, data3d4, data3d5 ])
 V,FV,EV = model3d
 VV = [[k] for k in 1:size(V,2)];
 
-GL.VIEW( GL.numbering(0.125)((V,[VV, EV, FV])) );
+GL.VIEW( GL.numbering(0.125)((V,[VV, EV, FV]),GL.COLORS[1],0.25) );
 
 copEV = Lar.coboundary_0(EV)
 copFE = Lar.coboundary_1(V,FV,EV)

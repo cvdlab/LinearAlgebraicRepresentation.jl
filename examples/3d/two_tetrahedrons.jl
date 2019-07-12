@@ -26,7 +26,7 @@ FV = convert(Lar.Cells, FV)
 W = convert(Lar.Points, V')
 WW = [[k] for k=1:size(W,2)]
 
-GL.VIEW(GL.numbering(.2)((W,[WW,EV])));
+GL.VIEW(GL.numbering(.5)((W,[WW,EV]) ));
 
 triangulated_faces = Lar.triangulate(V, [copEV, copFE])
 FVs = convert(Array{Lar.Cells}, triangulated_faces)
@@ -34,4 +34,4 @@ V = convert(Lar.Points, V')
 GL.VIEW(GL.GLExplode(V,FVs,1.5,1.5,1.5,99));
 
 EVs = Lar.FV2EVs(copEV, copFE) # polygonal face fragments
-GL.VIEW(GL.GLExplode(V,EVs,1.5,1.5,1.5,99));
+GL.VIEW(GL.GLExplode(V,EVs,1.5,1.5,1.5,99,1));

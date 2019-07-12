@@ -8,7 +8,7 @@ store = []
 scaling = .85
 V,(VV,EV,FV,CV) = Lar.cuboid([0.25,0.25,0.25],true,[-0.25,-0.25,-0.25])
 mybox = (V,CV,FV,EV)
-for k=1:20
+for k=1:15
 	size = rand()*scaling
 	scale = Lar.s(size,size,size)
 	transl = Lar.t(rand(3)...)
@@ -38,10 +38,8 @@ V, copEV, copFE, copCF = Lar.Arrangement.spatial_arrangement(
 triangulated_faces = Lar.triangulate2D(V, [copEV, copFE])
 FVs = convert(Array{Lar.Cells}, triangulated_faces)
 V = convert(Lar.Points, V')
-GL.VIEW( GL.GLExplode(V,FVs,1.5,1.5,1.5, 99) );
+GL.VIEW( GL.GLExplode(V,FVs,1.5,1.5,1.5,99,1) );
 
-Plasm.viewcolor(V::Lar.Points, FVs::Array{Lar.Cells})
 
 EVs = Lar.FV2EVs(copEV, copFE) # polygonal face fragments
-model = V,EVs
-Plasm.view(Plasm.lar_exploded(model)(1.2,1.2,1.2))
+GL.VIEW( GL.GLExplode(V,EVs,1.5,1.5,1.5,99,1) );
