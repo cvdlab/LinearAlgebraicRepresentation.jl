@@ -34,7 +34,7 @@ EW = Lar.cop2lar(copEV)
 W = convert(Lar.Points, V')
 V,EVs = Lar.biconnectedComponent((W,EW::Lar.Cells)) # 2-connected components
 VV = [[k] for k=1:size(V,2)]
-meshes = [ GL.numbering(.1)((V, (VV,EVs[k])), GL.COLORS[k]) for k=1:length(EVs) ]
+meshes = [ GL.numbering(.1)((V, (VV,EVs[k])), GL.COLORS[k],1) for k=1:length(EVs) ]
 GL.VIEW( cat(meshes) );
 
 # final solid visualizations
@@ -44,12 +44,12 @@ V = convert(Lar.Points, V')
 triangulated_faces = Lar.triangulate2D(V, [copEV, copFE])
 V = convert(Lar.Points, V')
 FVs = convert(Array{Lar.Cells}, triangulated_faces)
-GL.VIEW(GL.GLExplode(V,FVs,1,1,1,99));  # TODO:  fix inner holes
+GL.VIEW(GL.GLExplode(V,FVs,1,1,1,99,1));  # TODO:  fix inner holes
 
-V,FVs,EVs = arrange2d(V,EV)
-GL.VIEW(GL.GLExplode(V,EVs,1.2,1.2,1.2,99));
-GL.VIEW(GL.GLExplode(V,FVs,1,1,1,99));  # TODO:  fix inner holes
+V,FVs,EVs = Lar.arrange2D(V,EV)
+GL.VIEW(GL.GLExplode(V,EVs,1.2,1.2,1.2,99,1));
+GL.VIEW(GL.GLExplode(V,FVs,1,1,1,99,1));  # TODO:  fix inner holes
 
 EVs = Lar.FV2EVs(copEV, copFE) # polygonal face boundaries
 EVs = convert(Array{Array{Array{Int64,1},1},1}, EVs)
-GL.VIEW(GL.GLExplode(V,EVs,1,1,1,4));  # TODO:  fix inner holes
+GL.VIEW(GL.GLExplode(V,EVs,1,1,1,3,1));  # TODO:  fix inner holes

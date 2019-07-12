@@ -30,14 +30,13 @@ function randlines(n=300, t=0.4)
 	V,FVs,EVs = Lar.arrange2D(U,EV)
 end
 
-
 # ////////////////////////////////////////////////////////////
-
 # generation of 2D arrangement
 V,FVs,EVs = randlines()
 
 # native OpenGL visualization
-GL.VIEW(GL.GLExplode(V,FVs,1.2,1.2,1.2));
-GL.VIEW(GL.GLExplode(V,FVs,1.2,1.2,1.2,3));
-GL.VIEW(GL.GLExplode(V,FVs,1.2,1.2,1.2,99));
-GL.VIEW(GL.GLExplode(V,FVs,1.,1.,1.,99));
+GL.VIEW(GL.GLExplode(V,FVs,1.2,1.2,1.2,1));
+GL.VIEW(GL.GLExplode(V,FVs,1.2,1.2,1.2,3,1));
+GL.VIEW(GL.GLExplode(V,FVs,1.2,1.2,1.2,99,1));
+GL.VIEW(GL.GLExplode(V,FVs,1.,1.,1.,99,1));
+GL.VIEW(GL.GLExplode(V,EVs,1.2,1.2,1.2,1,1));

@@ -13,7 +13,7 @@ end
 function stresstest2d()
 	V,(_,EV,FV) = Lar.cuboidGrid([4,1],true);
 	W,(_,EW,FW) = Lar.cuboidGrid([1,5],true);
-	mycircle(r,n) = Lar.circle(r)(n)
+	mycircle(r,n) = Lar.circle(r)([n])
 	data2d1 = (V,EV)
 	data2d2 = Lar.Struct([ Lar.t(2,2), Lar.r(pi/3), Lar.t(-1.5,-2.5), (W,EW) ])
 	data2d3 = Lar.Struct([ Lar.t(2,2), mycircle(2.5,160) ])
@@ -33,13 +33,13 @@ function stresstest2d()
 	triangulated_faces = Lar.triangulate2D(V, [copEV, copFE])
 	FVs = convert(Array{Lar.Cells}, triangulated_faces)
 	V = convert(Lar.Points, V')
-	GL.VIEW(GL.GLExplode(V,FVs,1.2,1.2,1.2,99));
+	GL.VIEW(GL.GLExplode(V,FVs,1.2,1.2,1.2,99,1));
 
 	W, copEV, copFE = Lar.Arrangement.planar_arrangement(W::Lar.Points, cop_EW::Lar.ChainOp)
 	EVs = Lar.FV2EVs(copEV, copFE) # polygonal face fragments
 	V = convert(Lar.Points, W')
-	GL.VIEW(GL.GLExplode(V,EVs,1.2,1.2,1.2,99));
-	GL.VIEW(GL.GLExplode(V,EVs,1.2,1.2,1.2,1));
+	GL.VIEW(GL.GLExplode(V,EVs,1.2,1.2,1.2,99,1));
+	GL.VIEW(GL.GLExplode(V,EVs,1.2,1.2,1.2,1,1));
 end
 
 stresstest2d()

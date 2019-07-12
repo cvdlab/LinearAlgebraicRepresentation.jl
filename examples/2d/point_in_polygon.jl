@@ -3,11 +3,11 @@ Lar = LinearAlgebraicRepresentation
 GL = ViewerGL
 
 filename = "/Users/paoluzzi/Documents/dev/Plasm.jl/test/svg/Lar.svg"
-V,EV = Plasm.svg2lar(filename)
+V,EV = Lar.svg2lar(filename)
 
 GL.VIEW([
 	GL.GLLines(V,EV,GL.COLORS[1]),
-	GL.GLAxis(GL.Point3d(0,0,0),GL.Point3d(1,1,1))
+	GL.GLFrame2
 ]);
 
 function pointsinout(V,EV, n=10000)

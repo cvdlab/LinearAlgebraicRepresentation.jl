@@ -29,4 +29,4 @@ GL.VIEW([ GL.GLGrid(V,triangles) ]);
 ev = map(sort,cat([[[u,v], [v,w], [w,u]] for (u,v,w) in triangles]))
 # remove duplicated edges from triangulation
 nodupev = collect(Set(ev))
-GL.VIEW(GL.numbering(.25)((V,[VV, nodupev, triangles])));
+GL.VIEW(GL.numbering(.25)((V,[VV, nodupev, triangles]),GL.COLORS[1],0.1));

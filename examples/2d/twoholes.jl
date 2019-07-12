@@ -33,4 +33,4 @@ nodupev = collect(Set(ev))
 
 GL.VIEW(GL.numbering(.3)((V,[VV, nodupev])));
 GL.VIEW([ GL.GLGrid(V,triangles) ]);
-GL.VIEW(GL.numbering(.25)((V,[VV, nodupev, triangles])));
+GL.VIEW(GL.numbering(.25)((V,[VV, nodupev, triangles]),GL.COLORS[1],0.2));

@@ -30,5 +30,5 @@ V,CVs,FVs,EVs = Lar.pols2tria(W, copEV, copFE, copCF)
 
 GL.VIEW(GL.GLExplode(V,FVs,1.5,1.5,1.5,99,1));
 GL.VIEW(GL.GLExplode(V,EVs,1.5,1.5,1.5,99,1));
-meshes = GL.GLExplode(V,CVs[1:end],8,4,6,99,0.5);
+meshes = GL.GLExplode(V,CVs[1:end],8,4,6,99,1);
 GL.VIEW( push!( meshes, GL.GLFrame) );
