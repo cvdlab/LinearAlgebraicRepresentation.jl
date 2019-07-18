@@ -3,6 +3,68 @@ using DataStructures
 
 
 """
+	grid(sequence::Array{Number,1})::Lar.LAR
+
+Generate a 1D LAR model.
+
+*Geometry* is stored as 1D `Points`, and *Topology* is stored as 1D `Cells`.
+`q()` and `q()()` are used as alias function name.
+```julia
+julia> model1D = grid(repeat([.1,-.1],outer=5))
+([0.0 0.1 … 0.9 1.0], Array{Int64,1}[[0, 1], [2, 3], [4, 5], [6, 7], [8, 9]])
+
+julia> model1D[1]
+1×11 Array{Float64,2}:
+ 0.0  0.1  0.2  0.3  0.4  0.5  0.6  0.7  0.8  0.9  1.0
+
+julia> model1D[2]
+5-element Array{Array{Int64,1},1}:
+ [0, 1]
+ [2, 3]
+ [4, 5]
+ [6, 7]
+ [8, 9]
+
+```
+"""
+function grid(sequence...)
+	sequence = collect(sequence)
+	cursor,points,hulls= (0,[[0.]],[])
+	for value in sequence
+		points = append!(points, [[cursor + abs(value)]])
+		if value>=0
+			append!(hulls,[[length(points)-1,length(points)]])
+		end
+	  cursor += abs(value)
+	end
+	V = convert(Lar.Points, [p[1] for p in points]')
+	EV = convert(Lar.Cells,hulls)
+	return V,EV
+end
+q = grid
+
+
+"""
+	qn(n::Int)(sequence::Array{T,1})::Lar.LAR  where T <: Real
+
+Alias of `grid` function, with repetition parameter `n`.
+```
+julia> qn(3)([1.5,-2,0.5])
+([0.0 1.5 … 11.5 12.0], Array{Int64,1}[[1, 2], [3, 4], [4, 5], [6, 7], [7, 8], [9, 10]])
+```
+"""
+function qn(n::Int)
+	function qn0(sequence::Array{T,1})::Lar.LAR  where T <: Real
+		sequence = collect(sequence)
+		return grid(repeat(sequence,outer=n))
+	end
+	return qn0
+end
+
+
+
+
+"""
 	grid_0(n::Int)::Array{Int64,2}
 
 Generate a *uniform 0D cellular complex*.
@@ -459,11 +521,11 @@ end
 
 
 """
-	larModelProduct(twoModels::Array{LAR,1})::LAR
+	larModelProduct(twoModels)
 
 Further *method* associated to `larModelProduct` *function*.
 """
-function larModelProduct( twoModels::Array{LAR,1} )::LAR
+function larModelProduct( twoModels )
     modelOne, modelTwo = twoModels
     larModelProduct(modelOne, modelTwo)
 end
