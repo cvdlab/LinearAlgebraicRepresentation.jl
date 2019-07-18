@@ -3,6 +3,40 @@ using DataStructures
 
 
 """
+	INSR(f::Function)(seq::Array{Any,1})::Any
+
+FL primitive combinator to transform a binary function to an n-ary one.
+```
+julia> mod1D = Lar.grid(repeat([.1,-.1],outer=5)...)
+([0.0 0.1 … 0.9 1.0], Array{Int64,1}[[1, 2], [3, 4], [5, 6], [7, 8], [9, 10]])
+
+julia> using ViewerGL; GL = ViewerGL
+
+julia> GL.VIEW([ GL.GLFrame2, GL.GLGrid(mod1D..., GL.COLORS[1],1) ])
+
+julia> mod3D = Lar.INSR(Lar.larModelProduct)([mod1D,mod1D,mod1D])
+([0.0 0.0 … 1.0 1.0; 0.0 0.0 … 1.0 1.0; 0.0 0.1 … 0.9 1.0],
+Array{Int64,1}[[1, 2, 12, 13, 122, 123, 133, 134], [3, 4, 14, 15, 124, 125, 135, 136],
+… [1063, 1064, 1074, 1075, 1184, 1185, 1195, 1196], [1065, 1066, 1076, 1077, 1186, 1187, 1197, 1198]])
+
+julia> GL.VIEW([ GL.GLFrame2, GL.GLPol(mod3D..., GL.COLORS[1],1) ])
+```
+"""
+function INSR(f)
+	function INSR0(seq)
+		len = length(seq)
+		res = seq[end]
+		for i in range(len-2,step=-1,stop=0)
+			res = f([seq[i+1], res])
+		end
+		return res
+	end
+	return INSR0
+end
+
+
+
+"""
 	grid(sequence::Array{Number,1})::Lar.LAR
 
 Generate a 1D LAR model.
