@@ -10,21 +10,23 @@ Generate a 1D LAR model.
 *Geometry* is stored as 1D `Points`, and *Topology* is stored as 1D `Cells`.
 `q()` and `q()()` are used as alias function name.
 ```julia
-julia> model1D = grid(repeat([.1,-.1],outer=5))
-([0.0 0.1 … 0.9 1.0], Array{Int64,1}[[0, 1], [2, 3], [4, 5], [6, 7], [8, 9]])
+julia> model1D = Lar.grid(1,-1,1,-1,1,-1,1,-1,1,-1)
+([0.0 1.0 … 9.0 10.0], Array{Int64,1}[[1, 2], [3, 4], [5, 6], [7, 8], [9, 10]])
 
 julia> model1D[1]
 1×11 Array{Float64,2}:
- 0.0  0.1  0.2  0.3  0.4  0.5  0.6  0.7  0.8  0.9  1.0
+ 0.0  1.0  2.0  3.0  4.0  5.0  6.0  7.0  8.0  9.0  10.0
 
 julia> model1D[2]
 5-element Array{Array{Int64,1},1}:
- [0, 1]
- [2, 3]
- [4, 5]
- [6, 7]
- [8, 9]
+ [1, 2]
+ [3, 4]
+ [5, 6]
+ [7, 8]
+ [9, 10]
 
+ julia> mod = Lar.grid(repeat([.1,-.1],outer=5)...)
+ ([0.0 0.1 … 0.9 1.0], Array{Int64,1}[[1, 2], [3, 4], [5, 6], [7, 8], [9, 10]])
 ```
 """
 function grid(sequence...)
@@ -41,7 +43,7 @@ function grid(sequence...)
 	EV = convert(Lar.Cells,hulls)
 	return V,EV
 end
-q = grid
+const q = grid
 
 
 """
@@ -56,7 +58,7 @@ julia> qn(3)([1.5,-2,0.5])
 function qn(n::Int)
 	function qn0(sequence::Array{T,1})::Lar.LAR  where T <: Real
 		sequence = collect(sequence)
-		return grid(repeat(sequence,outer=n))
+		return Lar.grid(repeat(sequence,outer=n)...)
 	end
 	return qn0
 end
