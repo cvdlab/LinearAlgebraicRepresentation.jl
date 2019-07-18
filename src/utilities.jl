@@ -1282,9 +1282,6 @@ function triangulate2d(V, EV)
 	points_map = Array{Int64,1}(collect(1:1:size(points)[1]))
     edges_list = convert(Array{Int64,2}, hcat(EV...)')
     edge_boundary = [true for k=1:size(edges_list,1)]
-@show points
-@show points_map
-@show edges_list
     trias = Triangle.constrained_triangulation(points,points_map,edges_list)
 	innertriangles = Array{Int64,1}[]
 	for (u,v,w) in trias

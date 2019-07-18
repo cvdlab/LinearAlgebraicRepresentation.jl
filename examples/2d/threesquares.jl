@@ -1,6 +1,7 @@
 using LinearAlgebraicRepresentation
 Lar = LinearAlgebraicRepresentation
-using Triangle, Plasm, LinearAlgebra
+using ViewerGL; GL = ViewerGL
+
 
 # input of primitive shapes
 W,(WW,EW,FW) = Lar.cuboid([1,1], true)
@@ -29,4 +30,4 @@ GL.VIEW([ GL.GLGrid(V,triangles) ]);
 ev = map(sort,cat([[[u,v], [v,w], [w,u]] for (u,v,w) in triangles]))
 # remove duplicated edges from triangulation
 nodupev = collect(Set(ev))
-GL.VIEW(GL.numbering(.25)((V,[VV, nodupev, triangles]),GL.COLORS[1],0.1));
+GL.VIEW(GL.numbering(.25)((V,[VV, nodupev, triangles]),GL.COLORS[1],0.2));

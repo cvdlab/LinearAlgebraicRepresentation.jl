@@ -18,7 +18,7 @@ end
 #show("./test/svg/tile.svg")
 #show("./test/svg/interior.svg")
 #show("./test/svg/holes.svg")
-V,EV = show("./test/svg/tile.svg")
+V,EV = show("./test/svg/Lar.svg")
 
 # subdivision of input edges
 W = convert(Lar.Points, V')

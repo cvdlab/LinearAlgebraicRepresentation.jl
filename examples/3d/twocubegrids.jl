@@ -31,7 +31,6 @@ function twocubegrids(n,m,p)
     #GL.VIEW(GL.numbering(.2)((W,[WW,EV])));
 
     V,CVs,FVs,EVs = Lar.pols2tria(W, copEV, copFE, copCF)
-    V = convert(Lar.Points, V')
     GL.VIEW(GL.GLExplode(V,FVs,1.5,1.5,1.5,99,1));
     GL.VIEW(GL.GLExplode(V,EVs,1.5,1.5,1.5,99,1));
     GL.VIEW(GL.GLExplode(V,CVs,5,5,5,99,1));
