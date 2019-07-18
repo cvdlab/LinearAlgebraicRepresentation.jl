@@ -51,7 +51,7 @@ const q = grid
 
 Alias of `grid` function, with repetition parameter `n`.
 ```
-julia> qn(3)([1.5,-2,0.5])
+julia> Lar.qn(3)([1.5,-2,0.5])
 ([0.0 1.5 … 11.5 12.0], Array{Int64,1}[[1, 2], [3, 4], [4, 5], [6, 7], [7, 8], [9, 10]])
 ```
 """
