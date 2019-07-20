@@ -1,0 +1,18 @@
+function allexamples3d()
+	include("juliacon2019.jl")
+	include("plasm-ops.jl")
+	include("pols2trias.jl")
+	include("portal_vein.jl")
+	include("portal_vein0.jl")
+	include("products.jl")
+	include("randomcubes.jl")
+	include("randomshapes.jl")
+	include("simplexn_examples.jl")
+	include("stresstest3d.jl")
+	include("struct_examples.jl")
+	include("threerods.jl")
+	include("two_tetrahedrons.jl")
+	include("twocubegrids.jl")
+end
+
+allexamples3d()

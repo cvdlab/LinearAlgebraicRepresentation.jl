@@ -48,7 +48,3 @@ GL.VIEW([ GL.GLGrid(grid_2d..., GL.COLORS[7],0.7),
 grid_3d = Lar.simplexGrid([2,3,4])
 GL.VIEW([ GL.GLGrid(grid_3d..., GL.COLORS[7]),
         GL.GLAxis(GL.Point3d(0,0,0),GL.Point3d(1,1,1)) ]);  # TODO  check
-
-V,CV = Lar.simplexGrid([1,1,1])
-GL.VIEW([ GL.GLGrid(V,CV, GL.COLORS[7]),
-        GL.GLAxis(GL.Point3d(0,0,0),GL.Point3d(1,1,1)) ]);  # TODO  check
