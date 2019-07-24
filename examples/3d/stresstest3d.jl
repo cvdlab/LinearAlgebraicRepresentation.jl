@@ -30,6 +30,6 @@ VV = [[k] for k in 1:size(V,2)];
 
 GL.VIEW( GL.numbering(0.125)((V,[VV, EV, FV]),GL.COLORS[1],0.25) );
 
-copEV = Lar.coboundary_0(EV)
-copFE = Lar.coboundary_1(V,FV,EV)
-W = convert(Lar.Points, V')
+# copEV = Lar.coboundary_0(EV)
+# copFE = Lar.coboundary_1(V,FV,EV)
+# W = convert(Lar.Points, V')

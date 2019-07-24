@@ -200,36 +200,36 @@ function input_collection(data::Array)::Lar.LAR
 	return Lar.struct2lar(assembly)
 end
 
-	function boundingbox(vertices::Lar.Points)
-	   minimum = mapslices(x->min(x...), vertices, dims=2)
-	   maximum = mapslices(x->max(x...), vertices, dims=2)
-	   return minimum, maximum
-	end
+function boundingbox(vertices::Lar.Points)
+   minimum = mapslices(x->min(x...), vertices, dims=2)
+   maximum = mapslices(x->max(x...), vertices, dims=2)
+   return minimum, maximum
+end
 
-	function coordintervals(coord,bboxes)
-		boxdict = OrderedDict{Array{Float64,1},Array{Int64,1}}()
-		for (h,box) in enumerate(bboxes)
-			key = box[coord,:]
-			if haskey(boxdict,key) == false
-				boxdict[key] = [h]
-			else
-				push!(boxdict[key], h)
-			end
+function coordintervals(coord,bboxes)
+	boxdict = OrderedDict{Array{Float64,1},Array{Int64,1}}()
+	for (h,box) in enumerate(bboxes)
+		key = box[coord,:]
+		if haskey(boxdict,key) == false
+			boxdict[key] = [h]
+		else
+			push!(boxdict[key], h)
 		end
-		return boxdict
 	end
+	return boxdict
+end
 
-	function boxcovering(bboxes, index, tree)
-		covers = [[] for k=1:length(bboxes)]
-		for (i,boundingbox) in enumerate(bboxes)
-			extent = bboxes[i][index,:]
-			iterator = IntervalTrees.intersect(tree, tuple(extent...))
-			for x in iterator
-				append!(covers[i],x.value)
-			end
+function boxcovering(bboxes, index, tree)
+	covers = [[] for k=1:length(bboxes)]
+	for (i,boundingbox) in enumerate(bboxes)
+		extent = bboxes[i][index,:]
+		iterator = IntervalTrees.intersect(tree, tuple(extent...))
+		for x in iterator
+			append!(covers[i],x.value)
 		end
-		return covers
 	end
+	return covers
+end
 
 
 """

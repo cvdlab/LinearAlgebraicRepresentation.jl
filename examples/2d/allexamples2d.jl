@@ -10,10 +10,6 @@ function allexamples2d()
     include("randomshapes.jl")
     include("stresstest2d.jl")
     include("svg2lar.jl")
-    include("threesquares.jl")
-    include("tinypolygons.jl")
-    include("triangle.jl")
-    include("twoholes.jl")
 end
 
-allexamples2d() 
+allexamples2d()
