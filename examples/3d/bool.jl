@@ -21,7 +21,7 @@ julia> spaceindex([.5,.5,.5])((V,FV))
  6
 ```
 """
-function spaceindex(point3d::Array{Float64,1},testpoint=true)::Function
+function spaceindex(point3d::Array{Float64,1})::Function
 	function spaceindex0(model::Lar.LAR)::Array{Int,1}
 		V,CV = copy(model[1]),copy(model[2])
 		V = [V point3d]
@@ -95,7 +95,7 @@ function rayintersection(point3d)
 		if (abs(denom) > 1e-6)
 			p0l0 = p0 - l0
 			t = dot(p0l0, n) / denom
-			return l0 + t*l
+			if t>0 return l0 + t*l end
 		else
 			#error("ray and face are parallel")
 			return false
@@ -105,6 +105,11 @@ function rayintersection(point3d)
 end
 
 
+"""
+	removeconstrow(A::Array{Float64,2})::
+
+Remove a row of constant values from a matrix.
+"""
 function removeconstrow(A::Array{Float64,2})
 	B = Array{Float64,1}[]
 	global h = 0
@@ -116,6 +121,7 @@ function removeconstrow(A::Array{Float64,2})
 			h = k
 		end
 	end
+	B = convert(Array{Float64,2},hcat(B...)')
 	return B,h
 end
 
@@ -140,7 +146,7 @@ function planemap(V,copEV,copFE,face)
 			vs = (inv(M)*vs)
 			vs,h = removeconstrow(vs)
 		end
-		return vs, [point[k] for k=1:length(point) if k≠h]
+		return vs, edges, [point[k] for k=1:length(point) if k≠h] # TODO: debug
 	end
 	return planemap0
 end
@@ -150,7 +156,7 @@ end
 	getinternalpoint(V::Lar.Points, FV::Lar.Cells)::Array(Float64)
 
 """
-function getinternalpoint(V,FV)
+function getinternalpoint(V,FV,copEV,copFE)
 	# get two test points close to the two sides of any face (first is OK)
 	ps = V[:,FV[1]]  # face points
 	p0 = ps[:,1]
@@ -165,20 +171,54 @@ function getinternalpoint(V,FV)
 	for face in 1:length(FV)
 		ret1 = rayintersection(ptest1)(V,FV,face)
 		ret2 = rayintersection(ptest2)(V,FV,face)
-		if ret1 ≠ false push!(dep1, ret1) end
-		if ret2 ≠ false push!(dep2, ret2) end
+		if typeof(ret1) == Array{Float64,1} push!(dep1, (face,ret1)) end
+		if typeof(ret2) == Array{Float64,1} push!(dep2, (face,ret2)) end
 	end
 
 	# transform each plane in 2D and look whether the intersection point is internal
-
+	k1,k2 = 0,0
+	for (face,point3d) in dep1
+		vs, edges, point2d = planemap(V,copEV,copFE,face)(point3d)
+		classify = Lar.pointInPolygonClassification(vs,edges)
+		inOut = classify(point2d)
+		println(inOut)
+		if inOut == "p_in" k1+=1 end
+	end
+	for (face,point3d) in dep2
+		vs, edges, point2d = planemap(V,copEV,copFE,face)(point3d)
+		classify = Lar.pointInPolygonClassification(vs,edges)
+		inOut = classify(point2d)
+		if inOut == "p_in" k2+=1 end
+	end
 
 	# return the test point with even numeber of intersections
 
 end
 
+# high level function
+
+function chainbasis2solids(V,copEV,copFE,copCF)
+	CF = [findnz(copCF[k,:])[1] for k=1:copCF.m]
+	FE = [findnz(copFE[k,:])[1] for k=1:copFE.m]
+	EV = [findnz(copEV[k,:])[1] for k=1:copEV.m]
+
+	FEs = Array{Array{Int64,1},1}[]
+	EVs = Array{Array{Array{Int64,1},1},1}[]
+	FVs = Array{Array{Int64,1},1}[]
+	for k=1:copCF.m
+		push!( FEs, [collect(Set(cat([e for e in FE[f]]))) for f in CF[k]] )
+		# edges in EVs are aggregated by face, in order to answer point-classifications
+		push!( EVs, [[EV[e] for e in FE[f]] for f in CF[k]] )
+		push!( FVs, [collect(Set(cat([EV[e] for e in FE[f]]))) for f in CF[k]] )
+	end
+	pols = collect(zip(EVs,FVs,FEs))
+	W = convert(Lar.Points,V')
+	return W,pols
+end
+
+################################################################################
+
 # Example generation
-
-
 n,m,p = 1,1,1
 V,(VV,EV,FV,CV) = Lar.cuboidGrid([n,m,p],true)
 cube = V,FV,EV
@@ -186,24 +226,20 @@ cube = V,FV,EV
 threecubes = Lar.Struct([ cube,
     Lar.t(.3,.4,.25), Lar.r(pi/5,0,0), Lar.r(0,0,pi/12), cube,
     Lar.t(-.2,.4,-.2), Lar.r(0,pi/5,0), Lar.r(0,pi/12,0), cube ])
-
 V,FV,EV = Lar.struct2lar(threecubes)
 GL.VIEW([ GL.GLGrid(V,FV), GL.GLFrame ]);
-
 cop_EV = convert(Lar.ChainOp, Lar.coboundary_0(EV::Lar.Cells));
 cop_FE = Lar.coboundary_1(V, FV::Lar.Cells, EV::Lar.Cells);
-
 W = convert(Lar.Points, V');
 
-pointcover = Lar.spaceindex([0,0,0.])((V,FV))
-
-VV = [[k] for k=1:size(V,2)]
-GL.VIEW( push!(GL.numbering(0.5)( (V,[ VV,EV,FV ]), GL.COLORS[1],1 ), GL.GLFrame) )
-
-
-
+# generate the 3D space arrangement
 V, copEV, copFE, copCF = Lar.Arrangement.spatial_arrangement( W, cop_EV, cop_FE)
+# transform each 3-cell in a solid (via lar model)
+U,pols = chainbasis2solids(V,copEV,copFE,copCF)
+# compute, for each 3-cell in pols, one internal point
+EU,FU,FE = pols[1]
+W,pols = getinternalpoint(U,FU, copEV,copFE)
 
 
 
-W = convert(Lar.Points, V')
+pointcover = spaceindex([0,0,0.])((V,FV))
