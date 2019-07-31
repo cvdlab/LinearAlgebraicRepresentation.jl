@@ -1,17 +1,29 @@
 using LinearAlgebraicRepresentation, ViewerGL, SparseArrays
 Lar = LinearAlgebraicRepresentation; GL = ViewerGL
 using IntervalTrees,LinearAlgebra
+using Revise, OhMyREPL
+
+#=
+Method to compute an internal point to a polyhedron.
+----------------------------------------------------
+
+1. Take two of points close to the opposite sides of any face of a polyhedron, e.g., the first face.
+2. For each of the two points compute the intersections of a (vertical) ray with the planes (of the faces) intersected by the ray (positive direction of the half-line).
+3. Transform each such plane and face (and intersection point) to 2D space.
+4. Test for point-in-polygon intersection.
+5. Compute the parity of the intersection points for each ray.
+6. Invariant:  if one is even; the other is odd.
+7. The initial point with odd number of intersection points is interior to the polyhedron. The other is exterior.
+=#
 
 """
 	spaceindex(point3d)(model)
 
 Compute the set of face boxes of possible intersection with a point-ray.
-
 Work in 3D, where the ray direction is parallel to the z-axis.
 Return an array of indices of face.
 
 #	Example
-
 ```
 julia> V,(VV,EV,FV,CV) = Lar.cuboidGrid([1,1,1],true)
 
@@ -22,7 +34,11 @@ julia> spaceindex([.5,.5,.5])((V,FV))
 ```
 """
 function spaceindex(point3d::Array{Float64,1})::Function
+println("\n")
+#@show point3d
 	function spaceindex0(model::Lar.LAR)::Array{Int,1}
+	println("\n")
+	#@show model
 		V,CV = copy(model[1]),copy(model[2])
 		V = [V point3d]
 		dim, idx = size(V)
@@ -84,7 +100,13 @@ julia> FV
 ```
 """
 function rayintersection(point3d)
+println("\n")
+#@show point3d
 	function rayintersection0(V, FV, face::Int)
+	println("\n")
+	#@show V;
+	#@show FV;
+	#@show face
 		l0, l = point3d, [0,0,1.]
 		ps = V[:,FV[face]]  # face points
 		p0 = ps[:,1]
@@ -111,6 +133,8 @@ end
 Remove a row of constant values from a matrix.
 """
 function removeconstrow(A::Array{Float64,2})
+println("\n")
+#@show A
 	B = Array{Float64,1}[]
 	global h = 0
 	for k=1:size(A,1)
@@ -132,8 +156,14 @@ end
 Tranform the 3D face and the 3D point in their homologous 2D, in order to test for containment.
 """
 function planemap(V,copEV,copFE,face)
+println("\n")
+#@show findnz(copEV);
+#@show findnz(copFE);
+#@show face
 	fv, edges = Lar.vcycle(copEV, copFE, face)
 	function planemap0(point)
+	println("\n")
+	#@show point
 		vs = V[:,fv]
 		vs,h = removeconstrow(vs)
 		if h==0
@@ -156,15 +186,24 @@ end
 	getinternalpoint(V::Lar.Points, FV::Lar.Cells)::Array(Float64)
 
 """
-function getinternalpoint(V,FV,copEV,copFE)
-	# get two test points close to the two sides of any face (first is OK)
-	ps = V[:,FV[1]]  # face points
-	p0 = ps[:,1]
-	v1, v2 = ps[:,2]-p0, ps[:,3]-p0 # suppose first 3 points not aligned
-	n = normalize(cross( v1,v2  ))
-	ϵ = 1.0e-3
+function getinternalpoint(V,EV,FV,FE, copEV,copFE)
+println("\n")
+#@show V;
+#@show FV;
+#@show findnz(copEV);
+#@show findnz(copFE);
+	# get two test points close to the two sides of first face
+	(v1,v2),v3 = EV[1],[v for (u,v) in EV if u==EV[1][2]][1]
+	ps = [V[:,v1] V[:,v2] V[:,v3]]  # face points
+	p0 = (ps[:,1]+ps[:,2])./2
+	#GL.VIEW([ GL.GLFrame, GL.GLLines(U,EV), GL.GLPoints([ps p0]) ]);
+	t = ps[:,2]-ps[:,1] # suppose first 3 points not aligned
+	v1,v2 = ps[:,2]-ps[:,1], ps[:,3]-ps[:,2]
+	n = normalize(cross( t, v2  ))
+	ϵ = 1.0e-2
 	ptest1 = p0 + ϵ*v1 + ϵ*v2 + ϵ*n  # point test one
 	ptest2 = p0 + ϵ*v1 + ϵ*v2 - ϵ*n  # point test two
+	GL.VIEW([ GL.GLFrame, GL.GLLines(U,EV), GL.GLPoints([ptest1'; ptest2']) ]);
 
 	# for each test point compute the face planes intersected by vertical ray
 	dep1, dep2 = [],[]
@@ -174,25 +213,35 @@ function getinternalpoint(V,FV,copEV,copFE)
 		if typeof(ret1) == Array{Float64,1} push!(dep1, (face,ret1)) end
 		if typeof(ret2) == Array{Float64,1} push!(dep2, (face,ret2)) end
 	end
+	# p_on_planes = hcat([ret1 for (face,ret1) in dep1]...)
+	# GL.VIEW([GL.GLFrame2, GL.GLLines(V[:,fv],edges), GL.GLPoints([ps; ptest1'; ptest2']),
+	# GL.GLPoints(p_on_planes) ])
+
 
 	# transform each plane in 2D and look whether the intersection point is internal
+	# return the test point with odd numeber of ray intersections
 	k1,k2 = 0,0
 	for (face,point3d) in dep1
 		vs, edges, point2d = planemap(V,copEV,copFE,face)(point3d)
+# p = convert(Array{Float64,2}, point2d')
+# GL.VIEW([GL.GLFrame2, GL.GLLines(vs,edges), GL.GLPoints(p)])
 		classify = Lar.pointInPolygonClassification(vs,edges)
 		inOut = classify(point2d)
 		println(inOut)
-		if inOut == "p_in" k1+=1 end
+		if inOut!="p_out"  k1+=1 end
 	end
-	for (face,point3d) in dep2
-		vs, edges, point2d = planemap(V,copEV,copFE,face)(point3d)
-		classify = Lar.pointInPolygonClassification(vs,edges)
-		inOut = classify(point2d)
-		if inOut == "p_in" k2+=1 end
+	if k1 % 2 == 1 return ptest1
+	else
+		for (face,point3d) in dep2
+			vs, edges, point2d = planemap(V,copEV,copFE,face)(point3d)
+			classify = Lar.pointInPolygonClassification(vs,edges)
+			inOut = classify(point2d)
+			println(inOut)
+			if inOut!="p_out"  k2+=1 end
+		end
+		if k2 % 2 == 1 return ptest2
+		else println("error: while computing internal point of 3-cell") end
 	end
-
-	# return the test point with even numeber of intersections
-
 end
 
 # high level function
@@ -217,8 +266,18 @@ function chainbasis2solids(V,copEV,copFE,copCF)
 end
 
 ################################################################################
+#=
+After the arrangement, extract all the d-cells from (d-1)-coboundary as isolated polyhedra.
+Then compute a single interior point for each of them.
+
+Then compare each such point against all input boundaries, in order to compute those which it was interior to. Extend this point membership as 3-cell containment within the relative input solids.
+
+The point membership with a boundary consists in the parity count of the intersection points of a vertical ray starting at the test point, with the boundary surface.
+=#
+################################################################################
 
 # Example generation
+#-------------------------------------------------------------------------------
 n,m,p = 1,1,1
 V,(VV,EV,FV,CV) = Lar.cuboidGrid([n,m,p],true)
 cube = V,FV,EV
@@ -232,14 +291,39 @@ cop_EV = convert(Lar.ChainOp, Lar.coboundary_0(EV::Lar.Cells));
 cop_FE = Lar.coboundary_1(V, FV::Lar.Cells, EV::Lar.Cells);
 W = convert(Lar.Points, V');
 
+# Arrangement computation
+#-------------------------------------------------------------------------------
 # generate the 3D space arrangement
 V, copEV, copFE, copCF = Lar.Arrangement.spatial_arrangement( W, cop_EV, cop_FE)
-# transform each 3-cell in a solid (via lar model)
+
+# transform each 3-cell in a solid (via Lar model)
+#-------------------------------------------------------------------------------
 U,pols = chainbasis2solids(V,copEV,copFE,copCF)
-# compute, for each 3-cell in pols, one internal point
-EU,FU,FE = pols[1]
-W,pols = getinternalpoint(U,FU, copEV,copFE)
+
+# compute, for each `pol` (3-cell) in `pols`, one `internalpoint`.
+#-------------------------------------------------------------------------------
 
 
+internalpoints = []
+for k=1:length(pols)
+@show k
+	EV,FV,FE = pols[k]
+	EV = convert(Lar.Cells,cat(EV))
+	#GL.VIEW([ GL.GLFrame, GL.GLLines(U,EV) ]);
+	internalpoint = getinternalpoint(U,EV,FV,FE, copEV,copFE)
+	push!(internalpoints,internalpoint)
+end
 
-pointcover = spaceindex([0,0,0.])((V,FV))
+
+#
+#  points = [[-0.001, 0.898294, 0.14675],
+#  [0.001, 0.898294, 0.14675] ,
+#  [0.001, 0.898294, 0.14675] ,
+#  [-0.001, 0.898294, 0.14675]]
+#
+# points = convert(Array{Float64,2}, hcat(points...)')
+# V,FV,EV = Lar.struct2lar(threecubes)
+# GL.VIEW([ GL.GLGrid(V,FV), GL.GLFrame, GL.GLPoints(points) ]);
+#
+#
+# #pointcover = spaceindex([0,0,0.])((V,FV))
