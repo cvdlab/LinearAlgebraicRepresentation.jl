@@ -34,11 +34,9 @@ julia> spaceindex([.5,.5,.5])((V,FV))
 ```
 """
 function spaceindex(point3d::Array{Float64,1})::Function
-println("\n")
 #@show point3d
 	function spaceindex0(model::Lar.LAR)::Array{Int,1}
-	println("\n")
-	#@show model
+		#@show model
 		V,CV = copy(model[1]),copy(model[2])
 		V = [V point3d]
 		dim, idx = size(V)
@@ -100,11 +98,9 @@ julia> FV
 ```
 """
 function rayintersection(point3d)
-println("\n")
 #@show point3d
 	function rayintersection0(V, FV, face::Int)
-	println("\n")
-	#@show V;
+		#@show V;
 	#@show FV;
 	#@show face
 		l0, l = point3d, [0,0,1.]
@@ -133,12 +129,11 @@ end
 Remove a row of constant values from a matrix.
 """
 function removeconstrow(A::Array{Float64,2})
-println("\n")
 #@show A
 	B = Array{Float64,1}[]
 	global h = 0
 	for k=1:size(A,1)
-		rowtest = [el for el in A[k,:] if el≠A[k,1]]
+		rowtest = [el for el in A[k,:] if abs(el-A[k,1])<1e-3]
 		if length(rowtest)!=0
 			push!(B,A[k,:])
 		else
@@ -156,26 +151,30 @@ end
 Tranform the 3D face and the 3D point in their homologous 2D, in order to test for containment.
 """
 function planemap(V,copEV,copFE,face)
-println("\n")
 #@show findnz(copEV);
 #@show findnz(copFE);
 #@show face
 	fv, edges = Lar.vcycle(copEV, copFE, face)
+@show fv
+@show edges
 	function planemap0(point)
-	println("\n")
-	#@show point
+		#@show point
 		vs = V[:,fv]
+@show vs
 		vs,h = removeconstrow(vs)
+@show vs,h
 		if h==0
 			u,v = edges[1]
 			z,w = [[z,w] for (z,w) in edges if z==v][1]
-			v1 = V[:,u]-V[:,v]
-			v2 = V[:,w]-V[:,v]
+			v1 = vs[:,u]-vs[:,v]
+			v2 = vs[:,w]-vs[:,v]
 			v3 = cross(v2,v1)
 			M = [v1 v2 v3]
-			vs = (inv(M)*vs)
+@show M
+			vs = inv(M) * vs
 			vs,h = removeconstrow(vs)
 		end
+
 		return vs, edges, [point[k] for k=1:length(point) if k≠h] # TODO: debug
 	end
 	return planemap0
@@ -186,8 +185,7 @@ end
 	getinternalpoint(V::Lar.Points, FV::Lar.Cells)::Array(Float64)
 
 """
-function getinternalpoint(V,EV,FV,FE, copEV,copFE)
-println("\n")
+function getinternalpoint(V,EV,FV,Fs, copEV,copFE)
 #@show V;
 #@show FV;
 #@show findnz(copEV);
@@ -207,15 +205,17 @@ println("\n")
 
 	# for each test point compute the face planes intersected by vertical ray
 	dep1, dep2 = [],[]
-	for face in 1:length(FV)
-		ret1 = rayintersection(ptest1)(V,FV,face)
-		ret2 = rayintersection(ptest2)(V,FV,face)
+	# face in Fs : global indices of faces of current solid
+	for (f,face) in enumerate(Fs)
+		ret1 = rayintersection(ptest1)(V,FV,f)
+		ret2 = rayintersection(ptest2)(V,FV,f)
 		if typeof(ret1) == Array{Float64,1} push!(dep1, (face,ret1)) end
 		if typeof(ret2) == Array{Float64,1} push!(dep2, (face,ret2)) end
 	end
-	# p_on_planes = hcat([ret1 for (face,ret1) in dep1]...)
-	# GL.VIEW([GL.GLFrame2, GL.GLLines(V[:,fv],edges), GL.GLPoints([ps; ptest1'; ptest2']),
-	# GL.GLPoints(p_on_planes) ])
+	p_on_planes = hcat([ret1 for (face,ret1) in dep1]...)
+	fv, edges = Lar.vcycle(copEV, copFE, Fs[1])
+	GL.VIEW([GL.GLFrame, GL.GLLines(V,EV),
+		GL.GLPoints(convert(Array{Float64,2},p_on_planes')) ]);
 
 
 	# transform each plane in 2D and look whether the intersection point is internal
@@ -262,7 +262,7 @@ function chainbasis2solids(V,copEV,copFE,copCF)
 	end
 	pols = collect(zip(EVs,FVs,FEs))
 	W = convert(Lar.Points,V')
-	return W,pols
+	return W,pols,CF
 end
 
 ################################################################################
@@ -298,7 +298,7 @@ V, copEV, copFE, copCF = Lar.Arrangement.spatial_arrangement( W, cop_EV, cop_FE)
 
 # transform each 3-cell in a solid (via Lar model)
 #-------------------------------------------------------------------------------
-U,pols = chainbasis2solids(V,copEV,copFE,copCF)
+U,pols,CF = chainbasis2solids(V,copEV,copFE,copCF)
 
 # compute, for each `pol` (3-cell) in `pols`, one `internalpoint`.
 #-------------------------------------------------------------------------------
@@ -307,10 +307,10 @@ U,pols = chainbasis2solids(V,copEV,copFE,copCF)
 internalpoints = []
 for k=1:length(pols)
 @show k
-	EV,FV,FE = pols[k]
+	(EV,FV,FE),Fs = pols[k],CF[k]
 	EV = convert(Lar.Cells,cat(EV))
 	#GL.VIEW([ GL.GLFrame, GL.GLLines(U,EV) ]);
-	internalpoint = getinternalpoint(U,EV,FV,FE, copEV,copFE)
+	internalpoint = getinternalpoint(U,EV,FV,Fs, copEV,copFE)
 	push!(internalpoints,internalpoint)
 end
 
