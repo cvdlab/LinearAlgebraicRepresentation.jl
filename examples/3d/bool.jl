@@ -34,10 +34,8 @@ julia> spaceindex([.5,.5,.5])((V,FV))
 ```
 """
 function spaceindex(point3d::Array{Float64,1})::Function
-#@show point3d
 	function spaceindex0(model::Lar.LAR)::Array{Int,1}
-		#@show model
-		V,CV = copy(model[1]),copy(model[2])
+				V,CV = copy(model[1]),copy(model[2])
 		V = [V point3d]
 		dim, idx = size(V)
 		push!(CV, [idx,idx,idx])
@@ -98,19 +96,15 @@ julia> FV
 ```
 """
 function rayintersection(point3d)
-#@show point3d
 	function rayintersection0(V, FV, face::Int)
-		#@show V;
-	#@show FV;
-	#@show face
-		l0, l = point3d, [0,0,1.]
+						l0, l = point3d, [0,0,1.]
 		ps = V[:,FV[face]]  # face points
 		p0 = ps[:,1]
 		v1, v2 = ps[:,2]-p0, ps[:,3]-p0
 		n = normalize(cross( v1,v2  ))
 
 		denom = dot(n, l)
-		if (abs(denom) > 1e-6)
+		if (abs(denom) > 1e-8) #1e-6
 			p0l0 = p0 - l0
 			t = dot(p0l0, n) / denom
 			if t>0 return l0 + t*l end
@@ -118,30 +112,8 @@ function rayintersection(point3d)
 			#error("ray and face are parallel")
 			return false
 	 	end
-		return rayintersection0
 	end
-end
-
-
-"""
-	removeconstrow(A::Array{Float64,2})::
-
-Remove a row of constant values from a matrix.
-"""
-function removeconstrow(A::Array{Float64,2})
-#@show A
-	B = Array{Float64,1}[]
-	global h = 0
-	for k=1:size(A,1)
-		rowtest = [el for el in A[k,:] if abs(el-A[k,1])<1e-3]
-		if length(rowtest)!=0
-			push!(B,A[k,:])
-		else
-			h = k
-		end
-	end
-	B = convert(Array{Float64,2},hcat(B...)')
-	return B,h
+	return rayintersection0
 end
 
 
@@ -151,33 +123,31 @@ end
 Tranform the 3D face and the 3D point in their homologous 2D, in order to test for containment.
 """
 function planemap(V,copEV,copFE,face)
-#@show findnz(copEV);
-#@show findnz(copFE);
-#@show face
 	fv, edges = Lar.vcycle(copEV, copFE, face)
-@show fv
-@show edges
+	# Fv = Dict(zip(1:length(fv),fv))
+	# edges = [[Fv[u],Fv[v]] for (u,v) in edges]
 	function planemap0(point)
-		#@show point
 		vs = V[:,fv]
-@show vs
-		vs,h = removeconstrow(vs)
-@show vs,h
-		if h==0
-			u,v = edges[1]
-			z,w = [[z,w] for (z,w) in edges if z==v][1]
-			v1 = vs[:,u]-vs[:,v]
-			v2 = vs[:,w]-vs[:,v]
-			v3 = cross(v2,v1)
-			M = [v1 v2 v3]
-@show M
-			vs = inv(M) * vs
-			vs,h = removeconstrow(vs)
-		end
-
-		return vs, edges, [point[k] for k=1:length(point) if k≠h] # TODO: debug
+		# Plasm.view(Plasm.numbering(0.5)((vs,[[[k] for k=1:4],edges])))
+		#translation
+		point = point .- vs[:,1]
+		vs = vs .- vs[:,1]
+		u,v = edges[1]
+		z,w = [[z,w] for (z,w) in edges if z==v][1]
+		v1 = vs[:,u]-vs[:,v]
+		v2 = vs[:,w]-vs[:,v]
+		v3 = cross(v2,v1)
+		M = [v1 v2 v3]
+		vs = inv(M) * [vs point]
+		outvs = vs[1:2, 1:end-1]
+		outpoint = vs[1:2, end]
+		return outvs, edges, outpoint
 	end
 	return planemap0
+end
+
+function pointinsideface(Fs, copEV,copFE)
+	triangulated_faces = triangulate2d
 end
 
 
@@ -186,22 +156,18 @@ end
 
 """
 function getinternalpoint(V,EV,FV,Fs, copEV,copFE)
-#@show V;
-#@show FV;
-#@show findnz(copEV);
-#@show findnz(copFE);
 	# get two test points close to the two sides of first face
-	(v1,v2),v3 = EV[1],[v for (u,v) in EV if u==EV[1][2]][1]
+	v1,v2,v3 = FV[1][1:3]
 	ps = [V[:,v1] V[:,v2] V[:,v3]]  # face points
 	p0 = (ps[:,1]+ps[:,2])./2
 	#GL.VIEW([ GL.GLFrame, GL.GLLines(U,EV), GL.GLPoints([ps p0]) ]);
 	t = ps[:,2]-ps[:,1] # suppose first 3 points not aligned
 	v1,v2 = ps[:,2]-ps[:,1], ps[:,3]-ps[:,2]
 	n = normalize(cross( t, v2  ))
-	ϵ = 1.0e-2
-	ptest1 = p0 + ϵ*v1 + ϵ*v2 + ϵ*n  # point test one
-	ptest2 = p0 + ϵ*v1 + ϵ*v2 - ϵ*n  # point test two
-	GL.VIEW([ GL.GLFrame, GL.GLLines(U,EV), GL.GLPoints([ptest1'; ptest2']) ]);
+	ϵ = 1.0e-3
+	ptest1 = p0 + 10ϵ*v1 + 10ϵ*v2 + ϵ*n  # point test one
+	ptest2 = p0 + 10ϵ*v1 + 10ϵ*v2 - ϵ*n  # point test two
+	# GL.VIEW([ GL.GLFrame, GL.GLLines(V,EV), GL.GLPoints([ptest1'; ptest2']) ]);
 
 	# for each test point compute the face planes intersected by vertical ray
 	dep1, dep2 = [],[]
@@ -212,31 +178,26 @@ function getinternalpoint(V,EV,FV,Fs, copEV,copFE)
 		if typeof(ret1) == Array{Float64,1} push!(dep1, (face,ret1)) end
 		if typeof(ret2) == Array{Float64,1} push!(dep2, (face,ret2)) end
 	end
-	p_on_planes = hcat([ret1 for (face,ret1) in dep1]...)
-	fv, edges = Lar.vcycle(copEV, copFE, Fs[1])
-	GL.VIEW([GL.GLFrame, GL.GLLines(V,EV),
-		GL.GLPoints(convert(Array{Float64,2},p_on_planes')) ]);
-
 
 	# transform each plane in 2D and look whether the intersection point is internal
 	# return the test point with odd numeber of ray intersections
 	k1,k2 = 0,0
 	for (face,point3d) in dep1
 		vs, edges, point2d = planemap(V,copEV,copFE,face)(point3d)
-# p = convert(Array{Float64,2}, point2d')
-# GL.VIEW([GL.GLFrame2, GL.GLLines(vs,edges), GL.GLPoints(p)])
+p = convert(Array{Float64,2}, point2d')
+GL.VIEW([GL.GLFrame2, GL.GLLines(vs,edges), GL.GLPoints(p)])
 		classify = Lar.pointInPolygonClassification(vs,edges)
 		inOut = classify(point2d)
-		println(inOut)
 		if inOut!="p_out"  k1+=1 end
 	end
 	if k1 % 2 == 1 return ptest1
 	else
 		for (face,point3d) in dep2
 			vs, edges, point2d = planemap(V,copEV,copFE,face)(point3d)
+p = convert(Array{Float64,2}, point2d')
+GL.VIEW([GL.GLFrame2, GL.GLLines(vs,edges), GL.GLPoints(p)])
 			classify = Lar.pointInPolygonClassification(vs,edges)
 			inOut = classify(point2d)
-			println(inOut)
 			if inOut!="p_out"  k2+=1 end
 		end
 		if k2 % 2 == 1 return ptest2
@@ -286,7 +247,7 @@ threecubes = Lar.Struct([ cube,
     Lar.t(.3,.4,.25), Lar.r(pi/5,0,0), Lar.r(0,0,pi/12), cube,
     Lar.t(-.2,.4,-.2), Lar.r(0,pi/5,0), Lar.r(0,pi/12,0), cube ])
 V,FV,EV = Lar.struct2lar(threecubes)
-GL.VIEW([ GL.GLGrid(V,FV), GL.GLFrame ]);
+# GL.VIEW([ GL.GLGrid(V,FV), GL.GLFrame ]);
 cop_EV = convert(Lar.ChainOp, Lar.coboundary_0(EV::Lar.Cells));
 cop_FE = Lar.coboundary_1(V, FV::Lar.Cells, EV::Lar.Cells);
 W = convert(Lar.Points, V');
@@ -295,6 +256,8 @@ W = convert(Lar.Points, V');
 #-------------------------------------------------------------------------------
 # generate the 3D space arrangement
 V, copEV, copFE, copCF = Lar.Arrangement.spatial_arrangement( W, cop_EV, cop_FE)
+W = convert(Lar.Points, V');
+V,CVs,FVs,EVs = Lar.pols2tria(W, copEV, copFE, copCF)
 
 # transform each 3-cell in a solid (via Lar model)
 #-------------------------------------------------------------------------------
@@ -306,12 +269,14 @@ U,pols,CF = chainbasis2solids(V,copEV,copFE,copCF)
 
 internalpoints = []
 for k=1:length(pols)
-@show k
 	(EV,FV,FE),Fs = pols[k],CF[k]
-	EV = convert(Lar.Cells,cat(EV))
-	#GL.VIEW([ GL.GLFrame, GL.GLLines(U,EV) ]);
-	internalpoint = getinternalpoint(U,EV,FV,Fs, copEV,copFE)
+	EV = convert(Lar.Cells,collect(Set(cat(EV))))
+	#GL.VIEW([ GL.GLFrame, GL.GLLines(V,EV) ]);
+	internalpoint = getinternalpoint(V,EV,FV,Fs, copEV,copFE)
 	push!(internalpoints,internalpoint)
+@show k
+@show internalpoint
+@show internalpoints
 end
 
 
