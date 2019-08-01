@@ -15,7 +15,7 @@ using NearestNeighbors
 Half-line crossing test. Utility function for `pointInPolygonClassification` function.
 Update the `count` depending of the actual crossing of the tile half-line.
 """
-function crossingTest(new::Int, old::Int, count::Float64, status::Int)::Number
+function crossingTest(new::Int, old::Int, count::T, status::Int)::Number where T <: Real
     if status == 0
         status = new
         count += 0.5
