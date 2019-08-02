@@ -1,7 +1,7 @@
 using LinearAlgebraicRepresentation, ViewerGL, SparseArrays
 Lar = LinearAlgebraicRepresentation; GL = ViewerGL
 using IntervalTrees,LinearAlgebra
-using Revise, OhMyREPL
+#using Revise, OhMyREPL
 
 #=
 Method to compute an internal point to a polyhedron.
@@ -101,7 +101,7 @@ function rayintersection(point3d)
 		ps = V[:,FV[face]]  # face points
 		p0 = ps[:,1]
 		v1, v2 = ps[:,2]-p0, ps[:,3]-p0
-		n = normalize(cross( v1,v2  ))
+		n = LinearAlgebra.normalize(cross( v1,v2  ))
 
 		denom = dot(n, l)
 		if (abs(denom) > 1e-8) #1e-6
@@ -159,8 +159,8 @@ function settestpoints(V,EV,FV,Fs, copEV,copFE)
 	v1,v2 = intersect(V1,V2) # verified ... !
 	t1 = V[:,v1], V[:,v2], V[:,[v for v in V1 if v≠v1 && v≠v2][1]]
 	t2 = V[:,v2], V[:,v1], V[:,[v for v in V2 if v≠v1 && v≠v2][1]]
-	n1 = normalize(cross( t1[2]-t1[1], t1[3]-t1[1] ))
-	n2 = normalize(cross( t2[2]-t2[1], t2[3]-t2[1] ))
+	n1 = LinearAlgebra.normalize(cross( t1[2]-t1[1], t1[3]-t1[1] ))
+	n2 = LinearAlgebra.normalize(cross( t2[2]-t2[1], t2[3]-t2[1] ))
 	p0 = (V[:,v1] + V[:,v2]) ./ 2
 	n = n1 + n2
 	ϵ = 1.0e-4
@@ -322,7 +322,7 @@ function booleanops(assembly)
 	internalpoints,intersectedfaces = getinternalpoints(V,copEV,copFE,copCF)
 	# associate internal points to 3-cells
 	#-------------------------------------------------------------------------------
-	listOfModels = Lar.evalStruct(threecubes)
+	listOfModels = Lar.evalStruct(assembly)
 	inputfacenumbers = [length(listOfModels[k][2]) for k=1:length(listOfModels)]
 	cumulative = cumsum([0;inputfacenumbers]).+1
 	fspans = collect(zip(cumulative[1:end-1], cumulative[2:end].-1))

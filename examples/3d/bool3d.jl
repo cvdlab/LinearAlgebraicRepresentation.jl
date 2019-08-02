@@ -14,4 +14,4 @@ threecubes = Lar.Struct([ cube,
 V,FV,EV = Lar.struct2lar(threecubes)
 GL.VIEW([ GL.GLGrid(V,FV), GL.GLFrame ]);
 
-booleanmatrix = booleanops(threecubes)
+booleanmatrix = Lar.booleanops(threecubes)
