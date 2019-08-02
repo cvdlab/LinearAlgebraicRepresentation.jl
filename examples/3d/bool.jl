@@ -156,18 +156,25 @@ end
 
 """
 function getinternalpoint(V,EV,FV,Fs, copEV,copFE)
-	# get two test points close to the two sides of first face
-	v1,v2,v3 = FV[1][1:3]
-	ps = [V[:,v1] V[:,v2] V[:,v3]]  # face points
-	p0 = (ps[:,1]+ps[:,2])./2
-	#GL.VIEW([ GL.GLFrame, GL.GLLines(U,EV), GL.GLPoints([ps p0]) ]);
-	t = ps[:,2]-ps[:,1] # suppose first 3 points not aligned
-	v1,v2 = ps[:,2]-ps[:,1], ps[:,3]-ps[:,2]
-	n = normalize(cross( t, v2  ))
-	ϵ = 1.0e-3
-	ptest1 = p0 + 10ϵ*v1 + 10ϵ*v2 + ϵ*n  # point test one
-	ptest2 = p0 + 10ϵ*v1 + 10ϵ*v2 - ϵ*n  # point test two
-	# GL.VIEW([ GL.GLFrame, GL.GLLines(V,EV), GL.GLPoints([ptest1'; ptest2']) ]);
+	#edges for v1=FV[1][1]
+	f = Fs[1]
+	e = findnz(copFE[f,:])[1][1] # first (global) edge of first (global) face
+	f1,f2 = findnz(copFE[:,e])[1] # two (global) faces incident on it
+	v1,v2 = findnz(copEV[e,:])[1] # two (global) verts incident on in
+	fdict = Dict(zip(Fs,1:length(Fs)))
+	V1 = FV[fdict[f1]]
+	V2 = FV[fdict[f2]]
+	v1,v2 = intersect(V1,V2) # verified ... !
+	t1 = V[:,v1], V[:,v2], V[:,[v for v in V1 if v≠v1 && v≠v2][1]]
+	t2 = V[:,v2], V[:,v1], V[:,[v for v in V2 if v≠v1 && v≠v2][1]]
+	n1 = normalize(cross( t1[2]-t1[1], t1[3]-t1[1] ))
+	n2 = normalize(cross( t2[2]-t2[1], t2[3]-t2[1] ))
+	p0 = (V[:,v1] + V[:,v2]) ./ 2
+	n = n1 + n2
+	ϵ = 1.0e-4
+	ptest1 = p0 + ϵ * n
+	ptest2 = p0 - ϵ * n
+	GL.VIEW([ GL.GLFrame, GL.GLLines(V,EV), GL.GLPoints([ptest1'; ptest2']) ]);
 
 	# for each test point compute the face planes intersected by vertical ray
 	dep1, dep2 = [],[]
@@ -184,8 +191,8 @@ function getinternalpoint(V,EV,FV,Fs, copEV,copFE)
 	k1,k2 = 0,0
 	for (face,point3d) in dep1
 		vs, edges, point2d = planemap(V,copEV,copFE,face)(point3d)
-p = convert(Array{Float64,2}, point2d')
-GL.VIEW([GL.GLFrame2, GL.GLLines(vs,edges), GL.GLPoints(p)])
+# p = convert(Array{Float64,2}, point2d')
+# GL.VIEW([GL.GLFrame2, GL.GLLines(vs,edges), GL.GLPoints(p)]);
 		classify = Lar.pointInPolygonClassification(vs,edges)
 		inOut = classify(point2d)
 		if inOut!="p_out"  k1+=1 end
@@ -194,8 +201,8 @@ GL.VIEW([GL.GLFrame2, GL.GLLines(vs,edges), GL.GLPoints(p)])
 	else
 		for (face,point3d) in dep2
 			vs, edges, point2d = planemap(V,copEV,copFE,face)(point3d)
-p = convert(Array{Float64,2}, point2d')
-GL.VIEW([GL.GLFrame2, GL.GLLines(vs,edges), GL.GLPoints(p)])
+# p = convert(Array{Float64,2}, point2d')
+# GL.VIEW([GL.GLFrame2, GL.GLLines(vs,edges), GL.GLPoints(p)]);
 			classify = Lar.pointInPolygonClassification(vs,edges)
 			inOut = classify(point2d)
 			if inOut!="p_out"  k2+=1 end
@@ -226,13 +233,29 @@ function chainbasis2solids(V,copEV,copFE,copCF)
 	return W,pols,CF
 end
 
+
+function getinternalpoints(V,copEV,copFE,copCF)
+	# transform each 3-cell in a solid (via Lar model)
+	#-------------------------------------------------------------------------------
+	U,pols,CF = chainbasis2solids(V,copEV,copFE,copCF)
+	# compute, for each `pol` (3-cell) in `pols`, one `internalpoint`.
+	#-------------------------------------------------------------------------------
+	internalpoints = []
+	for k=1:length(pols)
+		(EV,FV,FE),Fs = pols[k],CF[k]
+		EV = convert(Lar.Cells,collect(Set(cat(EV))))
+		#GL.VIEW([ GL.GLFrame, GL.GLLines(V,EV) ]);
+		internalpoint = getinternalpoint(V,EV,FV,Fs, copEV,copFE)
+		push!(internalpoints,internalpoint)
+	end
+	return internalpoints
+end
+
 ################################################################################
 #=
 After the arrangement, extract all the d-cells from (d-1)-coboundary as isolated polyhedra.
 Then compute a single interior point for each of them.
-
 Then compare each such point against all input boundaries, in order to compute those which it was interior to. Extend this point membership as 3-cell containment within the relative input solids.
-
 The point membership with a boundary consists in the parity count of the intersection points of a vertical ray starting at the test point, with the boundary surface.
 =#
 ################################################################################
@@ -258,37 +281,8 @@ W = convert(Lar.Points, V');
 V, copEV, copFE, copCF = Lar.Arrangement.spatial_arrangement( W, cop_EV, cop_FE)
 W = convert(Lar.Points, V');
 V,CVs,FVs,EVs = Lar.pols2tria(W, copEV, copFE, copCF)
-
-# transform each 3-cell in a solid (via Lar model)
-#-------------------------------------------------------------------------------
-U,pols,CF = chainbasis2solids(V,copEV,copFE,copCF)
-
-# compute, for each `pol` (3-cell) in `pols`, one `internalpoint`.
-#-------------------------------------------------------------------------------
+internalpoints = getinternalpoints(V,copEV,copFE,copCF)
 
 
-internalpoints = []
-for k=1:length(pols)
-	(EV,FV,FE),Fs = pols[k],CF[k]
-	EV = convert(Lar.Cells,collect(Set(cat(EV))))
-	#GL.VIEW([ GL.GLFrame, GL.GLLines(V,EV) ]);
-	internalpoint = getinternalpoint(V,EV,FV,Fs, copEV,copFE)
-	push!(internalpoints,internalpoint)
-@show k
-@show internalpoint
-@show internalpoints
-end
-
-
-#
-#  points = [[-0.001, 0.898294, 0.14675],
-#  [0.001, 0.898294, 0.14675] ,
-#  [0.001, 0.898294, 0.14675] ,
-#  [-0.001, 0.898294, 0.14675]]
-#
-# points = convert(Array{Float64,2}, hcat(points...)')
-# V,FV,EV = Lar.struct2lar(threecubes)
-# GL.VIEW([ GL.GLGrid(V,FV), GL.GLFrame, GL.GLPoints(points) ]);
-#
 #
 # #pointcover = spaceindex([0,0,0.])((V,FV))
