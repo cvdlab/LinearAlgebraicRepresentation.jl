@@ -318,8 +318,8 @@ function booleanops(assembly)
 	#-------------------------------------------------------------------------------
 	V, copEV, copFE, copCF = Lar.Arrangement.spatial_arrangement( W, cop_EV, cop_FE)
 	W = convert(Lar.Points, V');
-	V,CVs,FVs,EVs = Lar.pols2tria(W, copEV, copFE, copCF)
-	internalpoints,intersectedfaces = getinternalpoints(V,copEV,copFE,copCF)
+	#V,CVs,FVs,EVs = Lar.pols2tria(W, copEV, copFE, copCF)
+	internalpoints,intersectedfaces = getinternalpoints(W,copEV,copFE,copCF[2:end,:])
 	# associate internal points to 3-cells
 	#-------------------------------------------------------------------------------
 	listOfModels = Lar.evalStruct(assembly)
