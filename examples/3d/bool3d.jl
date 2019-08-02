@@ -1,4 +1,7 @@
-# 3D Boolean xample generation
+using LinearAlgebraicRepresentation, ViewerGL, SparseArrays
+Lar = LinearAlgebraicRepresentation; GL = ViewerGL
+
+# 3D Boolean example generation
 #-------------------------------------------------------------------------------
 n,m,p = 1,1,1
 V,(VV,EV,FV,CV) = Lar.cuboidGrid([n,m,p],true)
