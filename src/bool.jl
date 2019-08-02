@@ -1,5 +1,5 @@
-using LinearAlgebraicRepresentation, ViewerGL, SparseArrays
-Lar = LinearAlgebraicRepresentation; GL = ViewerGL
+using LinearAlgebraicRepresentation, SparseArrays
+Lar = LinearAlgebraicRepresentation;
 using IntervalTrees,LinearAlgebra
 #using Revise, OhMyREPL
 
@@ -217,7 +217,7 @@ function getinternalpoint(V,EV,FV,Fs, copEV,copFE)
 	#edges for v1=FV[1][1]
 	ptest1, ptest2 = settestpoints(V,EV,FV,Fs, copEV,copFE)
 	intersectedfaces = Int64[]
-	GL.VIEW([ GL.GLFrame, GL.GLLines(V,EV), GL.GLPoints([ptest1'; ptest2']) ]);
+	#GL.VIEW([ GL.GLFrame, GL.GLLines(V,EV), GL.GLPoints([ptest1'; ptest2']) ]);
 
 	# for each test point compute the face planes intersected by vertical ray
 	dep1, dep2 = [],[]
