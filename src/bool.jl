@@ -146,17 +146,9 @@ function planemap(V,copEV,copFE,face)
 	return planemap0
 end
 
-function pointinsideface(Fs, copEV,copFE)
-	triangulated_faces = triangulate2d
-end
 
 
-"""
-	getinternalpoint(V::Lar.Points, FV::Lar.Cells)::Array(Float64)
-
-"""
-function getinternalpoint(V,EV,FV,Fs, copEV,copFE)
-	#edges for v1=FV[1][1]
+function settestpoints(V,EV,FV,Fs, copEV,copFE)
 	f = Fs[1]
 	e = findnz(copFE[f,:])[1][1] # first (global) edge of first (global) face
 	f1,f2 = findnz(copFE[:,e])[1] # two (global) faces incident on it
@@ -174,6 +166,57 @@ function getinternalpoint(V,EV,FV,Fs, copEV,copFE)
 	ϵ = 1.0e-4
 	ptest1 = p0 + ϵ * n
 	ptest2 = p0 - ϵ * n
+	return ptest1, ptest2
+end
+
+
+"""
+	testinternalpoint(V::Lar.Points, EV::Lar.Cells, FV::Lar.Cells)
+
+"""
+function testinternalpoint(V,EV,FV)
+	copEV = Lar.lar2cop(EV)
+	copFV = Lar.lar2cop(FV)
+	copFE = copFV * copEV'
+	I,J,Val = findnz(copFE)
+	triple = zip([(i,j,1) for (i,j,v) in zip(I,J,Val) if v==2]...)
+	I,J,Val = map(collect,triple)
+	Val = convert(Array{Int8,1},Val)
+	copFE = sparse(I,J,Val)
+	function testinternalpoint0(testpoint)
+		intersectedfaces = Int64[]
+		# spatial index for possible intersections with ray
+		faces = spaceindex(testpoint)((V,FV))
+		depot = []
+		# face in faces :  indices of faces of possible intersection with ray
+		for face in faces
+			value = rayintersection(testpoint)(V,FV,face)
+			if typeof(value) == Array{Float64,1} push!(depot, (face,value)) end
+		end
+		# actual containment test of ray point in faces within depot
+		for (face,point3d) in depot
+			vs, edges, point2d = planemap(V,copEV,copFE,face)(point3d)
+			classify = Lar.pointInPolygonClassification(vs,edges)
+			inOut = classify(point2d)
+			if inOut!="p_out"
+				push!(intersectedfaces,face)
+			end
+		end
+		return intersectedfaces
+	end
+	return testinternalpoint0
+end
+
+
+
+"""
+	getinternalpoint(V,EV,FV,Fs, copEV,copFE)
+
+"""
+function getinternalpoint(V,EV,FV,Fs, copEV,copFE)
+	#edges for v1=FV[1][1]
+	ptest1, ptest2 = settestpoints(V,EV,FV,Fs, copEV,copFE)
+	intersectedfaces = Int64[]
 	GL.VIEW([ GL.GLFrame, GL.GLLines(V,EV), GL.GLPoints([ptest1'; ptest2']) ]);
 
 	# for each test point compute the face planes intersected by vertical ray
@@ -191,23 +234,25 @@ function getinternalpoint(V,EV,FV,Fs, copEV,copFE)
 	k1,k2 = 0,0
 	for (face,point3d) in dep1
 		vs, edges, point2d = planemap(V,copEV,copFE,face)(point3d)
-# p = convert(Array{Float64,2}, point2d')
-# GL.VIEW([GL.GLFrame2, GL.GLLines(vs,edges), GL.GLPoints(p)]);
 		classify = Lar.pointInPolygonClassification(vs,edges)
 		inOut = classify(point2d)
-		if inOut!="p_out"  k1+=1 end
+		if inOut!="p_out"
+			k1+=1
+			push!(intersectedfaces,face)
+		end
 	end
-	if k1 % 2 == 1 return ptest1
+	if k1 % 2 == 1 return ptest1,intersectedfaces
 	else
 		for (face,point3d) in dep2
 			vs, edges, point2d = planemap(V,copEV,copFE,face)(point3d)
-# p = convert(Array{Float64,2}, point2d')
-# GL.VIEW([GL.GLFrame2, GL.GLLines(vs,edges), GL.GLPoints(p)]);
 			classify = Lar.pointInPolygonClassification(vs,edges)
 			inOut = classify(point2d)
-			if inOut!="p_out"  k2+=1 end
+			if inOut!="p_out"
+				k2+=1
+				push!(intersectedfaces,face)
+			end
 		end
-		if k2 % 2 == 1 return ptest2
+		if k2 % 2 == 1 return ptest2,intersectedfaces
 		else println("error: while computing internal point of 3-cell") end
 	end
 end
@@ -241,14 +286,16 @@ function getinternalpoints(V,copEV,copFE,copCF)
 	# compute, for each `pol` (3-cell) in `pols`, one `internalpoint`.
 	#-------------------------------------------------------------------------------
 	internalpoints = []
+	intersectedfaces = []
 	for k=1:length(pols)
 		(EV,FV,FE),Fs = pols[k],CF[k]
 		EV = convert(Lar.Cells,collect(Set(cat(EV))))
 		#GL.VIEW([ GL.GLFrame, GL.GLLines(V,EV) ]);
-		internalpoint = getinternalpoint(V,EV,FV,Fs, copEV,copFE)
+		internalpoint,facenumber = getinternalpoint(V,EV,FV,Fs, copEV,copFE)
 		push!(internalpoints,internalpoint)
+		push!(intersectedfaces,facenumber)
 	end
-	return internalpoints
+	return internalpoints,intersectedfaces
 end
 
 ################################################################################
@@ -260,29 +307,43 @@ The point membership with a boundary consists in the parity count of the interse
 =#
 ################################################################################
 
-# Example generation
-#-------------------------------------------------------------------------------
-n,m,p = 1,1,1
-V,(VV,EV,FV,CV) = Lar.cuboidGrid([n,m,p],true)
-cube = V,FV,EV
+function booleanops(assembly)
+	# input of affine assembly
+	#-------------------------------------------------------------------------------
+	V,FV,EV = Lar.struct2lar(assembly)
+	cop_EV = convert(Lar.ChainOp, Lar.coboundary_0(EV::Lar.Cells));
+	cop_FE = Lar.coboundary_1(V, FV::Lar.Cells, EV::Lar.Cells);
+	W = convert(Lar.Points, V');
+	# generate the 3D space arrangement
+	#-------------------------------------------------------------------------------
+	V, copEV, copFE, copCF = Lar.Arrangement.spatial_arrangement( W, cop_EV, cop_FE)
+	W = convert(Lar.Points, V');
+	V,CVs,FVs,EVs = Lar.pols2tria(W, copEV, copFE, copCF)
+	internalpoints,intersectedfaces = getinternalpoints(V,copEV,copFE,copCF)
+	# associate internal points to 3-cells
+	#-------------------------------------------------------------------------------
+	listOfModels = Lar.evalStruct(threecubes)
+	inputfacenumbers = [length(listOfModels[k][2]) for k=1:length(listOfModels)]
+	cumulative = cumsum([0;inputfacenumbers]).+1
+	fspans = collect(zip(cumulative[1:end-1], cumulative[2:end].-1))
+	span(h) = [j for j=1:length(fspans) if fspans[j][1]<=h<=fspans[j][2] ]
+	# test input data for containment of reference points
+	#-------------------------------------------------------------------------------
+	V,FV,EV = Lar.struct2lar(assembly)
+	containmenttest = testinternalpoint(V,EV,FV)
+	booleanmatrix = zeros(Int8, length(fspans),length(internalpoints))
+	for (k,point) in enumerate(internalpoints) # k runs on columns
+		faces = containmenttest(point) # contents of columns
+		println(k," ",faces)
+		rows = [span(h) for h in faces]
+		for l in cat(rows)
+			booleanmatrix[l,k] = 1
+		end
+	end
+	return booleanmatrix
+end
 
-threecubes = Lar.Struct([ cube,
-    Lar.t(.3,.4,.25), Lar.r(pi/5,0,0), Lar.r(0,0,pi/12), cube,
-    Lar.t(-.2,.4,-.2), Lar.r(0,pi/5,0), Lar.r(0,pi/12,0), cube ])
-V,FV,EV = Lar.struct2lar(threecubes)
-# GL.VIEW([ GL.GLGrid(V,FV), GL.GLFrame ]);
-cop_EV = convert(Lar.ChainOp, Lar.coboundary_0(EV::Lar.Cells));
-cop_FE = Lar.coboundary_1(V, FV::Lar.Cells, EV::Lar.Cells);
-W = convert(Lar.Points, V');
-
-# Arrangement computation
-#-------------------------------------------------------------------------------
-# generate the 3D space arrangement
-V, copEV, copFE, copCF = Lar.Arrangement.spatial_arrangement( W, cop_EV, cop_FE)
-W = convert(Lar.Points, V');
-V,CVs,FVs,EVs = Lar.pols2tria(W, copEV, copFE, copCF)
-internalpoints = getinternalpoints(V,copEV,copFE,copCF)
-
+################################################################################
 
 #
 # #pointcover = spaceindex([0,0,0.])((V,FV))
