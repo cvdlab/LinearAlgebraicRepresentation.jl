@@ -14,6 +14,6 @@ threecubes = Lar.Struct([ cube,
 V,FV,EV = Lar.struct2lar(threecubes)
 GL.VIEW([ GL.GLGrid(V,FV), GL.GLFrame ]);
 
-booleanmatrix = Lar.booleanops3d(threecubes)
-Matrix(booleanmatrix)
+boolmatrix = Lar.booleanops3d(threecubes)
+Matrix(boolmatrix)
 #three-chains = [ for k = 1:3]

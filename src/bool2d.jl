@@ -94,7 +94,7 @@ end
 
 ################################################################################
 
-function booleanops2d(assembly)
+function bool2d(assembly)
 	# input of affine assembly
 	#-------------------------------------------------------------------------------
 	# V,EV = Lar.struct2lar(assembly) #TODO proper different method
@@ -112,15 +112,14 @@ function booleanops2d(assembly)
 	inputfacenumbers = [length(listOfModels[k][2]) for k=1:length(listOfModels)]
 	# test input data for containment of reference points
 	#-------------------------------------------------------------------------------
-	booleanmatrix = zeros(Int8, length(innerpoints)+1, length(listOfModels)+1)
-    booleanmatrix[1,1] = 1
+	boolmatrix = BitArray(undef, length(innerpoints), length(listOfModels))
     containmenttest = Lar.testinternalpoint2d(listOfModels)
 	for (k,point) in enumerate(innerpoints) # k runs on columns
 		cells = containmenttest(point) # contents of columns
 		#println(k," ",faces)
 		for l in cells
-			booleanmatrix[k+1,l+1] = 1
+			boolmatrix[k,l] = 1
 		end
 	end
-	return booleanmatrix
+	return W, copEV, copFE, boolmatrix
 end

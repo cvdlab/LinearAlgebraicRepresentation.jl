@@ -335,17 +335,17 @@ function booleanops3d(assembly)
 	#-------------------------------------------------------------------------------
 	V,FV,EV = Lar.struct2lar(assembly)
 	containmenttest = testinternalpoint(V,EV,FV)
-	booleanmatrix = zeros(Int8, length(innerpoints)+1, length(fspans)+1)
-	booleanmatrix[1,1] = 1
+	boolmatrix = zeros(Int8, length(innerpoints)+1, length(fspans)+1)
+	boolmatrix[1,1] = 1
 	for (k,point) in enumerate(innerpoints) # k runs on columns
 		cells = containmenttest(point) # contents of columns
 		#println(k," ",faces)
 		rows = [span(h) for h in cells]
 		for l in cat(rows)
-			booleanmatrix[k+1,l+1] = 1
+			boolmatrix[k+1,l+1] = 1
 		end
 	end
-	return booleanmatrix
+	return boolmatrix
 end
 
 
