@@ -2,7 +2,7 @@ using LinearAlgebraicRepresentation
 L = LinearAlgebraicRepresentation
 using ViewerGL
 GL = ViewerGL
-using Revise
+# using Revise
 
 # square=([[0; 0] [0; 1] [1; 0] [1; 1]], [[1, 2, 3, 4]],
 # [[1,2], [1,3], [2,4], [3,4]])

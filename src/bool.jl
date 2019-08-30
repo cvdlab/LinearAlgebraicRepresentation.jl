@@ -1,7 +1,8 @@
 using LinearAlgebraicRepresentation, SparseArrays
 Lar = LinearAlgebraicRepresentation;
 using IntervalTrees,LinearAlgebra
-#using Revise, OhMyREPL
+# using Revise,
+# using OhMyREPL
 
 #=
 Method to compute an internal point to a polyhedron.
@@ -88,7 +89,7 @@ julia> FV
  [1, 3, 4]
  [2, 3, 4]
 
- julia> rayintersection([.333,.333,0])(V,FV,4)
+ julia> Lar.rayintersection([.333,.333,0])(V,FV,4)
  3-element Array{Float64,1}:
   0.333
   0.333
@@ -257,6 +258,7 @@ function getinternalpoint(V,EV,FV,Fs, copEV,copFE)
 	end
 end
 
+
 # high level function
 
 function chainbasis2solids(V,copEV,copFE,copCF)
@@ -279,24 +281,26 @@ function chainbasis2solids(V,copEV,copFE,copCF)
 end
 
 
-function getinternalpoints(V,copEV,copFE,copCF)
+
+function internalpoints(V,copEV,copFE,copCF)
 	# transform each 3-cell in a solid (via Lar model)
 	#-------------------------------------------------------------------------------
 	U,pols,CF = chainbasis2solids(V,copEV,copFE,copCF)
 	# compute, for each `pol` (3-cell) in `pols`, one `internalpoint`.
 	#-------------------------------------------------------------------------------
-	internalpoints = []
+	innerpoints = []
 	intersectedfaces = []
 	for k=1:length(pols)
 		(EV,FV,FE),Fs = pols[k],CF[k]
 		EV = convert(Lar.Cells,collect(Set(cat(EV))))
 		#GL.VIEW([ GL.GLFrame, GL.GLLines(V,EV) ]);
-		internalpoint,facenumber = getinternalpoint(V,EV,FV,Fs, copEV,copFE)
-		push!(internalpoints,internalpoint)
+		points,facenumber = getinternalpoint(V,EV,FV,Fs, copEV,copFE)
+		push!(innerpoints,points)
 		push!(intersectedfaces,facenumber)
 	end
-	return internalpoints,intersectedfaces
+	return innerpoints,intersectedfaces
 end
+
 
 ################################################################################
 #=
@@ -307,7 +311,7 @@ The point membership with a boundary consists in the parity count of the interse
 =#
 ################################################################################
 
-function booleanops(assembly)
+function booleanops3d(assembly)
 	# input of affine assembly
 	#-------------------------------------------------------------------------------
 	V,FV,EV = Lar.struct2lar(assembly)
@@ -319,7 +323,7 @@ function booleanops(assembly)
 	V, copEV, copFE, copCF = Lar.Arrangement.spatial_arrangement( W, cop_EV, cop_FE)
 	W = convert(Lar.Points, V');
 	#V,CVs,FVs,EVs = Lar.pols2tria(W, copEV, copFE, copCF)
-	internalpoints,intersectedfaces = getinternalpoints(W,copEV,copFE,copCF[2:end,:])
+	innerpoints,intersectedfaces = internalpoints(W,copEV,copFE,copCF[2:end,:])
 	# associate internal points to 3-cells
 	#-------------------------------------------------------------------------------
 	listOfModels = Lar.evalStruct(assembly)
@@ -331,17 +335,19 @@ function booleanops(assembly)
 	#-------------------------------------------------------------------------------
 	V,FV,EV = Lar.struct2lar(assembly)
 	containmenttest = testinternalpoint(V,EV,FV)
-	booleanmatrix = zeros(Int8, length(fspans),length(internalpoints))
-	for (k,point) in enumerate(internalpoints) # k runs on columns
-		faces = containmenttest(point) # contents of columns
-		println(k," ",faces)
-		rows = [span(h) for h in faces]
+	booleanmatrix = zeros(Int8, length(innerpoints)+1, length(fspans)+1)
+	booleanmatrix[1,1] = 1
+	for (k,point) in enumerate(innerpoints) # k runs on columns
+		cells = containmenttest(point) # contents of columns
+		#println(k," ",faces)
+		rows = [span(h) for h in cells]
 		for l in cat(rows)
-			booleanmatrix[l,k] = 1
+			booleanmatrix[k+1,l+1] = 1
 		end
 	end
 	return booleanmatrix
 end
+
 
 ################################################################################
 

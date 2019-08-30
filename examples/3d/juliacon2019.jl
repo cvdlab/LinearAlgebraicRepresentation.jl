@@ -1,7 +1,7 @@
 using LinearAlgebraicRepresentation, ViewerGL, SparseArrays
 Lar = LinearAlgebraicRepresentation; GL = ViewerGL
 
-n,m,p = 2,2,2
+n,m,p = 1,1,1
 V,(VV,EV,FV,CV) = Lar.cuboidGrid([n,m,p],true)
 cube = V,FV,EV
 
