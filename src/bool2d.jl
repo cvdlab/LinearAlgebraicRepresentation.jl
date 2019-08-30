@@ -123,3 +123,13 @@ function bool2d(assembly)
 	end
 	return W, copEV, copFE, boolmatrix
 end
+function bool2d(expr::BitArray{1} , assembly::Lar.Struct)
+	W, copEV, copFE, boolmat = bool2d(assembly)
+	m,n = size(boolmatrix)
+	result::BitArray{1}()
+	# TODO parse expression: extract identifiers
+	# TODO create n BitArrays{1} of length m to store the columns of boolmat
+	# TODO substitute to identifier and evaluate newexpr,
+	# TODO storing the generated value in result variable
+	return W, copEV, copFE, boolmat, result::BitArray{1}
+end

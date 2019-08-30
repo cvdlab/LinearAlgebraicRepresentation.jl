@@ -30,7 +30,8 @@ V,(VV,EV,FV) = Lar.cuboidGrid([n,m],true)
 square = V,EV
 q = sqrt(2)
 assembly = Lar.Struct([ #(V,FV,EV),
-    Lar.Struct([ Lar.t(-q/4, 0 ), Lar.r(pi/4), circle ]),
+    # Lar.Struct([ Lar.t(-q/4, 0 ), Lar.r(pi/4), circle ]),
+    Lar.Struct([ Lar.t( -q/4, -q/2 ), Lar.r(pi/4), square ])
     Lar.Struct([ Lar.t( q/4, -q/2 ), Lar.r(pi/4), square ])
 ])
 V,EV = Lar.struct2lar(assembly)
@@ -45,6 +46,10 @@ B = boolmatrix[:,2]
 AorB = A .| B
 AandB = A .& B
 AxorB = AorB .& (.! AandB)
+expr = .&(AorB,(.!AandB)) # xor in prefix polac form
+
+# TODO new method for "bool2d()" in src/Bool2d.jl (see template)
+# W, copEV, copFE, boolmat, result = Lar.bool2d( expr, assembly )
 
 union = Matrix(copFE)' * Int.(AorB)
 intersection = Matrix(copFE)' * Int.(AandB)
