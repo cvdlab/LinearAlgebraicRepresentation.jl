@@ -669,7 +669,7 @@ function arrange2D(V,EV)
 	triangulated_faces = Lar.triangulate2D(V, [copEV, copFE])
 	FVs = convert(Array{Lar.Cells}, triangulated_faces)
 	V = convert(Lar.Points,V')
-	return V,FVs,EVs
+	return V,FVs,EVs, copEV, copFE
 end
 
 
@@ -688,6 +688,10 @@ function pols2tria(W, copEV, copFE, copCF) # W by columns
 	V = convert(Lar.Points,W')
 	triangulated_faces = Lar.triangulate(V, [copEV, copFE])
 	EVs = Lar.FV2EVs(copEV, copFE) # polygonal face fragments
+@show EVs
+@show triangulated_faces
+	# triangulated_faces = [ item for (k,item) in enumerate(triangulated_faces)
+	# 	if isdefined(triangulated_faces,k) && item ≠ Any[]  ]
 	FVs = convert(Array{Lar.Cells}, triangulated_faces)
 	CVs = []
 	for cell in 1:copCF.m
@@ -699,5 +703,49 @@ function pols2tria(W, copEV, copFE, copCF) # W by columns
 		push!(CVs,obj)
     end
 	V = convert(Lar.Points,V')
+	return V,CVs,FVs,EVs
+end
+## Fs is the signed coord vector of a subassembly
+## the logic is to compute the corresponding reduced coboundary matrices
+## and finally call the standard method of the function.
+function pols2tria(W, copEV, copFE, copCF, Fs) # W by columns
+	# make copies of coboundary operators
+
+	# compute the reduced copCF
+	CFtriples = findnz(copCF)
+	triples = [triple for triple in zip(CFtriples...)]
+	newtriples = [(row,col,val) for (row,col,val) in triples if Fs[col] ≠ 0]
+	newF = [k for (k,f) in enumerate(Fs) if Fs[k] ≠ 0]
+	fdict = Dict( zip(newF, 1:length(newF)))
+	triples = hcat([[row,fdict[col],val] for (row,col,val) in newtriples]...)
+	newCF = sparse( triples[1,:], triples[2,:], triples[3,:] )
+	copCF = convert( SparseMatrixCSC{Int8,Int64}, newCF )
+
+	# compute the reduced copFE
+	FEtriples = findnz(copFE)
+	triples = [triple for triple in zip(FEtriples...)]
+	newtriples = [(row,col,val) for (row,col,val) in triples if Fs[row] ≠ 0]
+	newF = [k for (k,f) in enumerate(Fs) if Fs[k] ≠ 0]
+	newcol = collect(Set([col for (row,col,val) in newtriples]))
+	facedict = Dict( zip(newF, 1:length(newF)))
+	edgedict = Dict( zip(newcol, 1:length(newcol)))
+	triples = hcat([ [facedict[row],edgedict[col],val] for (row,col,val) in newtriples]...)
+	newFE = sparse( triples[1,:], triples[2,:], triples[3,:] )
+	copFE = convert( SparseMatrixCSC{Int8,Int64}, newFE )
+
+	# compute the reduced copEV
+	EVtriples = findnz(copEV)
+	triples = [triple for triple in zip(EVtriples...)]
+	newtriples = [(row,col,val) for (row,col,val) in triples if row in keys(edgedict)]
+	# newcol = collect(Set([col for (row,col,val) in newtriples]))
+	# vertdict = Dict( zip(newcol, 1:length(newcol)))
+	# triples = hcat([[edgedict[row],vertdict[col],val] for (row,col,val) in newtriples]...)
+	triples = hcat([[edgedict[row],col,val] for (row,col,val) in newtriples]...)
+	newEV = sparse( triples[1,:], triples[2,:], triples[3,:] )
+	copEV = convert( SparseMatrixCSC{Int8,Int64}, newEV )
+
+	#W = convert(Lar.Points,W') # BOH...!!
+	# finally compute the cells, faces, and edges of subassembly
+	V,CVs,FVs,EVs = Lar.pols2tria(W, copEV, copFE, copCF)
 	return V,CVs,FVs,EVs
 end

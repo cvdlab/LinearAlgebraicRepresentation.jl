@@ -25,7 +25,8 @@ Lar = LinearAlgebraicRepresentation
         end
 
         @testset "rayintersection Tests" begin
-    		@test bbbb == cccc
+            V,(VV,EV,FV,CV) = Lar.simplex(3,true);
+    		@test Lar.rayintersection([.333,.333,0])(V,FV,4) == [0.333,0.333,0.3340000000000001]
 			@test bbbb == cccc
 			@test bbbb == cccc
 			@test bbbb == cccc
@@ -72,7 +73,7 @@ Lar = LinearAlgebraicRepresentation
 			@test bbbb == cccc
         end
 
-        @testset "getinternalpoints Tests" begin
+        @testset "internalpoints Tests" begin
     		@test bbbb == cccc
 			@test bbbb == cccc
 			@test bbbb == cccc
@@ -80,7 +81,7 @@ Lar = LinearAlgebraicRepresentation
 			@test bbbb == cccc
         end
 
-        @testset "booleanops Tests" begin
+        @testset "bool3d Tests" begin
     		@test bbbb == cccc
 			@test bbbb == cccc
 			@test bbbb == cccc

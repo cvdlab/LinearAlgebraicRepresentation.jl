@@ -311,19 +311,19 @@ The point membership with a boundary consists in the parity count of the interse
 =#
 ################################################################################
 
-function booleanops3d(assembly)
+function bool3d(assembly)
 	# input of affine assembly
 	#-------------------------------------------------------------------------------
 	V,FV,EV = Lar.struct2lar(assembly)
 	cop_EV = convert(Lar.ChainOp, Lar.coboundary_0(EV::Lar.Cells));
-	cop_FE = Lar.coboundary_1(V, FV::Lar.Cells, EV::Lar.Cells);
+	cop_FE = Lar.coboundary_1(V, FV::Lar.Cells, EV::Lar.Cells); ## TODO: debug
 	W = convert(Lar.Points, V');
 	# generate the 3D space arrangement
 	#-------------------------------------------------------------------------------
 	V, copEV, copFE, copCF = Lar.Arrangement.spatial_arrangement( W, cop_EV, cop_FE)
 	W = convert(Lar.Points, V');
 	#V,CVs,FVs,EVs = Lar.pols2tria(W, copEV, copFE, copCF)
-	innerpoints,intersectedfaces = internalpoints(W,copEV,copFE,copCF[2:end,:])
+	innerpoints,intersectedfaces = Lar.internalpoints(W,copEV,copFE,copCF[2:end,:])
 	# associate internal points to 3-cells
 	#-------------------------------------------------------------------------------
 	listOfModels = Lar.evalStruct(assembly)
@@ -334,8 +334,10 @@ function booleanops3d(assembly)
 	# test input data for containment of reference points
 	#-------------------------------------------------------------------------------
 	V,FV,EV = Lar.struct2lar(assembly)
-	containmenttest = testinternalpoint(V,EV,FV)
-	boolmatrix = zeros(Int8, length(innerpoints)+1, length(fspans)+1)
+	containmenttest = Lar.testinternalpoint(V,EV,FV)
+	# currently copCF contains the outercell in first column ...
+	# TODO remove first row and column, in case (look at file src/)
+	boolmatrix = BitArray(undef, length(innerpoints)+1, length(fspans)+1)
 	boolmatrix[1,1] = 1
 	for (k,point) in enumerate(innerpoints) # k runs on columns
 		cells = containmenttest(point) # contents of columns
@@ -345,9 +347,13 @@ function booleanops3d(assembly)
 			boolmatrix[k+1,l+1] = 1
 		end
 	end
-	return boolmatrix
+	return W, copEV, copFE, copCF, boolmatrix
 end
-
+function bool3d(expr, assembly)
+	V, copEV, copFE, copCF, boolmatrix = bool3d(assembly)
+	# TODO please see template "bool2d()" in src/bool2d.jl
+	return V, copEV, copFE, copCF, boolmatrix, result
+end
 
 ################################################################################
 

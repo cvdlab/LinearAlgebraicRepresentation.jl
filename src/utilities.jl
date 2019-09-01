@@ -489,7 +489,7 @@ function vcycle( copEV::Lar.ChainOp, copFE::Lar.ChainOp, f::Int64 )
 	vpairs = [s>0 ? SparseArrays.findnz(copEV[e,:])[1] :
 					reverse(SparseArrays.findnz(copEV[e,:])[1])
 				for (e,s) in zip(edges,signs)]
-	a = [[v1,v2] for (v1,v2) in vpairs]
+	a = [pair for pair in vpairs if length(pair)==2]
 	function mycat(a::Lar.Cells)
 		out=[]
 		for cell in a append!(out,cell) end
@@ -497,7 +497,7 @@ function vcycle( copEV::Lar.ChainOp, copFE::Lar.ChainOp, f::Int64 )
 	end
 	vs = collect(Set(mycat(a)))
 	vdict = Dict(zip(vs,1:length(vs)))
-	edges = [[vdict[v1], vdict[v2]] for (v1,v2) in vpairs]
+	edges = [[vdict[pair[1]], vdict[pair[2]]] for pair in vpairs if length(pair)==2]
 	return vs, edges
 end
 
@@ -534,36 +534,27 @@ function triangulate(V::Lar.Points, cc::Lar.ChainComplex)
 
         #fv = Lar.buildFV(copEV, copFE[f, :])
         fv, edges = Lar.vcycle(copEV, copFE, f)
+		if fv ≠ []
+			vs = V[fv, :]
+	        v1 = LinearAlgebra.normalize(vs[2, :] - vs[1, :])
+	        v2 = [0, 0, 0]
+	        v3 = [0, 0, 0]
+	        err = 1e-8
+	        i = 3
+	        while -err < LinearAlgebra.norm(v3) < err
+	            v2 = LinearAlgebra.normalize(vs[i, :] - vs[1, :])
+	            v3 = LinearAlgebra.cross(v1, v2)
+	            i = i % size(vs,1) + 1
+	        end
+	        M = reshape([v1; v2; v3], 3, 3)
+	        vs = (vs*M)[:, 1:2]
+			v = convert(Lar.Points, vs'[1:2,:])
+			vmap = Dict(zip(fv,1:length(fv))) # vertex map
+			mapv = Dict(zip(1:length(fv),fv)) # inverse vertex map
 
-		vs = V[fv, :]
-        v1 = LinearAlgebra.normalize(vs[2, :] - vs[1, :])
-        v2 = [0, 0, 0]
-        v3 = [0, 0, 0]
-        err = 1e-8
-        i = 3
-        while -err < LinearAlgebra.norm(v3) < err
-            v2 = LinearAlgebra.normalize(vs[i, :] - vs[1, :])
-            v3 = LinearAlgebra.cross(v1, v2)
-            i = i % size(vs,1) + 1
-        end
-        M = reshape([v1; v2; v3], 3, 3)
-        vs = (vs*M)[:, 1:2]
-		v = convert(Lar.Points, vs'[1:2,:])
-		vmap = Dict(zip(fv,1:length(fv))) # vertex map
-		mapv = Dict(zip(1:length(fv),fv)) # inverse vertex map
-
-		trias = Lar.triangulate2d(v,edges)
-		triangulated_faces[f] = [[mapv[v] for v in tria] for tria in trias]
-# @show v
-#         tV = ( M*[v; ones(1, size(v,2))] )[1:2, :]
-# @show tV
-#         area = face_area(tV, copEV, copFE[f, :])
-# @show area
-#         if area < 0
-#             for i in 1:length(triangulated_faces[f])
-#                 triangulated_faces[f][i] = triangulated_faces[f][i][end:-1:1]
-#             end
-#         end
+			trias = Lar.triangulate2d(v,edges)
+			triangulated_faces[f] = [[mapv[v] for v in tria] for tria in trias]
+		end
     end
 
     return triangulated_faces
@@ -1279,9 +1270,12 @@ original and generated edges. `V` is given by column.
 function triangulate2d(V, EV)
     # data for Constrained Delaunay Triangulation (CDT)
     points = convert(Array{Float64,2}, V')
+@show points
 	points_map = Array{Int64,1}(collect(1:1:size(points)[1]))
+@show points_map
     edges_list = convert(Array{Int64,2}, hcat(EV...)')
-    edge_boundary = [true for k=1:size(edges_list,1)]
+@show edges_list
+    edge_boundary = [true for k=1:size(edges_list,1)] ## dead code !!
     trias = Triangle.constrained_triangulation(points,points_map,edges_list)
 	innertriangles = Array{Int64,1}[]
 	for (u,v,w) in trias
