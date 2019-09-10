@@ -347,12 +347,12 @@ function bool3d(assembly)
 			boolmatrix[k+1,l+1] = 1
 		end
 	end
-	return W, copEV, copFE, copCF, boolmatrix
+	return W, (copEV, copFE, copCF), boolmatrix
 end
 function bool3d(expr, assembly)
 	V, copEV, copFE, copCF, boolmatrix = bool3d(assembly)
 	# TODO please see template "bool2d()" in src/bool2d.jl
-	return V, copEV, copFE, copCF, boolmatrix, result
+	return V, (copEV, copFE, copCF), boolmatrix, result
 end
 
 ################################################################################

@@ -1270,11 +1270,8 @@ original and generated edges. `V` is given by column.
 function triangulate2d(V, EV)
     # data for Constrained Delaunay Triangulation (CDT)
     points = convert(Array{Float64,2}, V')
-@show points
 	points_map = Array{Int64,1}(collect(1:1:size(points)[1]))
-@show points_map
     edges_list = convert(Array{Int64,2}, hcat(EV...)')
-@show edges_list
     edge_boundary = [true for k=1:size(edges_list,1)] ## dead code !!
     trias = Triangle.constrained_triangulation(points,points_map,edges_list)
 	innertriangles = Array{Int64,1}[]

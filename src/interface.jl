@@ -313,10 +313,10 @@ function coboundary_1( V::Lar.Points, FV::Lar.Cells, EV::Lar.Cells, convex=true:
 	cscFV = Lar.characteristicMatrix(FV)
 	cscEV = Lar.characteristicMatrix(EV)
 	##if size(V,1) == 3
-		##copFE = u_coboundary_1( FV::Lar.Cells, EV::Lar.Cells )
+		##copFE = Lar.u_coboundary_1( FV::Lar.Cells, EV::Lar.Cells )
 	##elseif size(V,1) == 2
 		# greedy generation of incidence number signs
-		copFE = coboundary_1( V, cscFV::Lar.ChainOp, cscEV::Lar.ChainOp, convex, exterior)
+		copFE = Lar.coboundary_1( V, cscFV::Lar.ChainOp, cscEV::Lar.ChainOp, convex, exterior)
 	##end
 	return copFE
 end
