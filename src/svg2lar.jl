@@ -100,7 +100,7 @@ function pathparse(data, cnrtlpolygon=false)
 			contrlpt2 = args[3:4]
 			endpoint = args[5:6]
 			curvePts = [startpoint,contrlpt1,contrlpt2,endpoint]
-			println(curvePts)
+			#println(curvePts)
 
 			Bx,By = cubicbezier2D(curvePts)
 			pts = [[Bx(u),By(u)] for u=0:.1:1]
@@ -203,22 +203,32 @@ TODO:  interpretation of transformations.
 """
 function svg2lar(filename::String; flag=true)::Lar.LAR
 	outlines = Array{Float64,1}[]
+	matchall(r::Regex, s::AbstractString; overlap::Bool=false) =
+		collect(( m.match for m=eachmatch(r,s,overlap=overlap) ));
+
 	for line in eachline(filename)
-		parts = split(line, ' ')
+		parts = split(lstrip(line), ' ')
 		elements = [part for part in parts if part≠""]
 		tag = elements[1]
-
 		# SVG <line > primitives
 		if tag == "<line"
-			regex = r"""(<line )(.+)(" x1=")(.+)(" y1=")(.+)(" x2=")(.+)(" y2=")(.+)("/>)"""
-			coords = collect(match( regex , line)[k] for k in (4,6,8,10))
-			outline = [ parse(Float64, string) for string in coords ]
+			r = r"(.)(.)="
+			regex = r"([0-9]*?\.[0-9]*)"
+			prefixes = matchall(r,line)
+			values = matchall(regex,line)
+			outline = map(Meta.parse, values)
+			#exprs = [ eval(Meta.parse(*(pre,val))) for (pre,val) in zip(prefixes, values) ]
 			push!(outlines, outline)
 		# SVG <rect > primitives
 		elseif tag == "<rect"
-			regex = r"""(<rect x=")(.+?)(" y=")(.+?)(" )(.*?)( width=")(.+?)(" height=")(.+?)("/>)"""
-			coords = collect(match( regex , line)[k] for k in (2,4,8,10))
-			x, y, width, height = [ parse(Float64, string) for string in coords ]
+			r = r"(.)(.)="
+			regex = r"([0-9]*?\.[0-9]*)"
+			prefixes = matchall(r,line)
+			values = matchall(regex,line)
+			x, y, width, height = map(Meta.parse, values)
+			# regex = r"""(<rect x=")(.+?)(" y=")(.+?)(" )(.*?)( width=")(.+?)(" height=")(.+?)("/>)"""
+			# coords = collect(match( regex , line)[k] for k in (4,6,8,10))
+			# x, y, width, height = [ parse(Float64, string) for string in coords ]
 			line1 = [ x, y, x+width, y ]
 			line2 = [ x, y, x, y+height ]
 			line3 = [ x+width, y, x+width, y+height ]
