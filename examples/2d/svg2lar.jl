@@ -10,14 +10,14 @@ function show(filename)
 	return V, EV
 end
 
-#show("./test/svg/new.svg")
-#show("./test/svg/curved.svg")
-#show("./test/svg/twopaths.svg")
-#show("./test/svg/paths.svg")
-#show("./test/svg/boundarytest2.svg")
-#show("./test/svg/tile.svg")
-#show("./test/svg/interior.svg")
-#show("./test/svg/holes.svg")
+show("./test/svg/new.svg")
+show("./test/svg/curved.svg")
+show("./test/svg/twopaths.svg")
+show("./test/svg/paths.svg")
+show("./test/svg/boundarytest2.svg")
+show("./test/svg/tile.svg")
+show("./test/svg/interior.svg")
+show("./test/svg/holes.svg")
 V,EV = show("./test/svg/Lar.svg")
 
 # subdivision of input edges

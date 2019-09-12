@@ -179,7 +179,8 @@ function normalize(V::Lar.Points; flag=true)
 		T = Lar.t(0,ty) * Lar.s(1,-1) * Lar.s((umax-umin), (vmax-vmin)) *
 			Lar.s(1/(xmax-xmin),1/(ymax-ymin)) * Lar.t(-xmin,-ymin)
 	else
-		T = Lar.t(0, ymax-ymin) * Lar.s(1,-1)
+		# T = Lar.t(0, ymax-ymin) * Lar.s(1,-1)
+		T = Lar.s(1,-1)
 	end
 	dim = size(V,1)
 	W = T[1:dim,:] * [V;ones(1,size(V,2))]

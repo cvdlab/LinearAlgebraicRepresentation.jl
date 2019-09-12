@@ -36,13 +36,13 @@ AandBandC = A .& B .& C
 AandBandC = .&(A,B,C)
 AminusBminusC = .&(A, .!(B .| C)) # A - B - C
 
-union = .|(A,B,C)
-union = Matrix(copCF)' * Int.(union) # coord vector of Faces
+unione = .|(A,B,C)
+unione = Matrix(copCF)' * Int.(unione) # coord vector of Faces
 intersection = Matrix(copCF)' * Int.(AandBandC) # coord vector of Faces
 difference = Matrix(copCF)' * Int.(AminusBminusC) # coord vector of Faces
 
 V,CVs,FVs,EVs = Lar.pols2tria(W, copEV, copFE, copCF) # whole assembly
-Fs = union
+Fs = unione
 V,CVs,FVs,EVs = Lar.pols2tria(W, copEV, copFE, copCF, Fs) # part of assembly
 
 
@@ -57,7 +57,7 @@ V,CVs,FVs,EVs = Lar.pols2tria(W, copEV, copFE, copCF, Fs) # part of assembly
 
 
 
-GL.VIEW(GL.GLExplode(V,FVs,1.5,1.5,1.5,99,1));
+GL.VIEW(GL.GLExplode(V,FVs,1.,1.,1.,99,1));
 GL.VIEW(GL.GLExplode(V,EVs,1.,1.,1.,99,1));
 meshes = GL.GLExplode(V,CVs[2:end],1.5,1.5,1.5,99,1);
 GL.VIEW( push!( meshes, GL.GLFrame) );
