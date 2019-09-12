@@ -1,7 +1,8 @@
 using LinearAlgebraicRepresentation, ViewerGL, SparseArrays
 Lar = LinearAlgebraicRepresentation; GL = ViewerGL
 
-using Revise, OhMyREPL
+# using Revise
+using OhMyREPL
 
 
 # 3D Boolean example generation
