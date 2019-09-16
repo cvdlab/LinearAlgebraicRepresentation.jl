@@ -123,13 +123,31 @@ function bool2d(assembly)
 	end
 	return W, copEV, copFE, boolmatrix
 end
-function bool2d(expr::BitArray{1} , assembly::Lar.Struct)
-	W, copEV, copFE, boolmat = bool2d(assembly)
-	m,n = size(boolmatrix)
-	result::BitArray{1}()
-	# TODO parse expression: extract identifiers
-	# TODO create n BitArrays{1} of length m to store the columns of boolmat
-	# TODO substitute to identifier and evaluate newexpr,
-	# TODO storing the generated value in result variable
-	return W, copEV, copFE, boolmat, result::BitArray{1}
+
+
+"""
+	boolops( assembly::Lar.Struct, op::Symbol )
+
+User interface to 2d Boolean ops, where `op` symbol ``in`` {`:|`, `:&`, `:-`}.
+Return a pair `(V,EV)`.
+# Example
+```julia
+assembly = Lar.Struct([wall, openings])
+V,EV = boolops(assembly, :-)
+```
+"""
+function boolops(assembly::Lar.Struct, op::Symbol)
+    W, copEV, copFE, boolmatrix = Lar.bool2d(assembly)
+    boolvars = [boolmatrix[:,k] for k=1:size(boolmatrix,2)]
+    if eval(op) == -
+        solution = boolvars[1] .& .!(.|(boolvars[2:end]...))
+    else
+        operator = eval(op)
+        solution = operator.(boolvars...)
+    end
+    chain1d = sparse(copFE') * Int.(solution)
+    EV = Lar.cop2lar(copEV)
+    EVop = [ev for (k,ev) in enumerate(EV) if abs(chain1d[k])==1 ]
+    V = convert(Lar.Points,W')
+    return V,EVop
 end
