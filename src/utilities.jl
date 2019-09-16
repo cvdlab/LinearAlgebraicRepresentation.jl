@@ -1017,20 +1017,29 @@ function triangulate2D(V::Lar.Points, cc::Lar.ChainComplex)::Array{Any, 1}
 		V = [V zeros(size(V,1),1)]
 	end
 
+	polygons = faces2polygons(copEV, copFE) #new
+
     for f in 1:copFE.m
         edges_idxs = copFE[f, :].nzind
         edge_num = length(edges_idxs)
         edges = Array{Int64,1}[] #zeros(Int64, edge_num, 2)
 
-        fv = Lar.buildFV(copEV, copFE[f, :])
+		# fv = Lar.buildFV(copEV, copFE[f, :])
+		fv = cat(polygons[f])
         vs = V[fv, :]
 
-        for i in 1:length(fv)
-        	edge = Int64[0,0]
-            edge[1] = fv[i]
-            edge[2] = i == length(fv) ? fv[1] : fv[i+1]
-            push!(edges,edge::Array{Int64,1})
-        end
+		starts = [1]
+		for (k,poly) in enumerate(polygons[f])
+			push!(starts, sum(length(polygons[f][h]) for h=1:k))
+		end
+		for (k,poly) in enumerate(polygons[f])
+	        for i in starts[k]:starts[k+1]-1
+	        	edge = Int64[0,0]
+	            edge[1] = fv[i]
+	            edge[2] = i-starts[k]+1 == length(poly) ? fv[starts[k]] : fv[i+1]
+	            push!(edges,edge::Array{Int64,1})
+	        end
+		end
         edges = hcat(edges...)'
         edges = convert(Array{Int64,2}, edges)
 
