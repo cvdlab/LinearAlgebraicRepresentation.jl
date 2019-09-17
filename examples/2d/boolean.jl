@@ -20,6 +20,7 @@ V,FVs,EVs = Lar.arrange2D(V,EV)
 GL.VIEW(GL.GLExplode(V,FVs,1.,1.,1.,99,1));
 
 assembly = Lar.Struct([wall, openings, box])
+
 V,EV = Lar.boolops(assembly, :&)
 GL.VIEW([ GL.GLGrid(V,EV, GL.COLORS[1],1), GL.GLFrame2 ]);
 V,FVs,EVs = Lar.arrange2D(V,EV)
@@ -30,3 +31,8 @@ V,EV = Lar.boolops( inner, :-)
 GL.VIEW([ GL.GLGrid(V,EV, GL.COLORS[1],1), GL.GLFrame2 ]);
 V,FVs,EVs = Lar.arrange2D(V,EV)
 GL.VIEW(GL.GLExplode(V,FVs,1.,1.,1.,99,1));
+
+W, copEV, copFE, boolmatrix = Lar.bool2d(inner)
+FVs = Lar.triangulate2D(W, [copEV, copFE])
+V = convert(Lar.Points, W')
+GL.VIEW(GL.GLExplode(V,[FVs[3]],1.,1.,1.,99,1));

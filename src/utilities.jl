@@ -1,4 +1,4 @@
-Lar = LinearAlgebraicRepresentation
+# Lar = LinearAlgebraicRepresentation
 
 
 function interior_to_f(triangle,f,V,FV,EV,FE)
@@ -26,7 +26,7 @@ function interior_to_f(triangle,f,V,FV,EV,FE)
 	vdict = Dict(collect(zip(FV[f], 1:length(FV[f]))))
 	celledges = [[vdict[v] for v in EV[e]] for e in FE[f]]
 
-	out = Lar.pointInPolygonClassification(P2D,celledges)(checkpoint)
+	out = pointInPolygonClassification(P2D,celledges)(checkpoint)
 	if out=="p_in"
 		return true
 	else
@@ -1017,7 +1017,7 @@ function triangulate2D(V::Lar.Points, cc::Lar.ChainComplex)::Array{Any, 1}
 		V = [V zeros(size(V,1),1)]
 	end
 
-	polygons = faces2polygons(copEV, copFE) #new
+	polygons,edgecycles = faces2polygons(copEV, copFE) #new
 
     for f in 1:copFE.m
         edges_idxs = copFE[f, :].nzind
@@ -1027,21 +1027,8 @@ function triangulate2D(V::Lar.Points, cc::Lar.ChainComplex)::Array{Any, 1}
 		# fv = Lar.buildFV(copEV, copFE[f, :])
 		fv = cat(polygons[f])
         vs = V[fv, :]
-
-		starts = [1]
-		for (k,poly) in enumerate(polygons[f])
-			push!(starts, sum(length(polygons[f][h]) for h=1:k))
-		end
-		for (k,poly) in enumerate(polygons[f])
-	        for i in starts[k]:starts[k+1]-1
-	        	edge = Int64[0,0]
-	            edge[1] = fv[i]
-	            edge[2] = i-starts[k]+1 == length(poly) ? fv[starts[k]] : fv[i+1]
-	            push!(edges,edge::Array{Int64,1})
-	        end
-		end
-        edges = hcat(edges...)'
-        edges = convert(Array{Int64,2}, edges)
+		edges = cat(edgecycles[f])
+        edges = convert(Array{Int64,2}, hcat(edges...)')
 
 		# triangulated_faces[f] = Triangle.constrained_triangulation(
         # 	vs, fv, edges, fill(true, edge_num))

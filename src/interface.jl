@@ -841,12 +841,15 @@ julia> GL.VIEW( GL.numbering(200)( model, GL.COLORS[1], 0.1 ) );
 """
 function faces2polygons(copEV,copFE)
 	polygons = Array{Array{Int64,1},1}[]
+	cycles = Array{Array{Array{Int64,1},1},1}[]
 	for f=1:size(copFE,1)
 		edges,signs = findnz(copFE[f,:])
 		permutationMap = OrderedDict([ s>0 ? findnz(copEV[e,:])[1] : reverse(findnz(copEV[e,:])[1])
 				for (e,s) in zip(edges,signs)])
 		orbits = permutationOrbits(permutationMap)
+		edgecycles = [[[ orbit[k], orbit[k+1] ] for k=1:length(orbit)-1]  for orbit in orbits]
 		push!(polygons, [orbit[1:end-1] for orbit in orbits])
+		push!(cycles, edgecycles)
 	end
-	return polygons
+	return polygons,cycles
 end
