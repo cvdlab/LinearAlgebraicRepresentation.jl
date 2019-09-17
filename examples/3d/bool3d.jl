@@ -31,10 +31,10 @@ AorB = A .| B
 AandB = A .& B
 AxorB = AorB .& (.! AandB)
 AorBorC = A .| B .| C
-AorBorC = .|(A,B,C)
+AorBorC = .|(A, B, C)
 AandBandC = A .& B .& C
-AandBandC = .&(A,B,C)
-AminusBminusC = .&(A, .!(B .| C)) # A - B - C
+AandBandC = .&(A, B, C)
+AminusBminusC = .&(A, .!B, .!C) # A - B - C
 
 unione = .|(A,B,C)
 unione = Matrix(copCF)' * Int.(unione) # coord vector of Faces
