@@ -46,15 +46,10 @@ Fs = unione
 V,CVs,FVs,EVs = Lar.pols2tria(W, copEV, copFE, copCF, Fs) # part of assembly
 
 
-
-
-
 # EV = Lar.cop2lar(copEV)
 # EVor = [ev for (k,ev) in enumerate(EV) if abs(unione[k])==1 ]
 # EVand = [ev for (k,ev) in enumerate(EV) if abs(intersection[k])==1 ]
 # EVxor = [ev for (k,ev) in enumerate(EV) if abs(xor[k])==1 ]
-
-
 
 
 GL.VIEW(GL.GLExplode(V,FVs,1.,1.,1.,99,1));
