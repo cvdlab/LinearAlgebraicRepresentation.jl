@@ -8,14 +8,10 @@ n,m,p = 1,1,1
 V,(VV,EV,FV,CV) = Lar.cuboidGrid([n,m,p],true)
 cube = V,FV,EV
 
-V,FV = Lar.sphere()()
-EV = Lar.simplexFacets(FV)
-sphere = V,FV,EV
-
 # three cubes in "assembly"
-assembly = Lar.Struct([ sphere,
-    Lar.t(.3,.4,.25), Lar.r(pi/5,0,0), Lar.r(0,0,pi/12), sphere,
-    Lar.t(-.2,.4,-.2), Lar.r(0,pi/5,0), Lar.r(0,pi/12,0), sphere
+assembly = Lar.Struct([ cube,
+    Lar.t(.3,.4,.25), Lar.r(pi/5,0,0), Lar.r(0,0,pi/12), cube,
+    Lar.t(-.2,.4,-.2), Lar.r(0,pi/5,0), Lar.r(0,pi/12,0), cube
 ])
 
 V,FV,EV = Lar.struct2lar(assembly)
@@ -37,8 +33,7 @@ AandBandC = A .& B .& C
 AandBandC = .&(A, B, C)
 AminBminC = .&(A, .!B, .!C) # A - B - C
 
-unione = .|(A, B, C)
-unione = Matrix(copCF)' * Int.(unione) # coord vector of Faces
+unione = Matrix(copCF)' * Int.(AorBorC) # coord vector of Faces
 intersection = Matrix(copCF)' * Int.(AandBandC) # coord vector of Faces
 difference = Matrix(copCF)' * Int.(AminBminC) # coord vector of Faces
 
@@ -55,5 +50,5 @@ V,CVs,FVs,EVs = Lar.pols2tria(W, copEV, copFE, copCF, Fs) # part of assembly
 
 GL.VIEW(GL.GLExplode(V,FVs,1.5,1.5,1.5,99,1));
 GL.VIEW(GL.GLExplode(V,EVs,1.,1.,1.,1,1));
-meshes = GL.GLExplode(V,CVs[2:end],1.5,1.5,1.5,99,1);
-GL.VIEW( push!( meshes, GL.GLFrame) );
+# meshes = GL.GLExplode(V,CVs,5,5,5,99,1);
+# GL.VIEW( push!( meshes, GL.GLFrame) );
