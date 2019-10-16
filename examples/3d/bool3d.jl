@@ -13,15 +13,16 @@ EV = Lar.simplexFacets(FV)
 sphere = V,FV,EV
 
 # three cubes in "assembly"
-assembly = Lar.Struct([ cube,
-    Lar.t(.3,.4,.25), Lar.r(pi/5,0,0), Lar.r(0,0,pi/12), cube,
-    Lar.t(-.2,.4,-.2), Lar.r(0,pi/5,0), Lar.r(0,pi/12,0), cube ])
+assembly = Lar.Struct([ sphere,
+    Lar.t(.3,.4,.25), Lar.r(pi/5,0,0), Lar.r(0,0,pi/12), sphere,
+    Lar.t(-.2,.4,-.2), Lar.r(0,pi/5,0), Lar.r(0,pi/12,0), sphere
+])
 
-    V,FV,EV = Lar.struct2lar(assembly)
-    GL.VIEW([ GL.GLGrid(V,FV), GL.GLFrame ]);
+V,FV,EV = Lar.struct2lar(assembly)
+GL.VIEW([ GL.GLGrid(V,FV), GL.GLFrame ]);
 
-    W, (copEV, copFE, copCF), boolmatrix = Lar.bool3d(assembly)
-    Matrix(boolmatrix)
+W, (copEV, copFE, copCF), boolmatrix = Lar.bool3d(assembly)
+Matrix(boolmatrix)
 #three-chains = [ for k = 1:3]
 
 A = boolmatrix[:,2]
@@ -42,7 +43,7 @@ intersection = Matrix(copCF)' * Int.(AandBandC) # coord vector of Faces
 difference = Matrix(copCF)' * Int.(AminBminC) # coord vector of Faces
 
 V,CVs,FVs,EVs = Lar.pols2tria(W, copEV, copFE, copCF) # whole assembly
-Fs = unione
+Fs = difference
 V,CVs,FVs,EVs = Lar.pols2tria(W, copEV, copFE, copCF, Fs) # part of assembly
 
 
@@ -52,7 +53,7 @@ V,CVs,FVs,EVs = Lar.pols2tria(W, copEV, copFE, copCF, Fs) # part of assembly
 # EVxor = [ev for (k,ev) in enumerate(EV) if abs(xor[k])==1 ]
 
 
-GL.VIEW(GL.GLExplode(V,FVs,1.,1.,1.,99,1));
+GL.VIEW(GL.GLExplode(V,FVs,1.5,1.5,1.5,99,1));
 GL.VIEW(GL.GLExplode(V,EVs,1.,1.,1.,1,1));
 meshes = GL.GLExplode(V,CVs[2:end],1.5,1.5,1.5,99,1);
 GL.VIEW( push!( meshes, GL.GLFrame) );

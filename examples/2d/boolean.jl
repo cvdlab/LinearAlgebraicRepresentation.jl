@@ -6,6 +6,10 @@ openings = Lar.svg2lar("test/svg/assembly/openings.svg", flag=false)
 rectangle = Lar.svg2lar("test/svg/assembly/rectangle.svg", flag=false)
 box = Lar.svg2lar("test/svg/assembly/box.svg", flag=false)
 
+assembly = Lar.Struct([wall, openings, rectangle, box])
+V,EV = Lar.struct2lar(assembly)
+GL.VIEW([ GL.GLGrid(V,EV, GL.COLORS[1],1), GL.GLFrame2 ]);
+
 assembly = Lar.Struct([wall, openings, rectangle])
 V,EV = Lar.boolops(assembly, :|)
 GL.VIEW([ GL.GLGrid(V,EV, GL.COLORS[1],1), GL.GLFrame2 ]);

@@ -107,7 +107,7 @@ module LinearAlgebraicRepresentation
    include("./graphalgorithms.jl")
    include("./fragface.jl")
    include("./svg2lar.jl")
-   include("./bool.jl")
+   include("./bool3d.jl")
    include("./bool2d.jl")
 
    include("./arrangement/arrangement.jl")
