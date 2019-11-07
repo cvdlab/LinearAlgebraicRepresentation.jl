@@ -3,7 +3,7 @@ uuid = "95167b0c-186a-594b-a231-52369c6de044"
 keywords = ["geometry", "topology", "cell-complex", "chain-complex"]
 license = "MIT"
 desc = "LAR, the Linear Algebraic Representation for Solid Modeling."
-version = "0.2.0"
+version = "0.3.0"
 
 [deps]
 DataStructures = "864edb3b-99cc-5e75-8d2d-829cb0a9cfe8"
