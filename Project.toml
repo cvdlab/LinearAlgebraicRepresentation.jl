@@ -3,16 +3,23 @@ uuid = "95167b0c-186a-594b-a231-52369c6de044"
 keywords = ["geometry", "topology", "cell-complex", "chain-complex"]
 license = "MIT"
 desc = "LAR, the Linear Algebraic Representation for Solid Modeling."
-version = "0.1.0"
+version = "1.0.0"
 
 [deps]
-Triangle = "56f361f5-126b-55db-87fb-1c71988fcde4"
-LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
 DataStructures = "864edb3b-99cc-5e75-8d2d-829cb0a9cfe8"
+Distributed = "8ba89e20-285c-5b6f-9357-94700520ee1b"
 IntervalTrees = "524e6230-43b7-53ae-be76-1e9e4d08d11b"
+LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
 NearestNeighbors = "b8a86587-4115-5ab1-83bc-aa920d37bbce"
 SparseArrays = "2f01184e-e22b-5df5-ae63-d93ebab69eaf"
-Distributed = "8ba89e20-285c-5b6f-9357-94700520ee1b"
+Triangle = "56f361f5-126b-55db-87fb-1c71988fcde4"
+
+[compat]
+DataStructures = "^0.15.0"
+IntervalTrees = "^1.0.0"
+NearestNeighbors = "^0.4.3"
+Triangle = "0.3.0"
+julia = "^1.0.0"
 
 [extras]
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
