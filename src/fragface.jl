@@ -10,13 +10,13 @@ function face_mapping( V, FV, sigma, err=10e-8 )
 	# compute affinely independent triple
 	n = length(vs)
 	succ(i) = i % n + 1
-	a = Lar.normalize(V[:,vs[succ(i)]] - V[:,vs[i]])
-	b = Lar.normalize(V[:,vs[succ(succ(i))]] - V[:,vs[i]])
-	c = cross(a,b)
-	while (-err < det([a b c]) < err) 
+	a = LinearAlgebra.normalize(V[:,vs[succ(i)]] - V[:,vs[i]]) # Lar.normalize
+	b = LinearAlgebra.normalize(V[:,vs[succ(succ(i))]] - V[:,vs[i]]) # Lar.normalize
+	c = LinearAlgebra.cross(a,b)
+	while (-err < det([a b c]) < err)
 		i += 1
-		a = Lar.normalize(V[:,vs[succ(i)]] - V[:,vs[i]])
-		b = Lar.normalize(V[:,vs[succ(succ(i))]] - V[:,vs[i]])
+		a = LinearAlgebra.normalize(V[:,vs[succ(i)]] - V[:,vs[i]])
+		b = LinearAlgebra.normalize(V[:,vs[succ(succ(i))]] - V[:,vs[i]])
 		c = LinearAlgebra.cross(a,b)
 	end
 	# sigma translation
@@ -34,7 +34,7 @@ end
 
 
 """
-	sigmamodel(V::Lar.Points, copEV::Lar.ChainOP, FV::Lar.Cells, copFE::Lar.ChainOP, 
+	sigmamodel(V::Lar.Points, copEV::Lar.ChainOP, FV::Lar.Cells, copFE::Lar.ChainOP,
 		sigma::Int, sp_idx::Array)
 
 Transform `sigma` and `sp_idx[sigma]` faces to ``z=0`` space.
@@ -74,19 +74,19 @@ function sigma_intersect(V, EV, FE, sigma, Q, bigpi)
 	# initialization of line storage (to be intersected)
 	linestore = [[Z[:,v1] Z[:,v2]] for (v1,v2) in sigma_lines]
 	linenum = length(sigma_lines)
-	# reindexing of ∏(σ) chain 
+	# reindexing of ∏(σ) chain
 	bigpi_edges = [EV[fe] for fe in FE[bigpi]]
 	bigpi_verts = union(union(bigpi_edges...)...)
 	bigpi_vdict =  Dict(zip(bigpi_verts, 1:length(bigpi_verts)))
-	bigpi_lines = [[sort([bigpi_vdict[v] for v in edge]) for edge in faceedges] 
+	bigpi_lines = [[sort([bigpi_vdict[v] for v in edge]) for edge in faceedges]
 		for faceedges in bigpi_edges]
 	# bigpi trasformed in 3D according to Q mapping  ==> BUG ??!! :  NO
 	P = V[:,bigpi_verts] # bigpi vertices
 	W = (Q * [P; ones(1,size(P,2))])[1:3,:] # bigpi mapped by Q
 	#Plasm.view(W, union(bigpi_lines...))
 	# filter on bigpi_lines that do not cross z=0
-	filtered_edges = [[[v1,v2] for (v1,v2) in face_lines 
-		if (sign(W[3,v1]) * sign(W[3,v2])) <= 0] 
+	filtered_edges = [[[v1,v2] for (v1,v2) in face_lines
+		if (sign(W[3,v1]) * sign(W[3,v2])) <= 0]
 			for face_lines in bigpi_lines]
 	filtered_edges = [edge for edge in filtered_edges if edge!=[]]
 	#Plasm.view(W, union(filtered_edges...))
@@ -100,7 +100,7 @@ function sigma_intersect(V, EV, FE, sigma, Q, bigpi)
 			if (W[3,v2] - W[3,v1]) != 0
 				t = -W[3,v1] / (W[3,v2] - W[3,v1])  # z1 + (z2-z1)*t = 0
 				point = W[:,v1] + (W[:,v2] - W[:,v1]) * t
-				push!(points,point) 
+				push!(points,point)
 			end
 		end
 		if length(Set(points)) > 1
@@ -112,7 +112,7 @@ function sigma_intersect(V, EV, FE, sigma, Q, bigpi)
 	# compute z_lines
 	c = collect
 	z0_lines = [[[c(ps)[k] c(ps)[k+1]] for k=1:2:(length(ps)-1)] for ps in facepoints]
-	
+
 	# intersecting lines upload in linestore
 	linestore = [[Z[:,v1] Z[:,v2]] for (v1,v2) in sigma_lines]
 	if z0_lines != []
@@ -168,15 +168,15 @@ function computeparams(linestore,linenum)
 		push!(line, 1.0)
 		line = sort(collect(Set(line)))
 		push!(out, line)
-	end	
+	end
 	return out
 end
 
 
 """
-	fragface(V::Lar.Points, EV::Lar.Cells, FV::Lar.Cells, FE::Lar.Cells, 
+	fragface(V::Lar.Points, EV::Lar.Cells, FV::Lar.Cells, FE::Lar.Cells,
 		sp_idx::Array, sigma::Int)::Lar.LAR
-	
+
 """
 function fragface(V, cop_EV, cop_FE, sp_idx, sigma)
 	# format conversion of function parameters
@@ -184,7 +184,7 @@ function fragface(V, cop_EV, cop_FE, sp_idx, sigma)
 	FE = [findnz(cop_FE[k,:])[1] for k=1:size(cop_FE,1)]
 	FV = [collect(Set(cat(EV[e] for e in FE[f]))) for f=1:length(FE)]
 	V = convert(Lar.Points, V')
-	
+
 	Q = face_mapping(V, FV, sigma)
 	bigpi = sp_idx[sigma]
 	linestore, linenum = sigma_intersect(V, EV, FE, sigma, Q, bigpi)
@@ -198,7 +198,7 @@ function fragface(V, cop_EV, cop_FE, sp_idx, sigma)
 		if params==[0.0, 1.0]
 			points = [v1,v2]
 			if k<=linenum number += 1 end
-		elseif length(params)>2 
+		elseif length(params)>2
 			points = [v1+α*(v2-v1) for α ∈ params]
 			if k<=linenum number += length(params)-1 end
 		end
@@ -219,4 +219,3 @@ function fragface(V, cop_EV, cop_FE, sp_idx, sigma)
 	copFE = Lar.coboundary_1(verts,faces,edges)
 	return verts, copEV, copFE
 end
-

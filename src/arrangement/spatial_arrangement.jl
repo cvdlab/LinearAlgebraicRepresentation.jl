@@ -148,7 +148,7 @@ function spatial_arrangement_1(
 	# spaceindex computation
 	FV = Lar.compute_FV( copEV, copFE )
 	model = (convert(Lar.Points,V'), FV)
-	sp_idx = Lar.spaceindex(model)
+	sp_idx = Lar.spaceindex(model) # OK!!  tested symmetry of computed relation
 
 	# initializations
     fs_num = size(copFE, 1)
@@ -178,7 +178,7 @@ function spatial_arrangement_1(
     else
 	# sequential (iterative) processing of face fragmentation
         for sigma in 1:fs_num
-            #print(sigma, "/", fs_num, "\r")
+            println(sigma, "/", fs_num, "\r")
             nV, nEV, nFE = Lar.Arrangement.frag_face(V, copEV, copFE, sp_idx, sigma)
 			#nV, nEV, nFE = Lar.fragface(V, copEV, copFE, sp_idx, sigma)
 			nV = convert(Lar.Points, nV)
@@ -224,6 +224,11 @@ function spatial_arrangement(
 
 	# face subdivision
 	rV, rcopEV, rcopFE = Lar.Arrangement.spatial_arrangement_1( V, copEV, copFE, multiproc ) # copFE global
+
+@show rV;
+@show findnz(rcopEV);
+@show findnz(rcopFE);
+
 	bicon_comps = Lar.Arrangement.biconnected_components(rcopEV)
 	#W,bicon_comps = Lar.biconnectedComponent((W,EV))
 	#@error "comps# = $(length(bicon_comps))"

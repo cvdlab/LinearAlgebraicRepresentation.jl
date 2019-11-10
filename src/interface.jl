@@ -288,14 +288,15 @@ function u_coboundary_1( cscFV::ChainOp, cscEV::ChainOp, convex=true::Bool)::Cha
 end
 
 
-
 """
 	coboundary_1( FV::Cells, EV::Cells)::ChainOp
 
-Generate the *signed* sparse matrix of the coboundary_1 operator.
+Generate the *unsigned* sparse matrix of the coboundary_1 operator.
 For each row, start with the first incidence number positive (i.e. assign the orientation of the first edge to the 1-cycle of the face), then bounce back and forth between vertex columns/rows of EV and FE.
 
 # Example
+
+copFE = coboundary_1(FV::Cells, EV::Cells)
 
 julia> Matrix(cscFE)
 5×20 Array{Int8,2}:
@@ -304,9 +305,18 @@ julia> Matrix(cscFE)
  0  0  0  1  0  0  0  1  1  0  0  0  1  0  1  1  1  1  1  1
  0  1  0  0  0  1  1  0  0  1  0  0  0  0  0  0  0  0  0  0
  0  0  0  0  0  0  0  0  0  0  1  1  1  1  0  0  0  0  0  0
-
-
 """
+function coboundary_1(FV::Cells, EV::Cells)
+	copFV = lar2cop(FV)
+	I,J,Val = findnz(Lar.lar2cop(EV))
+	copVE = sparse(J,I,Val)
+	triples = hcat([[i,j,1]  for (i,j,v)  in zip(findnz(copFV * copVE)...) if v==2]...)
+	I,J,Val = triples[1,:], triples[2,:], triples[3,:]
+	Val = convert(Array{Int8,1},Val)
+	copFE = sparse(I,J,Val)
+	return copFE
+end
+
 function coboundary_1( V::Points, FV::Cells, EV::Cells, convex=true::Bool, exterior=false::Bool)::ChainOp
 	# generate unsigned operator's sparse matrix
 	cscFV = characteristicMatrix(FV)

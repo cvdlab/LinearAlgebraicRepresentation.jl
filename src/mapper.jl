@@ -186,7 +186,7 @@ julia> GL.VIEW([
 """
 function ring(r=1., R=2., angle=2*pi)
     function ring0(shape=[36, 1])
-        V, CV = cuboidGrid(shape)
+		V, CV = cuboidGrid(shape)
 		CV = [[[u,v,w],[w,v,t]] for (u,v,w,t) in CV]
 		CV = reduce(append!,CV)
         V = [angle/shape[1] 0;0 (R-r)/shape[2]]*V
@@ -194,7 +194,8 @@ function ring(r=1., R=2., angle=2*pi)
         W = [V[:, k] for k=1:size(V, 2)]
         V = hcat(map(p->let(u, v)=p;[v*cos(u);v*sin(u)] end, W)...)
         W, CW = simplifyCells(V, CV)
-        return W, CW
+		CW = [cell for cell in CW if length(cell)==3]
+		return W,CW
     end
     return ring0
 end
