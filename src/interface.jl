@@ -417,9 +417,9 @@ u_boundary_2(EV, FV) = (u_coboundary_1(FV, EV))'
 """
 	u_boundary_3(CV::Cells, FV::Cells)::ChainOp
 
-Return the unsigned `boundary_2` operator `C_2` -> `C_1`.
+Return the unsigned `boundary_3` operator `C_3` -> `C_2`.
 """
-u_boundary_3(CV, FV) = (u_coboundary_1(CV, FV))'
+u_boundary_3(CV, FV) = (u_coboundary_2(CV, FV))'
 
 
 
