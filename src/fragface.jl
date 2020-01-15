@@ -131,6 +131,7 @@ Intersect all (non-simmetric) pairs of `line` in `linestore`.
 function computeparams(linestore,linenum)
 	m = length(linestore)
 	params = [[] for i=1:m]
+	err = 1.0e-6
 	for h=1:(m-1)
 		(x1,y1,x2,y2) = reshape(linestore[h][1:2,:],1,4)
 		for k=(h+1):m
@@ -156,7 +157,7 @@ function computeparams(linestore,linenum)
 					 (β,α) = 999
 				end
 			end
-			if 0<α<1 && 0<β<1
+			if -err<α<1+err && -err<β<1+err
 				push!(params[h], α)
 				push!(params[k], β)
 			end

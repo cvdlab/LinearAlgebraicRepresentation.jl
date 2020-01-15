@@ -54,7 +54,9 @@ function face_int(V::Lar.Points, EV::Lar.ChainOp, face::Lar.Cell)
         j = i < length(vs) ? i+1 : 1
         d = V[vs[j],:] - o
 
-        err = 10e-8
+        # err = 10e-8
+        err = 10e-4
+        println("approximation error =$err on edge decomposition")
         if !(-err < d[3] < err)
 
             alpha = -o[3] / d[3]
