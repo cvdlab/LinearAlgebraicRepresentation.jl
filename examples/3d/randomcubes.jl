@@ -6,10 +6,10 @@ GL = ViewerGL
 
 #include("")
 store = [];
-scaling = 1.00;
+scaling = 1.20;
 V,(VV,EV,FV,CV) = Lar.cuboid([0.25,0.25,0.25],true,[-0.25,-0.25,-0.25]);
 mybox = (V,CV,FV,EV);
-for k=1:15
+for k=1:18
 	size = rand()*scaling
 	scale = Lar.s(size,size,size)
 	transl = Lar.t(rand(3)...)
