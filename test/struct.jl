@@ -128,7 +128,7 @@ end
       table = Lar.apply(Lar.t(-0.5,-0.5),square)
       structure = Lar.Struct([repeat([table,Lar.r(pi/2)],outer=2)...])
       @test typeof(Lar.struct2lar(structure))==
-      		Tuple{Array{Float64,2},Array{Array{Int64,1},1}}
+      		Tuple{Array{Number,2},Array{Array{Int64,1},1}}
 	  @test size(Lar.struct2lar(structure)[1])==(2, 4)
    end
    @testset "struct2lar 3D" begin
@@ -138,7 +138,7 @@ end
       block = (V,BV)
       structure = Lar.Struct(repeat([block,Lar.t(1,0,0)],outer=2));
       @test typeof(Lar.struct2lar(structure))==
-      	Tuple{Array{Float64,2},Array{Array{Int64,1},1}}
+      	Tuple{Array{Number,2},Array{Array{Int64,1},1}}
       @test size(Lar.struct2lar(structure)[1],1)==3
     end
 end

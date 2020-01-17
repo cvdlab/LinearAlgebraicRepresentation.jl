@@ -67,6 +67,7 @@ Lar = LinearAlgebraicRepresentation
 		@test Lar.surface(P)==1.0
 		p = Lar.Struct([Lar.t(0.5,0.5,0), Lar.r(0,0,pi/4), P]);
 		q = Lar.struct2lar(p);
+		q = convert(Tuple{Array{Float64,2},Array{Array{Int64,1},1}}, q)
 		@test Lar.surface(q)>1.0000000
 		@test Lar.surface(q)<1.0000222
 	end
