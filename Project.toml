@@ -15,7 +15,6 @@ SparseArrays = "2f01184e-e22b-5df5-ae63-d93ebab69eaf"
 Triangle = "56f361f5-126b-55db-87fb-1c71988fcde4"
 
 [compat]
-DataStructures = "^0.17.8"
 IntervalTrees = "^1.0.0"
 NearestNeighbors = "^0.4.3"
 Triangle = "0.3.0"

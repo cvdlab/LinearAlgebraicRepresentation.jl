@@ -29,7 +29,7 @@ function frag_face(V, EV, FE, sp_idx, sigma)
     vs_num = size(V, 1)
 
 	# 2D transformation of sigma face
-    sigmavs = (abs.(FE[sigma:sigma,:])*abs.(EV))[1,:].nzind
+    sigmavs = (abs.(FE[sigma:sigma,:]) * abs.(EV))[1,:].nzind
     sV = V[sigmavs, :]
     sEV = EV[FE[sigma, :].nzind, sigmavs]
     M = Lar.Arrangement.submanifold_mapping(sV)
@@ -38,7 +38,7 @@ function frag_face(V, EV, FE, sp_idx, sigma)
     # sigma face intersection with faces in sp_idx[sigma]
     for i in sp_idx[sigma]
         tmpV, tmpEV = Lar.Arrangement.face_int(tV, EV, FE[i, :])
-
+		sV, sEV
         sV, sEV = Lar.skel_merge(sV, sEV, tmpV, tmpEV)
     end
 
@@ -151,7 +151,7 @@ function spatial_arrangement_1(
 	sp_idx = Lar.spaceindex(model) # OK!!  tested symmetry of computed relation
 
 	# initializations
-    fs_num = size(copFE, 1)
+	fs_num = size(copFE, 1)
     rV = Array{Float64,2}(undef,0,3)
     rEV = SparseArrays.spzeros(Int8,0,0)
     rFE = SparseArrays.spzeros(Int8,0,0)
@@ -178,8 +178,17 @@ function spatial_arrangement_1(
     else
 	# sequential (iterative) processing of face fragmentation
         for sigma in 1:fs_num
-            println(sigma, "/", fs_num, "\r")
+            println("\n",sigma, "/", fs_num)
             nV, nEV, nFE = Lar.Arrangement.frag_face(V, copEV, copFE, sp_idx, sigma)
+# 			v = size(nV,1); e = nEV.m; f = nFE.m
+# @show v-e+f
+# 			if v-e+f > 1
+# 				g = v-e+f - 1	# number of inner loops
+# 				nFE = removeinnerloops(g, nFE)
+# @show nV;
+# @show SparseArrays.nzind(nEV)
+# @show SparseArrays.nzind(nFE)
+# 			end
 			#nV, nEV, nFE = Lar.fragface(V, copEV, copFE, sp_idx, sigma)
 			nV = convert(Lar.Points, nV)
             a,b,c = Lar.skel_merge( rV,rEV,rFE,  nV,nEV,nFE )
@@ -191,6 +200,17 @@ function spatial_arrangement_1(
     return rV, rEV, rFE
 end
 
+"""
+	removeinnerloops(g, nFE)
+
+Remove the faces within the inner loops from sparse matrix nFE.
+The return walue has `g` less rows than the input `nFE`.
+"""
+function removeinnerloops(g, nFE)
+	# optimized solution (to check): remove the last `g` rows
+	FE = Lar.cop2lar(nFE)
+	nFE = Lar.lar2cop(FE[1:end-g])
+end
 
 function spatial_arrangement_2(
 		rV::Lar.Points,
@@ -223,7 +243,7 @@ function spatial_arrangement(
 		copFE::Lar.ChainOp, multiproc::Bool=false)
 
 	# face subdivision
-	rV, rcopEV, rcopFE = Lar.Arrangement.spatial_arrangement_1( V, copEV, copFE, multiproc ) # copFE global
+	rV, rcopEV, rcopFE = Lar.Arrangement.spatial_arrangement_1( V,copEV,copFE,multiproc )
 
 @show rV;
 @show findnz(rcopEV);
@@ -233,5 +253,9 @@ function spatial_arrangement(
 	#W,bicon_comps = Lar.biconnectedComponent((W,EV))
 	#@error "comps# = $(length(bicon_comps))"
 	# 3-complex and containment graph
+println("******")
+println("\nSparseArrays.sparse($(SparseArrays.findnz(rcopEV)))")
+println("\nSparseArrays.sparse($(SparseArrays.findnz(rcopFE)))")
+
 	rV, rEV, rFE, rCF = Lar.Arrangement.spatial_arrangement_2(rV, rcopEV, rcopFE)
 end

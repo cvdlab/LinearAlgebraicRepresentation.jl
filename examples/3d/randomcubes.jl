@@ -1,15 +1,14 @@
-using Distributed
-@everywhere using LinearAlgebraicRepresentation
-Lar = LinearAlgebraicRepresentation
-@everywhere using ViewerGL, LinearAlgebra
+using ViewerGL, LinearAlgebra
 GL = ViewerGL
+using LinearAlgebraicRepresentation
+Lar = LinearAlgebraicRepresentation
 
 #include("")
 store = [];
-scaling = 1.20;
+scaling = 1.05;
 V,(VV,EV,FV,CV) = Lar.cuboid([0.25,0.25,0.25],true,[-0.25,-0.25,-0.25]);
 mybox = (V,CV,FV,EV);
-for k=1:18
+for k=1:15
 	size = rand()*scaling
 	scale = Lar.s(size,size,size)
 	transl = Lar.t(rand(3)...)
@@ -34,7 +33,7 @@ open("/tmp/lar.txt", "w") do f
 	write(f, "CV = $CV\n\n")
 	write(f, "FV = $FV\n\n")
 	write(f, "EV = $EV\n\n")
-close(f)
+	close(f)
 end
 
 GL.VIEW([ GL.GLPol(V,CV, GL.COLORS[1]) ]);
