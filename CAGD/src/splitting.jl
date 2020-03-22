@@ -11,18 +11,18 @@ using DataStructures
 #-------------------------------------------------------------------------------
 
 """
-	pairwise_decomposition(model::CAGD.Model; err=1e-7)
+	pairwise_decomposition(model::CAGD.Model)::CAGD.Model
 
 Performs the pairwise decomposition of all faces with the possibly intersecting.
 """
 
-function pairwise_decomposition(model; err=1e-7)
+function pairwise_decomposition(model)
     sp_idx = CAGD.spaceIndex(model, 2)
     de_models = [
         CAGD.face_decomposition(model, face_idx, sp_idx[face_idx])
         for face_idx = 1 : size(model, 2, 1)
     ]
-    return CAGD.mergeMultipleModels(de_models, err=err)
+    return CAGD.uniteMultipleModels(de_models)
 end
 
 function face_decomposition(
@@ -113,7 +113,7 @@ function face_decomposition(
 		CAGD.uniteModels!(Pmodel, newModel)
 	end
 
-	Pmodel = CAGD.mergeModelVertices(Pmodel)
+	Pmodel = CAGD.mergeModelVertices(Pmodel, signed = false)
 
 	model = CAGD.planar_arrangement(Pmodel, sparsevec(ones(Int8, length(Gfaceidx))))
 	@assert !isnothing(model) "UNEXPECTED ERROR: a face should be mapped to itself"
