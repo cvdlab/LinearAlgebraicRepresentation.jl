@@ -31,17 +31,6 @@ function face_decomposition(
 		sp_idx_face::Array{Int,1}
 	)::CAGD.Model
 
-	function build_projection_matrix(vs::Lar.Points)::Matrix{Float64}
-    	u1 = vs[:, 2] - vs[:, 1]
-    	u2 = vs[:, 3] - vs[:, 1]
-    	u3 = Lar.cross(u1, u2)
-    	T = Matrix{Float64}(LinearAlgebra.I, 4, 4)
-    	T[1:3, 4] = - vs[:,1]
-    	M = Matrix{Float64}(LinearAlgebra.I, 4, 4)
-    	M[1:3, 1:3] = [u1 u2 u3]
-    	return M' * T
-	end
-
 	function face_intersection(													# Inserire il modello in depth
 			V::Lar.Points,
 			EV::Lar.ChainOp,
@@ -99,7 +88,7 @@ function face_decomposition(
 	#== THE FUNCTION ==#
 
 	Gface, Gfaceidx = CAGD.getModelCellGeometry(model, 2, face_idx, true)
-	M = build_projection_matrix(Gface)
+	M = CAGD.build_projection_matrix(Gface)
 	PG = (M * [model.G; ones(1, size(model, 0, 2))])[1:3, :]
 
 	# Generate face Model (in 2D)
