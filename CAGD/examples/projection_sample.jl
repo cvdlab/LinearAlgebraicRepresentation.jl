@@ -13,9 +13,7 @@ CAGD.addModelCells!(model, 2, [[1,2,3],[1,4,5],[1,6,7],[1,8,9]]);
 τ = 1;
 faces = model.T[2][:, τ].nzind
 edge = model.T[1][τ, :].nzind
-
 FVs = [setdiff((model.T[1]'*model.T[2][f, :]).nzind, edge) for f in faces]
-
 Gface, Gfaceidx = CAGD.getModelCellGeometry(model, 2, faces[1], true)
 M = CAGD.build_projection_matrix(Gface, y0 = true)
 PG = (M * [model.G; ones(1, size(model, 0, 2))])[2:3, :]
