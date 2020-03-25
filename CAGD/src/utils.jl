@@ -52,10 +52,13 @@ function eval_ord_faces(model, τ)
     M = CAGD.build_projection_matrix(Gface, y0 = true)
     # Project the other points, taking (y, z) coordinates
     PG = (M * [model.G; ones(1, size(model, 0, 2))])[2:3, :]
-    # Build angles for each petal
-    angles = [[mod(atan(PG[2, v], PG[1, v]), 2π) for v in fv] for fv in FVs]
-    # Purge angles equal to 0 (if a segment is collinear with τ)
-    angles = [[α for α in a if !(α ≈ 0)] for a in angles]
+    # Build angles for each petal that is not spanned by [0. 0. 1.] (i.e. τ)
+    
+    angles = [
+    #    mod(________________________, 2π)  if [0, 2π] instead of [-π, +π]
+        [    atan(PG[2, v], PG[1, v])       for v in fv  if !isapprox(PG[:, v], [0.,0.])]
+        for fv in FVs
+    ]
     # Take a representative angle for each petal and build a map (petal -> angle)
     angles = [[faces[i], angles[i][1]] for i = 1 : length(faces)]
     # Sort the angles (right hand order)
