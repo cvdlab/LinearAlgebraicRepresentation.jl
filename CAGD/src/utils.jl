@@ -18,7 +18,7 @@ end
 
 
 """
-    get_ord_angle(model::CAGD.Model, dim::Int, lo_cell::Int)::Array{Int,1}
+    eval_ord_angle(model::CAGD.Model, dim::Int, lo_cell::Int)::Array{Int,1}
 
 Evaluates the `dim`-cell circular ordering w.r.t the `dim-1` cell `lo_cell`.
 """
@@ -32,20 +32,12 @@ function eval_ord_angle(model, dim, lo_cell)
 end
 
 function eval_ord_faces(model, τ)
-#    faces = model.T[2][:, τ].nzind;
-#    Gface, Gfaceidx = CAGD.getModelCellGeometry(model, 2, faces[1], true)
-#    M = CAGD.build_projection_matrix(Gface, y0 = true)
-#    PG = (M * [model.G; ones(1, size(model, 0, 2))])[1:2, :]
-#    angles = [[σ, mod(atan(PG[σ, 2], PG[σ, 1]), 2π)] for σ in faces]
-#    sort!(angles, lt = (a, b) -> a[2] < b[2])
-#    return map(a->a[1], angles)
-
-    # Get edges of τ's petals
+    # Get faces of τ's petals
     faces = model.T[2][:, τ].nzind
     # Get vertices idx of τ
     edge = model.T[1][τ, :].nzind
     # Get other vertices idx of petals (but τ's)
-    FVs = [setdiff((model.T[1]'*model.T[2][f, :]).nzind, edge) for f in faces]
+    FVs = [setdiff((abs.(model.T[1])'*abs.(model.T[2][f, :])).nzind, edge) for f in faces]
     # Get geometry of the first petal (with τ's vertices first)
     Gface = model.G[:, [edge..., FVs[1]...]]
     # Get transformation matrix that maps τ to (0,0,0)->(x,0,0)
@@ -53,16 +45,33 @@ function eval_ord_faces(model, τ)
     # Project the other points, taking (y, z) coordinates
     PG = (M * [model.G; ones(1, size(model, 0, 2))])[2:3, :]
     # Build angles for each petal that is not spanned by [0. 0. 1.] (i.e. τ)
-    
+    # and relates a face to a representative angle (all should be equal)
     angles = [
-    #    mod(________________________, 2π)  if [0, 2π] instead of [-π, +π]
-        [    atan(PG[2, v], PG[1, v])       for v in fv  if !isapprox(PG[:, v], [0.,0.])]
-        for fv in FVs
+        [
+            faces[idx],
+            [
+        #   mod(________________________, 2π)  if [0, 2π] instead of [-π, +π]
+                atan(PG[2, v], PG[1, v])
+                for v in FVs[idx]
+                if !isapprox(PG[:, v], [0.,0.])
+            ][1]
+        ]
+        for idx = 1 : length(faces)
     ]
-    # Take a representative angle for each petal and build a map (petal -> angle)
-    angles = [[faces[i], angles[i][1]] for i = 1 : length(faces)]
     # Sort the angles (right hand order)
     sort!(angles, lt = (a, b) -> a[2] > b[2])
     # return the petals idxs only
+    return map(a->Int(a[1]), angles)
+end
+
+function eval_ord_edges(model, τ; G = model.G)
+    edges = model.T[1][:, τ].nzind
+    EVs = [setdiff((model.T[1][e, :]).nzind, τ)[1] for e in edges]
+    angles = [
+        [edges[idx] atan(G[2, EVs[idx]], G[1, EVs[idx]])]
+        for idx = 1 : length(edges)
+        if !isapprox(G[:, EVs[idx]], [0.,0.])
+    ]
+    sort!(angles, lt = (a, b) -> a[2] < b[2])
     return map(a->Int(a[1]), angles)
 end
