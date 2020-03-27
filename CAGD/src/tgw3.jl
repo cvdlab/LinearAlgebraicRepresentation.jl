@@ -32,7 +32,7 @@ function tgw(model, dim)
     other_sign = zeros(Int8, lo_num)
 
     # Components accumulator
-    components = [];
+    components = Array{Array{Int64, 1},1}();
     comp_idx = 0;
 
     # Until all dim-1 cells have been visited twice, continue
@@ -54,7 +54,7 @@ function tgw(model, dim)
 
         # Build other faces via corolla method
         # boundary = d-2 exposed cells of currently analysed d cell
-        while (boundary = (c * model.T[dim - 1])[1, :]).nzind != []
+        while (boundary = (dropzeros(c * model.T[dim - 1])[1, :])).nzind != []
             # corolla are the next d-1 cells to be added
             corolla = zeros(Int8, lo_num)
             for τ in boundary.nzind
@@ -73,26 +73,39 @@ function tgw(model, dim)
                     throw(ArgumentError("Something Weird Happened"))
                 end
 
-                # If petal pre-exists and it has been visited concordingly alredy, then nothing
-                # happens; if it has been visited discordely, then it is visited again.
-                if ((c[petal] != 0) && (c[petal] != petal_sign)) ||
-                        ((corolla[petal] != 0) && (corolla[petal] != petal_sign))
+                # If petal was visited earlyer (is in c) then it must be visited discordely 
+                @assert visited[petal] == 0 || other_sign[petal]==petal_sign "Incoherent Petal sign"
+                # If petal already is in the corolla, then it should be with the same sign
+                # (otherwise it is visite twice)
+                if (corolla[petal] != 0) && (corolla[petal] != petal_sign)
                     @show "Cell $petal is visited twice during $dim-d TGW."
                 end
 
-                # If petal was visited before then it must be visited with the other sign
-                @assert visited[petal] == 0 || other_sign[petal]==petal_sign "Incoherent Petal sign"
-                
-                # Update visited, other_sign, components and corolla coherently
-                visited[petal] += 1
-                other_sign[petal] -= petal_sign
-                push!(components[comp_idx], σ)
-                corolla[petal] += petal_sign
+                # Update Corolla if petal not visited yet
+                if corolla[petal] == 0                                                              #TODO Change for twice visiting
+                    corolla[petal] += petal_sign
+                end
 
             end
 
+            # Add corolla to c and update visited, other_sign, components coherently
+            c += corolla'
+            other_sign -= corolla
+            visited += abs.(corolla)
+            push!(components[comp_idx], filter(i -> corolla[i] != 0, 1 : lo_num)...)
+            #=
+            for cocell in corolla.nzind
+                visited[cocell] += 1
+                other_sign[cocell] -= corolla[cocell]
+                push!(components[comp_idx], cocell)
+            end
+            =#
+
         end
 
+        CAGD.addModelCells!(tgw_model, 3, c)
 
-     end
+    end
+
+    return tgw_model, components
 end
