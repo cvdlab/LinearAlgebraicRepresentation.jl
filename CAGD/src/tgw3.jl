@@ -95,13 +95,6 @@ function tgw(model, dim)
             other_sign -= corolla
             visited += abs.(corolla)
             push!(components[comp_idx], filter(i -> corolla[i] != 0, 1 : lo_num)...)
-            #=
-            for cocell in corolla.nzind
-                visited[cocell] += 1
-                other_sign[cocell] -= corolla[cocell]
-                push!(components[comp_idx], cocell)
-            end
-            =#
 
         end
 
