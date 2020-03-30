@@ -3,6 +3,7 @@ using LinearAlgebraicRepresentation
 Lar = LinearAlgebraicRepresentation
 using ViewerGL
 GL = ViewerGL
+CAGD = CAGD
 
 V1, (VV,EV,FV,CV) = Lar.simplex(3, true)
 tetra1 = V1, EV, FV, CV

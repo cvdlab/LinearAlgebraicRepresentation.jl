@@ -54,7 +54,7 @@ function cellcongruence(Delta, inclasses; dim = 0)
     for (k, class) in enumerate(inclasses)  for e in class
             newcell[e] = k
     end end
-    cells = [map(x -> newcell[x], face) for face in cellarray]
+    cells = [sort(map(x -> newcell[x], face)) for face in cellarray]
     okcells = [cell for cell in cells if length(Set(cell)) > dim] # non-empty cells
     classes = DefaultOrderedDict{Vector, Vector}([])
     for (k,face) in enumerate(okcells)

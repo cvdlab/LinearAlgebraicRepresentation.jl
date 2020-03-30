@@ -63,7 +63,9 @@ function tgw(model, dim)
                 # stem is the cell generating the cell generating the petals
                 #TODO it should be one only ?!?
                 stem = intersect(c[1, :].nzind, petals.nzind)[1]
-                petal = get_closer_petal(τ, stem, sign(boundary[τ]))          # -sign(...) ??
+                # τ is travelled according the stem direction
+                τ_sign = sign(boundary[τ]) # * sign(c[stem]) già fatto dalla molt
+                petal = get_closer_petal(τ, stem, τ_sign)          # -sign(...) ??
                 # the new petal and the stem must travel τ in opposit direction
                 if model.T[dim - 1][stem, τ] == - model.T[dim - 1][petal, τ]
                     petal_sign = c[stem]

@@ -32,6 +32,8 @@ function eval_ord_angle(model, dim, lo_cell)
 end
 
 function eval_ord_faces(model, τ)
+    # Get EV array of arrays representation for Lar.pointInPolygonClassification
+    EV = Lar.cop2lar(model.T[1])
     # Get faces of τ's petals
     faces = model.T[2][:, τ].nzind
     # Get vertices idx of τ
@@ -42,18 +44,47 @@ function eval_ord_faces(model, τ)
     Gface = model.G[:, [edge..., FVs[1]...]]
     # Get transformation matrix that maps τ to (0,0,0)->(x,0,0)
     M = CAGD.build_projection_matrix(Gface, y0 = true)
-    # Project the other points, taking (y, z) coordinates
-    PG = (M * [model.G; ones(1, size(model, 0, 2))])[2:3, :]
+    # Project the other points such that each face is normal to x axis
+    PG = M[1:3, :] * [model.G; ones(1, size(model, 0, 2))]
+    # Each face describe in yz a straight line.
+    # Faces are sorted by the `angles` their xy-ray form w.r.t. the z = 0 positive ray
+    angles = zeros(length(faces))
+    for fidx = 1 : length(faces)
+        # Retrieve ray orientation either on xy or xz.
+        # xy is chosen unless the face is normal to y axis.
+        oraxis = sum(1 .- isapprox.(PG[2, FVs[fidx]], 0.0)) > 0 ? 2 : 3
+        # Search for a consisten `v`
+        for v in FVs[fidx]
+            if !isapprox(PG[2:3, v], [0.,0.])
+                # Check whether face is on the side described by `v`'s ray or not
+                # `side_pt` is located near the middle of `τ` on the side of `v`
+                side_pt = [0.5 sign(PG[oraxis, v])*1e-10]
+                # Take the edges of the face as array of arrays
+                EVs = EV[model.T[2][faces[fidx], :].nzind]
+                other_side=Lar.pointInPolygonClassification(PG[[1,oraxis],:], EVs)(side_pt)=="p_out"
+                # Copute the angle of `v`'s ray and reorient it on the face side
+                angles[fidx] = (-1)^other_side * atan(PG[3, v], PG[2, v])
+                break
+            end
+        end
+    end
+
+    ord_faces = sortperm(angles)
+    
+    return faces[ord_faces]
+
+    #=
     # Build angles for each petal that is not spanned by [0. 0. 1.] (i.e. τ)
     # and relates a face to a representative angle (all should be equal)
     angles = [
         [
             faces[idx],
             [
+                (-1)^(0)*
         #   mod(________________________, 2π)  if [0, 2π] instead of [-π, +π]
-                atan(PG[2, v], PG[1, v])
+                atan(PG[3, v], PG[2, v])
                 for v in FVs[idx]
-                if !isapprox(PG[:, v], [0.,0.])
+                if !isapprox(PG[2:3, v], [0.,0.])
             ][1]
         ]
         for idx = 1 : length(faces)
@@ -62,6 +93,7 @@ function eval_ord_faces(model, τ)
     sort!(angles, lt = (a, b) -> a[2] > b[2])
     # return the petals idxs only
     return map(a->Int(a[1]), angles)
+    =#
 end
 
 function eval_ord_edges(model, τ; G = model.G)
