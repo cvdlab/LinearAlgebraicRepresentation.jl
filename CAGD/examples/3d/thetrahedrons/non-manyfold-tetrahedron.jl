@@ -37,4 +37,4 @@ split_model = CAGD.uniteMultipleModels(de_models)
 
 ## Congruence via CCE algorithm
 
-congr_model = CAGD.mergeModelVertices(split_model, signed=true)
+congr_model = CAGD.mergeModelVertices(split_model, signed_merge=true)

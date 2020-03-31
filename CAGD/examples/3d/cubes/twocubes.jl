@@ -55,7 +55,7 @@ split_model = CAGD.pairwise_decomposition(model)
 
 if display  displayModel(split_model)  end
 
-congr_model = CAGD.mergeModelVertices(split_model, signed=true)
+congr_model = CAGD.mergeModelVertices(split_model, signed_merge=true)
 
 if display  displayModel(congr_model)  end
 
