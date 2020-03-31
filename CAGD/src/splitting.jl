@@ -102,7 +102,7 @@ function face_decomposition(
 		CAGD.uniteModels!(Pmodel, newModel)
 	end
 
-	Pmodel = CAGD.mergeModelVertices(Pmodel, signed = false)
+	Pmodel = CAGD.mergeModelVertices(Pmodel, signed_merge = false)
 
 	model = CAGD.planar_arrangement(Pmodel, sparsevec(ones(Int8, length(Gfaceidx))))
 	@assert !isnothing(model) "UNEXPECTED ERROR: a face should be mapped to itself"

@@ -304,13 +304,20 @@ function mergeMultipleModels(models::Array{CAGD.Model,1}; err=1e-6)::CAGD.Model
     return CAGD.mergeModelVertices(uniteMultipleModels(models), err=err)
 end
 
-function mergeModelVertices(model::CAGD.Model; err=1e-6, signed = false)
+function mergeModelVertices(model::CAGD.Model; err=1e-6, signed_merge = false)
     V, cls = CAGD.vcongruence(model.G, epsilon = err)
+    if signed_merge  lo_sign = [ones(Int8, length(cl)) for cl in cls]  end
     congModel = CAGD.Model(V)
     for d = 1 : length(model)
-        cop, cls = CAGD.cellcongruence(model.T[d], cls, dim=d)
-        cop = convert(Lar.Cells, cop)
-        CAGD.addModelCells!(congModel, d, cop, signed = signed)
+        if isempty(model.T[d])  break  end
+        if signed_merge
+            cop, cls, lo_sign = CAGD.signedCellCongruence(model.T[d], cls, lo_sign, dim=d)
+            if  d > 1 cop = -cop  end
+        else
+            cop, cls = CAGD.cellcongruence(model.T[d], cls, dim=d)
+            cop = convert(Lar.Cells, cop)
+        end
+        CAGD.addModelCells!(congModel, d, cop)
     end
 
     return congModel
