@@ -1,13 +1,9 @@
 function build_projection_matrix(vs::Lar.Points; y0 = false)::Matrix{Float64}
+
     u1 = vs[:, 2] - vs[:, 1]
-    i = 3
+    i = 2 + argmax(map(i -> norm(Lar.cross(u1, vs[:, i] - vs[:, 1])), 3 : size(vs, 2)))
     u2 = vs[:, i] - vs[:, 1]
     u3 = Lar.cross(u1, u2)
-    while u3 == [0.0, 0.0, 0.0]
-        i += 1
-        u2 = vs[:, i] - vs[:, 1]
-        u3 = Lar.cross(u1, u2)
-    end
     if y0  u2 = Lar.cross(u1, u3)  end
     T = Matrix{Float64}(LinearAlgebra.I, 4, 4)
     T[1:3, 4] = - vs[:,1]
@@ -47,53 +43,48 @@ function eval_ord_faces(model, τ)
     # Project the other points such that each face is normal to x axis
     PG = M[1:3, :] * [model.G; ones(1, size(model, 0, 2))]
     # Each face describe in yz a straight line.
-    # Faces are sorted by the `angles` their xy-ray form w.r.t. the z = 0 positive ray
+    # Faces are sorted by the `angles` their xy-ray form w.r.t. the y = 0 positive ray
     angles = zeros(length(faces))
     for fidx = 1 : length(faces)
-        # Retrieve ray orientation either on xy or xz.
-        # xy is chosen unless the face is normal to y axis.
-        oraxis = sum(1 .- isapprox.(PG[2, FVs[fidx]], 0.0)) > 0 ? 2 : 3
-        # Search for a consisten `v`
-        for v in FVs[fidx]
-            if !isapprox(PG[2:3, v], [0.,0.])
-                # Check whether face is on the side described by `v`'s ray or not
-                # `side_pt` is located near the middle of `τ` on the side of `v`
-                side_pt = [0.5 sign(PG[oraxis, v])*1e-10]
-                # Take the edges of the face as array of arrays
+        # If the face lies on xz plan, then the angle of the projection on yz is either -π/2 or +π/2
+        if sum(1 .- isapprox.(PG[2, FVs[fidx]], 0.0)) == 0
+            # Look for a non trivial point (z coord non null)
+            for v in FVs[fidx]  if !isapprox(PG[3, v], 0.0)
+                # Check whether face is on the z-halfplane described by `v`'s ray or not
+                # `side_pt` is located "near" the middle of `τ` on the halfplane of `v`
+                side_pt = [PG[1, edge[2]]/2 sign(PG[3, v])*1e-10]
+                # Take the edges of the face as array of arrays for pointInPolygonClassification
                 EVs = EV[model.T[2][faces[fidx], :].nzind]
-                other_side=Lar.pointInPolygonClassification(PG[[1,oraxis],:], EVs)(side_pt)=="p_out"
-                # Copute the angle of `v`'s ray and reorient it on the face side
-                angles[fidx] = (-1)^other_side * atan(PG[3, v], PG[2, v])
+                # Check wheter v is on the other side or the same halfplane
+                other_side=Lar.pointInPolygonClassification(PG[[1,2],:], EVs)(side_pt)=="p_out"
+                # the 90° angle is either on the side of `v` or not
+                angles[fidx] = (-1)^other_side * sign(PG[3, v]) * π / 2
                 break
-            end
+            end  end
+        else
+            # If not so, the face is a non vertical segment if projected on yz plan
+            # Search for a consisten `v`, that is y coord not null
+            for v in FVs[fidx]  if !isapprox(PG[2, v], 0.0)
+                # Check whether the face is on the halfplane described by `v`'s ray or not
+                #  to do so, consider the xy projection of the face and check wether
+                #  `side_pt` (located "near" the middle of `τ` on the halfplane of `v`)
+                #  is in the face projection 
+                side_pt = [PG[1, edge[2]]/2 PG[2, edge[2]]+sign(PG[2, v])*1e-10]
+                # Take the edges of the face as array of arrays for pointInPolygonClassification
+                EVs = EV[model.T[2][faces[fidx], :].nzind]
+                # Check wheter v is on the other side or the same halfplane
+                other_side=Lar.pointInPolygonClassification(PG[[1,2],:], EVs)(side_pt)=="p_out"
+                # Copute the angle of `v`'s ray, reoriented according the face halfplane
+                angles[fidx] = atan((-1)^other_side * PG[3, v], (-1)^other_side * PG[2, v])
+                break
+            end  end
         end
     end
 
-    ord_faces = sortperm(angles)
+    # faces are sorted according to right-hand rule
+    ord_faces = sortperm(-angles)
     
     return faces[ord_faces]
-
-    #=
-    # Build angles for each petal that is not spanned by [0. 0. 1.] (i.e. τ)
-    # and relates a face to a representative angle (all should be equal)
-    angles = [
-        [
-            faces[idx],
-            [
-                (-1)^(0)*
-        #   mod(________________________, 2π)  if [0, 2π] instead of [-π, +π]
-                atan(PG[3, v], PG[2, v])
-                for v in FVs[idx]
-                if !isapprox(PG[2:3, v], [0.,0.])
-            ][1]
-        ]
-        for idx = 1 : length(faces)
-    ]
-    # Sort the angles (right hand order)
-    sort!(angles, lt = (a, b) -> a[2] > b[2])
-    # return the petals idxs only
-    return map(a->Int(a[1]), angles)
-    =#
 end
 
 function eval_ord_edges(model, τ; G = model.G)
