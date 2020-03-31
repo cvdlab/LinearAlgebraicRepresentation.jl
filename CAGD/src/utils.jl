@@ -56,7 +56,7 @@ function eval_ord_faces(model, τ)
                 # Take the edges of the face as array of arrays for pointInPolygonClassification
                 EVs = EV[model.T[2][faces[fidx], :].nzind]
                 # Check wheter v is on the other side or the same halfplane
-                other_side=Lar.pointInPolygonClassification(PG[[1,2],:], EVs)(side_pt)=="p_out"
+                other_side=Lar.pointInPolygonClassification(PG[[1,3],:], EVs)(side_pt)=="p_out"
                 # the 90° angle is either on the side of `v` or not
                 angles[fidx] = (-1)^other_side * sign(PG[3, v]) * π / 2
                 break
