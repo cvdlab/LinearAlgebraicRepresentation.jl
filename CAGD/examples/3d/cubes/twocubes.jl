@@ -4,26 +4,6 @@ using LinearAlgebra
 using LinearAlgebraicRepresentation
 Lar = LinearAlgebraicRepresentation
 CAGD = CAGD
-if display
-    using ViewerGL
-    GL = ViewerGL
-end
-
-function displayModel(model)
-    V = model.G
-    EV = Lar.cop2lar(model.T[1])
-    FE = Lar.cop2lar(model.T[2])
-    CF = Lar.cop2lar(model.T[3])
-    FV = Lar.cop2lar(map(x -> Int8(x/2), abs.(model.T[2]) * abs.(model.T[1])))
-    CV = []
-    triangulated_faces = Lar.triangulate(convert(Lar.Points, V'), [model.T[1], model.T[2]])
-    FVs = convert(Array{Lar.Cells}, triangulated_faces)
-    EVs = Lar.FV2EVs(model.T[1], model.T[2])
-
-    GL.VIEW([ GL.GLPol(V,EV, GL.COLORS[1]) ]);
-    GL.VIEW(GL.GLExplode(V,FVs,1.5,1.5,1.5,99));
-    GL.VIEW(GL.GLExplode(V,EVs,1.5,1.5,1.5,99,1));
-end
 
 V = 2 * [
     0.0 1.0 0.0 1.0 0.0 1.0 0.0 1.0
@@ -61,7 +41,7 @@ if display  displayModel(congr_model)  end
 
 gift_model, bicon_comps = CAGD.tgw(congr_model, 3)
 
-if display  displayModel(gift_model)  end
+if display  viewExplode(gift_model)  end
 
 # Each face is percurred two times
 sum(gift_model.T[3], dims = 1)
