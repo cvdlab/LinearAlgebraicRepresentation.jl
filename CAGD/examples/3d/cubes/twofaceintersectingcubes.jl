@@ -1,10 +1,10 @@
-display = VERSION < VersionNumber("1.2") ? true : false
+todisplay = VERSION <= VersionNumber("1.2") ? true : false
 
 using LinearAlgebra
 using LinearAlgebraicRepresentation
 Lar = LinearAlgebraicRepresentation
 CAGD = CAGD
-if display
+if todisplay
     using ViewerGL
     GL = ViewerGL
 end
@@ -35,19 +35,19 @@ m2.G .-= [1.0; 1.0; -0.5]
 
 model = CAGD.uniteModels(m1, m2)
 
-if display  displayModel(model)  end
+if todisplay  displayModel(model)  end
 
 split_model = CAGD.pairwise_decomposition(model)
 
-if display  displayModel(split_model)  end
+if todisplay  displayModel(split_model)  end
 
 congr_model = CAGD.mergeModelVertices(split_model, signed_merge=true)
 
-if display  displayModel(congr_model)  end
+if todisplay  displayModel(congr_model)  end
 
 gift_model, bicon_comps = CAGD.tgw(congr_model, 3)
 
-if display  viewExplode(gift_model)  end
+if todisplay  viewExplode(gift_model)  end
 
 # Each face is percurred two times
 sum(gift_model.T[3], dims = 1)
