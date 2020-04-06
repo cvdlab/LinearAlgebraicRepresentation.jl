@@ -1,7 +1,11 @@
 function build_projection_matrix(vs::Lar.Points; y0 = false)::Matrix{Float64}
 
+#    u1 = LinearAlgebra.normalize(vs[:, 2] - vs[:, 1])
     u1 = vs[:, 2] - vs[:, 1]
     i = 2 + argmax(map(i -> norm(Lar.cross(u1, vs[:, i] - vs[:, 1])), 3 : size(vs, 2)))
+#    u2 = LinearAlgebra.normalize(vs[:, i] - vs[:, 1])
+#    u3 = LinearAlgebra.normalize(Lar.cross(u1, u2))
+#    if y0  u2 = LinearAlgebra.normalize(Lar.cross(u1, u3))  end
     u2 = vs[:, i] - vs[:, 1]
     u3 = Lar.cross(u1, u2)
     if y0  u2 = Lar.cross(u1, u3)  end
@@ -18,16 +22,16 @@ end
 
 Evaluates the `dim`-cell circular ordering w.r.t the `dim-1` cell `lo_cell`.
 """
-function eval_ord_angle(model, dim, lo_cell)
+function eval_ord_angle(model, dim, lo_cell; atol = 1e-7)
     if dim == 1
-        return CAGD.eval_ord_edges(model, lo_cell)
+        return CAGD.eval_ord_edges(model, lo_cell, atol = atol)
     elseif dim == 2
-        return CAGD.eval_ord_faces(model, lo_cell)
+        return CAGD.eval_ord_faces(model, lo_cell, atol = atol)
     end
     throw(ArgumentError("Dimension $dim not coded for ordering"))
 end
 
-function eval_ord_faces(model, τ)
+function eval_ord_faces(model, τ; atol = 1e-7)
     # Get EV array of arrays representation for Lar.pointInPolygonClassification
     EV = Lar.cop2lar(model.T[1])
     # Get faces of τ's petals
@@ -47,9 +51,9 @@ function eval_ord_faces(model, τ)
     angles = zeros(length(faces))
     for fidx = 1 : length(faces)
         # If the face lies on xz plan, then the angle of the projection on yz is either -π/2 or +π/2
-        if sum(1 .- isapprox.(PG[2, FVs[fidx]], 0.0)) == 0
+        if sum(1 .- isapprox.(PG[2, FVs[fidx]], 0.0, atol = atol)) == 0
             # Look for a non trivial point (z coord non null)
-            for v in FVs[fidx]  if !isapprox(PG[3, v], 0.0)
+            for v in FVs[fidx]  if !isapprox(PG[3, v], 0.0, atol = atol)
                 # Check whether face is on the z-halfplane described by `v`'s ray or not
                 # `side_pt` is located "near" the middle of `τ` on the halfplane of `v`
                 side_pt = [PG[1, edge[2]]/2 sign(PG[3, v])*1e-10]
@@ -64,7 +68,7 @@ function eval_ord_faces(model, τ)
         else
             # If not so, the face is a non vertical segment if projected on yz plan
             # Search for a consisten `v`, that is y coord not null
-            for v in FVs[fidx]  if !isapprox(PG[2, v], 0.0)
+            for v in FVs[fidx]  if !isapprox(PG[2, v], 0.0, atol = atol)
                 # Check whether the face is on the halfplane described by `v`'s ray or not
                 #  to do so, consider the xy projection of the face and check wether
                 #  `side_pt` (located "near" the middle of `τ` on the halfplane of `v`)
@@ -87,13 +91,13 @@ function eval_ord_faces(model, τ)
     return faces[ord_faces]
 end
 
-function eval_ord_edges(model, τ; G = model.G)
+function eval_ord_edges(model, τ; G = model.G, atol = 1e-7)
     edges = model.T[1][:, τ].nzind
     EVs = [setdiff((model.T[1][e, :]).nzind, τ)[1] for e in edges]
     angles = [
         [edges[idx] atan(G[2, EVs[idx]], G[1, EVs[idx]])]
         for idx = 1 : length(edges)
-        if !isapprox(G[:, EVs[idx]], [0.,0.])
+        if !isapprox(G[:, EVs[idx]], [0.,0.], atol = atol)
     ]
     sort!(angles, lt = (a, b) -> a[2] < b[2])
     return map(a->Int(a[1]), angles)

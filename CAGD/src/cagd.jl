@@ -9,6 +9,7 @@ module CAGD
 	Lar = LinearAlgebraicRepresentation
 
 	include("./model.jl")
+	
 	include("./planar_arrangement.jl")
 	include("./spatial_arrangement.jl")
 	include("./spatial_indices.jl")
