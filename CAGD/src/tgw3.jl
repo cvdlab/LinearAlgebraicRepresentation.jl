@@ -1,6 +1,6 @@
 using SparseArrays
 
-function tgw(model, dim)
+function tgw(model, dim; atol = 1e-7)
 
     function select_sigma()
         for i = 1 : lo_num  if visited[i] == 1  return i  end  end
@@ -10,7 +10,7 @@ function tgw(model, dim)
 
     function get_closer_petal(τ, stem, τ_sign)
         if !isdefined(ord_angles, Int(τ))
-            ord_angles[τ] = CAGD.eval_ord_angle(model, dim - 1, τ)
+            ord_angles[τ] = CAGD.eval_ord_angle(model, dim - 1, τ, atol=atol)
         end
         stem_idx = findfirst(isequal(stem), ord_angles[τ])
         return ord_angles[τ][mod(stem_idx + τ_sign - 1, length(ord_angles[τ])) + 1]
@@ -76,7 +76,7 @@ function tgw(model, dim)
                 end
 
                 # If petal was visited earlyer (is in c) then it must be visited discordely 
-                @assert visited[petal] == 0 || other_sign[petal]==petal_sign "Incoherent Petal sign"
+                @assert visited[petal] == 0 || other_sign[petal]==petal_sign "Incoherent Petal sign τ = $τ"
                 # If petal already is in the corolla, then it should be with the same sign
                 # (otherwise it is visite twice)
                 if (corolla[petal] != 0) && (corolla[petal] != petal_sign)

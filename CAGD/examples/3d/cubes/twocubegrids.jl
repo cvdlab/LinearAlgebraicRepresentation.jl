@@ -9,7 +9,7 @@ if todisplay
     GL = ViewerGL
 end
 
-function twocubegrids(n=1, m=1, p=1)
+function twocubegrids(n=1, m=1, p=1, atol = 1e-6)
     V,(VV,EV,FV,CV) = Lar.cuboidGrid([n,m,p],true)
     mybox = (V,CV,FV,EV)
 
@@ -27,6 +27,6 @@ function twocubegrids(n=1, m=1, p=1)
     split_model = CAGD.pairwise_decomposition(model)
     congr_model = CAGD.mergeModelVertices(split_model, signed_merge=true)
     if todisplay  displayModel(congr_model)  end
-    gift_model, bicon_comps = CAGD.tgw(congr_model, 3)
+    gift_model, bicon_comps = CAGD.tgw(congr_model, 3, atol = atol)
     if todisplay  viewExplode(gift_model)  end
 end

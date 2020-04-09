@@ -1,3 +1,5 @@
+using LinearAlgebra
+
 function build_projection_matrix(vs::Lar.Points; y0 = false)::Matrix{Float64}
 
 #    u1 = LinearAlgebra.normalize(vs[:, 2] - vs[:, 1])
@@ -18,6 +20,51 @@ end
 
 
 """
+    build_rototranslation_matrix(vs::Lar.Points)::Matrix{Float64}
+
+Generates the rototranslation matrix that maps `vs[1,2]` -> ([0 0 0; x 0 0]')
+"""
+function build_rototranslation_matrix(vs::Lar.Points)::Matrix{Float64}
+
+    Ivs = [vs; ones(1, size(vs, 2))]
+    T   = Matrix{Float64}(LinearAlgebra.I, 4, 4)
+    Rx  = Matrix{Float64}(LinearAlgebra.I, 4, 4)
+    Ry  = Matrix{Float64}(LinearAlgebra.I, 4, 4)
+
+    # Translate first point to Origin
+    T[1:3, 4] = - vs[:,1]
+    Tvs = T * Ivs
+
+    # Rotate along x-axis to xz-plan the 1->2 edge (y = 0)
+    #   |  1   0   0  |       sin(θ) = Py (= θ[1])
+    #   |  0   c  -s  |   =>
+    #   |  0   s   c  |       cos(θ) = Pz (= θ[2])
+    if !isapprox(norm(Tvs[2:3, 2]), 0.0, atol = 1e-10)
+        θ = LinearAlgebra.normalize(Tvs[2:3, 2])
+        Rx[2, 2] =  θ[2]
+        Rx[3, 3] =  θ[2]
+        Rx[2, 3] = -θ[1]
+        Rx[3, 2] =  θ[1]
+    end
+    RTvs = (Rx * T) * Ivs
+
+    # Rotate along y-axis to x-axis the 1->2 edge (y = 0 && z = 0)
+    #   |  c   0   s  |       sin(σ) = Pz (= σ[2])
+    #   |  0   1   0  |   =>
+    #   | -s   0   c  |       cos(σ) = Px (= σ[1])
+    if !isapprox(norm(RTvs[[1, 3], 2]), 0.0, atol = 1e-10)
+        σ = LinearAlgebra.normalize(RTvs[[1, 3], 2])
+        Ry[1, 1] =  σ[1]
+        Ry[3, 3] =  σ[1]
+        Ry[1, 3] =  σ[2]
+        Ry[3, 1] = -σ[2]
+    end
+
+    return Ry * Rx * T
+end
+
+
+"""
     eval_ord_angle(model::CAGD.Model, dim::Int, lo_cell::Int)::Array{Int,1}
 
 Evaluates the `dim`-cell circular ordering w.r.t the `dim-1` cell `lo_cell`.
@@ -32,6 +79,7 @@ function eval_ord_angle(model, dim, lo_cell; atol = 1e-7)
 end
 
 function eval_ord_faces(model, τ; atol = 1e-7)
+    proj_matrix = false
     # Get EV array of arrays representation for Lar.pointInPolygonClassification
     EV = Lar.cop2lar(model.T[1])
     # Get faces of τ's petals
@@ -43,7 +91,11 @@ function eval_ord_faces(model, τ; atol = 1e-7)
     # Get geometry of the first petal (with τ's vertices first)
     Gface = model.G[:, [edge..., FVs[1]...]]
     # Get transformation matrix that maps τ to (0,0,0)->(x,0,0)
-    M = CAGD.build_projection_matrix(Gface, y0 = true)
+    if proj_matrix
+        M = CAGD.build_projection_matrix(Gface, y0 = true)
+    else
+        M = CAGD.build_rototranslation_matrix(Gface)
+    end
     # Project the other points such that each face is normal to x axis
     PG = M[1:3, :] * [model.G; ones(1, size(model, 0, 2))]
     # Each face describe in yz a straight line.
@@ -86,7 +138,8 @@ function eval_ord_faces(model, τ; atol = 1e-7)
     end
 
     # faces are sorted according to right-hand rule
-    ord_faces = sortperm(-angles)
+    if proj_matrix angles = -angles end
+    ord_faces = sortperm(angles)
     
     return faces[ord_faces]
 end
