@@ -7,6 +7,7 @@ CAGD = CAGD
 if todisplay
     using ViewerGL
     GL = ViewerGL
+	include("../views.jl")
 end
 
 function twocubegrids(n=1, m=1, p=1, atol = 1e-6)

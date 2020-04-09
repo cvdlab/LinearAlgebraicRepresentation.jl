@@ -6,11 +6,11 @@ Lar = LinearAlgebraicRepresentation
 CAGD = CAGD
 if todisplay
     using ViewerGL
-	GL = ViewerGL
+    GL = ViewerGL
 	include("../views.jl")
 end
 
-V = 2 * [
+V = [
     0.0 1.0 0.0 1.0 0.0 1.0 0.0 1.0
     0.0 0.0 1.0 1.0 0.0 0.0 1.0 1.0
     0.0 0.0 0.0 0.0 1.0 1.0 1.0 1.0
@@ -29,8 +29,11 @@ m1 = CAGD.Model(V)
 CAGD.addModelCells!(m1, 1, EV, signed = true)
 CAGD.addModelCells!(m1, 2, FE, signed = true)
 
+rx = Lar.r(π/6,0,0)
+ry = Lar.r(0,π/3,0)
+rot = rx * ry
 m2 = deepcopy(m1)
-m2.G .+= [1.0; 1.0; 1.0]
+m2.G = rot[1:3, :] * [m2.G; ones(1, size(m2, 0, 2))]
 
 model = CAGD.uniteModels(m1, m2)
 
@@ -47,6 +50,3 @@ if todisplay  displayModel(congr_model)  end
 gift_model, bicon_comps = CAGD.tgw(congr_model, 3)
 
 if todisplay  viewExplode(gift_model)  end
-
-# Each face is percurred two times
-sum(gift_model.T[3], dims = 1)

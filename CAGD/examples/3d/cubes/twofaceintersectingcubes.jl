@@ -7,6 +7,7 @@ CAGD = CAGD
 if todisplay
     using ViewerGL
     GL = ViewerGL
+	include("../views.jl")
 end
 
 
