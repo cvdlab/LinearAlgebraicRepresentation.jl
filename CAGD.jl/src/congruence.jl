@@ -1,6 +1,3 @@
-using LinearAlgebraicRepresentation
-using NearestNeighbors
-
 """
 	vcongruence(
         V::Lar.Points; epsilon=1e-6

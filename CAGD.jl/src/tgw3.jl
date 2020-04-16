@@ -1,5 +1,12 @@
 using SparseArrays
 
+"""
+    tgw(model::CAGD.Model, dim::Int; atol = 1e-7)::Tuple{Lar.Model, Array{Array{Int,1},1}}
+
+Compute the Topological Gift Wrapping on `model` w.r.t. `dim`-cell.
+
+It returns the gift wrapped model along with the 1-connected-by-arc components.
+"""
 function tgw(model, dim; atol = 1e-7)
 
     function select_sigma()
@@ -102,5 +109,5 @@ function tgw(model, dim; atol = 1e-7)
 
     end
 
-    return tgw_model, components
+    return tgw_model, sort(sort.(unique.(components)))
 end

@@ -50,6 +50,22 @@ function getModelBoundingBoxes(
 	return [hcat(findBBox(c)...) for c in cellpts]
 end
 
+#-------------------------------------------------------------------------------
+#   MODEL BOUNDING BOXES INCLUSION
+#-------------------------------------------------------------------------------
+
+"""
+	isBoundingBoxIncluded(bbox1::Array{Float64,2}, bbox2::Array{Float64,2})::Bool
+
+Checks whether `bbox1` is totally included in `bbox2`
+"""
+function isBoundingBoxIncluded(bbox1::Array{Float64,2}, bbox2::Array{Float64,2})::Bool
+	dim = size(bbox1, 1)
+	for d = 1 : dim
+		(bbox1[d, 1] >= bbox2[d, 1]) & (bbox1[d, 2] <= bbox2[d, 2]) || return false
+	end
+	return true
+end
 
 #-------------------------------------------------------------------------------
 #   SPATIAL_INDEXING METHODS
@@ -127,7 +143,7 @@ end
 #-------------------------------------------------------------------------------
 
 """
-	spaceIndex(model::CAGD.Model)::Array{Array{Int,1},1}
+	spaceIndex(model::CAGD.Model, dim::Int)::Array{Array{Int,1},1}
 
 Generation of *space indexes* for all ``(d-1)``-dim cell members of `model`.
 

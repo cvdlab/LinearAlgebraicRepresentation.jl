@@ -155,3 +155,15 @@ function eval_ord_edges(model, τ; G = model.G, atol = 1e-7)
     sort!(angles, lt = (a, b) -> a[2] < b[2])
     return map(a->Int(a[1]), angles)
 end
+
+
+"""
+    get_external_cycles(model::CAGD.Model, dim::Int)::Array{Int,1}
+
+Get the external cell for every `dim`-cochain within the model.
+"""
+function get_external_cycles(model, dim, bicon_comps = [])
+    if isempty(bicon_comps)  bicon_comps = CAGD.eval_bicon_comps(model, dim)  end
+
+
+end

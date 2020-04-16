@@ -983,34 +983,42 @@ function point_in_face(point, V::Lar.Points, copEV::Lar.ChainOp)
 	function pointInPolygonClassification(V,EV)
 
 		function crossingTest(new, old, status, count)
-		if status == 0
-			status = new
-			return status, (count + 0.5)
-		else
-			if status == old
-				return 0, (count + 0.5)
+			if status == 0
+				status = new
+				return status, (count + 0.5)
 			else
-				return 0, (count - 0.5)
+				if status == old
+					return 0, (count + 0.5)
+				else
+					return 0, (count - 0.5)
+				end
 			end
 		end
-		end
 
+		# Outputs a tileCoder that takes as input a point and classify its
+		#  octant position with respect to the supercrescent list N-S-E-W:
+		#  1001 | 0001 | 0101
+		#  -----+------+-----
+		#  1000 | 0000 | 0100
+		#  -----+------+-----
+		#  0101 | 0010 | 0110
 		function setTile(box)
-		tiles = [[9,1,5],[8,0,4],[10,2,6]]
-		b1,b2,b3,b4 = box
-		function tileCode(point)
-			x,y = point
-			code = 0
-			if y>b1 code=code|1 end
-			if y<b2 code=code|2 end
-			if x>b3 code=code|4 end
-			if x<b4 code=code|8 end
-			return code
-		end
-		return tileCode
+			tiles = [[9,1,5],[8,0,4],[10,2,6]]
+			b1,b2,b3,b4 = box
+			function tileCode(point)
+				x,y = point
+				code = 0
+				if y>b1 code=code|1 end
+				if y<b2 code=code|2 end
+				if x>b3 code=code|4 end
+				if x<b4 code=code|8 end
+				return code
+			end
+			return tileCode
 		end
 
 		function pointInPolygonClassification0(pnt)
+			# Set the tile coder w.r.t. the point we are checking
 			x,y = pnt
 			xmin,xmax,ymin,ymax = x,x,y,y
 			tilecode = setTile([ymax,ymin,xmax,xmin])
@@ -1021,6 +1029,10 @@ function point_in_face(point, V::Lar.Points, copEV::Lar.ChainOp)
 				p1, p2 = V[edge.nzind[1], :], V[edge.nzind[2], :]
 				(x1,y1),(x2,y2) = p1,p2
 				c1,c2 = tilecode(p1),tilecode(p2)
+				# For each edge we identify via:
+				#  - xor: the different sides
+				#  -  or: all the direction involved
+				#  - and: the cardinal direction (if unique)
 				c_edge, c_un, c_int = xor(c1, c2), c1|c2, c1&c2
 
 				if (c_edge == 0) & (c_un == 0) return "p_on"
