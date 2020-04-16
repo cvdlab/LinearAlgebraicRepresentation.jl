@@ -1,9 +1,9 @@
 todisplay = VERSION <= VersionNumber("1.2") ? true : false
 
+using CAGD
 using LinearAlgebra
 using LinearAlgebraicRepresentation
 Lar = LinearAlgebraicRepresentation
-CAGD = CAGD
 if todisplay
     using ViewerGL
 	GL = ViewerGL

@@ -5,7 +5,7 @@ using SparseArrays
 using LinearAlgebra
 using LinearAlgebraicRepresentation
 Lar = LinearAlgebraicRepresentation
-CAGD = CAGD
+using CAGD
 if todisplay
 	using ViewerGL
 	GL = ViewerGL

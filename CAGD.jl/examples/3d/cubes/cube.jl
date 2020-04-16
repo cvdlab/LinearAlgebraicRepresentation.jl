@@ -1,4 +1,4 @@
-CAGD = CAGD;
+using CAGD;
 using SparseArrays;
 using LinearAlgebraicRepresentation;
 Lar = LinearAlgebraicRepresentation;
