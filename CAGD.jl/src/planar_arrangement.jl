@@ -976,7 +976,7 @@ end
 
 """
 	point_in_face(point, V::Points, copEV::ChainOp)
-Check if `point` is inside the area of the face bounded by the edges in `copEV`
+Check if `point` is not outside the area of the face bounded by the edges in `copEV`
 """
 function point_in_face(point, V::Lar.Points, copEV::Lar.ChainOp)
 

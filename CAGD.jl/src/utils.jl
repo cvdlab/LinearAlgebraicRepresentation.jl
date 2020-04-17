@@ -157,26 +157,25 @@ function eval_ord_edges(model, τ; G = model.G, atol = 1e-7)
 end
 
 """
-    pointInCell(
+    pointInSolid(
         model::CAGD.Model,
-        dim::Int,
         point::Array{Float64,1},
         cycle::Int,
         signed = false
     )::Int8
 
-Computes if `point` is internal (`1`), external (`-1`) or onto (`0`) `cycle` cop
+Computes if `point` is internal (`1`), external (`-1`) or onto (`0`) `cycle` solid
 
-Checks the incidences of the `x`-line from `point` with `model.T[dim][cycle,:]`
-to determine wether it is internal, external or onto it.
+Checks the incidences of the `x`-ray from `point` with `model.T[3][cycle,:]`
+boundary faces to determine wether it is internal, external or onto it.
 
 By default it consider the cycle to be the internal boundary of a cell.
 If `signed` is set `true` then it also consider the orientation of the cycle
 (_i.e_ if the cycle is the external boundary). The model needs being oriented.
 """
-function pointInCell(model, dim, point, cycle, signed = false)
+function pointInSolid(model, point, cycle, signed = false; atol = 1e-8)
 
-    function doBBoxIntersect(bbox)
+    function doBBoxIntersect(bbox) #dimension free
         flag = point[1] <= bbox[1, 2]
         for d = 2 : length(point)
             flag &= bbox[d, 1] <= point[d] <= bbox[d, 2]
@@ -188,7 +187,7 @@ function pointInCell(model, dim, point, cycle, signed = false)
         throw(ArgumentError("signed not coded yet"))
     end
     # Vertices of `cycle`
-    vs = CAGD.getModelCellVertices(model, dim, cycle)
+    vs = CAGD.getModelCellVertices(model, 3, cycle)
     # Check if `point` is a vertex
     for vert in vs  if isapprox(vs, vert)  return 0  end  end
     # Reshaping vertices
@@ -198,18 +197,39 @@ function pointInCell(model, dim, point, cycle, signed = false)
     maximum = mapslices(x->max(x...), vs, dims=2)
     # x-line vertices (outside of bbox)
     vmin = point
-    vmax = [maximum[1]+1; point[2]; point[3]]
+    # adding a little delta to avoid coplanarity
+    vmax = [maximum[1]+1; point[2] + 2*atol; point[3] + 2*atol]
 
     # initialization of counter
     counter = 0
-    lo_cycles = CAGD.getModelLoCell(model, dim, cycle)
-    bboxes = CAGD.getModelBoundingBoxes(model, dim-1, lo_cycles)
-    for cell_idx = 1 : length(lo_cycles)  if doBBoxIntersect(bboxes[cell_idx])
-        Gcell, Gcellidx = CAGD.getModelCellGeometry(model, 2, cell_idx, true)
-	    M = CAGD.build_projection_matrix(Gcell)
-        PGcell = (M * [Gcell; ones(1, size(Gcell, 2))])[1:3, :]
+    face_cycles = CAGD.getModelLoCell(model, 3, cycle)
+    face_bboxes = CAGD.getModelBoundingBoxes(model, 2, face_cycles)
+    for face_idx = 1 : length(face_cycles)  if doBBoxIntersect(face_bboxes[face_idx])
+        # To check incidence on each face, project it to z=0
+        Gface, Gfaceidx = CAGD.getModelCellGeometry(model, 2, face_idx, true)
+        # Build the projection matrix
+        M = CAGD.build_projection_matrix(Gface)
+        # Project the points
+        PG = (M[1:3, :] * [model.G; ones(1, size(model, 0, 2))])
         Pvmin = M[1:3, :] * [vmin; 1]
         Pvmax = M[1:3, :] * [vmax; 1]
-    end  end
 
+        if isapprox(Pvmin[3], 0.0, atol = atol) && isapprox(Pvmax[3], 0.0, atol = atol)
+            # if point is collinear with face, then it is either on face or not.
+            # If not, then the face has even contribute and can be avoided
+            if CAGD.point_in_face(Pvmin[1:2], PG[1:2, :], model.T[1])
+                return 0
+            end
+        else
+            # If point is not collinear, retrieve the x-ray point on face plan
+            Pvplan = Pvmin[1:2] + (Pvmax[1:2] - Pvmin[1:2]).*((Pvmin[3])/(Pvmax[3]-Pvmin[3]))
+            # If it is in, then it adds one to the counter
+            if CAGD.point_in_face(Pvplan, PG[1:2, :], model.T[1])
+                # check it is really in and not on the border
+                @assert Lar.point_in_face(Pvplan, PG[1:2, :], model.T[1])
+                counter += 1
+            end
+        end
+    end  end
+    return counter % 2 == 1
 end
