@@ -156,14 +156,60 @@ function eval_ord_edges(model, τ; G = model.G, atol = 1e-7)
     return map(a->Int(a[1]), angles)
 end
 
-
 """
-    get_external_cycles(model::CAGD.Model, dim::Int)::Array{Int,1}
+    pointInCell(
+        model::CAGD.Model,
+        dim::Int,
+        point::Array{Float64,1},
+        cycle::Int,
+        signed = false
+    )::Int8
 
-Get the external cell for every `dim`-cochain within the model.
+Computes if `point` is internal (`1`), external (`-1`) or onto (`0`) `cycle` cop
+
+Checks the incidences of the `x`-line from `point` with `model.T[dim][cycle,:]`
+to determine wether it is internal, external or onto it.
+
+By default it consider the cycle to be the internal boundary of a cell.
+If `signed` is set `true` then it also consider the orientation of the cycle
+(_i.e_ if the cycle is the external boundary). The model needs being oriented.
 """
-function get_external_cycles(model, dim, bicon_comps = [])
-    if isempty(bicon_comps)  bicon_comps = CAGD.eval_bicon_comps(model, dim)  end
+function pointInCell(model, dim, point, cycle, signed = false)
 
+    function doBBoxIntersect(bbox)
+        flag = point[1] <= bbox[1, 2]
+        for d = 2 : length(point)
+            flag &= bbox[d, 1] <= point[d] <= bbox[d, 2]
+        end
+        return flag
+    end
+
+    if signed
+        throw(ArgumentError("signed not coded yet"))
+    end
+    # Vertices of `cycle`
+    vs = CAGD.getModelCellVertices(model, dim, cycle)
+    # Check if `point` is a vertex
+    for vert in vs  if isapprox(vs, vert)  return 0  end  end
+    # Reshaping vertices
+    vs = hcat(vs...)
+    # Bounding box of vs
+    minimum = mapslices(x->min(x...), vs, dims=2)
+    maximum = mapslices(x->max(x...), vs, dims=2)
+    # x-line vertices (outside of bbox)
+    vmin = point
+    vmax = [maximum[1]+1; point[2]; point[3]]
+
+    # initialization of counter
+    counter = 0
+    lo_cycles = CAGD.getModelLoCell(model, dim, cycle)
+    bboxes = CAGD.getModelBoundingBoxes(model, dim-1, lo_cycles)
+    for cell_idx = 1 : length(lo_cycles)  if doBBoxIntersect(bboxes[cell_idx])
+        Gcell, Gcellidx = CAGD.getModelCellGeometry(model, 2, cell_idx, true)
+	    M = CAGD.build_projection_matrix(Gcell)
+        PGcell = (M * [Gcell; ones(1, size(Gcell, 2))])[1:3, :]
+        Pvmin = M[1:3, :] * [vmin; 1]
+        Pvmax = M[1:3, :] * [vmax; 1]
+    end  end
 
 end
