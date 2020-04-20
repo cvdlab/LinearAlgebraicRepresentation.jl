@@ -1,5 +1,5 @@
 function spatial_arrangement(model; atol = 1e-6, outerCell = false)
-    split_model = CAGD.pairwise_decomposition(model)
+    split_model = CAGD.pairwise_decomposition(model, atol = atol)
 
     congr_model = CAGD.mergeModelVertices(split_model, err=atol, signed_merge=true)
 

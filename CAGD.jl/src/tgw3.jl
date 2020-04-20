@@ -83,7 +83,8 @@ function tgw(model, dim; atol = 1e-7)
                 end
 
                 # If petal was visited earlyer (is in c) then it must be visited discordely 
-                @assert visited[petal] == 0 || other_sign[petal]==petal_sign "Incoherent Petal sign τ = $τ"
+                @assert visited[petal] < 2 "Petal $petal visited more than twice"
+                @assert visited[petal] == 0 || other_sign[petal] == petal_sign "Incoherent Petal sign τ = $τ, petal = $petal"
                 # If petal already is in the corolla, then it should be with the same sign
                 # (otherwise it is visite twice)
                 if (corolla[petal] != 0) && (corolla[petal] != petal_sign)
