@@ -13,10 +13,26 @@ end
 
 # Rod Generation
 
-V,CV = Lar.rod()([3, 1])
+npts=6
+V,_ = Lar.rod()([npts, 1])
+EV = [
+    [[2*i, (2*i+1)%2npts+1] for i = 1 : npts];             # horizontal upper edges
+    [[2*i-1, (2*i)%2npts+1] for i = 1 : npts];           # horizontal lower edges
+    [[2*i+1, 2*i+2] for i = 0 : npts-1];                # vertical edges
+]
+FE = [
+    [i for i = 1 : npts],                                       # upper face
+    [npts + i for i = 1 : npts],                                # lower face
+    [[i, npts+i, 2*npts+i, 2*npts+i+1] for i = 1:npts-1]...,    # vertical faces
+    [npts, 2*npts, 3*npts, 2*npts+1]
+]
+FV = Lar.cop2lar(Lar.lar2cop(FE) * Lar.lar2cop(EV))
+
+#=
 ch = QHull.chull(convert(Lar.Points,V'))
 FV = ch.simplices
 EV = Lar.simplexFacets(FV)
+=#
 
 if todisplay
     GL.VIEW([
@@ -29,7 +45,7 @@ end
 
 cyl = Lar.Struct([ 
     Lar.r(0,0,0),
-    Lar.s(1.0, 1.0, 2.0),
+    Lar.s(0.6, 0.6, 2.0),
     Lar.t(0,0,-1.5),
     (V,FV,EV)
 ])
@@ -51,7 +67,7 @@ cube = (V, FV, EV)
 # V, EV, FV = catmullclark(cube[1], cube[3], cube[2], 4)
 # sphere = (V, FV, EV)
 
-V, FV = Lar.sphere(1.0)([13,25])
+V, FV = Lar.sphere(1.0)([9,15])
 FV = sort(sort.(FV))
 function getFaceEdges(fV::Array{Int,1})
     return [fV[1], fV[2]], [fV[1], fV[3]], [fV[2], fV[3]]
