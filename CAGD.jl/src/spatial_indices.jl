@@ -13,7 +13,8 @@ using DataStructures
 """
 	getModelBoundingBoxes(
 		model::CAGD.Model,
-		deg::Int
+		deg::Int,
+		cells = 1 : size(model, deg, 1)
 	)::Array{Array{Float64,2},1}
 
 Evaluates the bounding boxes related to each `deg`-cell of the `model`
@@ -21,21 +22,32 @@ Evaluates the bounding boxes related to each `deg`-cell of the `model`
 The function builds a vector of matrices containing the two distincive vertices
 of the axis-coherent hyper-cube that contains each `deg`-cell.
 
+If `cells` is specified, then only those bounding boxes are evaluated
+
 See also: [`CAGD.spatialIndex`](@ref)
 It uses:
 ---
 # Examples
 ```jldoctest
-julia> CAGD.Model(hcat([
-    [1.0, 0.0], [0.0, 1.0], [0.0, 0.5], [0.5, 1.0], [1.0, 1.0]
-]...));
-julia> model.T[1] = Lar.coboundary_0([[1, 2], [2, 5], [3, 4], [4, 5]]);
+julia> model = CAGD.Model(hcat([
+		[1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.5, 1.0], [0.5, 1.0, 0.5], [1.0, 1.0, 0.5]
+	]...));
+julia> CAGD.addModelCells!(model, 1, [[1, 2], [2, 5], [3, 4], [4, 5]]);
+
+julia> CAGD.getModelBoundingBoxes(model,1)
+4-element Array{Array{Float64,2},1}:
+4-element Array{Array{Float64,2},1}:
+ [0.0 1.0; 0.0 1.0; 0.0 0.0]
+ [0.0 1.0; 1.0 1.0; 0.0 0.5]
+ [0.0 0.5; 0.5 1.0; 0.5 1.0]
+ [0.5 1.0; 1.0 1.0; 0.5 0.5]
 ```
 """
 
 function getModelBoundingBoxes(
 		model::CAGD.Model,
-		deg::Int
+		deg::Int,
+		cells = 1 : size(model, deg, 1)
 	)::Array{Array{Float64,2},1}
 
 	function findBBox(pts::Lar.Points)::Tuple{Array{Float64,2},Array{Float64,2}}
@@ -44,12 +56,26 @@ function getModelBoundingBoxes(
 		return minimum, maximum
 	end
 
-	cellpts = [ hcat(CAGD.getModelCellVertices(model, deg, c)...)
-				for c = 1 : size(model, deg, 1)
-			  ]
+	cellpts = [ hcat(CAGD.getModelCellVertices(model, deg, c)...)  for c in cells ]
 	return [hcat(findBBox(c)...) for c in cellpts]
 end
 
+#-------------------------------------------------------------------------------
+#   MODEL BOUNDING BOXES INCLUSION
+#-------------------------------------------------------------------------------
+
+"""
+	isBoundingBoxIncluded(bbox1::Array{Float64,2}, bbox2::Array{Float64,2})::Bool
+
+Checks whether `bbox1` is totally included in `bbox2`
+"""
+function isBoundingBoxIncluded(bbox1::Array{Float64,2}, bbox2::Array{Float64,2})::Bool
+	dim = size(bbox1, 1)
+	for d = 1 : dim
+		(bbox1[d, 1] >= bbox2[d, 1]) & (bbox1[d, 2] <= bbox2[d, 2]) || return false
+	end
+	return true
+end
 
 #-------------------------------------------------------------------------------
 #   SPATIAL_INDEXING METHODS
@@ -127,7 +153,7 @@ end
 #-------------------------------------------------------------------------------
 
 """
-	spaceIndex(model::CAGD.Model)::Array{Array{Int,1},1}
+	spaceIndex(model::CAGD.Model, dim::Int)::Array{Array{Int,1},1}
 
 Generation of *space indexes* for all ``(d-1)``-dim cell members of `model`.
 

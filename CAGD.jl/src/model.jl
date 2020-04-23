@@ -66,7 +66,7 @@ Base.deepcopy(m::CAGD.Model) = CAGD.Model(Base.deepcopy(m.G), Base.deepcopy(m.T)
 function addModelVertices!(m::CAGD.Model, V::Lar.Points)::Nothing
     length(m) == size(V, 1) ||
         throw(ArgumentError("Point dimension mismatch."))
-    m.G = [m.G V];
+    m.G = [m.G V]
 
     m.T[1] = SparseArrays.sparse(
         findnz(m.T[1])...,
@@ -85,7 +85,7 @@ function deleteModelVertex!(m::CAGD.Model, v::Int)::Nothing
 end
 
 function deleteModelVertices!(m::CAGD.Model, vs::Array{Int,1})::Nothing
-    tokeepV = setdiff(collect(1 : size(m, 0, 2)), vs);
+    tokeepV = setdiff(collect(1 : size(m, 0, 2)), vs)
     m.G     = m.G[:, tokeepV]
 
     if !isempty(m.T[1])
@@ -123,25 +123,47 @@ function addModelCells!(m::CAGD.Model, deg::Int, cs::Lar.ChainOp)::Nothing
 
     return
 end
+
 function addModelCell!(m::CAGD.Model, deg::Int, c::Lar.Cell)::Nothing
     CAGD.addModelCells!(m, deg, convert(Lar.ChainOp, c))
 end
-function addModelCells!(m::CAGD.Model, deg::Int, cs::Lar.Cells)::Nothing
-    I = Array{Int,1}()
-    J = Array{Int,1}()
-    K = Array{Int8,1}()
-    for i = 1 : length(cs)
-        for j = 1 : length(cs[i])
-            push!(I, i)
-            push!(J, cs[i][j])
-            push!(K, 1)
+
+function addModelCells!(
+        m::CAGD.Model, deg::Int, cs::Lar.Cells; signed=false
+    )::Nothing
+
+    if signed
+        if deg == 1
+            scs = convert(Lar.ChainOp, Lar.coboundary_0(cs))
+        elseif deg == 2
+            EV = Lar.cop2lar(m.T[1]);
+            FV = [collect(Set(vcat([EV[e] for e in face]...))) for face in cs]
+            scs = convert(Lar.ChainOp, Lar.coboundary_1(m.G, FV, EV))
+        else
+            println("No Methods for $deg-signed-coboundary.")
+            println("Using unsigned coboundary instead.")
+            signed = false
         end
     end
 
-    scs = SparseArrays.sparse(I, J, K, length(cs), size(m, deg, 2));
+    if !signed
+        I = Array{Int,1}()
+        J = Array{Int,1}()
+        K = Array{Int8,1}()
+        for i = 1 : length(cs)
+            for j = 1 : length(cs[i])
+                push!(I, i)
+                push!(J, cs[i][j])
+                push!(K, 1)
+            end
+        end
 
-    return addModelCells!(m, deg, scs);
+        scs = SparseArrays.sparse(I, J, K, length(cs), size(m, deg, 2))
+    end
+
+    return CAGD.addModelCells!(m, deg, scs)
 end
+
 function addModelCell!(m::CAGD.Model, deg::Int, c::Array{Int64,1})::Nothing
     CAGD.addModelCells!(m, deg, [c])
 end
@@ -267,24 +289,35 @@ function uniteModels(m1::CAGD.Model, m2::CAGD.Model)::CAGD.Model
     return model
 end
 
-function mergeMultipleModels(models::Array{CAGD.Model,1}; err=1e-6)::CAGD.Model
+function uniteMultipleModels(models::Array{CAGD.Model,1})::CAGD.Model
 
-    model = deepcopy(models[1]);
+    model = deepcopy(models[1])
 
     for i = 2 : length(models)
         CAGD.uniteModels!(model, models[i])
     end
 
-    return CAGD.mergeModelVertices(model, err=err)
+    return model
 end
 
-function mergeModelVertices(model::CAGD.Model; err=1e-4)
+function mergeMultipleModels(models::Array{CAGD.Model,1}; err=1e-6)::CAGD.Model
+    return CAGD.mergeModelVertices(uniteMultipleModels(models), err=err)
+end
+
+function mergeModelVertices(model::CAGD.Model; err=1e-6, signed_merge = false)
     V, cls = CAGD.vcongruence(model.G, epsilon = err)
-    congModel = CAGD.Model(V);
+    if signed_merge  lo_sign = [ones(Int8, length(cl)) for cl in cls]  end
+    congModel = CAGD.Model(V)
     for d = 1 : length(model)
-        cop, cls = CAGD.cellcongruence(model.T[d], cls, dim=d);
-        cop = convert(Array{Array{Int64,1}}, cop);
-        CAGD.addModelCells!(congModel, d, cop);
+        if isempty(model.T[d])  break  end
+        if signed_merge
+            cop, cls, lo_sign = CAGD.signedCellCongruence(model.T[d], cls, lo_sign, dim=d)
+            if  d > 1 cop = -cop  end
+        else
+            cop, cls = CAGD.cellcongruence(model.T[d], cls, dim=d)
+            cop = convert(Lar.Cells, cop)
+        end
+        CAGD.addModelCells!(congModel, d, cop)
     end
 
     return congModel

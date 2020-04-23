@@ -1,3 +1,5 @@
+using CAGD
+
 include("./input.jl")
 include("./splitting.jl")
 include("./congruence.jl")
