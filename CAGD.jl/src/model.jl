@@ -336,7 +336,8 @@ function jlexportModel(
     open(filename, "w") do f
         # Write imports
         write(f, "# using LinearAlgebraicRepresentation\n")
-        write(f, "using SparseArrays\n\n")
+        write(f, "using SparseArrays\n")
+        write(f, "# using CAGD\n\n")
 
         # Write Geometry
         write(f, "#=== GEOMETRY ===#\n")

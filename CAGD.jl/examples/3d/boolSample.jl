@@ -13,7 +13,8 @@ end
 
 # Rod Generation
 
-npts=6
+#npts = 32
+npts = 16
 V,_ = Lar.rod()([npts, 1])
 EV = [
     [[2*i, (2*i+1)%2npts+1] for i = 1 : npts];             # horizontal upper edges
@@ -45,7 +46,8 @@ end
 
 cyl = Lar.Struct([ 
     Lar.r(0,0,0),
-    Lar.s(0.6, 0.6, 2.0),
+    #Lar.s(0.6, 0.6, 2.0),
+    Lar.s(1.0, 1.0, 1.5),
     Lar.t(0,0,-1.5),
     (V,FV,EV)
 ])
@@ -55,7 +57,8 @@ tris = Lar.Struct([
     Lar.Struct([Lar.r(pi/2,0,0), cyl ]) ,
     Lar.Struct([Lar.r(0,pi/2,0), cyl ])
 ])
-cyls = Lar.struct2lar(tris)
+V, FV, EV = Lar.struct2lar(tris)
+cyls = (V, FV, EV)
 
 # Cube Generation
 
@@ -67,7 +70,7 @@ cube = (V, FV, EV)
 # V, EV, FV = catmullclark(cube[1], cube[3], cube[2], 4)
 # sphere = (V, FV, EV)
 
-V, FV = Lar.sphere(1.0)([9,15])
+V, FV = Lar.sphere(1.0)([15,25])
 FV = sort(sort.(FV))
 function getFaceEdges(fV::Array{Int,1})
     return [fV[1], fV[2]], [fV[1], fV[3]], [fV[2], fV[3]]
@@ -81,7 +84,7 @@ carry = Lar.Struct([
     cyls,
     Lar.s(1.3,1.3,1.3),
     cube,
-    Lar.s(1.3,1.3,1.3),
+    Lar.s(1.4,1.4,1.4),
     #Lar.s(1.5,1.5,1.5)
     sphere
 ])
@@ -110,6 +113,8 @@ split_model = CAGD.pairwise_decomposition(model, atol = atol)
 if todisplay  displayModel(split_model)  end
 
 congr_model = CAGD.mergeModelVertices(split_model, err=atol, signed_merge=true)
+#split_model = CAGD.pairwise_decomposition(congr_model, atol = atol)
+#congr_model = CAGD.mergeModelVertices(split_model, err=atol, signed_merge=true)
 
 if todisplay  displayModel(congr_model)  end
 
