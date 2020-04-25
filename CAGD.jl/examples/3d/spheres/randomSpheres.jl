@@ -47,12 +47,14 @@ Random.seed!(1234);
 scaling = 1.2
 no_sphere = 10
 expl = 2.0
+pt1, pt2 = 5, 10
+#pt1, pt2 = 10, 10
 
 carry = Array{Tuple{Array{Float64,2},Array{Array{Int64,1},1}}}(undef, no_sphere)
 for i = 1 : no_sphere
 	carry[i] = Lar.struct2lar(Lar.Struct([
 		Lar.t(rand(0.5:1e-2:5, 3)...),
-		Lar.sphere(rand(1:1e-2:3) * scaling)([5,10])
+		Lar.sphere(rand(1:1e-2:3) * scaling)([pt1, pt2])
 	]))
 end
 V, FV = Lar.struct2lar(Lar.Struct(carry))

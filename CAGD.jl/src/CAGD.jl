@@ -22,6 +22,7 @@ module CAGD
 	include("./loops.jl")
 	include("./utils.jl")
 #	include("./output.jl")
+	include("./bool.jl")
 
 	export chaincongruence
 end

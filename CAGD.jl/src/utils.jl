@@ -233,3 +233,18 @@ function pointInSolid(model, point, cycle, signed = false; atol = 1e-8)
     end  end
     return counter % 2 == 1
 end
+
+
+"""
+    getExternalBoundary(model::CAGD.Model, deg::Int, cycles::Lar.ChainOp, comp::Array{Int,1})::Int
+
+Evaluates the external cycle of the component described by `deg`-`cycles` `comp`
+
+Consider a component made of the `comp` cycles among `deg`-cells and
+evaluates wich of those is the external one (in `comp` ordering).
+
+#TODO improve the function checking if the longest cycle is the outer
+"""
+function getExternalBoundary(model, deg, cycles, comp)
+    return findmax([length(cycles[:, comp[i]].nzind) for i = 1 : length(comp)])[2]
+end
