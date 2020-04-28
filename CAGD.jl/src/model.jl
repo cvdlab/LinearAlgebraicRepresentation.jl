@@ -205,6 +205,12 @@ function getModelLoCell(m::CAGD.Model, deg::Int, c::Int)::Array{Int, 1}
     return m.T[deg][c, :].nzind
 end
 
+function getModelLoCell(m::CAGD.Model, deg::Int, cs::Array{Int, 1})::Array{Int, 1}
+    deg > 0 || throw(ArgumentError("Degree must be a non negative value"))
+    deg ≤ length(m) || throw(ArgumentError("The model do not have degree $deg"))
+    return ∪([m.T[deg][c, :].nzind for c in cs]...)
+end
+
 function getModelCellVertices(m::CAGD.Model, deg::Int, c::Int, ret_idx=false)
     deg > 0 || throw(ArgumentError("Degree must be a non negative value"))
     deg ≤ length(m) || throw(ArgumentError("The model do not have degree $deg"))

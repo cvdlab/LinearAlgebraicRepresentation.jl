@@ -3,12 +3,12 @@ using SparseArrays
 """
     tgw(
         model::CAGD.Model, dim::Int; atol = 1e-7
-    )::Tuple{Lar.ChainOp, Array{Array{Int,1},1}, Array{Array{Int,1},1}}
+    )::Tuple{Lar.ChainOp, Array{Array{Int,1},1}}
 
 Compute the Topological Gift Wrapping on `model` w.r.t. `dim`-cell.
 
 It returns the gift wrapped *chain* cycles operator along with the biconnected
-components w.r.t `dim`-cells and `dim-1`-cells.
+components w.r.t `dim`-cells.
 """
 function tgw(model, dim; atol = 1e-7)
 
@@ -42,7 +42,6 @@ function tgw(model, dim; atol = 1e-7)
 
     # Components accumulator
     components = Array{Array{Int64, 1},1}()
-#    componentsFaces = Array{Array{Int64, 1},1}()
     comp_idx = 0
     cell_idx = 0
 
@@ -52,17 +51,26 @@ function tgw(model, dim; atol = 1e-7)
         cell_idx += 1
         c = SparseArrays.spzeros(Int8, 1, lo_num)
         if visited[σ] == 0
+            
+            # Topological invariants Check #6: Euler Characteristic
+            if comp_idx > 0
+                euler = [components[comp_idx]]
+                push!(euler, ∪([chain[:, c].nzind for c in euler[end]]...))
+                for d = dim-1 : -1 : 1
+                    push!(euler, CAGD.getModelLoCell(model, d, euler[end]))
+                end
+                @assert sum([(-1)^(dim+1-i)*length(euler[i]) for i = 1 : dim+1]) == 0
+            end
+
             # Set sign in representation
             c[σ] = 1
             other_sign[σ] = -1
             # Set start to a new component
             push!(components, [])
-#            push!(componentsFaces, [])
             comp_idx += 1
         else
             c[σ] = other_sign[σ]
         end
-#        push!(componentsFaces[comp_idx], σ)
         push!(components[comp_idx], cell_idx)
         visited[σ] += 1
 
@@ -109,7 +117,6 @@ function tgw(model, dim; atol = 1e-7)
             c += corolla'
             other_sign -= corolla
             visited += abs.(corolla)
-#            push!(componentsFaces[comp_idx], filter(i -> corolla[i] != 0, 1 : lo_num)...)
 
         end
 
@@ -118,5 +125,4 @@ function tgw(model, dim; atol = 1e-7)
     end
 
     return chain, components
-#    return chain, components, sort(sort.(unique.(componentsFaces)))
 end
