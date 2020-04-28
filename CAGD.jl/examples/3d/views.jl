@@ -8,12 +8,12 @@ if todisplay
     GL = ViewerGL
 end
 
-function viewExplode(model)
+function viewExplode(model; complete = false)
     V,CVs,FVs,EVs = Lar.pols2tria(model.G, model.T[1], model.T[2], model.T[3])
 
     GL.VIEW(GL.GLExplode(V,FVs,1.5,1.5,1.5,99,1));
     GL.VIEW(GL.GLExplode(V,EVs,1.5,1.5,1.5,99,1));
-    GL.VIEW(GL.GLExplode(V,CVs[2:end],5,5,5,99,0.5));
+    GL.VIEW(GL.GLExplode(V,CVs[2 - complete:end],5,5,5,99,0.5));
 end
 
 function displayModel(model, exp = 1.5)
