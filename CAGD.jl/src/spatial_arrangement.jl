@@ -30,6 +30,12 @@ function spatial_arrangement(model; atol = 1e-6, outerCell = false)
         FC = [FCcycles * SparseArrays.sparse(externals, JK, JK, size(FCcycles, 2), 1) FC]
     end
     CAGD.addModelCells!(assembled_model, 3, convert(Lar.ChainOp, FC'))
+
+    # Topological Invariants Check #7: [δ_1] × [δ_0] = 0
+    @assert isempty(dropzeros(assembled_model.T[2]*assembled_model.T[1]).nzval) "Invariant 7 Error"
+    # Topological Invariants Check #8: [δ_2] × [δ_1] = 0
+    @assert isempty(dropzeros(assembled_model.T[3]*assembled_model.T[2]).nzval) "Invariant 8 Error"
+
     return assembled_model
 
 end
