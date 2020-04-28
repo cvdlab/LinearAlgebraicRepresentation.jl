@@ -216,7 +216,7 @@ end
 """
 function getinternalpoint(V,EV,FV,Fs, copEV,copFE)
 	#edges for v1=FV[1][1]
-	ptest1, ptest2 = settestpoints(V,EV,FV,Fs, copEV,copFE)
+	ptest1, ptest2 = Lar.settestpoints(V,EV,FV,Fs, copEV,copFE)
 	intersectedfaces = Int64[]
 	#GL.VIEW([ GL.GLFrame, GL.GLLines(V,EV), GL.GLPoints([ptest1'; ptest2']) ]);
 
