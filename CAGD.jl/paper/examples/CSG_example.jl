@@ -75,10 +75,9 @@ A_model = CAGD.spatial_arrangement(model, outerCell = true)
 
 V,CVs,FVs,EVs = Lar.pols2tria(A_model.G, A_model.T[1], A_model.T[2], A_model.T[3]);
 
-if to_display
+if todisplay
     GL.VIEW(GL.GLExplode(V, FVs,  1.5,1.5,1.5,  99,1));
-    GL.VIEW(GL.GLExplode(V, EVs,  1.5,1.5,1.5,  99,1));
-    GL.VIEW(GL.GLExplode(V, CVs[1:end],  5,5,5,  99,0.5));
+    GL.VIEW(GL.GLExplode(V, CVs[2:end],  5,5,5,  99,0.5));
 end
 
 ##==============================================================================
@@ -144,9 +143,21 @@ rod3     = bm[:,4];
 cube     = bm[:,5];
 sphere   = bm[:,6];
 
-# sphere * cube - rod1 - rod2 - rod3
-shell = .&(sphere, cube, .!rod1, .!rod2, .!rod3)
+shells = Array{SparseVector{Bool,Int64}, 1}();
 
-if todisplay
-    GL.VIEW(GL.GLExplode(V,CVs[shell.nzind], 2, 2, 2, 99, 0.4));
-end
+push!(shells, .|(sphere, cube, rod1, rod2, rod3));
+push!(shells, .|(rod1, rod2));
+push!(shells, rod1);
+
+push!(shells, .&(sphere, cube));
+push!(shells, .&(sphere, cube));
+push!(shells, .&(sphere, cube, .!rod1, .!rod2, .!rod3));
+
+push!(shells, .!(shells[6], shells[3]));
+push!(shells, .|(rod1, rod2, rod3));
+push!(shells, .|(sphere, cube, rod1, rod2, rod3));
+
+if todisplay  for i = 1 : 9
+    GL.VIEW(GL.GLExplode(V,CVs[shells[i].nzind], 1, 1, 1, 99, 0.4));
+    GL.VIEW(GL.GLExplode(V,CVs[shells[i].nzind], 4, 4, 4, 99, 0.4));
+end  end
