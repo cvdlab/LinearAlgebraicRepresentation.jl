@@ -1,7 +1,6 @@
 todisplay = VERSION <= VersionNumber("1.2") ? true : false
 
 using LinearAlgebra
-using QHull
 using LinearAlgebraicRepresentation
 Lar = LinearAlgebraicRepresentation
 using CAGD
@@ -65,8 +64,8 @@ cube = (V, CV, FV, EV)
 # V, EV, FV = catmullclark(cube[1], cube[3], cube[2], 4)
 # sphere = (V, FV, EV)
 
-# V, FV = Lar.sphere(1.0)([15,25])
-V, FV = Lar.sphere(1.0)([3,5])
+V, FV = Lar.sphere(1.0)([15,25])
+# V, FV = Lar.sphere(1.0)([5,5])
 FV = sort(sort.(FV))
 function getFaceEdges(fV::Array{Int,1})
     return [fV[1], fV[2]], [fV[1], fV[3]], [fV[2], fV[3]]

@@ -24,5 +24,7 @@ module CAGD
 #	include("./output.jl")
 	include("./bool.jl")
 
+	include("lar_interface.jl")
+
 	export chaincongruence
 end
