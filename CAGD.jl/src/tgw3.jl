@@ -1,11 +1,14 @@
 using SparseArrays
 
 """
-    tgw(model::CAGD.Model, dim::Int; atol = 1e-7)::Tuple{Lar.Model, Array{Array{Int,1},1}}
+    tgw(
+        model::CAGD.Model, dim::Int; atol = 1e-7
+    )::Tuple{Lar.ChainOp, Array{Array{Int,1},1}}
 
 Compute the Topological Gift Wrapping on `model` w.r.t. `dim`-cell.
 
-It returns the gift wrapped model along with the 1-connected-by-arc components.
+It returns the gift wrapped *chain* cycles operator along with the biconnected
+components w.r.t `dim`-cells.
 """
 function tgw(model, dim; atol = 1e-7)
 
@@ -24,8 +27,7 @@ function tgw(model, dim; atol = 1e-7)
     end
 
     # Prepearing tgw model
-    tgw_model = CAGD.Model(model.G)
-    for d = 1 : dim - 1  CAGD.addModelCells!(tgw_model, d, model.T[d])  end
+    chain = SparseArrays.spzeros(Int8, size(model, dim, 2), 0)
     lo_cls = model.T[dim - 1]
     lo_num, llo_num = size(lo_cls)
 
@@ -39,14 +41,27 @@ function tgw(model, dim; atol = 1e-7)
     other_sign = zeros(Int8, lo_num)
 
     # Components accumulator
-    components = Array{Array{Int64, 1},1}();
-    comp_idx = 0;
+    components = Array{Array{Int64, 1},1}()
+    comp_idx = 0
+    cell_idx = 0
 
     # Until all dim-1 cells have been visited twice, continue
     while (σ = select_sigma()) > 0
         # Build new 3-cell
-        c = SparseArrays.sparse(zeros(Int8, 1, lo_num))
+        cell_idx += 1
+        c = SparseArrays.spzeros(Int8, 1, lo_num)
         if visited[σ] == 0
+            
+            # Topological invariants Check #6: Euler Characteristic
+            if comp_idx > 0
+                euler = [components[comp_idx]]
+                push!(euler, ∪([chain[:, c].nzind for c in euler[end]]...))
+                for d = dim-1 : -1 : 1
+                    push!(euler, CAGD.getModelLoCell(model, d, euler[end]))
+                end
+                @assert sum([(-1)^(dim+1-i)*length(euler[i]) for i = 1 : dim+1]) == 0
+            end
+
             # Set sign in representation
             c[σ] = 1
             other_sign[σ] = -1
@@ -56,7 +71,7 @@ function tgw(model, dim; atol = 1e-7)
         else
             c[σ] = other_sign[σ]
         end
-        push!(components[comp_idx], σ)
+        push!(components[comp_idx], cell_idx)
         visited[σ] += 1
 
         # Build other faces via corolla method
@@ -98,17 +113,16 @@ function tgw(model, dim; atol = 1e-7)
 
             end
 
-            # Add corolla to c and update visited, other_sign, components coherently
+            # Add corolla to c and update visited, other_sign, componentsFaces coherently
             c += corolla'
             other_sign -= corolla
             visited += abs.(corolla)
-            push!(components[comp_idx], filter(i -> corolla[i] != 0, 1 : lo_num)...)
 
         end
 
-        CAGD.addModelCells!(tgw_model, 3, c)
+        chain = [chain c']
 
     end
 
-    return tgw_model, sort(sort.(unique.(components)))
+    return chain, components
 end

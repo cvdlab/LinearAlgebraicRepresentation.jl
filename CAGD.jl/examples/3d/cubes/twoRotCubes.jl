@@ -47,6 +47,8 @@ congr_model = CAGD.mergeModelVertices(split_model, signed_merge=true)
 
 if todisplay  displayModel(congr_model)  end
 
-gift_model, bicon_comps = CAGD.tgw(congr_model, 3)
+FC, bicon_comps = CAGD.tgw(congr_model, 3)
+gift_model = deepcopy(congr_model);
+CAGD.addModelCells!(gift_model, 3, convert(Lar.ChainOp, FC'));
 
 if todisplay  viewExplode(gift_model)  end
