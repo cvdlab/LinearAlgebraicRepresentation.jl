@@ -245,17 +245,10 @@ function spatial_arrangement(
 	# face subdivision
 	rV, rcopEV, rcopFE = Lar.Arrangement.spatial_arrangement_1( V,copEV,copFE,multiproc )
 
-@show rV;
-@show findnz(rcopEV);
-@show findnz(rcopFE);
-
 	bicon_comps = Lar.Arrangement.biconnected_components(rcopEV)
 	#W,bicon_comps = Lar.biconnectedComponent((W,EV))
 	#@error "comps# = $(length(bicon_comps))"
 	# 3-complex and containment graph
-println("******")
-println("\nSparseArrays.sparse($(SparseArrays.findnz(rcopEV)))")
-println("\nSparseArrays.sparse($(SparseArrays.findnz(rcopFE)))")
 
 	rV, rEV, rFE, rCF = Lar.Arrangement.spatial_arrangement_2(rV, rcopEV, rcopFE)
 end
