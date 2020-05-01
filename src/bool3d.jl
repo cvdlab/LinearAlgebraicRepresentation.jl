@@ -285,7 +285,7 @@ end
 function internalpoints(V,copEV,copFE,copCF)
 	# transform each 3-cell in a solid (via Lar model)
 	#-------------------------------------------------------------------------------
-	U,pols,CF = chainbasis2solids(V,copEV,copFE,copCF)
+	U,pols,CF = Lar.chainbasis2solids(V,copEV,copFE,copCF)
 	# compute, for each `pol` (3-cell) in `pols`, one `internalpoint`.
 	#-------------------------------------------------------------------------------
 	innerpoints = []
@@ -294,7 +294,7 @@ function internalpoints(V,copEV,copFE,copCF)
 		(EV,FV,FE),Fs = pols[k],CF[k]
 		EV = convert(Lar.Cells,collect(Set(cat(EV))))
 		#GL.VIEW([ GL.GLFrame, GL.GLLines(V,EV) ]);
-		points,facenumber = getinternalpoint(V,EV,FV,Fs, copEV,copFE)
+		points,facenumber = Lar.getinternalpoint(V,EV,FV,Fs, copEV,copFE)
 		push!(innerpoints,points)
 		push!(intersectedfaces,facenumber)
 	end

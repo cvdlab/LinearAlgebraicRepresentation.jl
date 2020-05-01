@@ -150,7 +150,7 @@ push!(shells, .|(rod1, rod2));
 push!(shells, rod1);
 
 push!(shells, .&(sphere, cube));
-push!(shells, .&(sphere, .!(cube, rod1, rod2, rod3)));
+push!(shells, .&(sphere, .|(cube, rod1, rod2, rod3)));
 push!(shells, .&(sphere, cube, .!rod1, .!rod2, .!rod3));
 
 push!(shells, .|(shells[6], shells[3]));
