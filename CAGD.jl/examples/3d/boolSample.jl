@@ -106,7 +106,7 @@ cCF = convert(Lar.ChainOp, ((cCV*cFV').>0))
 CAGD.addModelCells!(model, 3, cCF)
 
 
-atol = 1e-6;
+atol = 1e-9;
 if todisplay  displayModel(model)  end
 
 split_model = CAGD.pairwise_decomposition(model, atol = atol)
