@@ -17,48 +17,37 @@ GL.VIEW([ GL.GLFrame2, GL.GLGrid( cylinders...,GL.COLORS[1],1 ) ]);
 
 
 
-
-
-disk = Lar.ring(0,1)([16,1])
-interval0 = Lar.qn(1)([-3])
-interval = Lar.qn(1)([1.5,1.5])
-cylinder = Lar.larModelProduct([ disk, interval0 ])
-
-
-circle(1)([16])
-cylinder = Lar.larModelProduct([ circle, interval ])
-even = [k for k=1:32 if k%2==0]
-odd  = [k for k=1:32 if k%2==1]
-
-
 function cylinder(r,h,n,k)
 	circle = Lar.circle(r)([n])
 	interval = Lar.qn(k)([h])
 	V,FV = Lar.larModelProduct([ circle, interval ])
 	push!(FV, [k for k=1:2*n if k%2==0])
 	push!(FV, [k for k=1:2*n if k%2==1])
-	return V,FV
+	
+	circle1 = circle[1],[[k] for k=1:size(circle[1],2)]
+	interval0 = interval[1], [[k] for k=1:size(interval[1],2)]
+	_,EV0 = Lar.larModelProduct([ circle, interval0 ])
+	_,EV1 = Lar.larModelProduct([ circle1, interval ])
+	EV = append!(EV0,EV1)
+	return V,FV,EV
 end
 
-V, FV = cylinder(1,3,16,1)
+rod = Lar.apply(Lar.t(0,0,-1.5), cylinder(1,3,12,1))
+triple = Lar.Struct([ rod, Lar.r(pi/2,0,0), rod, Lar.r(0,pi/2,0), rod ])
+V,(_,EV,FV,_) = Lar.apply( Lar.s(2.5,2.5,2.5)*Lar.t(-.50,-.5,-.5), Lar.cuboidGrid([1,1,1],true) )
+cube = V,FV,EV
+W, EW, FW = catmullclark(V, EV, FV, 2)
+sphere = Lar.apply( Lar.s( 1.4, 1.4, 1.4), (W,FW,EW) )
+object = Lar.Struct([ triple, cube, sphere ])
+V,FV,EV = Lar.struct2lar(object)
 
-function displayModel(model, exp = 1.5)
-    V = model.G
-    EV = Lar.cop2lar(model.T[1])
-    FE = Lar.cop2lar(model.T[2])
-    CF = Lar.cop2lar(model.T[3])
-    FV = Lar.cop2lar(map(x -> Int8(x/2), abs.(model.T[2]) * abs.(model.T[1])))
-    CV = []
-    triangulated_faces = Lar.triangulate(convert(Lar.Points, V'), [model.T[1], model.T[2]])
-    FVs = convert(Array{Lar.Cells}, triangulated_faces)
-    EVs = Lar.FV2EVs(model.T[1], model.T[2])
+GL.VIEW([ GL.GLFrame, GL.GLLines(V,EV) ]);
 
-    GL.VIEW([
-        GL.GLAxis( GL.Point3d(0,0,0),GL.Point3d(1,1,1) )
-        GL.GLPol(V,EV, GL.COLORS[1])
-    ]);
-    GL.VIEW(GL.GLExplode(V,FVs,exp,exp,exp,99));
-    GL.VIEW(GL.GLExplode(V,EVs,exp,exp,exp,99,1));
-end
+cop_EV = Lar.coboundary_0(EV::Lar.Cells);
+cop_EW = convert(Lar.ChainOp, cop_EV);
+cop_FE = Lar.coboundary_1(V, FV::Lar.Cells, EV::Lar.Cells);
+W = convert(Lar.Points, V');
+
+V, copEV, copFE, copCF = Lar.Arrangement.spatial_arrangement( W, cop_EW, cop_FE)
 
 

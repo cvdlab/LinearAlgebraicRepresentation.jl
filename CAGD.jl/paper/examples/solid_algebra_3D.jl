@@ -1,4 +1,4 @@
-# 5 cubes example
+# 5 cubes example --- Example 2.4.4 (Solid algebra 3D)
 # Original generation data were random and no seed was previously set
 V = [
     1.01181 0.215639 0.91979 0.123616 1.02252 0.226347 0.930498 0.134324 0.0458309 -0.301827 0.348275 0.0006172 0.579367 0.23171 0.881811 0.534154 -0.0521776 0.627953 -0.190635 0.489496 -0.0233884 0.656742 -0.161846 0.518285 0.27652 -0.0875132 0.52527 0.161237 0.509324 0.145291 0.758074 0.394041 0.27631 0.564484 0.0058279 0.294002 1.01221 1.30039 0.741732 1.02991;
@@ -35,6 +35,6 @@ V, copEV, copFE, copCF = Lar.Arrangement.spatial_arrangement(W, cop_EW, cop_FE)
 V,CVs,FVs,EVs = Lar.pols2tria(convert(Lar.Points, V'), copEV, copFE, copCF);
 
 if todisplay
-    GL.VIEW(GL.GLExplode(V, FVs,  1.5,1.5,1.5,  99,1));
-    GL.VIEW(GL.GLExplode(V, CVs[2:end],  5,5,5,  99,0.5));
-end
+    GL.VIEW(GL.GLExplode(V, FVs,  5,5,5,  99,1));
+    GL.VIEW(GL.GLExplode(V, CVs[2:end],  5,5,25,  99,0.5));
+end;

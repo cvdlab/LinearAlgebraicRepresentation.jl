@@ -37,8 +37,8 @@ Matrix(copFV)
 
 if todisplay
     VV = [[k] for k in 1:size(V,2)];
-    GL.VIEW( GL.numbering(.5)( (V, [VV, EV]),GL.COLORS[1],0.1 ) );
-end
+    GL.VIEW( GL.numbering(1.0)( (V, [VV, EV]),GL.COLORS[1],0.1 ) );
+end;
 
 # Boundary matrix generation
 # we construct the sparse matrix [𝜕2] from the product of characteristic matrices EV and the transposed FV
@@ -59,6 +59,6 @@ e1 = EV[f1]
 e2 = EV[f2]
 
 if todisplay
-    GL.VIEW( GL.numbering(.5)( (V, [VV, e1]),GL.COLORS[1],0.1 ) );
-    GL.VIEW( GL.numbering(.5)( (V, [VV, e2]),GL.COLORS[1],0.1 ) );
-end
+    GL.VIEW( GL.numbering(1.0)( (V, [VV, e1]),GL.COLORS[1],0.1 ) );
+    GL.VIEW( GL.numbering(1.0)( (V, [VV, e2]),GL.COLORS[1],0.1 ) );
+end;
