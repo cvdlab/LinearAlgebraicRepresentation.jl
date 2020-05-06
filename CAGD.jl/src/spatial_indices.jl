@@ -47,12 +47,13 @@ julia> CAGD.getModelBoundingBoxes(model,1)
 function getModelBoundingBoxes(
 		model::CAGD.Model,
 		deg::Int,
-		cells = 1 : size(model, deg, 1)
+		cells = 1 : size(model, deg, 1);
+		atol = 1e-10
 	)::Array{Array{Float64,2},1}
 
 	function findBBox(pts::Lar.Points)::Tuple{Array{Float64,2},Array{Float64,2}}
-		minimum = mapslices(x->min(x...), pts, dims=2)
-		maximum = mapslices(x->max(x...), pts, dims=2)
+		minimum = mapslices(x->min(x...), pts, dims=2) .- 2*atol
+		maximum = mapslices(x->max(x...), pts, dims=2) .+ 2*atol
 		return minimum, maximum
 	end
 

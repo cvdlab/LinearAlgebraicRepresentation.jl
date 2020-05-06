@@ -1,3 +1,5 @@
+npts = 64;
+
 ## METHOD 1
 
 function cylinder(;r=1, h=1, n=8, k=1)
@@ -11,7 +13,7 @@ function cylinder(;r=1, h=1, n=8, k=1)
 	return V,FV,EV
 end
 
-tube = cylinder(n=16,h=2,k=2);
+tube = cylinder(n=npts,h=2,k=2);
 
 triple = Lar.Struct([ tube, Lar.r(pi/2,0,0), tube, Lar.r(0,pi/2,0), tube ]);
 model = Lar.struct2lar(triple)
@@ -44,7 +46,6 @@ end
 
 # Build a cylinder
 
-npts = 16;
 V,_ = Lar.rod()([npts, 1]);
 EV = [
     [[2*i, (2*i+1)%2npts+1] for i = 1 : npts];          # horizontal upper edges
