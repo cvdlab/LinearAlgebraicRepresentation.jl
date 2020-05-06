@@ -1,6 +1,6 @@
 # Rod Generation
 
-npts = 16
+npts = 32
 V,_ = Lar.rod()([npts, 1])
 EV = [
     [[2*i, (2*i+1)%2npts+1] for i = 1 : npts];          # horizontal upper edges
@@ -105,8 +105,8 @@ boolean_matrix = Bool[
 	0 0 1 1 1 1
 	0 1 1 1 1 1
 
-	0 0 1 0 1 1
-	0 1 1 0 1 1
+	0 1 1 0 1 1 ## <--
+	0 0 1 0 1 1 ## <--
 	0 1 1 0 1 1
 	0 0 1 1 1 1
 	0 0 0 1 1 1
