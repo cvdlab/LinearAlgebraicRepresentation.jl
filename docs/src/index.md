@@ -1,4 +1,4 @@
-# Lar.jl
+# [Lar.jl](@ref LinearAlgebraicRepresentation.Lar_header)
 
 `Lar.jl` is a [Julia](http://julialang.org) library to perform geometrical computations on cellular complexes expressed through the [**Linear Algebraic Representation** (LAR)](./lar.html).
 This library is developed and maintained by the [Computational Visual Design Laboratory (CVDLAB) of Università degli Studi di Roma Tre](https://github.com/cvdlab).

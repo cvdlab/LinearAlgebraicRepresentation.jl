@@ -14,7 +14,7 @@ makedocs(
 		"Home" => "index.md",
 		"Tutorial" => [
 			"Model" => "model.md",
-			"Boolean" => "boolean.md",
+			"Boolean forms" => "boolean.md",
 			"Examples" => "examples.md"
 		],
 		"Computational pipeline" => [
