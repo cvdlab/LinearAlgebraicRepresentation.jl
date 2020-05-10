@@ -26,10 +26,10 @@ Apply the `affineMatrix` parameter to the vertices of `larmodel`.
 # Example
 
 ```
-julia> square = LinearAlgebraicRepresentation.cuboid([1,1])
+julia> square = Lar.cuboid([1,1])
 ([0.0 0.0 1.0 1.0; 0.0 1.0 0.0 1.0], Array{Int64,1}[[1, 2, 3, 4]])
 
-julia> Plasm.apply(LinearAlgebraicRepresentation.t(1,2))(square)
+julia> Lar.apply(Lar.t(1,2))(square)
 ([1.0 1.0 2.0 2.0; 2.0 3.0 2.0 3.0], Array{Int64,1}[[1, 2, 3, 4]])
 ```
 """
@@ -70,7 +70,7 @@ applications of component functions to actual parameter.
 # Example
 
 ```
-julia> Plasm.cons([cos,sin])(0)
+julia> Lar.cons([cos,sin])(0)
 2-element Array{Float64,1}:
  1.0
  0.0
@@ -93,10 +93,10 @@ when applied to another parameter.
 #	Examples
 
 ```
-julia> Plasm.k(10)(100)
+julia> Lar.k(10)(100)
 10
 
-julia> Plasm.k(sin)(cos)
+julia> Lar.k(sin)(cos)
 sin
 ```
 """
@@ -113,7 +113,7 @@ AA applies fun to each element of the args sequence
 # Example
 
 ```
-julia> Plasm.aa(sqrt)([1,4,9,16])
+julia> Lar.aa(sqrt)([1,4,9,16])
 4-element Array{Float64,1}:
  1.0
  2.0
@@ -150,7 +150,7 @@ Return the `pair` array with the elements of `args` coupled with `x`
 # Example
 
 ```
-julia> Plasm.distr(([1,2,3],10))
+julia> Lar.distr(([1,2,3],10))
 3-element Array{Array{Int64,1},1}:
  [1, 10]
  [2, 10]
@@ -174,7 +174,7 @@ Return the `pair` array with `x` coupled with the elements of `args`.
 # Example
 
 ```
-julia> Plasm.distl((10, [1,2,3]))
+julia> Lar.distl((10, [1,2,3]))
 3-element Array{Array{Int64,1},1}:
  [10, 1]
  [10, 2]
