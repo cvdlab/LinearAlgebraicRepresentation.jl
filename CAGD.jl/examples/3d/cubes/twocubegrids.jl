@@ -25,8 +25,8 @@ function twocubegrids(n=1, m=1, p=1, atol = 1e-6)
     CAGD.addModelCells!(model, 1, cop_EV)
     CAGD.addModelCells!(model, 2, cop_FE)
 
-    split_model = CAGD.pairwise_decomposition(model)
-    congr_model = CAGD.mergeModelVertices(split_model, signed_merge=true)
+    split_model = CAGD.facesplitting(model)
+    congr_model = CAGD.mergemodel(split_model, signed_merge=true)
     if todisplay  displayModel(congr_model)  end
     gift_model = deepcopy(congr_model)
     FC, bicon_comps = CAGD.tgw(congr_model, 3, atol = atol)

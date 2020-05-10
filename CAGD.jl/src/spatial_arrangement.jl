@@ -1,10 +1,10 @@
 function spatial_arrangement(model; atol = 1e-6, outerCell = false)
-    split_model = CAGD.pairwise_decomposition(model, atol = atol)
+    split_model = CAGD.facesplitting(model, atol = atol)
 
     # Topological Invariants Check #3: [Δ_1] × [Δ_0] = 0
     @assert isempty(dropzeros(split_model.T[2]*split_model.T[1]).nzval) "Invariant 3 Error"
 
-    congr_model = CAGD.mergeModelVertices(split_model, err=atol, signed_merge=true)
+    congr_model = CAGD.mergemodel(split_model, err=atol, signed_merge=true)
     
     # Topological Invariants Check #4: [δ_1] × [δ_0] = 0
     @assert isempty(dropzeros(congr_model.T[2]*congr_model.T[1]).nzval) "Invariant 4 Error"
