@@ -14,7 +14,8 @@ using DataStructures
 	getModelBoundingBoxes(
 		model::CAGD.Model,
 		deg::Int,
-		cells = 1 : size(model, deg, 1)
+		cells = 1 : size(model, deg, 1);
+		atol = 1e-10
 	)::Array{Array{Float64,2},1}
 
 Evaluates the bounding boxes related to each `deg`-cell of the `model`
@@ -23,6 +24,8 @@ The function builds a vector of matrices containing the two distincive vertices
 of the axis-coherent hyper-cube that contains each `deg`-cell.
 
 If `cells` is specified, then only those bounding boxes are evaluated
+
+Keyword parameter `atol` specifies the tollerance added to the bounding box
 
 See also: [`CAGD.spatialIndex`](@ref)
 It uses:

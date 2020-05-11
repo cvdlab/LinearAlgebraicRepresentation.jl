@@ -203,7 +203,7 @@ function pointInSolid(model, point, cycle, signed = false; atol = 1e-8)
     # initialization of counter
     counter = 0
     face_cycles = CAGD.getModelLoCell(model, 3, cycle)
-    face_bboxes = CAGD.getModelBoundingBoxes(model, 2, face_cycles)
+    face_bboxes = CAGD.getModelBoundingBoxes(model, 2, face_cycles, atol = atol*1e-2)
     for face_idx = 1 : length(face_cycles)  if doBBoxIntersect(face_bboxes[face_idx])
         # To check incidence on each face, project it to z=0
         Gface, Gfaceidx = CAGD.getModelCellGeometry(model, 2, face_idx, true)

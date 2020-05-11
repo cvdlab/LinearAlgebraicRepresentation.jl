@@ -31,8 +31,8 @@ CV = [collect(1 : size(V,2))]
 
 if todisplay
     GL.VIEW([
-        GL.GLAxis( GL.Point3d(0,0,0),GL.Point3d(1,1,1) )
         GL.GLGrid(V,EV,GL.COLORS[1],1)
+        GL.GLFrame
     ]);
 end
 
@@ -88,8 +88,8 @@ V,CV,FV,EV = Lar.struct2lar(carry)
 
 if todisplay
     GL.VIEW([
-        GL.GLAxis( GL.Point3d(0,0,0),GL.Point3d(1,1,1) )
         GL.GLGrid(V,EV,GL.COLORS[1],1)
+        GL.GLFrame
     ]);
 end
 
