@@ -72,9 +72,9 @@ end
 if todisplay
     for i = 2 : min(length(CVs), maxVisual)
         GL.VIEW([
-            GL.GLAxis( GL.Point3d(0,0,0),GL.Point3d(1,1,1) )
             GL.GLExplode(V,CVs[i:i], 1.0,1.0,1.0, 2, 0.9)
             GL.GLExplode(V,CVs[1:1], 1.0,1.0,1.0, 1, 0.1)
+            GL.GLFrame
         ])
     end
 end

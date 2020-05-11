@@ -28,8 +28,8 @@ function displayModel(model, exp = 1.5)
     EVs = Lar.FV2EVs(model.T[1], model.T[2])
 
     GL.VIEW([
-        GL.GLAxis( GL.Point3d(0,0,0), GL.Point3d(0,0,0) )
         GL.GLPol(V,EV, GL.COLORS[1])
+        GL.GLFrame
     ]);
     GL.VIEW(GL.GLExplode(V,FVs,exp,exp,exp,99));
     GL.VIEW(GL.GLExplode(V,EVs,exp,exp,exp,99,1));
@@ -42,8 +42,8 @@ function viewNum(model, numsize = 0.25)
 	FV = Lar.cop2lar(map(x -> floor(Int8, x / 2), abs.(model.T[2]) * abs.(model.T[1])))
 	VV = [[k] for k=1:size(V,2)]
 	GL.VIEW([
-        GL.GLAxis( GL.Point3d(0,0,0),GL.Point3d(1,1,1) )
         GL.numbering(numsize)((V,[VV, EV, FV]))
+        GL.GLFrame
     ])
 end
 
@@ -59,9 +59,9 @@ function viewNumEdge(model::CAGD.Model, τ::Int, numsize=0.25)
     FVs = Lar.cop2lar(map(x -> floor(Int8, x / 2), abs.(model.T[2][faces, :]) * abs.(model.T[1])))
     VV = [[k] for k in unique(vcat(EVs...))]
     GL.VIEW([
-        GL.GLAxis( GL.Point3d(0,0,0),GL.Point3d(1,1,1) )
         GL.GLPol(V, EV, GL.COLORS[1])
         GL.numbering(numsize)((V, [VV, EVs, FVs]))
+        GL.GLFrame
     ])
 end
 
@@ -74,8 +74,8 @@ function viewNumFace(model::CAGD.Model, τ::Int, numsize=0.25)
     FVs = Lar.cop2lar(map(x -> floor(Int8, x / 2), abs.(model.T[2][τ:τ, :]) * abs.(model.T[1])))
     VV = [[k] for k in unique(vcat(EVs...))]
     GL.VIEW([
-        GL.GLAxis( GL.Point3d(0,0,0),GL.Point3d(1,1,1) )
         GL.GLPol(V, EV, GL.COLORS[1])
         GL.numbering(numsize)((V, [VV, EVs, FVs]))
+        GL.GLFrame
     ])
 end

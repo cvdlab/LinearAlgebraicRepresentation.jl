@@ -60,8 +60,8 @@ atol = 1e-6;
 
 if todisplay
     GL.VIEW([
-        GL.GLAxis( GL.Point3d(0,0,0),GL.Point3d(1,1,1) )
         GL.GLPol(model.G, Lar.cop2lar(model.T[1]), GL.COLORS[1])
+        GL.GLFrame
     ]);
 end
 
@@ -69,8 +69,8 @@ split_model = CAGD.pairwise_decomposition(model, atol = atol)
 
 if todisplay
     GL.VIEW([
-        GL.GLAxis( GL.Point3d(0,0,0),GL.Point3d(1,1,1) )
         GL.GLPol(model.G, Lar.cop2lar(model.T[1]), GL.COLORS[1])
+        GL.GLFrame
     ]);
 end
 
@@ -78,8 +78,8 @@ congr_model = CAGD.mergeModelVertices(split_model, err=atol, signed_merge=true)
 
 if todisplay
     GL.VIEW([
-        GL.GLAxis( GL.Point3d(0,0,0),GL.Point3d(1,1,1) )
         GL.GLPol(congr_model.G, Lar.cop2lar(congr_model.T[1]), GL.COLORS[1])
+        GL.GLFrame
     ]);
 end
 
@@ -89,8 +89,8 @@ CAGD.addModelCells!(A_model, 3, convert(Lar.ChainOp, FC'))
 
 if todisplay
     GL.VIEW([
-        GL.GLAxis( GL.Point3d(0,0,0),GL.Point3d(1,1,1) )
         GL.GLPol(A_model.G, Lar.cop2lar(A_model.T[1]), GL.COLORS[1])
+        GL.GLFrame
     ]);
 end
 ==#
@@ -111,8 +111,8 @@ if todisplay
         GL.GLExplode(V,CVs[idxs], 1.0,1.0,1.0, 2, 0.9)
         GL.GLExplode(V,CVs[1:1], 1.0,1.0,1.0, 1, 0.1)
     ])
-    GL.VIEW([ 
-        GL.GLAxis( GL.Point3d(0,0,0),GL.Point3d(1,1,1) )
+    GL.VIEW([
+        GL.GLFrame
         GL.GLExplode(V, CVs[idxs], 1.0,1.0,1.0, 2, 0.9)
     ])
 end
@@ -121,7 +121,7 @@ end
 if todisplay
     for i = 2 : min(length(CVs), maxVisual)
         GL.VIEW([
-            GL.GLAxis( GL.Point3d(0,0,0),GL.Point3d(1,1,1) )
+            GL.GLFrame
             GL.GLExplode(V,CVs[i:i], 1.0,1.0,1.0, 2, 0.9)
             GL.GLExplode(V,CVs[1:1], 1.0,1.0,1.0, 1, 0.1)
         ])
