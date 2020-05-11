@@ -1,4 +1,4 @@
-import Base: +, length, size, ==, isempty
+import Base: +, length, size, ==, isempty, show
 
 Lar = LinearAlgebraicRepresentation
 
@@ -59,6 +59,13 @@ size(m::CAGD.Model, i::Int)         = i == 0 ? size(m.G   ) : size(m.T[i]   )
 size(m::CAGD.Model, i::Int, j::Int) = i == 0 ? size(m.G, j) : size(m.T[i], j)
 ==(m1::CAGD.Model, m2::CAGD.Model)   = m1.G == m2.G && m1.T == m2.T
 isempty(m::CAGD.Model, d::Int)      = isempty(m.T[d])
+function show(io::IO, m::CAGD.Model)
+    println(io, "$(length(m))D model with:")
+    println(io, " - $(size(m, 1, 2)) points")
+    for d = 1 : length(m)  println(io, " - $(size(m, d, 1)) $d-cells")  end
+    display(m.G)
+    for d = 1 : length(m)  display(Matrix(m.T[d]))  end
+end
 
 #-------------------------------------------------------------------------------
 #   OTHER BASE REIMPLEMENTATIONS

@@ -23,7 +23,7 @@ GL.VIEW([ GL.GLGrid(model..., GL.COLORS[7], 0.5) ]); #TODO: check
 
 model = Lar.extrudeSimplicial( model, ones(10) )
 GL.VIEW([ GL.GLLines(model..., GL.COLORS[7]),
-        GL.GLAxis(GL.Point3d(0,0,0),GL.Point3d(1,1,1)) ]);
+        GL.GLFrame ]);
 
 model = Lar.extrudeSimplicial( model, ones(10) )
 GL.VIEW([ GL.GLGrid(model..., GL.COLORS[7], 0.5) ]);
@@ -35,7 +35,7 @@ GL.VIEW([ GL.GLGrid(model..., GL.COLORS[7], 0.5) ]); #TODO: check
 
 model = Lar.extrudeSimplicial( model, repeat([1,-1],outer=10) )
 GL.VIEW([ GL.GLGrid(model..., GL.COLORS[7],0.7),
-        GL.GLAxis(GL.Point3d(0,0,0),GL.Point3d(1,1,1)) ]);
+        GL.GLFrame ]);
 
 
 # example 4
@@ -43,8 +43,8 @@ GL.VIEW([ GL.GLGrid(model..., GL.COLORS[7],0.7),
 grid_2d = Lar.simplexGrid([3,3])
 GL.VIEW([ GL.GLGrid(grid_2d..., GL.COLORS[7],0.7),
         GL.GLLines(grid_2d...),    # TODO:  check lines
-        GL.GLAxis(GL.Point3d(0,0,0),GL.Point3d(1,1,1)) ]);
+        GL.GLFrame ]);
 
 grid_3d = Lar.simplexGrid([2,3,4])
 GL.VIEW([ GL.GLGrid(grid_3d..., GL.COLORS[7]),
-        GL.GLAxis(GL.Point3d(0,0,0),GL.Point3d(1,1,1)) ]);  # TODO  check
+        GL.GLFrame ]);  # TODO  check

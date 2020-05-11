@@ -119,6 +119,7 @@ end
         # n -> 1
         model.G[:,1:2] = model.G[:,2:-1:1]
         ord = CAGD.eval_ord_faces(model, 1)
+        ONE = findfirst(isequal(1), ord)
         @test n:-1:1 == vcat([ord[ONE+1:length(ord)]..., ord[1:ONE]]...)
     end
 
