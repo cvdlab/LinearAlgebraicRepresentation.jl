@@ -1264,6 +1264,8 @@ original and generated edges. `V` is given by column.
 #     return triangles
 # end
 function triangulate2d(V, EV)
+@show V;
+@show EV;
     # data for Constrained Delaunay Triangulation (CDT)
     points = convert(Array{Float64,2}, V')
 	points_map = Array{Int64,1}(collect(1:1:size(points)[1]))

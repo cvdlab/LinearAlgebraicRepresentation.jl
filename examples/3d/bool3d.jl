@@ -26,14 +26,14 @@ B = boolmatrix[:,3]
 C = boolmatrix[:,4]
 AorB = A .| B
 AandB = A .& B
-AxorB = AorB .& (.!AandB) # = A .⊻ B
+AxorB = AorB .⊻ (.!AandB) # = A .⊻ B
 AorBorC = A .| B .| C
 AorBorC = .|(A, B, C)
 AandBandC = A .& B .& C
 AandBandC = .&(A, B, C)
 AminBminC = .&(A, .!B, .!C) # A - B - C
 
-unione = Matrix(copCF)' * Int.(AorBorC) # coord vector of Faces
+unione = (copCF)' * Int.(AorBorC) # coord vector of Faces
 intersection = Matrix(copCF)' * Int.(AandBandC) # coord vector of Faces
 difference = Matrix(copCF)' * Int.(AminBminC) # coord vector of Faces
 
@@ -50,5 +50,5 @@ V,CVs,FVs,EVs = Lar.pols2tria(W, copEV, copFE, copCF, Fs) # part of assembly
 
 GL.VIEW(GL.GLExplode(V,FVs,1.5,1.5,1.5,99,1));
 GL.VIEW(GL.GLExplode(V,EVs,1.,1.,1.,1,1));
-# meshes = GL.GLExplode(V,CVs,5,5,5,99,1);
-# GL.VIEW( push!( meshes, GL.GLFrame) );
+meshes = GL.GLExplode(V,CVs[2:end],5,5,5,99,1);
+GL.VIEW( push!( meshes, GL.GLFrame) );

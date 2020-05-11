@@ -63,12 +63,12 @@ CAGD.addModelCells!(model, 3, CF)
 atol = 1e-6;
 if todisplay  displayModel(model)  end
 
-split_model = CAGD.pairwise_decomposition(model, atol = atol)
+split_model = CAGD.facesplitting(model, atol = atol)
 
 if todisplay  displayModel(split_model)  end
 
 congr_model = CAGD.mergeModelVertices(split_model, err=atol, signed_merge=true)
-#split_model = CAGD.pairwise_decomposition(congr_model, atol = atol)
+#split_model = CAGD.facesplitting(congr_model, atol = atol)
 #congr_model = CAGD.mergeModelVertices(split_model, err=atol, signed_merge=true)
 
 if todisplay  displayModel(congr_model)  end

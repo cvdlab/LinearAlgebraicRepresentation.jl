@@ -23,18 +23,12 @@ rngseed = 1111;
 maxVisual = 10;
 atol = 1e-4;
 
+
 # Data 2
 n = 8;
 rngseed = 4321;
 maxVisual = 10;
 atol = 1e-4;
-
-# Data 3 # Not Working yet
-# n = 10;
-# rngseed = 0000;
-# maxVisual = 1;
-# atol = 1e-4;
-
 
 function generateRotCubes(n = 3; seed = 1234)
     rng = MersenneTwister(seed);

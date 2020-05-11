@@ -11,12 +11,12 @@ using DataStructures
 #-------------------------------------------------------------------------------
 
 """
-	pairwise_decomposition(model::CAGD.Model)::CAGD.Model
+	facesplitting(model::CAGD.Model)::CAGD.Model
 
 Performs the pairwise decomposition of all faces with the possibly intersecting.
 """
 
-function pairwise_decomposition(model; atol = 10e-8)
+function facesplitting(model; atol = 10e-8)
     sp_idx = CAGD.spaceIndex(model, 2)
     de_models = [
         CAGD.face_decomposition(model, face_idx, sp_idx[face_idx], atol = atol)

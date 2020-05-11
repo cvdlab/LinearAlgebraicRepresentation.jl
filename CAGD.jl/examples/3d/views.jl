@@ -28,7 +28,7 @@ function displayModel(model, exp = 1.5)
     EVs = Lar.FV2EVs(model.T[1], model.T[2])
 
     GL.VIEW([
-        GL.GLAxis( GL.Point3d(0,0,0),GL.Point3d(1,1,1) )
+        GL.GLAxis( GL.Point3d(0,0,0), GL.Point3d(0,0,0) )
         GL.GLPol(V,EV, GL.COLORS[1])
     ]);
     GL.VIEW(GL.GLExplode(V,FVs,exp,exp,exp,99));
@@ -43,7 +43,7 @@ function viewNum(model, numsize = 0.25)
 	VV = [[k] for k=1:size(V,2)]
 	GL.VIEW([
         GL.GLAxis( GL.Point3d(0,0,0),GL.Point3d(1,1,1) )
-        GL.numbering(numsize)((V,[VV, EV, FV])) 
+        GL.numbering(numsize)((V,[VV, EV, FV]))
     ])
 end
 

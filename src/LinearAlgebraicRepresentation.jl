@@ -109,6 +109,7 @@ module LinearAlgebraicRepresentation
    include("./svg2lar.jl")
    include("./bool3d.jl")
    include("./bool2d.jl")
+   include("./fenvs.jl")
 
    include("./arrangement/arrangement.jl")
    #planar_arrangement_1 = Arrangement.planar_arrangement_1

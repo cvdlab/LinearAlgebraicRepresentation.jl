@@ -39,4 +39,4 @@ if todisplay
 
     GL.VIEW(GL.GLExplode(A_model.G, FVs, 1.0, 1.0, 1.0, 99, 1));
     GL.VIEW(GL.GLExplode(A_model.G, FVs, 1.2, 1.2, 1.2, 99, 1));
-end
+end;

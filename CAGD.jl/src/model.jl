@@ -28,6 +28,14 @@ mutable struct Model
         new(V, T)
     end
 
+    function Model(V::Lar.Points, T::Array{Lar.Cells, 1})
+        m = Model(V)
+        addModelCells!(m, 1, T[1], signed=true)
+        cFE = convert(Lar.ChainOp, Lar.coboundary_1(m.G, T[2], T[1]))
+        addModelCells!(m, 2, cFE)
+        return m
+    end
+
     function Model(V::Lar.Points)
         T = convert(Array{Lar.ChainOp,1},
             [SparseArrays.spzeros(Int8, 0, 0) for i = 1 : size(V, 1)]

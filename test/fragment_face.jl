@@ -178,7 +178,7 @@ function computeparams(linestore,linenum)
 		push!(line, 1.0)
 		line = sort(collect(Set(line)))
 		push!(out, line)
-	end	
+	end
 	return out
 end
 
@@ -241,11 +241,7 @@ err=Lar.ERR)
 
 
 	function make_quotients(verts, faces, edges, err=Lar.ERR)
-print("&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&")
-@show verts
-@show edges
-@show faces
-PRECISION = 5.0
+		PRECISION = 5.0
 
 		vertsnum = size(verts, 2)
 		kdtree = NearestNeighbors.KDTree(verts)
@@ -305,7 +301,6 @@ PRECISION = 5.0
 		return nverts, nfaces, nedges
 	end
 
-print("before make_quotients ^^^^^^^^^^^^^^^^^^^")
 	V,FV,EV = make_quotients(verts, faces, edges, err)
 	return V,FV,EV
 end

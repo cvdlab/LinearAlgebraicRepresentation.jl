@@ -8,7 +8,7 @@ Lar = LinearAlgebraicRepresentation
 if todisplay
     using ViewerGL
 	GL = ViewerGL
-	include("../views.jl")
+	include("views.jl")
 end
 
 V = 2 * [
@@ -41,7 +41,7 @@ model = CAGD.uniteModels(m1, m2)
 
 if todisplay  displayModel(model)  end
 
-split_model = CAGD.pairwise_decomposition(model)
+split_model = CAGD.facesplitting(model)
 
 if todisplay  displayModel(split_model)  end
 
