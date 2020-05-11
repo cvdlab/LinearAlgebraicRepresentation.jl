@@ -124,7 +124,7 @@ julia> map(size,split_model.T)
 Note that numbers of vertices, edges, faces, and cells were now 66, 72, 18, 0, respectively, since many are computed *independently* in multiple instances, starting from each face in 2D:
 
 ```julia
-julia> congruent_model = CAGD.mergemodel(split_model, signed_merge=true)
+julia> congruent_model = CAGD.mergeModelVertices(split_model, signed_merge=true)
 
 julia> displayModel(congruent_model)
 

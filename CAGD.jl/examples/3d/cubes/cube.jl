@@ -26,7 +26,7 @@ CAGD.addModelCells!(model, 1, T[1]);
 CAGD.addModelCells!(model, 2, T[2]);
 
 split_model = CAGD.facesplitting(model)
-congr_model = CAGD.mergemodel(split_model, signed_merge=true)
+congr_model = CAGD.mergeModelVertices(split_model, signed_merge=true)
 gift_model = deepcopy(congr_model);
 FC, bicon_comps = CAGD.tgw(congr_model, 3)
 CAGD.addModelCells!(gift_model, 3, convert(Lar.ChainOp, FC'))

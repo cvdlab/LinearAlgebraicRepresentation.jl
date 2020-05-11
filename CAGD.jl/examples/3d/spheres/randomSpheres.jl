@@ -68,7 +68,7 @@ EV = unique([(map(f -> getFaceEdges(f), FV)...)...])
 FE = [[3*i+1, 3*i+2, 3*i+3] for i = 0 : length(FV)-1]
 CAGD.addModelCells!(model, 1, EV, signed = true)
 CAGD.addModelCells!(model, 2, build_copFE(FV, EV))
-model = CAGD.mergemodel(model, signed_merge=true)
+model = CAGD.mergeModelVertices(model, signed_merge=true)
 
 if todisplay  displayModel(model)  end
 
@@ -76,7 +76,7 @@ split_model = CAGD.facesplitting(model)
 
 if todisplay  displayModel(split_model)  end
 
-congr_model = CAGD.mergemodel(split_model, signed_merge=true)
+congr_model = CAGD.mergeModelVertices(split_model, signed_merge=true)
 
 if todisplay  displayModel(congr_model)  end
 
