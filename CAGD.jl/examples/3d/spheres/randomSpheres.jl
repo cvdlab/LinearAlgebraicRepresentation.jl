@@ -72,7 +72,7 @@ model = CAGD.mergeModelVertices(model, signed_merge=true)
 
 if todisplay  displayModel(model)  end
 
-split_model = CAGD.pairwise_decomposition(model)
+split_model = CAGD.facesplitting(model)
 
 if todisplay  displayModel(split_model)  end
 

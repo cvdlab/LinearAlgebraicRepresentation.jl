@@ -27,7 +27,7 @@ CAGD.addModelCells!(model, 1, convert(Lar.ChainOp, Lar.coboundary_0(EV::Lar.Cell
 CAGD.addModelCells!(model, 2, Lar.coboundary_1(V, FV::Lar.Cells, EV::Lar.Cells))
 
 # Spatial Arrangement
-split_model = CAGD.pairwise_decomposition(model)
+split_model = CAGD.facesplitting(model)
 
 if todisplay  displayModel(split_model)  end
 

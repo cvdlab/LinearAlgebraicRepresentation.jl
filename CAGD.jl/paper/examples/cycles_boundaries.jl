@@ -18,7 +18,7 @@ tube = cylinder(n=npts,h=2,k=2);
 triple = Lar.Struct([ tube, Lar.r(pi/2,0,0), tube, Lar.r(0,pi/2,0), tube ]);
 model = Lar.struct2lar(triple)
 V,FV,EV = model
-GL.VIEW([ 
+GL.VIEW([
 	GL.GLFrame,
 	GL.GLGrid( model[1:2]..., GL.COLORS[1], 0.5)
 ]);
@@ -32,12 +32,12 @@ CAGD.addModelCells!(model, 2, cFE);
 A_model = CAGD.spatial_arrangement(model);
 
 if todisplay
-    V, CVs, FVs, EVs = Lar.pols2tria(A_model.G, A_model.T[1], A_model.T[2], A_model.T[3])
+    V, CVs, FVs, EVs = Lar.pols2tria(A_model.G, A_model.T[1], A_model.T[2], A_model.T[3]);
 
     GL.VIEW(GL.GLExplode(V, FVs,  1.5,1.5,1.5,  99,1));
     GL.VIEW(GL.GLExplode(V, EVs,  1.5,1.5,1.5,  99,1));
     GL.VIEW(GL.GLExplode(V, CVs[1:end],  5,5,5,  99,0.5));
-end
+end;
 
 
 
@@ -64,7 +64,7 @@ FV = Lar.cop2lar(Lar.lar2cop(FE) * Lar.lar2cop(EV));
 
 # Build three cylinders
 
-cyl = Lar.Struct([ 
+cyl = Lar.Struct([
     Lar.r(0,0,0),
     Lar.s(1.0, 1.0, 1.5),
     Lar.t(0,0,-1.5),
@@ -83,7 +83,7 @@ if todisplay
         GL.GLAxis( GL.Point3d(0,0,0),GL.Point3d(1,1,1) )
         GL.GLGrid(V,EV,GL.COLORS[1],1)
     ]);
-end
+end;
 
 # Model Generation
 
@@ -100,4 +100,4 @@ if todisplay
     GL.VIEW(GL.GLExplode(V, FVs,  1.5,1.5,1.5,  99,1));
     GL.VIEW(GL.GLExplode(V, EVs,  1.5,1.5,1.5,  99,1));
     GL.VIEW(GL.GLExplode(V, CVs[1:end],  5,5,5,  99,0.5));
-end
+end;

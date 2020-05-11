@@ -5,7 +5,9 @@ Lar = LinearAlgebraicRepresentation
 
 
 makedocs(
-	format = :html,
+	format = Documenter.HTML(
+		prettyurls = get(ENV, "CI", nothing) == "true"
+	),
 	sitename = "LinearAlgebraicRepresentation.jl",
 	assets = ["assets/lar.css", "assets/logo.png"],
 	pages = [

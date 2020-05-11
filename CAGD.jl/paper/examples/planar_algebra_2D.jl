@@ -1,7 +1,7 @@
-wall = Lar.svg2lar("./paper/examples/svg/wall.svg", flag=false);
-openings = Lar.svg2lar("./paper/examples/svg/openings.svg", flag=false);
-rectangle = Lar.svg2lar("./paper/examples/svg/rectangle.svg", flag=false);
-box = Lar.svg2lar("./paper/examples/svg/box.svg", flag=false);
+wall = Lar.svg2lar("./test/svg/assembly/wall.svg", flag=false);
+openings = Lar.svg2lar("./test/svg/assembly/svg/openings.svg", flag=false);
+rectangle = Lar.svg2lar("./test/svg/assembly/rectangle.svg", flag=false);
+box = Lar.svg2lar("./test/svg/assembly/box.svg", flag=false);
 
 assembly = Lar.Struct([wall, openings, rectangle, box]);
 V,EV = Lar.struct2lar(assembly);
@@ -83,5 +83,5 @@ if todisplay
     for i = 1 : length(shells)
     GL.VIEW(GL.GLExplode(A_model.G, FVs[shells[i].nzind], 1.0, 1.0, 1.0, 1, 1));
     GL.VIEW(GL.GLExplode(A_model.G, FVs[shells[i].nzind], 1.0, 1.0, 1.0, 99, 1));
-    end  
+    end
 end

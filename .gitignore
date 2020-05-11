@@ -2,6 +2,8 @@
 # Created by https://www.gitignore.io/api/julia,linux,macos,visualstudiocode
 
 ### Julia ###
+docs/build/
+CAGD.jl/docs/build/
 *.jl.cov
 *.jl.*.cov
 *.jl.mem
