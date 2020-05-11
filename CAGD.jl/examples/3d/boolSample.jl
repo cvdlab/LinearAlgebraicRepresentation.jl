@@ -7,7 +7,7 @@ using CAGD
 if todisplay
     using ViewerGL
     GL = ViewerGL
-	include("../views.jl")
+	include("views.jl")
 end
 
 # Rod Generation
@@ -38,7 +38,7 @@ end
 
 # Three Rods Generation
 
-cyl = Lar.Struct([ 
+cyl = Lar.Struct([
     Lar.r(0,0,0),
     #Lar.s(0.6, 0.6, 2.0),
     Lar.s(1.0, 1.0, 1.5),
@@ -136,4 +136,3 @@ bYRod = boolean_matrix[:, 3]
 bZRod = boolean_matrix[:, 4]
 bCube = boolean_matrix[:, 5]
 bSphe = boolean_matrix[:, 6]
-

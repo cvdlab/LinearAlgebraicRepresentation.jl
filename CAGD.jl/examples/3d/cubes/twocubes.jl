@@ -8,7 +8,7 @@ Lar = LinearAlgebraicRepresentation
 if todisplay
     using ViewerGL
 	GL = ViewerGL
-	include("../views.jl")
+	include("views.jl")
 end
 
 V = 2 * [
@@ -35,17 +35,17 @@ CAGD.addModelCells!(m1, 2, FE, signed = true)
 CAGD.addModelCells!(m1, 3, CF, signed = false)
 
 m2 = deepcopy(m1)
+m2 = copy(m1)
 m2.G .+= [1.0; 1.0; 1.0]
 
 model = CAGD.uniteModels(m1, m2)
 
 if todisplay  displayModel(model)  end
 
-split_model = CAGD.pairwise_decomposition(model)
+split_model = CAGD.facesplitting(model)
 
 if todisplay  displayModel(split_model)  end
 
-congr_model = CAGD.mergeModelVertices(split_model, signed_merge=true)
 
 if todisplay  displayModel(congr_model)  end
 
@@ -69,4 +69,4 @@ sum(gift_model.T[3], dims = 1)
 
 boolmatrix, arranged_model = CAGD.bool3(model)
 
-arranged_model == gift_model
+arranged_model == gift_modelarranged_model == gift_model
