@@ -69,12 +69,16 @@ julia> collect(zip(tuple(1:length(EV)...),tuple(Sigma...)))
 
 The set of lines and their numbers are shown below, together with the computed 2-cells of the space partition.
 
+Visualization of different faces without explosion, and exploded boundaries of each 2-cell are generated as follows. the color parameter 99 induces a cyclic coloring with standard colors (white, red, green, blue, cyan, magenta, yellow, etc ... )
+
 ```
 VV = [[k] for k=1:size(V,2)]
 model = (V,[VV,EV])
 meshes = GL.numbering(.5)(model, GL.COLORS[1], 1)
 GL.VIEW(meshes);
 ```
+![](images/fig4.png)
+
 
 #### Generating and viewing the arrangement
 
@@ -82,12 +86,16 @@ GL.VIEW(meshes);
 V,EV = randlines()
 V,FVs,EVs = arrangement2D(V,EV)
 ```
-![](images/fig4.png)
-
-Visualization of different faces without explosion, and exploded boundaries of each 2-cell are generated as follows. the color parameter 99 induces a cyclic coloring with standard colors (white, red, green, blue, cyan, magenta, yellow, etc ... )
+The default set of random lines is generated, and  three images are displayed, with different explosion parameters. Notice that each array in `FVs` actually contains a CDT triangulation of a 2-face, needed for graphics display.
 
 ```
 # native OpenGL visualization
+GL.VIEW(GL.GLExplode(V,FVs,1.2,1.2,1.2,99,1));
 GL.VIEW(GL.GLExplode(V,FVs,1.,1.,1.,99,1));
 GL.VIEW(GL.GLExplode(V,EVs,1.2,1.2,1.2,1,1));
+```
+
+![](images/fig5.png)
+
+
 ```
