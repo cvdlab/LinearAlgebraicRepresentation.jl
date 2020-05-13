@@ -10,6 +10,12 @@ mutable struct Model
     G::Lar.Points
     T::Array{Lar.ChainOp, 1}
 
+    """
+        Model(V::Lar.Points, T::Array{Lar.ChainOp, 1})
+    
+    Generic constructor for CAGD.Model.
+    Coherency checks are performed between Topology and Geometry
+    """
     function Model(V::Lar.Points, T::Array{Lar.ChainOp, 1})
         dim, npts = size(V)
         dim > 0 ||
@@ -36,6 +42,38 @@ mutable struct Model
         return m
     end
 
+    """
+        Model(V::Lar.Points, EV::Lar.Cells)
+    
+    Builds a signed CAGD.Model with vertices and edges only.
+    """
+    function Model(V::Lar.Points, EV::Lar.Cells)
+
+        I = Array{Int,1}()
+        J = Array{Int,1}()
+        K = Array{Int8,1}()
+        for i = 1 : length(EV)
+            let sign = -1;  for j = 1 : length(EV[i])
+                push!(I, i)
+                push!(J, EV[i][j])
+                push!(K, sign)
+                sign = 1
+            end  end
+        end
+
+        T = [SparseArrays.sparse(I, J, K, length(EV), size(V, 2))]
+        if size(V, 1) > 1  push!(T, SparseArrays.spzeros(Int8, 0, length(EV)))  end
+        Ts = SparseArrays.spzeros(Int8, 0, 0)
+        for i = 3 : size(V, 1)  push!(T, Ts)  end
+        CAGD.Model(V, T)
+    end
+
+    """
+        Model(V::Lar.Points)
+    
+    Constructor for CAGD.Model with geometry only.
+    Topology is set to void by default.
+    """
     function Model(V::Lar.Points)
         T = convert(Array{Lar.ChainOp,1},
             [SparseArrays.spzeros(Int8, 0, 0) for i = 1 : size(V, 1)]
@@ -44,6 +82,12 @@ mutable struct Model
         CAGD.Model(V, T)
     end
 
+    """
+        Model()
+    
+    Void constructor for CAGD.Model.
+    Returns `nothing`
+    """
     function Model()
         nothing
     end
@@ -54,10 +98,10 @@ end
 #-------------------------------------------------------------------------------
 
 length(m::CAGD.Model)               = size(m.G, 1)
-size(m::CAGD.Model)		           = size(m.G)
+size(m::CAGD.Model)		            = size(m.G)
 size(m::CAGD.Model, i::Int)         = i == 0 ? size(m.G   ) : size(m.T[i]   )
 size(m::CAGD.Model, i::Int, j::Int) = i == 0 ? size(m.G, j) : size(m.T[i], j)
-==(m1::CAGD.Model, m2::CAGD.Model)   = m1.G == m2.G && m1.T == m2.T
+==(m1::CAGD.Model, m2::CAGD.Model)  = m1.G == m2.G && m1.T == m2.T
 isempty(m::CAGD.Model, d::Int)      = isempty(m.T[d])
 function show(io::IO, m::CAGD.Model)
     println(io, "$(length(m))D model with:")
@@ -78,6 +122,32 @@ Base.deepcopy(m::CAGD.Model) = CAGD.Model(Base.deepcopy(m.G), Base.deepcopy(m.T)
 #   GEOMETRY MANIPULATION
 #-------------------------------------------------------------------------------
 
+"""
+    addModelVertices!(m::CAGD.Model, V::Lar.Points)::Nothing
+
+Adds `V` vertices to model `m` in tail of `m.G`.
+Coherently updates `m.T[1]`.
+Points dimension must match.
+
+---
+# Examples
+```jldoctest
+julia> m = CAGD.Model([0.0 0.0;0.0 1.0]);
+
+julia> CAGD.addModelVertices!(m, [1.0 1.0; 0.0 1.0])
+
+julia> m
+2D model with:
+ - 4 points
+ - 0 1-cells
+ - 0 2-cells
+2×4 Array{Float64,2}:
+ 0.0  0.0  1.0  1.0
+ 0.0  1.0  0.0  1.0
+0×4 Array{Int8,2}
+0×0 Array{Int8,2}
+```
+"""
 function addModelVertices!(m::CAGD.Model, V::Lar.Points)::Nothing
     length(m) == size(V, 1) ||
         throw(ArgumentError("Point dimension mismatch."))
@@ -91,14 +161,62 @@ function addModelVertices!(m::CAGD.Model, V::Lar.Points)::Nothing
     return
 end
 
+"""
+    addModelVertex!(m::CAGD.Model, v::Array{Float64,1})::Nothing
+
+Adds `v` vertex to model `m` in tail of `m.G`.
+Coherently updates `m.T[1]`.
+Point dimension must match.
+---
+# Examples
+```jldoctest
+julia> m = CAGD.Model([0.0 0.0;0.0 1.0]);
+
+julia> CAGD.addModelVertex!(m, [1.0; 1.0])
+
+julia> m
+2D model with:
+ - 3 points
+ - 0 1-cells
+ - 0 2-cells
+2×3 Array{Float64,2}:
+ 0.0  0.0  1.0
+ 0.0  1.0  1.0
+0×3 Array{Int8,2}
+0×0 Array{Int8,2}
+```
+"""
 function addModelVertex!(m::CAGD.Model, v::Array{Float64, 1})::Nothing
     return addModelVertices!(m, v[:, :])
 end
 
-function deleteModelVertex!(m::CAGD.Model, v::Int)::Nothing
-    deleteModelVertices!(m, [v])
-end
+"""
+    deleteModelVertices!(m::CAGD.Model, vs::Array{Int,1})::Nothing
 
+Delete `vs` indexed vertices from model `m`.
+Coherently deletes cells containing such points.
+---
+# Examples
+```jldoctest
+julia> m = CAGD.Model([0.0 0.0 1.0; 0.0 1.0 0.0], [
+    SparseArrays.sparse(Int8[-1 1 0; -1 0 1; 0 -1 1]),
+    SparseArrays.spzeros(Int8, 3, 0)
+]);
+
+julia> CAGD.deleteModelVertices!(m, [1; 2])
+
+julia> m
+2D model with:
+ - 1 points
+ - 0 1-cells
+ - 3 2-cells
+2×1 Array{Float64,2}:
+ 1.0
+ 0.0
+0×1 Array{Int8,2}
+3×0 Array{Int8,2}
+```
+"""
 function deleteModelVertices!(m::CAGD.Model, vs::Array{Int,1})::Nothing
     min(vs...) > 0 || throw(ArgumentError("Vertex indices are positive integers"))
     max(vs...) ≤ size(m, 0, 2) || throw(ArgumentError("There are not $(max(vs...)) vertices"))
@@ -116,6 +234,38 @@ function deleteModelVertices!(m::CAGD.Model, vs::Array{Int,1})::Nothing
     end
 
     return
+end
+
+"""
+    deleteModelVertex!(m::CAGD.Model, v::Int)::Nothing
+
+Delete `v` indexed vertex from model `m`.
+Coherently deletes cells containing such point.
+---
+# Examples
+```jldoctest
+julia> m = CAGD.Model([0.0 0.0 1.0; 0.0 1.0 0.0], [
+    SparseArrays.sparse(Int8[-1 1 0; -1 0 1; 0 -1 1]),
+    SparseArrays.spzeros(Int8, 3, 0)
+]);
+
+julia> CAGD.deleteModelVertex!(m, 1)
+
+julia> m
+2D model with:
+ - 2 points
+ - 1 1-cells
+ - 3 2-cells
+2×2 Array{Float64,2}:
+ 0.0  1.0
+ 1.0  0.0
+1×2 Array{Int8,2}:
+ -1  1
+3×0 Array{Int8,2}
+```
+"""
+function deleteModelVertex!(m::CAGD.Model, v::Int)::Nothing
+    deleteModelVertices!(m, [v])
 end
 
 #-------------------------------------------------------------------------------
@@ -212,7 +362,7 @@ function deleteModelCells!(m::CAGD.Model, deg::Int, cs::Array{Int, 1})::Nothing
     tokeep     = setdiff(collect(1 : size(m, deg, 1)), cs)
     m.T[deg]   = m.T[deg][tokeep, :]
 
-    if  deg == length(m) return  end
+    if  deg == length(m) || isempty(m.T[deg + 1]) return  end
 
     # Removing `cs` cols from `m.T[deg+1]` by checking if some `deg+1` cell
     #  has to be removed too.
