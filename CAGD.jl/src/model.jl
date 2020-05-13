@@ -100,6 +100,9 @@ function deleteModelVertex!(m::CAGD.Model, v::Int)::Nothing
 end
 
 function deleteModelVertices!(m::CAGD.Model, vs::Array{Int,1})::Nothing
+    min(vs...) > 0 || throw(ArgumentError("Vertex indices are positive integers"))
+    max(vs...) ≤ size(m, 0, 2) || throw(ArgumentError("There are not $(max(vs...)) vertices"))
+
     tokeepV = setdiff(collect(1 : size(m, 0, 2)), vs)
     m.G     = m.G[:, tokeepV]
 
@@ -140,7 +143,7 @@ function addModelCells!(m::CAGD.Model, deg::Int, cs::Lar.ChainOp)::Nothing
 end
 
 function addModelCell!(m::CAGD.Model, deg::Int, c::Lar.Cell)::Nothing
-    CAGD.addModelCells!(m, deg, convert(Lar.ChainOp, c))
+    CAGD.addModelCells!(m, deg, convert(Lar.ChainOp, c'))
 end
 
 function addModelCells!(
@@ -149,7 +152,19 @@ function addModelCells!(
 
     if signed
         if deg == 1
-            scs = convert(Lar.ChainOp, Lar.coboundary_0(cs))
+            I = Array{Int,1}()
+            J = Array{Int,1}()
+            K = Array{Int8,1}()
+            for i = 1 : length(cs)
+                let sign = -1;  for j = 1 : length(cs[i])
+                    push!(I, i)
+                    push!(J, cs[i][j])
+                    push!(K, sign)
+                    sign = 1
+                end  end
+            end
+
+            scs = SparseArrays.sparse(I, J, K, length(cs), size(m, deg, 2))
         elseif deg == 2
             EV = Lar.cop2lar(m.T[1]);
             FV = [collect(Set(vcat([EV[e] for e in face]...))) for face in cs]
@@ -179,8 +194,8 @@ function addModelCells!(
     return CAGD.addModelCells!(m, deg, scs)
 end
 
-function addModelCell!(m::CAGD.Model, deg::Int, c::Array{Int64,1})::Nothing
-    CAGD.addModelCells!(m, deg, [c])
+function addModelCell!(m::CAGD.Model, deg::Int, c::Array{Int64,1}; signed=false)::Nothing
+    CAGD.addModelCells!(m, deg, [c], signed = signed)
 end
 
 
@@ -197,7 +212,7 @@ function deleteModelCells!(m::CAGD.Model, deg::Int, cs::Array{Int, 1})::Nothing
     tokeep     = setdiff(collect(1 : size(m, deg, 1)), cs)
     m.T[deg]   = m.T[deg][tokeep, :]
 
-    if deg == length(m) return end
+    if  deg == length(m) return  end
 
     # Removing `cs` cols from `m.T[deg+1]` by checking if some `deg+1` cell
     #  has to be removed too.
@@ -205,8 +220,8 @@ function deleteModelCells!(m::CAGD.Model, deg::Int, cs::Array{Int, 1})::Nothing
     todelHo    = m.T[deg + 1][:, cs]
     m.T[deg+1] = m.T[deg + 1][:, tokeep]
     if isempty(m.T[deg+1]) return end
-    todelHo    = [l for l = 1 : todel.m if sum(todelE[l, :]) != 0]
-    if !isempty(todelHo) CAGD.deleteModelCells!(m, deg+1, todelHo) end
+    todelHo, _, _ = SparseArrays.findnz(todelHo)
+    if !isempty(todelHo) CAGD.deleteModelCells!(m, deg+1, unique(todelHo)) end
     return
 end
 
@@ -217,41 +232,56 @@ end
 function getModelLoCell(m::CAGD.Model, deg::Int, c::Int)::Array{Int, 1}
     deg > 0 || throw(ArgumentError("Degree must be a non negative value"))
     deg ≤ length(m) || throw(ArgumentError("The model do not have degree $deg"))
+    c > 0 || throw(ArgumentError("Cell indices are positive integers"))
+    c ≤ size(m, deg, 1) || throw(ArgumentError("There are not $c $deg-cells"))
     return m.T[deg][c, :].nzind
 end
 
 function getModelLoCell(m::CAGD.Model, deg::Int, cs::Array{Int, 1})::Array{Int, 1}
     deg > 0 || throw(ArgumentError("Degree must be a non negative value"))
     deg ≤ length(m) || throw(ArgumentError("The model do not have degree $deg"))
+    min(cs...) > 0 || throw(ArgumentError("Cell indices are positive integers"))
+    max(cs...) ≤ size(m, deg, 1) || throw(ArgumentError("There are not $(max(cs...)) $deg-cells"))
     return ∪([m.T[deg][c, :].nzind for c in cs]...)
 end
 
 function getModelCellVertices(m::CAGD.Model, deg::Int, c::Int, ret_idx=false)
+    return getModelCellVertices(m, deg, [c], ret_idx)
+end
+
+function getModelCellVertices(m::CAGD.Model, deg::Int, cs::Array{Int,1}, ret_idx=false)
     deg > 0 || throw(ArgumentError("Degree must be a non negative value"))
     deg ≤ length(m) || throw(ArgumentError("The model do not have degree $deg"))
-    set = [c]
+    min(cs...) > 0 || throw(ArgumentError("Cell indices are positive integers"))
+    max(cs...) ≤ size(m, deg, 1) || throw(ArgumentError("There are not $(max(cs...)) $deg-cells"))
+
     for d = deg : -1 : 1
-        set = ∪([m.T[d][el, :].nzind for el in set]...)
+        cs = ∪([m.T[d][el, :].nzind for el in cs]...)
     end
 
     if ret_idx == true
-        return (map(i -> m.G[:, set[i]], 1:length(set)), set)
+        return (map(i -> m.G[:, cs[i]], 1:length(cs)), cs)
     end
-    return map(i -> m.G[:, set[i]], 1:length(set))
+    return map(i -> m.G[:, cs[i]], 1:length(cs))
 end
 
 function getModelCellGeometry(m::CAGD.Model, deg::Int, c::Int, ret_idx=false)
+    return getModelCellGeometry(m, deg, [c], ret_idx)
+end
+
+function getModelCellGeometry(m::CAGD.Model, deg::Int, cs::Array{Int,1}, ret_idx=false)
     deg > 0 || throw(ArgumentError("Degree must be a non negative value"))
     deg ≤ length(m) || throw(ArgumentError("The model do not have degree $deg"))
-    set = [c]
+    min(cs...) > 0 || throw(ArgumentError("Cell indices are positive integers"))
+    max(cs...) ≤ size(m, deg, 1) || throw(ArgumentError("There are not $(max(cs...)) $deg-cells"))
     for d = deg : -1 : 1
-        set = ∪([m.T[d][el, :].nzind for el in set]...)
+        cs = ∪([m.T[d][el, :].nzind for el in cs]...)
     end
 
     if ret_idx == true
-        return (m.G[:, set], set)
+        return (m.G[:, cs], cs)
     end
-    return m.G[:, set]
+    return m.G[:, cs]
 end
 
 #-------------------------------------------------------------------------------
@@ -279,6 +309,25 @@ function modelPurge!(m::CAGD.Model, depth::Int = 0)::Nothing
     todel = [i for i = 1 : size(m, 1, 2) if sum(abs.(m.T[1][:, i])) == 0]
     if !isempty(todel) CAGD.deleteModelVertices!(m, todel) end
     return
+end
+
+function mergeModelVertices(model::CAGD.Model; err=1e-6, signed_merge = false)
+    V, cls = CAGD.vcongruence(model.G, epsilon = err)
+    if signed_merge  lo_sign = [ones(Int8, length(cl)) for cl in cls]  end
+    congModel = CAGD.Model(V)
+    for d = 1 : length(model)
+        if isempty(model.T[d])  break  end
+        if signed_merge
+            cop, cls, lo_sign = CAGD.signedCellCongruence(model.T[d], cls, lo_sign, dim=d)
+            if  d > 1 cop = -cop  end
+        else
+            cop, cls = CAGD.cellcongruence(model.T[d], cls, dim=d)
+            cop = convert(Lar.Cells, cop)
+        end
+        CAGD.addModelCells!(congModel, d, cop)
+    end
+
+    return congModel
 end
 
 
@@ -323,25 +372,6 @@ end
 
 function mergeMultipleModels(models::Array{CAGD.Model,1}; err=1e-6)::CAGD.Model
     return CAGD.mergeModelVertices(uniteMultipleModels(models), err=err)
-end
-
-function mergeModelVertices(model::CAGD.Model; err=1e-6, signed_merge = false)
-    V, cls = CAGD.vcongruence(model.G, epsilon = err)
-    if signed_merge  lo_sign = [ones(Int8, length(cl)) for cl in cls]  end
-    congModel = CAGD.Model(V)
-    for d = 1 : length(model)
-        if isempty(model.T[d])  break  end
-        if signed_merge
-            cop, cls, lo_sign = CAGD.signedCellCongruence(model.T[d], cls, lo_sign, dim=d)
-            if  d > 1 cop = -cop  end
-        else
-            cop, cls = CAGD.cellcongruence(model.T[d], cls, dim=d)
-            cop = convert(Lar.Cells, cop)
-        end
-        CAGD.addModelCells!(congModel, d, cop)
-    end
-
-    return congModel
 end
 
 #-------------------------------------------------------------------------------
