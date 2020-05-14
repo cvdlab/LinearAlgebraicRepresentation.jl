@@ -186,20 +186,183 @@ end
 end
 
 @testset "Model Manipulation" begin
-
+    
     @testset "Purge Model" begin
+        m = CAGD.Model([0.0 0.0 1.0 0.0 2.0; 0.0 1.0 0.0 2.0 0.0], [
+            SparseArrays.sparse(Int8[-1 1 0 0 0; -1 0 1 0 0; 0 -1 1 0 0; 0 -1 0 1 0]),
+            SparseArrays.sparse(Int8[1 -1 1 0 ])
+        ])
+        CAGD.modelPurge!(m)
+        @test size(m, 1) == (4, 4)
+
+        CAGD.modelPurge!(m, depth = 1)
+        @test size(m, 1) == (3, 3)
     end
 
     @testset "Merge Model Vertices" begin
+        m = CAGD.Model([
+                0.0  0.0  1.0  0.0   0.0  -1.0  0.0  -1.0  -1.0
+                0.0  1.0  0.0  0.0  -1.0   0.0  1.0   0.0   1.0
+            ], [
+                SparseArrays.sparse(Int8[
+                    -1   1  0   0   0  0   0   0  0
+                    -1   0  1   0   0  0   0   0  0
+                     0  -1  1   0   0  0   0   0  0
+                     0   0  0  -1   1  0   0   0  0
+                     0   0  0  -1   0  1   0   0  0
+                     0   0  0   0  -1  1   0   0  0
+                     0   0  0   0   0  0  -1   1  0
+                     0   0  0   0   0  0  -1   0  1
+                     0   0  0   0   0  0   0  -1  1
+                ]),
+                SparseArrays.sparse(Int8[
+                    1  -1  1  0   0  0  0   0  0
+                    0   0  0  1  -1  1  0   0  0
+                    0   0  0  0   0  0  1  -1  1
+                ]),
+        ])
+
+        m1 = CAGD.mergeModelVertices(m, signed_merge = false);
+        m2 = CAGD.mergeModelVertices(m, signed_merge = true);
+
+        @test size(m1, 1) == (9, 6)
+        @test size(m2, 1) == (9, 6)
+        @test size(m1, 2) == (3, 9)
+        @test size(m2, 2) == (3, 9)
+
+        @test m1.G == m2.G
+        @test sortslices(m1.T[1], dims = 1) == sortslices(abs.(m2.T[1]), dims = 1)
+
+        @test m1.G == [
+            0.0  0.0  1.0   0.0  -1.0  -1.0
+            0.0  1.0  0.0  -1.0   0.0   1.0
+        ]
+
+        @test Matrix(m2.T[1]) == [
+            -1   0  0   0   1  0
+            -1   0  0   1   0  0
+            -1   0  1   0   0  0
+            -1   1  0   0   0  0
+             0  -1  0   0   0  1
+             0  -1  0   0   1  0
+             0  -1  1   0   0  0
+             0   0  0  -1   1  0
+             0   0  0   0  -1  1
+        ]
+
+        @test Matrix(m2.T[2]) == [
+            1  -1  0   0  0   0   0  -1   0
+            0   0  1  -1  0   0  -1   0   0
+            0   0  0   0  1  -1   0   0  -1
+        ]
     end
 end
 
 @testset "Models Interaction" begin
     @testset "Unite Models" begin
-    
+        m1 = CAGD.Model([0.0 0.0 1.0; 0.0 1.0 0.0], [
+            SparseArrays.sparse(Int8[-1 1 0; -1 0 1; 0 -1 1]),
+            SparseArrays.sparse(Int8[1 -1 1])
+        ])
+        
+        m2 = CAGD.Model([0.0 0.0 -1.0; 0.0 -1.0 0.0], [
+            SparseArrays.sparse(Int8[-1 1 0; -1 0 1; 0 -1 1]),
+            SparseArrays.sparse(Int8[1 -1 1])
+        ])
+
+        m3 = CAGD.Model([0.0 -1.0 -1.0; 1.0 0.0 1.0], [
+            SparseArrays.sparse(Int8[-1 1 0; -1 0 1; 0 -1 1]),
+            SparseArrays.sparse(Int8[1 -1 1])
+        ])
+        
+        m4 = CAGD.uniteModels(m1, m2)
+        CAGD.uniteModels!(m1, m2)
+
+        @test m1 == m4
+        @test size(m1, 1) == (6, 6)
+        @test size(m1, 2) == (2, 6)
+        
+        models = [
+            CAGD.Model([0.0 0.0 1.0; 0.0 1.0 0.0], [
+                SparseArrays.sparse(Int8[-1 1 0; -1 0 1; 0 -1 1]),
+                SparseArrays.sparse(Int8[1 -1 1])
+            ]);
+
+            CAGD.Model([0.0 0.0 -1.0; 0.0 -1.0 0.0], [
+                SparseArrays.sparse(Int8[-1 1 0; -1 0 1; 0 -1 1]),
+                SparseArrays.sparse(Int8[1 -1 1])
+            ]);
+            
+            CAGD.Model([0.0 -1.0 -1.0; 1.0 0.0 1.0], [
+                SparseArrays.sparse(Int8[-1 1 0; -1 0 1; 0 -1 1]),
+                SparseArrays.sparse(Int8[1 -1 1])
+            ])
+        ];
+
+        CAGD.uniteModels!(m1, m3)
+
+        @test m1 == CAGD.uniteMultipleModels(models)
     end
 
     @testset "Merge Models" begin
+        models = [
+            CAGD.Model([0.0 0.0 1.0; 0.0 1.0 0.0], [
+                SparseArrays.sparse(Int8[-1 1 0; -1 0 1; 0 -1 1]),
+                SparseArrays.sparse(Int8[1 -1 1])
+            ]);
+        
+            CAGD.Model([0.0 0.0 -1.0; 0.0 -1.0 0.0], [
+                SparseArrays.sparse(Int8[-1 1 0; -1 0 1; 0 -1 1]),
+                SparseArrays.sparse(Int8[1 -1 1])
+            ]);
+            
+            CAGD.Model([0.0 -1.0 -1.0; 1.0 0.0 1.0], [
+                SparseArrays.sparse(Int8[-1 1 0; -1 0 1; 0 -1 1]),
+                SparseArrays.sparse(Int8[1 -1 1])
+            ])
+        ]
 
+        m = CAGD.mergeMultipleModels(models, signed_merge = true)
+
+        @test size(m, 1) == (9, 6)
+        @test size(m, 2) == (3, 9)
+
+        @test m.G == [
+            0.0  0.0  1.0   0.0  -1.0  -1.0
+            0.0  1.0  0.0  -1.0   0.0   1.0
+        ]
+
+        @test Matrix(m.T[1]) == [
+            -1   0  0   0   1  0
+            -1   0  0   1   0  0
+            -1   0  1   0   0  0
+            -1   1  0   0   0  0
+             0  -1  0   0   0  1
+             0  -1  0   0   1  0
+             0  -1  1   0   0  0
+             0   0  0  -1   1  0
+             0   0  0   0  -1  1
+        ]
+
+        @test Matrix(m.T[2]) == [
+            1  -1  0   0  0   0   0  -1   0
+            0   0  1  -1  0   0  -1   0   0
+            0   0  0   0  1  -1   0   0  -1
+        ]
     end
+end
+
+@testset "Model Export" begin
+    modelOut = CAGD.Model([0.0 0.0 1.0; 0.0 1.0 0.0], [
+        SparseArrays.sparse(Int8[-1 1 0; -1 0 1; 0 -1 1]),
+        SparseArrays.sparse(Int8[1 -1 1])
+    ]);
+    
+    #CAGD.jlexportModel(modelOut, "./testModelExport.jl", "modelIn");
+
+    #include("./testModelExport.jl");
+
+    #@test modelIn == modelOut
+
+    #rm("./testModelExport.jl")
 end
