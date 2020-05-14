@@ -74,12 +74,7 @@ function viewNumFace(model::CAGD.Model, τ::Int, numsize=0.25)
     FVs = Lar.cop2lar(map(x -> floor(Int8, x / 2), abs.(model.T[2][τ:τ, :]) * abs.(model.T[1])))
     VV = [[k] for k in unique(vcat(EVs...))]
     GL.VIEW([
-<<<<<<< HEAD
-        GL.GLFrame,
-        GL.GLPol(V, EV, GL.COLORS[1]),
-=======
         GL.GLPol(V, EV, GL.COLORS[1])
->>>>>>> 5430b30ae6f770c43846771df1808138328a618c
         GL.numbering(numsize)((V, [VV, EVs, FVs]))
         GL.GLFrame
     ])
