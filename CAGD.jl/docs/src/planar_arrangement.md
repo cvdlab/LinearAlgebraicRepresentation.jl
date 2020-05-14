@@ -18,7 +18,7 @@ using ViewerGL; GL = ViewerGL
 ```
 
 #### Two functions
-The function randlines is defined to produce `n` line segments in 2D, scaled by a $0\leq t\leq 1$ parameter.  The function returns the usual LAR model tuple `(V,EV)`, i.e. a disconnected graph, defined by arcs.
+The function `randlines` is defined to produce `n` line segments in 2D, scaled by a $0\leq t\leq 1$ parameter.  The function returns the usual LAR model tuple `(V,EV)`, i.e. a (disconnected) graph, defined by arcs.
 ```
 function randlines(n=300, t=0.4)
 	V = zeros(Float64,2,2*n)
@@ -35,7 +35,7 @@ function randlines(n=300, t=0.4)
 	return V,EV
 end
 ```
-The function `arrangement2D` produces, via `fragmentlines` a new set of smaller segments, split at intersection points outside of vertices. This one is now a planar graph, whatever is the input.  The function `biconnectedComponent` returns the pair `U,EVs`, to report all graph biconnected components. The 2D arrangement, or better its arrays af 2-cells and boundary 1-cells`(V,FVs,EVs)  is finally computed by `Lar.arrange2D`.
+The function `arrangement2D` produces, via `fragmentlines`, a new set of smaller segments, split at intersection points outside of vertices. This one is now a planar graph, whatever is the input.  The function `biconnectedComponent` returns the pair `U,EVs`, to report all graph biconnected components. The 2D arrangement, or better its arrays af 2-cells and boundary 1-cells `(V,FVs,EVs)`  is finally computed by the `Lar.arrange2D` function.
 
 ```
 function arrangement2D(V,EV)
@@ -46,13 +46,14 @@ function arrangement2D(V,EV)
 end
 ```
 
-#### Spatially indexing of lines 
+#### Spatial indexing of lines 
 
-An example with only 10 lines, scaled twice to have a sufficient number of pairwise intersections is generated here. Below we show the $\mathcal{I}(\sigma)$ for each line $\sigma$. Just note that each one has several others of possible intersection here, due to their elongated size. In normal geometric data the cardinality of each query is much smaller.
+An example with only 10 lines, scaled twice to have a sufficient number of pairwise intersections is generated here. Below we show the $\mathcal{I}(\sigma)$ for each line $\sigma$.  Just note that each one has several others of possible intersection here, due to their elongated size. In normal geometric data the cardinality of each query is much smaller.
 ```
 julia> V,EV = randlines(10,2.)
 julia> Sigma = Lar.spaceindex((V,EV))
-julia> collect(zip(tuple(1:length(EV)...),tuple(Sigma...)))
+julia> [(k,tuple) for (k,tuple) in enumerate(Sigma)]
+
 10-element Array{Tuple{Int64,Array{Int64,1}},1}:
  (1, [3, 10, 8, 9, 7, 2])      
  (2, [3, 9, 4, 1])             
