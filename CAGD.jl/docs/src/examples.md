@@ -1,3 +1,19 @@
+In the following examples we use three packages, for geometric computing and visualization of cellular complexes, respectively. Hence start by defining two shorter aliases:
+
+```
+julia> using LinearAlgebraicRepresentation
+
+julia> Lar = LinearAlgebraicRepresentation
+LinearAlgebraicRepresentation
+
+julia> using ViewerGL
+
+julia> GL = ViewerGL
+ViewerGL
+
+julia> using CAGD
+```
+
 ## Cube generation as a `Model`
 
 Here we first create the `Model` of a cube, actually a wrapping of vertices, edges and faces of a cellular complex created by the `Lar.cuboid` primitive, with minimum point `[-1,-1,-1]`, maximum point [1,1,1], and `true` flag for generation of all bases of its boundary complex.
@@ -41,7 +57,7 @@ julia> map(Matrix, cube.T)
  Array{Int8}(undef,0,6)                           
 ```
 
-Or, more explicitly: $[\delta_0] : `V` \to `E`$
+Or, more explicitly: $[\delta_0]$ : `V` $\to$ `E`
 
 ```julia
 julia> Matrix(cube.T[1])
@@ -60,7 +76,7 @@ julia> Matrix(cube.T[1])
   0   0   0  -1   0   0   0  1
 ```
 
-and $[\delta_1] : `E` \to `F`$
+and $[\delta_1]$ : `E` $\to$ `F`
 
 ```julia
 julia> Matrix(cube.T[2])
@@ -73,15 +89,15 @@ julia> Matrix(cube.T[2])
  0   0   0   0   0  1   0  -1   0  -1   0  1
 ```
 
-## `Struct` and `Model` assembly of two tuple instances.  
+## `Struct` and `Model` assembly 
 
-- `Struct` type is used to aggregate hierarchically in world coordinates both geometric tuples and other `Struct` objects, defined in local coordinates, and transformed eventually by affine maps, using homogeneous coordinates.
-- `Model` type is used to wrap geometry and topology of an object together, and jointly assign to a variable symbol.
+- The `Struct` type is used to aggregate hierarchically in world coordinates both geometric tuples and/or other `Struct` objects, defined in local coordinates, and (possibly) transformed  by affine maps, using homogeneous coordinates.
+- The `Model` type is used to wrap geometry and topology of an object together, and jointly assign to a variable symbol.
 
 In a next release `Struct` will be able to combine hierarchically any number of `Model` objects.
 
 ```julia
-julia> assembly = Lar.Struct([ (V,EV,FV), Lar.t(1,1,1), (V,EV,FV) ]);
+julia> assembly = Lar.Struct([ (V,EV,FV), Lar.t(1,1,1), Lar.r(π/16,0,0), (V,EV,FV) ]);
 
 julia> typeof(assembly)
 LinearAlgebraicRepresentation.Struct
@@ -109,7 +125,7 @@ julia> map(size, twocubes.T)
 In order to create a well defined cellular complex, we must apply a pipeline of transformations, starting from object's fragmentation. Every face is split in 2D against all faces of possible intersection with it (using interval-trees). Solid cells are not yet reconstructed:
 
 ```julia
-julia> split_model = CAGD.facesplitting(twocubes)
+julia> split_model = CAGD.pairwise_decomposition(twocubes)
 CAGD.Model([-1.0 -1.0 … 2.0 2.0; -1.0 -1.0 … 0.0 2.0; -1.0 1.0 … 2.0 2.0], SparseArrays.SparseMatrixCSC{Int8,Int64}[ ....
 
 julia> size(split_model.G)
@@ -138,3 +154,113 @@ julia> map(size, congruent_model.T)
  (0, 18) 
 ```
 The numbers of vertices, edges, faces, and cells were now 2, 36, 18, 0, after having identified ``\epsilon``-congruent vertices, edges, and faces.
+
+TODO ... continue
+
+## Arrangements
+
+### 2D Arrangement
+
+Remember the definition:  an arrangement is the (regularized) $d$-space partition induced by a collection of geometric objects (cellular complexes) of dimension $d-1$.
+
+Start by generating a grid ``4\times 4`` of unit squares, including all bases of their (cuboidal) complex.
+
+```
+julia> n,m = 2,2;
+julia> V,(VV,EV,FV) = Lar.cuboidGrid([n,m],true);
+julia> squares = V,FV,EV;
+julia> q = sqrt(2);
+```
+
+Then build an assembly `twosquares` of type `Lar.Struct` of two `squares` instances, each rotated about the origin of `q` angle, and translated at both sides of the origin
+
+```
+julia> twosquares = Lar.Struct([ 
+           Lar.Struct([ Lar.t(-q/4, -q/2 ), Lar.r(pi/4), squares ]),
+           Lar.Struct([ Lar.t( q/4, -q/2 ), Lar.r(pi/4), squares ])
+       ])
+```
+
+Then transform `twosquares` in a LAR tuple `(V,FV,EV)`, and visualize graphically the two superimposed grids and 
+
+```
+julia> V,FV,EV = Lar.struct2lar(twosquares);
+julia> GL.VIEW([ GL.GLGrid(V,EV,GL.MayaColors[1],1), GL.GLFrame2 ]);
+```
+
+Now, let us remember that the input collection $\mathcal(S)$ to the arrangement pipeline is a set of `(d-1)`-complexes, here stored in the LAR array of arrays of vertex indices  `EV`, which generate a complete representation of the $E^2$ arrangement. 
+
+The function `Lar.arrange2D`
+does not return the geometric complex `V,(EV,FE)`, but a data structure `(V,FVs,EVs)` directly used for visualization, with separate arrays of faces and edges for each irreducible **atom** of the space partition.   
+
+```
+julia> V,FVs,EVs = Lar.arrange2D(V,EV);
+julia> GL.VIEW(GL.GLExplode(V,FVs,1.5,1.5,1.,99,1));
+julia> GL.VIEW(GL.GLExplode(V,EVs,1.5,1.5,1.,12,1));
+```
+Below we show (a) the input set $\mathcal{S}$ of 1D edges; (b) the exploded set of 2D atoms generated by $\mathcal{A}(\mathcal{S})$; (c) the 1D boundaries of the exploded set of atoms.
+![](images/fig2.png)
+
+Wether replacing values of grid size in this example, we would obtain different arrangements of 2D space. For example:
+```
+julia> n,m = 1,1;
+```
+![](images/fig0.png)
+
+It may be of interest to note that the fairly complex geometries (even more the `2x2` grid) above where generated by $\mathcal{S} =$ (E,FV, EV) below:
+```
+julia> @show V,FV,EV = Lar.struct2lar(twosquares);
+(V, FV, EV) = Lar.struct2lar(twosquares) = ([-0.3535534 -1.0606602 0.3535534 -0.3535534 0.3535534 -0.3535534 1.0606602 0.3535534; -0.7071068 0.0 0.0 0.7071068 -0.7071068 0.0 0.0 0.7071068], Array{Int64,1}[[1, 2, 3, 4], [5, 6, 7, 8]], Array{Int64,1}[[1, 2], [3, 4], [1, 3], [2, 4], [5, 6], [7, 8], [5, 7], [6, 8]])
+```
+
+### 3D Arrangement
+
+The next example takes into consideration the $E^3$ arrangement generated by three cubes, translated, and/or rotated
+
+```
+V,(VV,EV,FV,CV) = Lar.cuboidGrid([1,1,1], true)
+cube = V,FV,EV
+threecubes = Lar.Struct([ cube,
+	Lar.t(1,1,0), Lar.r(π/6,0,0),cube,
+	Lar.t( -sqrt(2)/4, -sqrt(2)/4, 1/2 ), Lar.r(0,π/12,0),cube
+])
+V,FV,EV = Lar.struct2lar(threecubes)
+cubes = CAGD.Model(V,[EV,FV])
+```
+Four images, with camera chosen interactively, are displayed below,
+with frame buffer generated by the two source expressions. Notice that
+the current configuration of data *is not a cellular 2-complex*, since 2-cells (faces) intersect outside from their boundary, but is a collection of cellular complexes, with 1-cells and 2-cells stored in `V`, `EV` and `FV`, respectively (power of the esplicit LAR representation !!).
+
+```
+GL.VIEW(GL.GLExplode(V,[[face] for face in FV],1.5,1.5,1.,99,0.6));
+GL.VIEW(GL.GLExplode(V,[[face] for face in FV],1,1,1,99,0.6));
+```
+![](images/fig3.png)
+
+To generate such images from `Model` objects is more difficult, requiring the navigation from $\{-1,0,1\}$ rows of operators to their geometry.
+Going back from `Model` objects to LAR tuples is of course always possible. We actually  follow this path when the geometry is unknown.
+```
+arranged = Lar.pols2tria(cubes.G, Lar.cop2lar(cubes.T[1]), Lar.cop2lar(cubes.T[2]))
+```
+
+The best way to look at a space partition is to display its exploded 3-atoms.
+The complete procedure to preview all the atoms is given below:
+
+V = convert(Lar.Points, W')
+W,CVs,FVs,EVs = Lar.pols2tria(, copEV, copFE, copCF)
+
+
+
+TOFIX
+
+
+The arrangement pipeline is also executed by the `Lar.bool3d` function applied to the `threecubes::Struct` assembly, which returns both the complete Geometric Complex (GC) of the 3-space arrangement, but also the boolean matrix shown below.
+
+```
+W, (copEV, copFE, copCF), boolmatrix = Lar.bool3d(threecubes)
+```
+
+Matrix(boolmatrix)
+
+
+
