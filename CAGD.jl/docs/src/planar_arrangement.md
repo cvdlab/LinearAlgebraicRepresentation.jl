@@ -67,8 +67,8 @@ julia> [(k,tuple) for (k,tuple) in enumerate(Sigma)]
  (10, [3, 8, 9, 7, 4, 1])      
 
 ```
-
-The set of lines and their numbers are shown below, together with the computed 2-cells of the space partition.
+Note that each array of indices denotes 2-cells whose *containment box* migth intersect the one of each 2-cell, and not those which intersect it.
+The set of lines and their ordinal numbers are shown below, together with the computed 2-cells of the space partition.
 
 Visualization of different faces without explosion, and exploded boundaries of each 2-cell are generated as follows. the color parameter 99 induces a cyclic coloring with standard colors (white, red, green, blue, cyan, magenta, yellow, etc ... )
 
