@@ -41,5 +41,9 @@ The initial construction of interval trees has the same complexity of (double) s
 
 ### Example
 
+V,EV = randlines()
+W,EW = Lar.fragmentlines((V,EV));
+GL.VIEW(GL.GLExplode(W,[[e] for e in EW],1.,1.,1.,99,1));
+
 
 ![](images/fig7.png)

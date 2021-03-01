@@ -5,10 +5,10 @@ Lar = LinearAlgebraicRepresentation
 
 #include("")
 store = [];
-scaling = 1.05;
+scaling = 1.15;
 V,(VV,EV,FV,CV) = Lar.cuboid([0.25,0.25,0.25],true,[-0.25,-0.25,-0.25]);
 mybox = (V,CV,FV,EV);
-for k=1:8
+for k=1:30
 	size = rand()*scaling
 	scale = Lar.s(size,size,size)
 	transl = Lar.t(rand(3)...)
@@ -36,7 +36,7 @@ open("/tmp/lar.txt", "w") do f
 	close(f)
 end
 
-GL.VIEW([ GL.GLPol(V,CV, GL.COLORS[1]) ]);
+GL.VIEW([ GL.GLPol(V,CV, GL.COLORS[2], 0.1) ]);
 
 
 cop_EV = Lar.coboundary_0(EV::Lar.Cells);

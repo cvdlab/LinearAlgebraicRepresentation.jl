@@ -697,8 +697,6 @@ function pols2tria(W, copEV, copFE, copCF) # W by columns
 	V = convert(Points,W')
 	triangulated_faces = triangulate(V, [copEV, copFE])
 	EVs = FV2EVs(copEV, copFE) # polygonal face fragments
-@show EVs
-@show triangulated_faces
 	# triangulated_faces = [ item for (k,item) in enumerate(triangulated_faces)
 	# 	if isdefined(triangulated_faces,k) && item ≠ Any[]  ]
 	FVs = convert(Array{Cells}, triangulated_faces)

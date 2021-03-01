@@ -46,9 +46,9 @@ A **GC** allows to transform the (possibly non connected) boundary 2-cycle (set 
 The `Model` data type is a `mutable struct` with two fields `G` and `T` to store the *geometry* and the *topology* of a geometric complex, respectively. The first field `G`, is used to provide the geometric embedding of the model through the coordinates of vertices, and is of `Lar.Points` type. The second field `T`, used to store the graded coboundary operators, is an array of `Lar.ChainOp` (for *chain operators*) of sparse matrices representing the $\delta_0, \delta_1, \delta_2$ maps, or better their matrices, i.e., `EV` : `V` $\to$ `E`, `FE` : `E` $\to$ `F`, and `CF` : `F` $\to$ `C`, respectively.
 Note that 
 ```
-julia> typeof(Model.G) == Lar.Points == Array{Float64,2} 
+julia> typeof(CAGD.Model.G) == Lar.Points == Array{Float64,2} 
 
-julia> typeof(Model.T) == Array{Lar.ChainOp,1} == Array{SparseArrays.SparseMatrixCSC{Int8,Int64},1}
+julia> typeof(CAGD.Model.T) == Array{Lar.ChainOp,1} == Array{SparseArrays.SparseMatrixCSC{Int8,Int64},1}
 ```
 The constructor methods `Model(V,T)`, `Model(V)`, and `Model()`, provide semantic checks on the consistency of actual parameter values. So does the constructor method `Model(V::Lar.Points,[EV::Lar.Chains, FV::Lar.Chains])` using LAR arrays of arrays.
 

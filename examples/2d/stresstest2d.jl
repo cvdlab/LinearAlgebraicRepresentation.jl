@@ -1,6 +1,7 @@
 using LinearAlgebraicRepresentation
-using Plasm
 Lar = LinearAlgebraicRepresentation
+using ViewerGL
+GL = ViewerGL
 using IntervalTrees
 using SparseArrays
 using NearestNeighbors

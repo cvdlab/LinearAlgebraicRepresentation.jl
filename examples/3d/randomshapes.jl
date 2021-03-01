@@ -7,7 +7,7 @@ using ViewerGL
 GL = ViewerGL
 
 function randomshapes()
-	V,EV,FV = Lar.randomcubes(5, .8)
+	V,EV,FV = Lar.randomcubes(8, .8)
 	model3d = V,EV,FV
 	VV = [[k] for k=1:size(V,2)]
 

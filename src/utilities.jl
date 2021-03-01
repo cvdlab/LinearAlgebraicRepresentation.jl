@@ -1283,3 +1283,5 @@ function triangulate2d(V, EV)
 	end
     return innertriangles
 end
+
+include ../test/triangulate2d.jl
