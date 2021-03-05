@@ -8,7 +8,7 @@ store = [];
 scaling = 1.15;
 V,(VV,EV,FV,CV) = Lar.cuboid([0.25,0.25,0.25],true,[-0.25,-0.25,-0.25]);
 mybox = (V,CV,FV,EV);
-for k=1:30
+for k=1:10
 	size = rand()*scaling
 	scale = Lar.s(size,size,size)
 	transl = Lar.t(rand(3)...)
@@ -55,3 +55,4 @@ GL.VIEW( GL.GLExplode(V,FVs,1.5,1.5,1.5,99,1) );
 
 EVs = Lar.FV2EVs(copEV, copFE); # polygonal face fragments
 GL.VIEW( GL.GLExplode(V,EVs,1.5,1.5,1.5,99,1) );
+
