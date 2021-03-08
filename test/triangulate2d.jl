@@ -26,6 +26,7 @@ function LinearAlgebraicRepresentation.triangulate2d(V::Lar.Points, EV::Lar.Cell
    	 # edge_boundary = [true for k=1:size(edges_list,1)] ## dead code !!
 
 	trias = constrained_triangulation2D(V::Lar.Points, EV::Lar.Cells)
+	@show ">>>>>>>>>>>>>>>>I'm here>>>>>>>>>>>>>>>>>>>>>>"
 
  	#Triangle.constrained_triangulation(points,points_map,edges_list)
 	innertriangles = Array{Int64,1}[]

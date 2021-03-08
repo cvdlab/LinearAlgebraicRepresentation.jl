@@ -306,7 +306,7 @@ julia> Matrix(cscFE)
  0  1  0  0  0  1  1  0  0  1  0  0  0  0  0  0  0  0  0  0
  0  0  0  0  0  0  0  0  0  0  1  1  1  1  0  0  0  0  0  0
 """
-function coboundary_1(FV::Cells, EV::Cells)
+function coboundary_1(FV::Array{Array{Int64,1},1}, EV::Array{Array{Int64,1},1}) # (::Cells, ::Cells)
 	copFV = lar2cop(FV)
 	I,J,Val = findnz(Lar.lar2cop(EV))
 	copVE = sparse(J,I,Val)

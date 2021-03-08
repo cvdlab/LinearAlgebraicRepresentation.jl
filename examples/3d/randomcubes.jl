@@ -5,7 +5,7 @@ Lar = LinearAlgebraicRepresentation
 
 #include("")
 store = [];
-scaling = 1.15;
+scaling = 1.20;
 V,(VV,EV,FV,CV) = Lar.cuboid([0.25,0.25,0.25],true,[-0.25,-0.25,-0.25]);
 mybox = (V,CV,FV,EV);
 for k=1:10
@@ -55,4 +55,9 @@ GL.VIEW( GL.GLExplode(V,FVs,1.5,1.5,1.5,99,1) );
 
 EVs = Lar.FV2EVs(copEV, copFE); # polygonal face fragments
 GL.VIEW( GL.GLExplode(V,EVs,1.5,1.5,1.5,99,1) );
+
+#		V,CVs,FVs,EVs = Lar.pols2tria(W, copEV, copFE, copCF) # whole assembly
+#    GL.VIEW(GL.GLExplode(V,FVs,1.5,1.5,1.5,99,1));
+#    GL.VIEW(GL.GLExplode(V,EVs,1.5,1.5,1.5,99,1));
+#    GL.VIEW(GL.GLExplode(V,CVs,5,5,5,99,1));
 
