@@ -1284,4 +1284,4 @@ function triangulate2d(V, EV)
     return innertriangles
 end
 
-include ../test/triangulate2d.jl
+include("../test/triangulate2d.jl")
