@@ -8,7 +8,7 @@ branches:
     - master
   
 julia:
-  - 1.2
+  - 1.5
   - nightly
 
 matrix:
