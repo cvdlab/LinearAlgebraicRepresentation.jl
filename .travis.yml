@@ -2,6 +2,7 @@ language: julia
 
 os:
   - linux
+  - osx
 
 branches:
   only:
