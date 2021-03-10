@@ -5,10 +5,10 @@ Lar = LinearAlgebraicRepresentation
 
 #include("")
 store = [];
-scaling = 1.20;
+scaling = 1.5;
 V,(VV,EV,FV,CV) = Lar.cuboid([0.25,0.25,0.25],true,[-0.25,-0.25,-0.25]);
 mybox = (V,CV,FV,EV);
-for k=1:10
+for k=1:5
 	size = rand()*scaling
 	scale = Lar.s(size,size,size)
 	transl = Lar.t(rand(3)...)
@@ -44,20 +44,21 @@ cop_FE = Lar.coboundary_1(V, FV::Lar.Cells, EV::Lar.Cells);
 W = convert(Lar.Points, V');
 
 V, copEV, copFE, copCF = Lar.Arrangement.spatial_arrangement(
-	W::Lar.Points, cop_EV::Lar.ChainOp, cop_FE::Lar.ChainOp);
+		W::Lar.Points, cop_EV::Lar.ChainOp, cop_FE::Lar.ChainOp);
 
 
-triangulated_faces = Lar.triangulate2D(V, [copEV, copFE]);
-FVs = convert(Array{Lar.Cells}, triangulated_faces);
+#triangulated_faces = Lar.triangulate2D(V, [copEV, copFE]);
+#FVs = convert(Array{Lar.Cells}, triangulated_faces);
+#V = convert(Lar.Points, V');
+#GL.VIEW( GL.GLExplode(V,FVs,1.5,1.5,1.5,99,1) );
+#
+#
+#EVs = Lar.FV2EVs(copEV, copFE); # polygonal face fragments
+#GL.VIEW( GL.GLExplode(V,EVs,1.5,1.5,1.5,99,1) );
+
 V = convert(Lar.Points, V');
-GL.VIEW( GL.GLExplode(V,FVs,1.5,1.5,1.5,99,1) );
-
-
-EVs = Lar.FV2EVs(copEV, copFE); # polygonal face fragments
-GL.VIEW( GL.GLExplode(V,EVs,1.5,1.5,1.5,99,1) );
-
-#		V,CVs,FVs,EVs = Lar.pols2tria(W, copEV, copFE, copCF) # whole assembly
-#    GL.VIEW(GL.GLExplode(V,FVs,1.5,1.5,1.5,99,1));
-#    GL.VIEW(GL.GLExplode(V,EVs,1.5,1.5,1.5,99,1));
-#    GL.VIEW(GL.GLExplode(V,CVs,5,5,5,99,1));
+V,CVs,FVs,EVs = Lar.pols2tria(V, copEV, copFE, copCF) # whole assembly
+   GL.VIEW(GL.GLExplode(V,FVs,1,1,1,99,1));
+   GL.VIEW(GL.GLExplode(V,EVs,1.5,1.5,1.5,99,1));
+   GL.VIEW(GL.GLExplode(V,CVs,1,1,1,99,1));
 
