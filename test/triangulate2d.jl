@@ -14,11 +14,11 @@ end
 
 
 """
- 	LinearAlgebraicRepresentation.triangulate2d(V::Lar.Points, EV::Lar.Cells)
+ 	triangulate2d(V::Lar.Points, EV::Lar.Cells)
 
 #@overwrite Lar.triangulate2d.
 """
-function LinearAlgebraicRepresentation.triangulate2d(V::Lar.Points, EV::Lar.Cells)
+function triangulate2d(V::Lar.Points, EV::Lar.Cells)
    	 # data for Constrained Delaunay Triangulation (CDT)
    	 points = convert(Array{Float64,2}, V')
 	 # points_map = Array{Int64,1}(collect(1:1:size(points)[1]))
