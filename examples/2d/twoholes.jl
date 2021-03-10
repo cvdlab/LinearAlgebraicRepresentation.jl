@@ -2,7 +2,7 @@ using LinearAlgebraicRepresentation
 Lar = LinearAlgebraicRepresentation
 using ViewerGL
 GL = ViewerGL
-using Triangle, LinearAlgebra
+using LinearAlgebra
 
 # input of primitive shapes
 V,(VV,EV,FV) = Lar.simplex(2, true)

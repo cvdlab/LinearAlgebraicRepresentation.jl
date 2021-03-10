@@ -1263,25 +1263,25 @@ original and generated edges. `V` is given by column.
 #     triangles = [tria for tria in triangles if !(tria in holes)]
 #     return triangles
 # end
-function triangulate2d(V, EV)
-@show V;
-@show EV;
-    # data for Constrained Delaunay Triangulation (CDT)
-    points = convert(Array{Float64,2}, V')
-	points_map = Array{Int64,1}(collect(1:1:size(points)[1]))
-    edges_list = convert(Array{Int64,2}, hcat(EV...)')
-    edge_boundary = [true for k=1:size(edges_list,1)] ## dead code !!
-    trias = Triangle.constrained_triangulation(points,points_map,edges_list)
-	innertriangles = Array{Int64,1}[]
-	for (u,v,w) in trias
-		point = (points[u,:]+points[v,:]+points[w,:])./3
-		copEV = Lar.lar2cop(EV)
-		inner = Lar.point_in_face(point, points::Lar.Points, copEV::Lar.ChainOp)
-		if inner
-			push!(innertriangles,[u,v,w])
-		end
-	end
-    return innertriangles
-end
+#function triangulate2d(V, EV)
+#@show V;
+#@show EV;
+#    # data for Constrained Delaunay Triangulation (CDT)
+#    points = convert(Array{Float64,2}, V')
+#	points_map = Array{Int64,1}(collect(1:1:size(points)[1]))
+#    edges_list = convert(Array{Int64,2}, hcat(EV...)')
+#    edge_boundary = [true for k=1:size(edges_list,1)] ## dead code !!
+#    trias = Triangle.constrained_triangulation(points,points_map,edges_list)
+#	innertriangles = Array{Int64,1}[]
+#	for (u,v,w) in trias
+#		point = (points[u,:]+points[v,:]+points[w,:])./3
+#		copEV = Lar.lar2cop(EV)
+#		inner = Lar.point_in_face(point, points::Lar.Points, copEV::Lar.ChainOp)
+#		if inner
+#			push!(innertriangles,[u,v,w])
+#		end
+#	end
+#    return innertriangles
+#end
 
 include("../test/triangulate2d.jl")

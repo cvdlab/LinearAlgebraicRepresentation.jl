@@ -1,7 +1,7 @@
 using LinearAlgebraicRepresentation
 using Plasm, SparseArrays, LinearAlgebra
 Lar = LinearAlgebraicRepresentation
-using Rebugger, Triangle
+using Rebugger#, Triangle
 using JuliaInterpreter
 
 # source data from minimal test example
@@ -56,8 +56,8 @@ function minimal_3cycles(V::Lar.Points, EV::Lar.ChainOp, FE::Lar.ChainOp)
 
             vs = vs*M
 
-            triangulated_faces[f] = Triangle.constrained_triangulation(
-                Array{Float64,2}(vs), vs_idxs, edges, fill(true, edge_num))
+            #triangulated_faces[f] = Triangle.constrained_triangulation(
+            #    Array{Float64,2}(vs), vs_idxs, edges, fill(true, edge_num))
 
         end
         edge_vs = EV[e, :].nzind

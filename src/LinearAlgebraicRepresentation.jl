@@ -3,7 +3,8 @@ module LinearAlgebraicRepresentation
 	using NearestNeighbors
 	using DataStructures
 	using IntervalTrees
-	using Triangle
+	#using Triangle
+	using Triangulate
 	using SparseArrays
 	using LinearAlgebra
 	using Distributed

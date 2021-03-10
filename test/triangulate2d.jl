@@ -16,7 +16,7 @@ end
 """
  	LinearAlgebraicRepresentation.triangulate2d(V::Lar.Points, EV::Lar.Cells)
 
-@overwrite Lar.triangulate2d.
+#@overwrite Lar.triangulate2d.
 """
 function LinearAlgebraicRepresentation.triangulate2d(V::Lar.Points, EV::Lar.Cells)
    	 # data for Constrained Delaunay Triangulation (CDT)
