@@ -9,7 +9,7 @@
 [![DOI](https://zenodo.org/badge/doi/10.1016/j.cad.2013.08.044.svg)](http://dx.doi.org/10.1016/j.cad.2013.08.044)
 [![Arxiv](http://img.shields.io/badge/Arxiv-1704.00142-b31b1b.svg)](https://arxiv.org/abs/1704.00142)
 [![Arxiv](http://img.shields.io/badge/Arxiv-1710.07819-b31b1b.svg)](https://arxiv.org/abs/1710.07819)
-[![DOI](https://zenodo.org/badge/doi/10.1145/340198810)](https://dx.doi.org/10.1145/3401988)
+[![DOI](https://zenodo.org/badge/doi/10.1145/3401988.svg)](https://dx.doi.org/10.1145/3401988)
 
 
 Official Julia implementation of [LAR](http://dx.doi.org/10.1016/j.cad.2013.08.044), the Linear Algebraic Representation for Solid Modeling.  
