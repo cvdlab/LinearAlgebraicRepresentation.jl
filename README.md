@@ -21,9 +21,9 @@ using Pkg
 add("LinearAlgebraicRepresentation")
 
 # Pkg.add("LinearAlgebraicRepresentation") on julia prior to v0.7
+# add "LinearAlgebraicRepresentation" if you get ERROR: Could not determine command
 ```
 
 ## Documentation
 
 Go to [the documentation page](https://cvdlab.github.io/LinearAlgebraicRepresentation.jl/)
-
