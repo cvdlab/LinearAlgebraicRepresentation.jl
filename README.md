@@ -18,10 +18,10 @@ Official Julia implementation of [LAR](http://dx.doi.org/10.1016/j.cad.2013.08.0
 
 ```julia
 using Pkg
-add("LinearAlgebraicRepresentation")
-
-# Pkg.add("LinearAlgebraicRepresentation") on julia prior to v0.7
+Pkg.add("LinearAlgebraicRepresentation")
 ```
+It is strongly suggested to use tha last Julia version:
+[https://discourse.julialang.org/t/julia-v1-6-0-has-been-released/57938](https://discourse.julialang.org/t/julia-v1-6-0-has-been-released/57938)
 
 ## Documentation
 

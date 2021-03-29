@@ -1,4 +1,5 @@
-# Lar = LinearAlgebraicRepresentation
+using LinearAlgebraicRepresentation
+Lar = LinearAlgebraicRepresentation
 
 
 function interior_to_f(triangle,f,V,FV,EV,FE)
@@ -39,15 +40,15 @@ function ordering(triangles,V)
 	normals = []
 	v1,v2,v3 = triangles[1]
 	if v1>v2 v1,v2 = v2,v1 end
-	e3 = normalize(V[:,v2]-V[:,v1])
-	e1 = normalize(V[:,v3]-V[:,v1])
-	e2 = normalize(cross(e1,e3))
+	e3 = LinearAlgebra.normalize(V[:,v2]-V[:,v1])
+	e1 = LinearAlgebra.normalize(V[:,v3]-V[:,v1])
+	e2 = LinearAlgebra.normalize(cross(e1,e3))
 	basis = [e1 e2 e3]
 	transform = inv(basis)
 
 	angles = []
 	for (v1,v2,v3) in triangles
-		w1 = normalize(V[:,v3]-V[:,v1])
+		w1 = LinearAlgebra.normalize(V[:,v3]-V[:,v1])
 		w2 = transform * w1
 		w3 = cross([0,0,1],w2)
 		push!(normals,w3)
@@ -111,6 +112,7 @@ function myprev(cycle, pivot)
 	return cycle[nextIndex][1]
 end
 
+#using Plasm
 
 function build_copFC(rV, rcopEV, rcopFE)
 #function build_copFC(V,FV,EV,copFE)
@@ -122,38 +124,64 @@ function build_copFC(rV, rcopEV, rcopFE)
 	fv = [collect(Set(cat(EV[e] for e in fe[f]))) for f=1:length(fe)]
 	FV = convert(Lar.Cells, fv)
 	copFE = rcopFE
+VV = [[v] for v=1:size(V,2)]
+model = (V, (VV,EV,FV))
+#
+#@show V;
+#@show VV;
+#@show EV;
+#@show FV;
+#
+#Plasm.View(Plasm.numbering(.01)(model))
 
 	copEF = copFE'
+	@show copEF;
 	FE = [SparseArrays.findnz(copFE[k,:])[1] for k=1:size(copFE,1)]
 	# Initializations
 	m,n = size(copEF)
-	marks = zeros(Int,n);
+	@show m,n;
+	marks = zeros(Int8,n);
 	I = Int64[]; J = Int64[]; W = Int8[];
 	jcol = 0
 	choose(marks) = findfirst(x -> x<2, marks)
-
+	@show choose(marks)
+	
 	# Main loop (adding one copFC's column stepwise)
 	while sum(marks) < 2n
+	@show sum(marks);
 		# select a (d−1)-cell, "seed" of the column extraction
 		σ = choose(marks)
 		if marks[σ] == 0
 			cd1 = sparsevec([σ], Int8[1], n)
+			@show sum(marks), cd1;
 		elseif marks[σ] == 1
 			cd1 = sparsevec([σ], Int8[-1], n)
+			@show sum(marks), cd1;
 		end
 		# compute boundary cd2 of seed cell
 		cd2 = copEF * cd1
+		@show cd2;
 		# loop until (boundary) cd2 becomes empty
 		while nnz(cd2)≠0
-			corolla = sparsevec([], Int8[], n)
+			corolla = sparsevec([], Int8[], m)
 			# for each “hinge” τ cell
 			for τ ∈ (.*)(SparseArrays.findnz(cd2)...)
+				@show τ;
 				#compute the  coboundary
-				tau = sparsevec([abs(τ)], [sign(τ)], m)
+				tau = sparsevec([abs(τ)], Int64[sign(τ)], m)  # ERROR: index out of bound here! 
+				@show tau;
 				bd1 = transpose(transpose(tau) * copEF)
+				@show bd1;
 				cells2D = SparseArrays.findnz(bd1)[1]
 				# compute the  support
-				pivot = intersect(cells2D, SparseArrays.findnz(cd1)[1])[1]
+				@show cells2D
+				@show SparseArrays.findnz(cd1)[1]
+				inters = intersect(cells2D, SparseArrays.findnz(cd1)[1])
+				if inters ≠ []
+					pivot = inters[1]
+				else
+					error("no pivot")
+				end
 				# compute the new adj cell
 				fan = ord(abs(τ),bd1,V,FV,EV,FE) # ord(pivot,bd1)
 				if τ > 0
@@ -187,8 +215,8 @@ function build_copFC(rV, rcopEV, rcopFE)
 		append!(J,[ jcol for k=1:nnz(cd1) ])
 		append!(W,vals)
 	end
-	copFC = sparse(I,J,W)
-	return copFC
+	copCF = sparse(J,I,W)
+	return copCF
 end
 
 
@@ -552,7 +580,7 @@ function triangulate(V::Lar.Points, cc::Lar.ChainComplex)
 			vmap = Dict(zip(fv,1:length(fv))) # vertex map
 			mapv = Dict(zip(1:length(fv),fv)) # inverse vertex map
 
-			trias = Lar.triangulate2d(v,edges)
+			trias = triangulate2d(v,edges)
 			triangulated_faces[f] = [[mapv[v] for v in tria] for tria in trias]
 		end
     end
@@ -880,30 +908,35 @@ function space_arrangement(V::Points, EV::ChainOp, FE::ChainOp, multiproc::Bool=
 
     else
 
-       for sigma in 1:fs_num
-           # print(sigma, "/", fs_num, "\r")
-           nV, nEV, nFE = Lar.Arrangement.frag_face(
-           	V, EV, FE, sp_idx, sigma)
-           a,b,c = Lar.skel_merge(
-           	rV, rEV, rFE, nV, nEV, nFE)
-           rV=a; rEV=b; rFE=c
-       end
+#       for sigma in 1:fs_num
+#           # print(sigma, "/", fs_num, "\r")
+#           nV, nEV, nFE = Lar.Arrangement.frag_face(
+#           	V, EV, FE, sp_idx, sigma)
+#           a,b,c = Lar.skel_merge(
+#           	rV, rEV, rFE, nV, nEV, nFE)
+#           rV=a; rEV=b; rFE=c
+#       end
 
-#		depot_V = Array{Array{Float64,2},1}(undef,fs_num)
-#		depot_EV = Array{ChainOp,1}(undef,fs_num)
-#		depot_FE = Array{ChainOp,1}(undef,fs_num)
-#        for sigma in 1:fs_num
-#            print(sigma, "/", fs_num, "\r")
-#            nV, nEV, nFE = Arrangement.frag_face( V, EV, FE, sp_idx, sigma)
-#            depot_V[sigma] = nV
-#            depot_EV[sigma] = nEV
-#            depot_FE[sigma] = nFE
-#        end
-#		rV = vcat(depot_V...)
-#		rEV = SparseArrays.blockdiag(depot_EV...)
-#		rFE = SparseArrays.blockdiag(depot_FE...)
+	depot_V = Array{Array{Float64,2},1}(undef,fs_num)
+	depot_EV = Array{ChainOp,1}(undef,fs_num)
+	depot_FE = Array{ChainOp,1}(undef,fs_num)
+       for sigma in 1:fs_num
+           print(sigma, "/", fs_num, "\r")
+           nV, nEV, nFE = Arrangement.frag_face( V, EV, FE, sp_idx, sigma)
+           depot_V[sigma] = nV
+           depot_EV[sigma] = nEV
+           depot_FE[sigma] = nFE
+       end
+	rV = vcat(depot_V...)
+	rEV = SparseArrays.blockdiag(depot_EV...)
+	rFE = SparseArrays.blockdiag(depot_FE...)
 
     end
+println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
+@show rV;
+@show SparseArrays.findnz(rEV);
+@show SparseArrays.findnz(rFE);
+println("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<")
 
     rV, rEV, rFE = Lar.Arrangement.merge_vertices(rV, rEV, rFE)
 
@@ -1302,7 +1335,6 @@ end
 """
  	triangulate2d(V::Lar.Points, EV::Lar.Cells)
 
-#@overwrite Lar.triangulate2d.
 """
 function triangulate2d(V::Lar.Points, EV::Lar.Cells)
    	 # data for Constrained Delaunay Triangulation (CDT)
@@ -1326,4 +1358,3 @@ function triangulate2d(V::Lar.Points, EV::Lar.Cells)
     return innertriangles
 end
 
-#include("../test/triangulate2d.jl")

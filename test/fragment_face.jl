@@ -28,7 +28,7 @@ using NearestNeighbors
 
 
 # transform sigma and related faces in space_idx
-function face_mapping(V, FV, sigma, err=LinearAlgebraicRepresentation.ERR )
+function face_mapping(V, FV, sigma, err=Lar.ERR )
 	vs = FV[sigma]; i = 1
 	# compute affinely independent triple
 	n = length(vs)
