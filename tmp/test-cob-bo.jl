@@ -33,6 +33,8 @@ EV = [copEV[e,:].nzind for e=1:size(copEV,1)]
 FE = Lar.cop2lar(copFE) 
 ff = copFV * copFV'
 FF = [ff[f,:].nzind for f = 1:size(ff, 2)]
+VV = [[v] for v=1:size(V,1)]
+Model = (Lar.Points(V'), Lar.Cells[VV,EV,FV])
 
 for k=1:length(FV)
 	fVV = [[v] for v in Set(cat([FV[f] for f in FF[k]]))]
@@ -40,5 +42,5 @@ for k=1:length(FV)
 	fEV = sort!([EV[e] for e in fE])
 	fFV = vcat([FV[f] for f in FF[k]])
 	model = (Lar.Points(V'), Lar.Cells[fVV,fEV,fFV]);
-	GL.VIEW(GL.numbering1(.1)(model, GL.COLORS[1], 0.1));
+	GL.VIEW(GL.numbering(.1)(model, GL.COLORS[1], 0.1));
 end
