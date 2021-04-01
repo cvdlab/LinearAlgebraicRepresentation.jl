@@ -104,18 +104,23 @@ expression generating a complete and well-defined sub complex of the Model param
 """
 function viewsubcomplexes(Model,ff,scaling)
 	(V, (VV,EV,FV)) = Model
-	for k=1:length(ff)
 		ffE = [sort!(collect(Set(cat(FE[f]...,dims=1)))) for f in ff]
 		ffE = [FE[f] for f in ff]
-		fVV = [[v] for v in sort!(collect(Set(cat([FV[f] for f in ff[k]]))))]
-		fEV = cat([EV[e] for e in ffE[k]])
-		fEV = sort!(Lar.removeDups(Lar.Cells(fEV)))
-		fFV = vcat([FV[f] for f in ff[k]])
-		#model = ( ([1 0 0.3; 0 1 0.2; 0 0 1] * V)[1:2,:], Lar.Cells[fVV,fEV,fFV]);
-		model = (Lar.Points(V), Lar.Cells[fVV,fEV,fFV]); @show model;
-		skelDict = makesubsets(Model,model)
-		GL.VIEW(push!(numbering(scaling)(V, skelDict, GL.COLORS[1], 0.1),GL.GLFrame2));
-	end
+		
+		function viewsubcomplex(range)
+			for k in range
+				fVV = [[v] for v in sort!(collect(Set(cat([FV[f] for f in ff[k]]))))]
+				fEV = cat([EV[e] for e in ffE[k]])
+				fEV = sort!(Lar.removeDups(Lar.Cells(fEV)))
+				fFV = vcat([FV[f] for f in ff[k]])
+				#model = ( ([1 0 0.3; 0 1 0.2; 0 0 1] * V)[1:2,:], Lar.Cells[fVV,fEV,fFV]);
+				model = (Lar.Points(V), Lar.Cells[fVV,fEV,fFV]); @show model;
+				skelDict = makesubsets(Model,model)
+				GL.VIEW(push!(numbering(scaling)(V, skelDict, GL.COLORS[1], 0.1),GL.GLFrame2));
+			end
+		end
+	
+	return viewsubcomplex
 end
 
 
