@@ -140,4 +140,5 @@ ffV = [FV[f] for f in ff]
 ffE = [sort!(collect(Set(cat(FE[f]...,dims=1)))) for f in ff]
 
 Model = (convert(Lar.Points,V), Lar.Cells[VV,EV,FV])
-viewsubcomplexes(Model,ff,.2)
+viewsubcomplex = viewsubcomplexes(Model,ff,.2)
+#viewsubcomplex(32)
