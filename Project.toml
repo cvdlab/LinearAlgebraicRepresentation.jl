@@ -6,7 +6,7 @@ desc = "LAR, the Linear Algebraic Representation for Solid Modeling."
 version = "1.0.0"
 
 [deps]
-ViewerGL = "32496ab8-9004-11e9-0205-c9e71bda7ab0"
+# ViewerGL = "32496ab8-9004-11e9-0205-c9e71bda7ab0"
 DataStructures = "864edb3b-99cc-5e75-8d2d-829cb0a9cfe8"
 Distributed = "8ba89e20-285c-5b6f-9357-94700520ee1b"
 IntervalTrees = "524e6230-43b7-53ae-be76-1e9e4d08d11b"
