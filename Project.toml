@@ -6,7 +6,7 @@ desc = "LAR, the Linear Algebraic Representation for Solid Modeling."
 version = "1.0.0"
 
 [deps]
-# ViewerGL = "32496ab8-9004-11e9-0205-c9e71bda7ab0"
+ViewerGL = "32496ab8-9004-11e9-0205-c9e71bda7ab0"
 DataStructures = "864edb3b-99cc-5e75-8d2d-829cb0a9cfe8"
 Distributed = "8ba89e20-285c-5b6f-9357-94700520ee1b"
 IntervalTrees = "524e6230-43b7-53ae-be76-1e9e4d08d11b"
@@ -16,6 +16,7 @@ Revise = "295af30f-e4ad-537b-8983-00126c2a3abe"
 SparseArrays = "2f01184e-e22b-5df5-ae63-d93ebab69eaf"
 Triangle_jll = "5639c1d2-226c-5e70-8d55-b3095415a16a"
 Triangulate = "f7e6ffb2-c36d-4f8f-a77e-16e897189344"
+OrderedCollections = "bac558e1-5e72-5ebc-8fee-abe8a469f55d"
 
 [compat]
 IntervalTrees = "^1.0.0"

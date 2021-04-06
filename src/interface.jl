@@ -1,3 +1,4 @@
+using OrderedCollections
 
 """
 	characteristicMatrix( FV::Cells )::ChainOp
@@ -10,35 +11,13 @@ number of columns is equal to the number of vertices (0-cells).
 # Example
 
 ```julia
-V,(VV,EV,FV,CV) = cuboid([1.,1.,1.], true);
+julia> V,(VV,EV,FV,CV) = Lar.cuboid([1.,1.,1.], true);
 
-julia> Matrix(characteristicMatrix(FV))
-6×8 Array{Int8,2}:
-1  1  1  1  0  0  0  0
-0  0  0  0  1  1  1  1
-1  1  0  0  1  1  0  0
-0  0  1  1  0  0  1  1
-1  0  1  0  1  0  1  0
-0  1  0  1  0  1  0  1
+julia> Matrix(Lar.characteristicMatrix(FV))
 
-julia> Matrix(characteristicMatrix(CV))
-1×8 Array{Int8,2}:
-1  1  1  1  1  1  1  1
+julia> Matrix(Lar.characteristicMatrix(CV))
 
-julia> Matrix(characteristicMatrix(EV))
-12×8 Array{Int8,2}:
-1  1  0  0  0  0  0  0
-0  0  1  1  0  0  0  0
-0  0  0  0  1  1  0  0
-0  0  0  0  0  0  1  1
-1  0  1  0  0  0  0  0
-0  1  0  1  0  0  0  0
-0  0  0  0  1  0  1  0
-0  0  0  0  0  1  0  1
-1  0  0  0  1  0  0  0
-0  1  0  0  0  1  0  0
-0  0  1  0  0  0  1  0
-0  0  0  1  0  0  0  1
+julia> Matrix(Lar.characteristicMatrix(EV))
 ```
 """
 function characteristicMatrix( FV::Cells )::ChainOp
@@ -62,7 +41,7 @@ Computation of sparse signed boundary operator ``C_1 -> C_0``.
 
 # Example
 ```julia
-julia> V,(VV,EV,FV,CV) = cuboid([1.,1.,1.], true);
+julia> V,(VV,EV,FV,CV) = Lar.cuboid([1.,1.,1.], true);
 
 julia> EV
 12-element Array{Array{Int64,1},1}:
@@ -73,7 +52,7 @@ julia> EV
 [3, 7]
 [4, 8]
 
-julia> boundary_1( EV::Cells )
+julia> Lar.boundary_1( EV::Lar.Cells )
 8×12 SparseMatrixCSC{Int8,Int64} with 24 stored entries:
 [1 ,  1]  =  -1
 [2 ,  1]  =  1
@@ -83,7 +62,7 @@ julia> boundary_1( EV::Cells )
 [4 , 12]  =  -1
 [8 , 12]  =  1
 
-julia> Matrix(boundary_1(EV::Cells))
+julia> Matrix(Lar.boundary_1(EV::Lar.Cells))
 8×12 Array{Int8,2}:
 -1   0   0   0  -1   0   0   0  -1   0   0   0
 1   0   0   0   0  -1   0   0   0  -1   0   0
@@ -143,7 +122,7 @@ EV = [[1,2],[2,3],[3,4],[4,5],[1,12],[2,6],[3,7],[4,9],[5,17],[6,7],[8,9],
 V = [0   2   5   7  10   2   5   3   7  3  7  0  3  3  7  0  10;
     16  16  16  16  16  13  13  11  11  8  8  5  5  2  2  0   0]
 
-cscFE = u_coboundary_1( FV::Cells, EV::Cells, false);
+cscFE = Lar.u_coboundary_1( FV::Lar.Cells, EV::Lar.Cells, false);
 Matrix(cscFE)
 ```
 
@@ -216,9 +195,9 @@ is the number of edges.
 ##  Cellular complex with convex-cells, and without outer cell
 
 ```julia
-julia> V,(VV,EV,FV,CV) = cuboid([1.,1.,1.], true);
+julia> V,(VV,EV,FV,CV) = Lar.cuboid([1.,1.,1.], true);
 
-julia> u_coboundary_1(FV,EV)
+julia> Lar.u_coboundary_1(FV,EV)
 6×12 SparseMatrixCSC{Int8,Int64} with 24 stored entries:
 [1 ,  1]  =  1
 [3 ,  1]  =  1
@@ -230,7 +209,7 @@ julia> u_coboundary_1(FV,EV)
 [4 , 12]  =  1
 [6 , 12]  =  1
 
-julia> Matrix(u_coboundary_1(FV,EV))
+julia> Matrix(Lar.u_coboundary_1(FV,EV))
 6×12 Array{Int8,2}:
 1  1  0  0  1  1  0  0  0  0  0  0
 0  0  1  1  0  0  1  1  0  0  0  0
@@ -239,7 +218,7 @@ julia> Matrix(u_coboundary_1(FV,EV))
 0  0  0  0  1  0  1  0  1  0  1  0
 0  0  0  0  0  1  0  1  0  1  0  1
 
-julia> unsigned_boundary_2 = u_coboundary_1(FV,EV)';
+julia> unsigned_boundary_2 = Lar.u_coboundary_1(FV,EV)';
 ```
 
 Compute the *Unsigned* `coboundary_1` operator matrix as product of two
@@ -256,7 +235,9 @@ FV = [[1,2,3,4,5,17,16,12], # outer cell
 EV = [[1,2],[2,3],[3,4],[4,5],[1,12],[2,6],[3,7],[4,9],[5,17],[6,7],[8,9],
 [8,10],[9,11],[10,11],[11,15],[12,13],[12,16],[13,14],[14,15],[16,17]]
 
-out = u_coboundary_1( FV::Cells, EV::Cells, false)
+out = Lar.u_coboundary_1( FV::Lar.Cells, EV::Lar.Cells, false)
+
+Matrix(out)
 ```
 In case of expected 2-chains with non-convex cells, instance the method with
 `convex = false`, in order to fix a possible redundancy of incidence values, induced by computation through multiplication of characteristic matrices. (Look at columns
@@ -296,7 +277,8 @@ For each row, start with the first incidence number positive (i.e. assign the or
 
 # Example
 
-copFE = coboundary_1(FV::Cells, EV::Cells)
+```
+julia> copFE = coboundary_1(FV::Lar.Cells, EV::Lar.Cells)
 
 julia> Matrix(cscFE)
 5×20 Array{Int8,2}:
@@ -305,9 +287,10 @@ julia> Matrix(cscFE)
  0  0  0  1  0  0  0  1  1  0  0  0  1  0  1  1  1  1  1  1
  0  1  0  0  0  1  1  0  0  1  0  0  0  0  0  0  0  0  0  0
  0  0  0  0  0  0  0  0  0  0  1  1  1  1  0  0  0  0  0  0
+```
 """
 function coboundary_1(FV::Array{Array{Int64,1},1}, EV::Array{Array{Int64,1},1}) # (::Cells, ::Cells)
-	copFV = lar2cop(FV)
+	copFV = Lar.lar2cop(FV)
 	I,J,Val = findnz(Lar.lar2cop(EV))
 	copVE = sparse(J,I,Val)
 	triples = hcat([[i,j,1]  for (i,j,v)  in zip(findnz(copFV * copVE)...) if v==2]...)
@@ -317,20 +300,20 @@ function coboundary_1(FV::Array{Array{Int64,1},1}, EV::Array{Array{Int64,1},1}) 
 	return copFE
 end
 
-function coboundary_1( V::Points, FV::Cells, EV::Cells, convex=true::Bool, exterior=false::Bool)::ChainOp
+function coboundary_1( V::Lar.Points, FV::Lar.Cells, EV::Lar.Cells, convex=true::Bool, exterior=false::Bool)::Lar.ChainOp
 	# generate unsigned operator's sparse matrix
-	cscFV = characteristicMatrix(FV)
-	cscEV = characteristicMatrix(EV)
+	cscFV = Lar.characteristicMatrix(FV)
+	cscEV = Lar.characteristicMatrix(EV)
 	##if size(V,1) == 3
 		##copFE = u_coboundary_1( FV::Cells, EV::Cells )
 	##elseif size(V,1) == 2
 		# greedy generation of incidence number signs
-		copFE = coboundary_1( V, cscFV::ChainOp, cscEV::ChainOp, convex, exterior)
+		copFE = Lar.coboundary_1( V, cscFV::Lar.ChainOp, cscEV::Lar.ChainOp, convex, exterior)
 	##end
 	return copFE
 end
 
-function coboundary_1( V::Points, cscFV::ChainOp, cscEV::ChainOp, convex=true::Bool, exterior=false::Bool )::ChainOp
+function coboundary_1( V::Lar.Points, cscFV::Lar.ChainOp, cscEV::Lar.ChainOp, convex=true::Bool, exterior=false::Bool )::Lar.ChainOp
 
 	cscFE = u_coboundary_1( cscFV::ChainOp, cscEV::ChainOp, convex)
 	EV = [findnz(cscEV[k,:])[1] for k=1:size(cscEV,1)]
@@ -440,14 +423,14 @@ characteristic matrices of `CV` and `FV`. Currently usable *only* with complexes
 (2) compute and show the *boundary* 2-cell array `boundary_2D_cells` by decodifying the (`mod 2`) result of multiplication of  the *boundary_3 matrix* `∂_2'`, transpose of *unsigned  coboundary_2* matrix  times the coordinate vector of the ``total`` 3-chain.
 
 ```julia
-julia> using SparseArrays, Plasm
-julia> V,(_,_,FV,CV) = cuboidGrid([32,32,16], true)
-julia> ∂_2 = u_coboundary_2( CV, FV)
+julia> using SparseArrays, Plasm, Lar
+julia> V,(_,_,FV,CV) = Lar.cuboidGrid([32,32,16], true)
+julia> ∂_2 = Lar.u_coboundary_2( CV, FV)
 julia> coord_vect_of_all_3D_cells  = ones(size(∂_2,1),1)
 julia> coord_vect_of_boundary_2D_cells = ∂_2' * coord_vect_of_all_3D_cells .% 2
 julia> out = coord_vect_of_boundary_2D_cells
 julia> boundary_2D_cells = [ FV[f] for f in findnz(sparse(out))[1] ]
-julia> hpc = Plasm.lar2exploded_hpc(V, boundary_2D_cells)(1.,1.,1.)
+julia> hpc = Plasm.lar2exploded_hpc(V, boundary_2D_cells)(1.25,1.25,1.25)
 julia> Plasm.view(hpc)
 ```
 ## Second example example
@@ -606,7 +589,7 @@ julia> FV # bases[2]
 [2, 13, 14, 18]
 [15, 16, 19, 20]
 [3, 6, 12, 15, 19]
-[3, 6, 12, 17]
+[3, 6, 12, 17]s
 [14, 16, 18, 20]
 
 julia> CV # bases[3]
@@ -627,10 +610,10 @@ julia> cscCF # coboundaries[3]
 """
 function chaincomplex(V,FV,EV)
 	W = convert(Points, copy(V)');
-    cop_EV = coboundary_0(EV::Cells);
-    cop_FE = coboundary_1(V, FV::Cells, EV::Cells);
+    cop_EV = coboundary_0(EV::Lar.Cells);
+    cop_FE = coboundary_1(V, FV::Lar.Cells, EV::Lar.Cells);
 
-    W, copEV, copFE, copCF = Arrangement.spatial_arrangement( W::Points, cop_EV::ChainOp, cop_FE::ChainOp)
+    W, copEV, copFE, copCF = Lar.space_arrangement( W::Lar.Points, cop_EV::Lar.ChainOp, cop_FE::Lar.ChainOp)
 	ne,nv = size(copEV)
 	nf = size(copFE,1)
 	nc = size(copCF,1)
@@ -841,7 +824,7 @@ julia> faces2polygons(copEV,copFE)
  [[20, 22, 21, 19]]
  [[23, 25, 26, 24]]
 
-julia> model = (V, [ [[v] for v=1:size(V,2)], cop2lar(copEV) ])
+julia> model = (V, [ [[v] for v=1:size(V,2)], Lar.cop2lar(copEV) ])
 ([540.313 540.313 … 934.346 1246.02; -2129.59 -1653.96 … -1137.88 -1137.88], Array{Array{Int64,1},1}[[[1], [2], [3], [4], [5], [6], [7], [8], [9], [10]  …  [17], [18], [19], [20], [21], [22], [23], [24], [25], [26]], [[1, 2], [1, 3], [3, 4], [5, 6], [5, 7], [7, 8], [4, 6], [2, 8], [9, 10], [9, 11]  …  [16, 18], [17, 18], [19, 20], [21, 22], [19, 21], [20, 22], [23, 24], [23, 25], [25, 26], [24, 26]]])
 
 julia> GL.VIEW( GL.numbering(200)( model, GL.COLORS[1], 0.1 ) );

@@ -1,0 +1,11 @@
+julia 1.6
+ViewerGL 
+DataStructures 
+Distributed 
+IntervalTrees 
+LinearAlgebra 
+NearestNeighbors 
+Revise 
+SparseArrays 
+Triangle_jll 
+Triangulate 

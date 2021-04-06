@@ -19,7 +19,7 @@ function twocubegrids(n,m,p)
     cop_FE = Lar.coboundary_1(V, FV::Lar.Cells, EV::Lar.Cells);
     W = convert(Lar.Points, V');
 
-    V, copEV, copFE, copCF = Lar.Arrangement.spatial_arrangement( W, cop_EW, cop_FE)
+    V, copEV, copFE, copCF = Lar.space_arrangement( W, cop_EW, cop_FE)
 
     EV = Lar.cop2lar(copEV)
     FE = [findnz(copFE[k,:])[1] for k=1:size(copFE,1)]

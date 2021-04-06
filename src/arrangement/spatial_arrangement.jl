@@ -144,9 +144,9 @@ end
 
 #function merge_vertices(V::Lar.Points, EV::Lar.ChainOp, FE::Lar.ChainOp, err=1e-4)
 #println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
-println("\n\nHERE TO Make LOCAL CONGRUENCE\n\n")
+#println("\n\nHERE TO Make LOCAL CONGRUENCE\n\n")
 #println("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<")
-#    return Lar.Points(nV), nEV, nFE
+#   return Lar.Points(nV), nEV, nFE
 #end
 
 

@@ -31,7 +31,7 @@ cop_EV = convert(Lar.ChainOp, Lar.coboundary_0(EV::Lar.Cells));
 #cop_FE = Lar.coboundary_1(V, FV::Lar.Cells, EV::Lar.Cells);
 cop_FE = Lar.coboundary_1(FV::Lar.Cells, EV::Lar.Cells);
 W = convert(Lar.Points, V');
-V, copEV, copFE, copCF = Lar.Arrangement.spatial_arrangement( W, cop_EV, cop_FE)
+V, copEV, copFE, copCF = Lar.space_arrangement( W, cop_EV, cop_FE)
 
 W = convert(Lar.Points, V')
 V,CVs,FVs,EVs = Lar.pols2tria(W, copEV, copFE, copCF)

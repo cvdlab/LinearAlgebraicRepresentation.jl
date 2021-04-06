@@ -3,7 +3,8 @@ function testarrangement(V,CV,FV,EV)
 		cop_FE = Lar.coboundary_1(V, FV::Lar.Cells, EV::Lar.Cells);
 		W = convert(Lar.Points, V');
 
-		V, copEV, copFE, copCF = Lar.Arrangement.spatial_arrangement(
+#		V, copEV, copFE, copCF = Lar.Arrangement.spatial_arrangement(
+		V, copEV, copFE, copCF = Lar.space_arrangement(
 				W::Lar.Points, cop_EV::Lar.ChainOp, cop_FE::Lar.ChainOp);
 
 		V = convert(Lar.Points, V');
@@ -25,8 +26,8 @@ testarrangement(V,CV,FV,EV);
 
 
 
-using SparseArrays
 
+using SparseArrays
 
 function arrange3Dfaces(V, copEV, copFE)
 	EVs = Lar.FV2EVs(copEV, copFE) # polygonal face fragments
@@ -45,3 +46,7 @@ copFE = SparseArrays.sparse([1, 7, 1, 9, 1, 11, 1, 14, 2, 7, 5, 8, 5, 10, 2, 11,
 V,FVs,EVs = arrange3Dfaces(V, copEV, copFE);
 GL.VIEW(GL.GLExplode(V,FVs,1.1,1.1,1.1,99,1));
 GL.VIEW(GL.GLExplode(V,EVs,1.5,1.5,1.5,99,1));
+
+
+
+
