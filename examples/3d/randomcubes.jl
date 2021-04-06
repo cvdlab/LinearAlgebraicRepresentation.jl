@@ -1,7 +1,7 @@
-using ViewerGL, LinearAlgebra
-GL = ViewerGL
 using LinearAlgebraicRepresentation
 Lar = LinearAlgebraicRepresentation
+using ViewerGL, LinearAlgebra
+GL = ViewerGL
 
 #include("")
 store = [];
@@ -43,7 +43,7 @@ function testarrangement(V,CV,FV,EV)
 		cop_FE = Lar.coboundary_1(V, FV::Lar.Cells, EV::Lar.Cells);
 		W = convert(Lar.Points, V');
 
-		V, copEV, copFE, copCF = Lar.Arrangement.spatial_arrangement(
+		V, copEV, copFE, copCF = Lar.space_arrangement(
 				W::Lar.Points, cop_EV::Lar.ChainOp, cop_FE::Lar.ChainOp);
 
 		V = convert(Lar.Points, V');
