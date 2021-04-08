@@ -176,12 +176,10 @@ function minimal_cycles(angles_fn::Function, verbose=true)
             end
             c_lld = ld_bounds*c_ld
             while c_lld.nzind != []
-            		println(">>>>>> eccomi!")
 								corolla = spzeros(Int64, ld_cellsnum)
 								#corolla = zeros(Int64, ld_cellsnum)
 								
                 for tau in c_lld.nzind # when looping, loops here !!
-                @show tau,c_lld.nzind
                     b_ld = ld_bounds[tau, :]
                     pivot = intersect(c_ld.nzind, b_ld.nzind)[1]
                     adj = nextprev(tau, pivot, sign(-c_lld[tau]))
@@ -195,12 +193,10 @@ function minimal_cycles(angles_fn::Function, verbose=true)
                 c_lld = ld_bounds*c_ld
             end
             map(s->count_marks[s] += 1, c_ld.nzind)
-            @show count_marks
             for k=1:length(count_marks)
             	if count_marks[k]>2  error("TGW is looping") end
             end
             map(s->dir_marks[s] = c_ld[s], c_ld.nzind)
-            @show c_ld; println("")
             d_bounds = [d_bounds c_ld]
             
 #           V = convert(Lar.Points, V');

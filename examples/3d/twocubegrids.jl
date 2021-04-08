@@ -12,7 +12,7 @@ function twocubegrids(n,m,p)
     twocubs = Lar.Struct([mybox, L.t(.3,.4,.5), L.r(pi/5,0,0), L.r(0,0,pi/12), mybox])
 
     V,CV,FV,EV = Lar.struct2lar(twocubs)
-    GL.VIEW([ GL.GLGrid(V,FV, GL.COLORS[1]) ]);
+    GL.VIEW([ GL.GLGrid(V,FV, GL.COLORS[1], 0.5) ]);
 
     cop_EV = Lar.coboundary_0(EV::Lar.Cells);
     cop_EW = convert(Lar.ChainOp, cop_EV);
@@ -22,20 +22,21 @@ function twocubegrids(n,m,p)
     V, copEV, copFE, copCF = Lar.space_arrangement( W, cop_EW, cop_FE)
 
     EV = Lar.cop2lar(copEV)
-    FE = [findnz(copFE[k,:])[1] for k=1:size(copFE,1)]
-    FV = [collect(Set(cat(EV[e] for e in FE[f]))) for f=1:length(FE)]
-    FV = convert(Lar.Cells, FV)
+    FE = Lar.cop2lar(copFE)
+    CF = Lar.cop2lar(copCF)
+    FV = [union([EV[e] for e in fe]...) for fe in FE]
+    CV = [union([FV[f] for f in cf]...) for cf in CF]
     W = convert(Lar.Points, V')
     WW = [[k] for k=1:size(W,2)]
 
-    #GL.VIEW(GL.numbering(.2)((W,[WW,EV])));
+    GL.VIEW(GL.numbering(.5)((W,[WW,EV,FV,CV])));
 
     V,CVs,FVs,EVs = Lar.pols2tria(W, copEV, copFE, copCF)
-    GL.VIEW(GL.GLExplode(V,FVs,1.5,1.5,1.5,99,1));
-    GL.VIEW(GL.GLExplode(V,EVs,1.5,1.5,1.5,99,1));
-    GL.VIEW(GL.GLExplode(V,CVs,5,5,5,99,1));
+    GL.VIEW(GL.GLExplode(V,FVs,1.2,1.2,1.2,99,1));
+    GL.VIEW(GL.GLExplode(V,EVs,1.2,1.2,1.2,99,1));
+    GL.VIEW(GL.GLExplode(V,CVs[2:end],5,5,5,99,0.5));
 
     return V, copEV, copFE, copCF
 end
 
-twocubegrids(5,5,5);
+twocubegrids(3,3,3);

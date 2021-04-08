@@ -1342,7 +1342,6 @@ function triangulate2d(V::Lar.Points, EV::Lar.Cells)
 	 # points_map = Array{Int64,1}(collect(1:1:size(points)[1]))
    	 # edges_list = convert(Array{Int64,2}, hcat(EV...)')
    	 # edge_boundary = [true for k=1:size(edges_list,1)] ## dead code !!
-
 	trias = constrained_triangulation2D(V::Lar.Points, EV::Lar.Cells)
 
  	#Triangle.constrained_triangulation(points,points_map,edges_list)

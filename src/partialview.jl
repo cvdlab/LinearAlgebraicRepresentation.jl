@@ -103,16 +103,14 @@ in this case ff is a specialization of the FF relation, but in general may by an
 expression generating a complete and well-defined sub complex of the Model parameter.
 """
 function viewsubcomplexes(Model,ff,scaling)
-	(V, (VV,EV,FV)) = Model
-		ffE = [sort!(collect(Set(cat(FE[f]...,dims=1)))) for f in ff]
-		ffE = [FE[f] for f in ff]
+		V, (VV,EV,FV) = Model
+		ffE = [union(FE[f]...) for f in ff]
 		
 		function viewsubcomplex(range)
 			for k in range
-				fVV = [[v] for v in sort!(collect(Set(cat([FV[f] for f in ff[k]]))))]
-				fEV = cat([EV[e] for e in ffE[k]])
-				fEV = sort!(Lar.removeDups(Lar.Cells(fEV)))
-				fFV = vcat([FV[f] for f in ff[k]])
+				fVV = [[v] for v in [union(FV[f]...) for f in ff][k]]
+				fEV = [EV[e] for e in ffE[k]]
+				fFV = [FV[f] for f in ff[k]]
 				#model = ( ([1 0 0.3; 0 1 0.2; 0 0 1] * V)[1:2,:], Lar.Cells[fVV,fEV,fFV]);
 				model = (Lar.Points(V), Lar.Cells[fVV,fEV,fFV]); @show model;
 				skelDict = makesubsets(Model,model)
@@ -140,4 +138,4 @@ ffV = [FV[f] for f in ff]
 ffE = [sort!(collect(Set(cat(FE[f]...,dims=1)))) for f in ff]
 
 Model = (convert(Lar.Points,V), Lar.Cells[VV,EV,FV])
-viewsubcomplexes(Model,ff,.2)
+Lar.viewsubcomplexes(Model,ff,.2)

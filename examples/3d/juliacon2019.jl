@@ -10,13 +10,13 @@ threecubes = Lar.Struct([ cube,
     Lar.t(-.2,.4,-.2), Lar.r(0,pi/5,0), Lar.r(0,pi/12,0), cube ])
 
 V,FV,EV = Lar.struct2lar(threecubes)
-GL.VIEW([ GL.GLGrid(V,FV), GL.GLFrame ])
+GL.VIEW([ GL.GLGrid(V,FV,GL.COLORS[1],.5), GL.GLFrame ])
 
 cop_EV = convert(Lar.ChainOp, Lar.coboundary_0(EV::Lar.Cells));
 cop_FE = Lar.coboundary_1(V, FV::Lar.Cells, EV::Lar.Cells);
 W = convert(Lar.Points, V');
 
-V, copEV, copFE, copCF = Lar.Arrangement.spatial_arrangement( W, cop_EV, cop_FE)
+V, copEV, copFE, copCF = Lar.space_arrangement( W, cop_EV, cop_FE)
 
 #triangulated_faces = Lar.triangulate(V, [copEV, copFE])
 W = convert(Lar.Points, V')
