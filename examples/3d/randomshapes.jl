@@ -23,8 +23,7 @@ function randomshapes()
 #
 EV = Lar.cop2lar(copEV)
 FE = [findnz(copFE[k,:])[1] for k=1:size(copFE,1)]
-FV = [collect(Set(cat(EV[e] for e in FE[f]))) for f=1:length(FE)]
-FV = convert(Lar.Cells, FV)
+FV = [union([EV[e] for e in FE[f]]...) for f=1:length(FE)]
 W = convert(Lar.Points, W)
 WW = [[k] for k=1:size(W,2)]
 

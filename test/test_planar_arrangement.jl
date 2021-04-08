@@ -153,7 +153,7 @@ function minimal_cycles(angles_fn::Function, verbose=false)
         while (sigma = get_seed_cell()) > 0
 
             if verbose
-                print(Int(floor(50 * sum(count_marks) / ld_cellsnum)), "%\r")
+                #print(Int(floor(50 * sum(count_marks) / ld_cellsnum)), "%\r")
             end
 
             c_ld = spzeros(Int8, ld_cellsnum)

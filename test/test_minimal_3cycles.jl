@@ -1,8 +1,6 @@
 using LinearAlgebraicRepresentation
 using Plasm, SparseArrays, LinearAlgebra
 Lar = LinearAlgebraicRepresentation
-using Rebugger#, Triangle
-using JuliaInterpreter
 
 # source data from minimal test example
 v = [0.0 1.0 0.0 0.0 0.5 0.25 0.25 0.25 1.25 0.25 0.25; 0.0 0.0 1.0 0.0 0.25 0.5 0.25 0.25 0.25 1.25 0.25; 0.0 0.0 0.0 1.0 0.25 0.25 0.5 0.25 0.25 0.25 1.25]
@@ -14,7 +12,7 @@ fv = Array{Int64,1}[[2, 3, 1], [4, 2, 1], [4, 3, 1], [7, 4, 2, 3, 5, 6], [7, 5, 
 
 Plasm.view(Plasm.numbering(0.25)((v,[[[k] for k=1:size(v,2)],ev,fv])))
 
-#V, copEV, copFE, copCF = Lar.Arrangement.spatial_arrangement( W::Lar.Points, cop_EW::Lar.ChainOp, cop_FE::Lar.ChainOp)
+#V, copEV, copFE, copCF = Lar.space_arrangement( W::Lar.Points, cop_EW::Lar.ChainOp, cop_FE::Lar.ChainOp)
 
 copEV = SparseArrays.sparse(cscEV...);
 copFE = SparseArrays.sparse(cscFE...);
@@ -91,15 +89,8 @@ function minimal_3cycles(V::Lar.Points, EV::Lar.ChainOp, FE::Lar.ChainOp)
 
     #EF = FE'
     EF = convert(Lar.ChainOp, LinearAlgebra.transpose(FE))
-x	FC = Lar.Arrangement.minimal_cycles(face_angle, true)(V, EF)
+  	FC = Lar.Arrangement.minimal_cycles(face_angle, true)(V, EF)
 
 	#FC'
     return -convert(Lar.ChainOp, LinearAlgebra.transpose(FC))
 end
-
-# Juno.@enter debug_function()
-function debug_function()
-	minimal_3cycles(V::Lar.Points, copEV::Lar.ChainOp, copFE::Lar.ChainOp)
-
-end
-# minimal_3cycles(V::Lar.Points, copEV::Lar.ChainOp, copFE::Lar.ChainOp)

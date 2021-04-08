@@ -63,7 +63,7 @@ function _minimal_cycles(V::Lar.Points,ld_bounds::Lar.ChainOp)
 
     while (sigma = get_seed_cell(ld_cellsnum, count_marks)) > 0
         if verbose
-            print(Int(floor(50 * sum(count_marks) / ld_cellsnum)), "%\r")
+            #print(Int(floor(50 * sum(count_marks) / ld_cellsnum)), "%\r")
         end
 
         c_ld = spzeros(Int8, ld_cellsnum)

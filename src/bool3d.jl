@@ -4,18 +4,18 @@ using IntervalTrees,LinearAlgebra
 # using Revise,
 # using OhMyREPL
 
-#=
-Method to compute an internal point to a polyhedron.
-----------------------------------------------------
-
-1. Take two of points close to the opposite sides of any face of a polyhedron, e.g., the first face.
-2. For each of the two points compute the intersections of a (vertical) ray with the planes (of the faces) intersected by the ray (positive direction of the half-line).
-3. Transform each such plane and face (and intersection point) to 2D space.
-4. Test for point-in-polygon intersection.
-5. Compute the parity of the intersection points for each ray.
-6. Invariant:  if one is even; the other is odd.
-7. The initial point with odd number of intersection points is interior to the polyhedron. The other is exterior.
-=#
+#
+#	Method to compute an internal point to a polyhedron.
+#	----------------------------------------------------
+#
+#	1. Take two of points close to the opposite sides of any face of a polyhedron, e.g., the first face.
+#	2. For each of the two points compute the intersections of a (vertical) ray with the planes (of the faces) intersected by the ray (positive direction of the half-line).
+#	3. Transform each such plane and face (and intersection point) to 2D space.
+#	4. Test for point-in-polygon intersection.
+#	5. Compute the parity of the intersection points for each ray.
+#	6. Invariant:  if one is even; the other is odd.
+#	7. The initial point with odd number of intersection points is interior to the polyhedron. The other is exterior.
+#
 
 """
 	spaceindex(point3d)(model)
@@ -270,10 +270,10 @@ function chainbasis2solids(V,copEV,copFE,copCF)
 	EVs = Array{Array{Array{Int64,1},1},1}[]
 	FVs = Array{Array{Int64,1},1}[]
 	for k=1:copCF.m
-		push!( FEs, [collect(Set(cat([e for e in FE[f]]))) for f in CF[k]] )
+		push!( FEs, [collect(Set(GL.Cat([e for e in FE[f]]))) for f in CF[k]] )
 		# edges in EVs are aggregated by face, in order to answer point-classifications
 		push!( EVs, [[EV[e] for e in FE[f]] for f in CF[k]] )
-		push!( FVs, [collect(Set(cat([EV[e] for e in FE[f]]))) for f in CF[k]] )
+		push!( FVs, [collect(Set(GL.Cat([EV[e] for e in FE[f]]))) for f in CF[k]] )
 	end
 	pols = collect(zip(EVs,FVs,FEs))
 	W = convert(Lar.Points,V')
@@ -292,7 +292,7 @@ function internalpoints(V,copEV,copFE,copCF)
 	intersectedfaces = []
 	for k=1:length(pols)
 		(EV,FV,FE),Fs = pols[k],CF[k]
-		EV = convert(Lar.Cells,collect(Set(cat(EV))))
+		EV = convert(Lar.Cells,collect(Set(GL.Cat(EV))))
 		#GL.VIEW([ GL.GLFrame, GL.GLLines(V,EV) ]);
 		points,facenumber = Lar.getinternalpoint(V,EV,FV,Fs, copEV,copFE)
 		push!(innerpoints,points)
@@ -303,12 +303,12 @@ end
 
 
 ################################################################################
-#=
-After the arrangement, extract all the d-cells from (d-1)-coboundary as isolated polyhedra.
-Then compute a single interior point for each of them.
-Then compare each such point against all input boundaries, in order to compute those which it was interior to. Extend this point membership as 3-cell containment within the relative input solids.
-The point membership with a boundary consists in the parity count of the intersection points of a vertical ray starting at the test point, with the boundary surface.
-=#
+#
+#	After the arrangement, extract all the d-cells from (d-1)-coboundary as isolated polyhedra.
+#	Then compute a single interior point for each of them.
+#	Then compare each such point against all input boundaries, in order to compute those which it was interior to. Extend this point membership as 3-cell containment within the relative input solids.
+#	The point membership with a boundary consists in the parity count of the intersection points of a vertical ray starting at the test point, with the boundary surface.
+#
 ################################################################################
 
 function bool3d(assembly)
@@ -320,7 +320,7 @@ function bool3d(assembly)
 	W = convert(Lar.Points, V');
 	# generate the 3D space arrangement
 	#-------------------------------------------------------------------------------
-	V, copEV, copFE, copCF = Lar.Arrangement.spatial_arrangement( W, cop_EV, cop_FE)
+	V, copEV, copFE, copCF = Lar.space_arrangement( W, cop_EV, cop_FE)
 	W = convert(Lar.Points, V');
 	#V,CVs,FVs,EVs = Lar.pols2tria(W, copEV, copFE, copCF)
 	innerpoints,intersectedfaces = Lar.internalpoints(W,copEV,copFE,copCF[2:end,:])
@@ -343,7 +343,7 @@ function bool3d(assembly)
 		cells = containmenttest(point) # contents of columns
 		#println(k," ",faces)
 		rows = [span(h) for h in cells]
-		for l in cat(rows)
+		for l in GL.Cat(rows)
 			boolmatrix[k+1,l+1] = 1
 		end
 	end

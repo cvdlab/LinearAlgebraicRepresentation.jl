@@ -30,7 +30,7 @@ FV = Array{Int64,1}[
 cop_EV = Lar.coboundary_0(EV);
 cop_EW = convert(Lar.ChainOp, cop_EV);
 cop_FE = Lar.coboundary_1(V, FV, EV); W = convert(Lar.Points, V');
-V, copEV, copFE, copCF = Lar.Arrangement.spatial_arrangement(W, cop_EW, cop_FE)
+V, copEV, copFE, copCF = Lar.space_arrangement(W, cop_EW, cop_FE)
 
 V,CVs,FVs,EVs = Lar.pols2tria(convert(Lar.Points, V'), copEV, copFE, copCF);
 
@@ -38,3 +38,5 @@ if todisplay
     GL.VIEW(GL.GLExplode(V, FVs,  5,5,5,  99,1));
     GL.VIEW(GL.GLExplode(V, CVs[2:end],  5,5,25,  99,0.5));
 end;
+
+# Arrangement.spatial_arrangement
