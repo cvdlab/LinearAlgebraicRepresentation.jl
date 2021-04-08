@@ -28,7 +28,7 @@ FV = convert(Lar.Cells, FV)
 W = convert(Lar.Points, W)
 WW = [[k] for k=1:size(W,2)]
 
-GL.VIEW(GL.numbering1(.2)((W,[WW,EV]) ));
+GL.VIEW(GL.numbering(.2)((W,[WW,EV]) ));
 #
 
 

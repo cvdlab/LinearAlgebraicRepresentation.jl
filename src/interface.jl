@@ -613,7 +613,7 @@ function chaincomplex(V,FV,EV)
     cop_EV = coboundary_0(EV::Lar.Cells);
     cop_FE = coboundary_1(V, FV::Lar.Cells, EV::Lar.Cells);
 
-    W, copEV, copFE, copCF = Lar.space_arrangement( W::Lar.Points, cop_EV::Lar.ChainOp, cop_FE::Lar.ChainOp)
+    W, copEV, copFE, copCF = space_arrangement( W::Lar.Points, cop_EV::Lar.ChainOp, cop_FE::Lar.ChainOp)
 	ne,nv = size(copEV)
 	nf = size(copFE,1)
 	nc = size(copCF,1)
