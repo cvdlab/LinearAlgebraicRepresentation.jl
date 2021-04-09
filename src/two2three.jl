@@ -126,6 +126,7 @@ function build_copFC(rV, rcopEV, rcopFE)
 	copFE = rcopFE
 VV = [[v] for v=1:size(V,2)]
 model = (V, (VV,EV,FV))
+#
 #Plasm.View(Plasm.numbering(.01)(model))
 
 	copEF = copFE'

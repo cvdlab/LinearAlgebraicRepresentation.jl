@@ -526,7 +526,7 @@ function congruence(model)
 	r = 0.0000000001
 	near = Array{Any}(undef, size(W,2))
 	for k=1:size(W,2)
-		near[k] = cat([NearestNeighbors.inrange(balltree, W[:,k], r, true)])
+		near[k] = union([NearestNeighbors.inrange(balltree, W[:,k], r, true)]...)
 	end
 	near = map(sort,near)  # check !!!
 	for k=1:size(W,2)

@@ -84,16 +84,13 @@ function _minimal_cycles(V::Lar.Points,ld_bounds::Lar.ChainOp)
                 if b_ld[adj] == b_ld[pivot]
                     corolla[adj] *= -1
                 end
-@show corolla
             end
             c_ld += corolla
             c_lld = ld_bounds*c_ld
-@show c_lld
         end
         map(s->count_marks[s] += 1, c_ld.nzind)
         map(s->dir_marks[s] = c_ld[s], c_ld.nzind)
         d_bounds = [d_bounds c_ld]
-@show d_bounds
     end
     return d_bounds
 end

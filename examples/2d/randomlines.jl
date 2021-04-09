@@ -26,7 +26,7 @@ function randlines(n=300, t=0.4)
 	model = V,EV;
 	W,EW = Lar.fragmentlines(model);
 	U,EVs = Lar.biconnectedComponent((W,EW::Lar.Cells));
-	EV = convert(Lar.Cells, cat(EVs))
+	EV = convert(Lar.Cells, union(EVs...))
 	V,FVs,EVs = Lar.arrange2D(U,EV)
 end
 

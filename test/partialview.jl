@@ -29,32 +29,23 @@ fFV = vcat([FV[f] for f in ff[k]])
 
 #make 3D model
 model = (Lar.Points(V), Lar.Cells[fVV,fEV,fFV]); 
-@show model;
-
-
 
 Model = (Lar.Points(V), Lar.Cells[VV,EV,FV]);
 model = (Lar.Points(V), Lar.Cells[VV,EV,FV]);
 @show Model;
 @show model;
 skelDict = makesubsets(Model,model)
-@show skelDict; # dizionario locale con chiavi globali (sD)
-
-
+#@show skelDict; # dizionario locale con chiavi globali (sD)
 
 Model = (Lar.Points(V), Lar.Cells[fVV,fEV,fFV]);
 model = (Lar.Points(V), Lar.Cells[fVV,fEV,fFV]);
 @show Model;
 @show model;
 skelDict = makesubsets(Model,model)
-@show skelDict; # dizionario locale con chiavi globali (sD)
-
-
+#@show skelDict; # dizionario locale con chiavi globali (sD)
 
 Model = (Lar.Points(V), Lar.Cells[VV,EV,FV]);
 model = (Lar.Points(V), Lar.Cells[fVV,fEV,fFV]);
-@show Model;
-@show model;
 skelDict = makesubsets(Model,model)
-@show skelDict; # dizionario locale con chiavi globali (sD)
+#@show skelDict; # dizionario locale con chiavi globali (sD)
 

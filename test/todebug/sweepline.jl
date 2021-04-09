@@ -152,7 +152,6 @@ julia>
 ```
 """
 function theintersection(line1,line2)::Union{Nothing, Array}
-@show line1,line2
 	x1,y1,x2,y2 = vcat(line1...)
 	x3,y3,x4,y4 = vcat(line2...)
 
@@ -244,7 +243,7 @@ function sweepline(V,EV)
 	evpairs = [[(v1,v2,"start",k), (v2,v1,"end",k)] for (k,(v1,v2)) in enumerate(segments)]
 	events = sort(cat(evpairs))
 	eventdict = Dict(zip([(e[4],e[3],e[1]) for e in events], events))
-@show eventdict;
+
 	# Initialize event queue ξ = all segment endpoints; Sort ξ by increasing x and y
 	pqkeys = [(e[1],e[3],e[4]) for e in events]
 	pqvalues = events
@@ -255,7 +254,7 @@ function sweepline(V,EV)
 	Λ = Array{Float64,1}[]
 
 	while length(ξ) ≠ 0 # (ξ is nonempty)
-@show peek(ξ)   
+
 		obj = peek(ξ)
 		E = obj[2]   # the  value of next event (k => v) from ξ 
 		keyE = obj[1]   # the key of next event (k => v) from ξ 
@@ -289,7 +288,6 @@ vals = [v for v in values(SL)]; for v in reverse(vals)	println(v) end
 					# Insert I into ξ
 					key = (I,"int",segA[4]); val = (I,I,"int",segB[4])
 					enqueue!(ξ, key,val) 
-@show eventdict;
 					end
 				end
 				if segB ≠ [] 
@@ -311,7 +309,6 @@ vals = [v for v in values(SL)]; for v in reverse(vals)	println(v) end
 					# Insert I into ξ
 					key = (I,"int",segA[4]); val = (I,I,"int",segB[4])
 					enqueue!(ξ, key,val) 
-@show eventdict;
 					end
 				end
 			end			
@@ -352,7 +349,7 @@ vals = [v for v in values(SL)]; for v in reverse(vals)	println(v) end
 				end
 			end
 		else # E is an theintersection event
-for (k,v) in SL @show (k,v) end
+#for (k,v) in SL @show (k,v) end
 			# Add E to the output list Λ
 			push!(Λ, E[1])
 			# the two intersecting segments generating E
@@ -401,7 +398,6 @@ for (k,v) in SL @show (k,v) end
 					# Insert I into ξ
 					key = (I,"int",segA[4]); val = (I,I,"int",segB[4])
 					enqueue!(ξ, key,val) 
-@show eventdict;
 				end
 			end
 			##stE1,stE2 = swapsegments(SL,segE1,segE2) ## ??? to remove

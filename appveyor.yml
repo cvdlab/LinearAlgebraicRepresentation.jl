@@ -7,7 +7,7 @@ environment:
   fast_finish: true
   matrix:
     - platform: x64
-      JULIA_URL: "https://julialang-s3.julialang.org/bin/winnt/x64/1.2/julia-1.6.0-win64.exe"
+      JULIA_URL: "https://julialang-s3.julialang.org/bin/winnt/x64/julia-1.6.0-win64.exe"
     - platform: x64
       JULIA_URL: "https://julialangnightlies-s3.julialang.org/bin/winnt/x64/julia-latest-win64.exe"
 

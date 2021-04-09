@@ -117,7 +117,7 @@ julia> Plasm.view( Plasm.numbering(3)((V,[VV, EV])) )
 ```julia
 model = (V,EV)
 V,EVs = biconnectedComponent(model)
-EW = convert(Lar.Cells, cat(EVs))
+EW = convert(Lar.Cells, union(EVs...))
 Plasm.view( Plasm.numbering(3)((V,[VV,EW])) )
 ```
 
@@ -137,7 +137,7 @@ biconcomp = Lar.Arrangement.biconnected_components(cscEV)
 Matrix(Lar.characteristicMatrix(EV))
 
 V,EVs = biconnectedComponent(model)
-EW = convert(Lar.Cells, cat(EVs))
+EW = convert(Lar.Cells, union(EVs...))
 Plasm.view( Plasm.numbering(.3)((V,[VV,EW])) )
 ```
 
@@ -159,9 +159,9 @@ function biconnectedComponent(model)
         end
     end
     out = [component for component in out if length(component) >= 1]
-    EVs = [[map(sort∘collect,edges) for edges in cat(comp) if length(edges)>1] 
+    EVs = [[map(sort∘collect,edges) for edges in union(comp...) if length(edges)>1] 
     		for comp in out]
-    EVs = cat(filter(x->!isempty(x), EVs))
+    EVs = union(filter(x->!isempty(x), EVs)...)
     EVs = sort(EVs, lt=(x,y)->length(x)>length(y))
     return W, EVs
 end

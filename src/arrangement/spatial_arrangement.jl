@@ -50,9 +50,7 @@ function frag_face(V, EV, FE, sp_idx, sigma)
     end
     nvsize = size(nV, 1)
     nV = [nV zeros(nvsize) ones(nvsize)]*inv(M)[:, 1:3] ## ????
-#@show nV;
-#@show nEV;
-#@show nFE;
+
     return nV, nEV, nFE
 end
 
