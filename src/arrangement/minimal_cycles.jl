@@ -20,9 +20,11 @@ function minimal_2cycles(V::Lar.Points, EV::Lar.ChainOp)
     return convert(Lar.ChainOp, SparseArrays.transpose(EF))
 end
 
-
-
 function minimal_3cycles(V::Lar.Points, EV::Lar.ChainOp, FE::Lar.ChainOp)
+
+@show V::Lar.Points;
+@show SparseArrays.findnz(EV::Lar.ChainOp);
+@show SparseArrays.findnz(FE::Lar.ChainOp);
 
 	triangulated_faces = Array{Any, 1}(undef, FE.m)
 
@@ -98,6 +100,8 @@ function minimal_3cycles(V::Lar.Points, EV::Lar.ChainOp, FE::Lar.ChainOp)
     #EF = FE'
     EF = convert(Lar.ChainOp, LinearAlgebra.transpose(FE))
 		println(">>>>>>>> going to loop?")
+Verbose = true
+@show Verbose
 		FC = Lar.Arrangement.minimal_cycles(face_angle, true)(V, EF)  # , EV)
 
 		#FC'
@@ -106,9 +110,15 @@ end
 
 
 function minimal_cycles(angles_fn::Function, verbose=true)
+println(">>>>>>>>>>>>> eccomi !!")
 
     function _minimal_cycles(V::Lar.Points,
-    ld_bounds::Lar.ChainOp)  # , EV)
+    		ld_bounds::Lar.ChainOp)  # , EV)
+
+println(">>>>>>>>>>>>> eccomi !!!!")
+Verbose = true
+@show Verbose
+
 
         lld_cellsnum, ld_cellsnum = size(ld_bounds)
         count_marks = zeros(Int64, ld_cellsnum)
@@ -128,6 +138,7 @@ function minimal_cycles(angles_fn::Function, verbose=true)
             end
             return s
         end
+        
         for lld in 1:lld_cellsnum
             as = []
             for ld in ld_bounds[lld, :].nzind
@@ -137,6 +148,10 @@ function minimal_cycles(angles_fn::Function, verbose=true)
             as = map(a->a[1], as)
             angles[lld] = as
         end
+
+if Verbose @show collect(enumerate(angles)) end
+if Verbose @show collect(enumerate(Lar.cop2lar(ld_bounds))) end
+        
         function nextprev(lld::Int64, ld::Int64, norp)
             as = angles[lld]
             #ne = findfirst(as, ld)  (findfirst(isequal(v), A), 0)[1]
@@ -162,7 +177,7 @@ function minimal_cycles(angles_fn::Function, verbose=true)
 
         while (sigma = get_seed_cell()) > 0
 						if verbose
-                #println(Int(floor(50 * sum(count_marks) / ld_cellsnum)), "%\r") # <<<<<<<<<<<<<<<<<<<
+                print(Int(floor(50 * sum(count_marks) / ld_cellsnum)), "%\r") # <<<<<<<<<<<<<<<<<<<
             end
 
             c_ld = spzeros(Int8, ld_cellsnum)
@@ -195,12 +210,6 @@ function minimal_cycles(angles_fn::Function, verbose=true)
             end
             map(s->dir_marks[s] = c_ld[s], c_ld.nzind)
             d_bounds = [d_bounds c_ld]
-            
-#           V = convert(Lar.Points, V');
-#						V,CVs,FVs,EVs = Lar.pols2tria(V, EV, ld_bounds, d_bounds) # partial assembly
-#						GL.VIEW(GL.GLExplode(V,FVs,1.1,1.1,1.1,99,1));
-#						GL.VIEW(GL.GLExplode(V,EVs,1.5,1.5,1.5,99,1));
-#						GL.VIEW(GL.GLExplode(V,CVs,1,1,1,99,1));
 
         end
         return d_bounds

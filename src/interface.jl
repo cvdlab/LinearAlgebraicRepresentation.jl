@@ -559,15 +559,17 @@ C_0 to C_1  and from C_1 to C_2.
 
 # Example
 ```julia
+julia> L = Lar = LinearAlgebraicRepresentation
+
 julia> cube_1 = ([0 0 0 0 1 1 1 1; 0 0 1 1 0 0 1 1; 0 1 0 1 0 1 0 1],
 [[1,2,3,4],[5,6,7,8],[1,2,5,6],[3,4,7,8],[1,3,5,7],[2,4,6,8]],
 [[1,2],[3,4],[5,6],[7,8],[1,3],[2,4],[5,7],[6,8],[1,5],[2,6],[3,7],[4,8]] )
 
-julia> cube_2 = Struct([t(0,0,0.5), r(0,0,pi/3), cube_1])
+julia> cube_2 = L.Struct([L.t(0,0,0.5), L.r(0,0,pi/3), cube_1])
 
-julia> V,FV,EV = struct2lar(Struct([ cube_1, cube_2 ]))
+julia> V,FV,EV = L.struct2lar(L.Struct([ cube_1, cube_2 ]))
 
-julia> V,bases,coboundaries = chaincomplex(V,FV,EV)
+julia> V,bases,coboundaries = L.chaincomplex(V,FV,EV)
 
 julia> (EV, FV, CV), (cscEV, cscFE, cscCF) = bases,coboundaries
 

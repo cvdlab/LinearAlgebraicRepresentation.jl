@@ -1,4 +1,9 @@
+using LinearAlgebraicRepresentation
+Lar = LinearAlgebraicRepresentation
+using ViewerGL, LinearAlgebra
+GL = ViewerGL
 using SparseArrays
+const Lar.Verbose = false
 
 
 function arrange3Dfaces(V, copEV, copFE)

@@ -9,6 +9,7 @@ module LinearAlgebraicRepresentation
 	using LinearAlgebra
 	using Distributed
 	Lar = LinearAlgebraicRepresentation
+	export Verbose
 
 	"""
 		Points = Array{Number,2}
@@ -95,6 +96,7 @@ module LinearAlgebraicRepresentation
 	`Points`, and *Topology* is stored as `Cells`.
 	"""
 	const LAR = Union{ Tuple{Points, Cells},Tuple{Points, Cells, Cells} }
+	Verbose = false
 
 
    include("./interface.jl")
