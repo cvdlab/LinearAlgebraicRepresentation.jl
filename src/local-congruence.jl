@@ -1,56 +1,60 @@
-using Plasm, ViewerGL, LinearAlgebra, SparseArrays, LinearAlgebraicRepresentation, 
-DataStructures, NearestNeighbors
-
+using LinearAlgebraicRepresentation
+using ViewerGL, LinearAlgebra, SparseArrays, DataStructures, NearestNeighbors
 Lar = LinearAlgebraicRepresentation
+GL = ViewerGL
+
 
 
 function vcongruence(V::Matrix; epsilon=1e-6)
 	vclasses, visited = [], []
-	kdtree  = NearestNeighbors.KDTree(V);
-	for vidx = 1 : size(V, 2)  if !(vidx in visited)
-		nearvs = NearestNeighbors.inrange(kdtree, V[:,vidx], epsilon)
-		push!(vclasses, nearvs)
-		append!(visited, nearvs)  end
+	kdtree = NearestNeighbors.KDTree(V);
+	for vidx = 1 : size(V, 2) if !(vidx in visited)
+		 nearvs = NearestNeighbors.inrange(kdtree, V[:,vidx], epsilon)
+		 push!(vclasses, nearvs)
+		 append!(visited, nearvs) end
 	end
 	W = hcat([sum(V[:,class], dims=2)/length(class) for class in vclasses]...)
 	return W, vclasses
 end
 
+
+
 function cellcongruence(Delta, inclasses; dim)
-  cellarray = Lar.cop2lar(Delta)
-  newcell = Vector(undef, size(Delta,2))
-  [ newcell[e] = k for (k, class) in enumerate(inclasses) for e in class ]
-  cells = [map(x -> newcell[x], face) for face in cellarray]  
-  okcells = [c for c in cells if length(Set(c)) > dim]  # non-empty cells
-  classes = DefaultOrderedDict{Vector, Vector}([])
-  for (k,face) in enumerate(okcells)
-    classes[face] == [] ?  classes[face] = [k] : append!(classes[face], [k])
-  end
-  cells = collect(keys(classes))
-  outclasses = collect(values(classes))
-  return cells, outclasses
+	cellarray = Lar.cop2lar(Delta)
+	newcell = Vector(undef, size(Delta,2))
+	[ newcell[e] = k for (k, class) in enumerate(inclasses) for e in class ]
+	cells = [map(x -> newcell[x], face) for face in cellarray]
+	okcells = [c for c in cells if length(Set(c)) > dim] # non-empty cells
+	classes = DefaultOrderedDict{Vector, Vector}([])
+	for (k,face) in enumerate(okcells)
+		classes[face] == [] ? classes[face] = [k] : append!(classes[face], [k])
+	end
+	cells = collect(keys(classes))
+	outclasses = collect(values(classes))
+	return cells, outclasses
 end
 
-function chaincongruence(W, Delta0, Delta1)
-  V, vclasses = vcongruence(W)
-  EV, eclasses = cellcongruence(Delta0, vclasses, dim=1)
-  FE, fclasses = cellcongruence(Delta1, eclasses, dim=2)
-  return V, EV, FE
+
+
+function chaincongruence(W, Delta0, Delta1; epsilon=1e-6)
+	V, vclasses = vcongruence(W, epsilon)
+	EV, eclasses = cellcongruence(Delta0, vclasses, dim=1)
+	FE, fclasses = cellcongruence(Delta1, eclasses, dim=2)
+	FV = [union([EV[e] for e in f]...) for f in FE]
+	return V, EV, FE, FV
 end
 
 
 W = convert(Matrix,[0.5310492999999998 0.8659989999999999 0.14191280000000003; 1.0146684 0.6827212999999999 0.2169682; 0.3477716 0.5268921 0.4947971000000001; 0.8313907882395298 0.3436144447063971 0.5698524407571428; 0.6061046999999998 1.2188832999999994 0.5200012; 1.0897237999999998 1.0356056999999999 0.5950565999999999; 0.42282699999999984 0.8797763999999998 0.8728855; 0.9064461979373597 0.6964987903021808 0.9479408896095312; 0.5310493 0.8659989999999999 0.14191279999999987; 1.0146684000000001 0.6827213 0.21696819999999994; 0.6061047 1.2188833 0.5200011999999999; 1.0897237772434623 1.035605657895053 0.5950566438156151; 0.3477716 0.5268921 0.4947971; 0.8313908 0.3436145 0.5698525000000001; 0.422827 0.8797764000000001 0.8728855; 0.9064462 0.6964988 0.9479409; 0.5310493 0.8659989999999999 0.14191280000000006; 0.34777160000000007 0.5268920999999999 0.4947971000000001; 0.6061047 1.2188833 0.5200012000000002; 0.4228270000000002 0.8797764 0.8728855000000001; 1.0146684 0.6827213 0.21696819999999994; 0.8313908 0.3436145 0.5698525000000001; 1.0897238 1.0356057 0.5950565999999999; 0.9064461675456482 0.6964988122992563 0.9479408949632379]'); 
-
 Delta_0 = SparseArrays.sparse([1, 3, 1, 4, 2, 3, 2, 4, 5, 7, 5, 8, 6, 7, 6, 8, 9, 11, 9, 12, 10, 11, 10, 12, 13, 15, 13, 16, 14, 15, 14, 16, 17, 19, 17, 20, 18, 19, 18, 20, 21, 23, 21, 24, 22, 23, 22, 24], [1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8, 8, 9, 9, 10, 10, 11, 11, 12, 12, 13, 13, 14, 14, 15, 15, 16, 16, 17, 17, 18, 18, 19, 19, 20, 20, 21, 21, 22, 22, 23, 23, 24, 24], Int8[-1, -1, 1, -1, -1, 1, 1, 1, -1, -1, 1, -1, -1, 1, 1, 1, -1, -1, 1, -1, -1, 1, 1, 1, -1, -1, 1, -1, -1, 1, 1, 1, -1, -1, 1, -1, -1, 1, 1, 1, -1, -1, 1, -1, -1, 1, 1, 1]);
-
 Delta_1 = SparseArrays.sparse([1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4, 5, 5, 5, 5, 6, 6, 6, 6], [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24], Int8[1, -1, -1, 1, 1, -1, -1, 1, 1, -1, -1, 1, 1, -1, -1, 1, 1, -1, -1, 1, 1, -1, -1, 1]);
 
-
-V,EV,FE = chaincongruence(W,Delta_0,Delta_1);
+V,EV,FE,FV = chaincongruence(W,Delta_0,Delta_1,epsilon=1e-4);
 
 @show V;  # centroids of the 8 $\overset{\epsilon}{\sim}$ classes of W points
 @show EV;  # edges-by-vertices
 @show FE;  # faces-by-edges
+@show FV;  # faces-by-vertices
 
 
 
@@ -60,10 +64,10 @@ W = convert(Matrix,[-0.38740630000000004 0.49022260000000006 0.45363390000000015
 Delta_0 = SparseArrays.sparse([1, 3, 1, 4, 2, 3, 2, 4, 5, 7, 5, 8, 6, 7, 6, 8, 9, 11, 9, 12, 10, 11, 10, 12, 13, 15, 13, 16, 14, 15, 14, 16, 17, 19, 17, 18, 18, 19, 20, 22, 20, 23, 21, 22, 21, 23, 24, 26, 24, 25, 25, 26, 27, 29, 27, 30, 28, 29, 28, 30, 31, 34, 32, 36, 31, 32, 37, 33, 35, 33, 36, 34, 35, 37, 38, 41, 39, 43, 38, 39, 44, 40, 42, 40, 43, 41, 42, 44, 45, 49, 46, 52, 45, 46, 53, 47, 51, 48, 52, 47, 48, 54, 49, 50, 53, 50, 51, 54, 55, 57, 55, 58, 56, 57, 56, 58, 59, 63, 60, 66, 59, 60, 67, 61, 65, 62, 66, 61, 62, 68, 63, 64, 67, 64, 65, 68, 69, 71, 69, 72, 70, 71, 70, 72], [1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8, 8, 9, 9, 10, 10, 11, 11, 12, 12, 13, 13, 14, 14, 15, 15, 16, 16, 17, 17, 18, 18, 19, 19, 20, 20, 21, 21, 22, 22, 23, 23, 24, 24, 25, 25, 26, 26, 27, 27, 28, 28, 29, 29, 30, 30, 31, 31, 32, 32, 33, 33, 33, 34, 34, 35, 35, 36, 36, 36, 37, 37, 38, 38, 39, 39, 39, 40, 40, 41, 41, 42, 42, 42, 43, 43, 44, 44, 45, 45, 45, 46, 46, 47, 47, 48, 48, 48, 49, 49, 49, 50, 50, 50, 51, 51, 52, 52, 53, 53, 54, 54, 55, 55, 56, 56, 57, 57, 57, 58, 58, 59, 59, 60, 60, 60, 61, 61, 61, 62, 62, 62, 63, 63, 64, 64, 65, 65, 66, 66], Int8[-1, -1, 1, -1, -1, 1, 1, 1, -1, -1, 1, -1, -1, 1, 1, 1, -1, -1, 1, -1, -1, 1, 1, 1, -1, -1, 1, -1, -1, 1, 1, 1, -1, -1, 1, -1, 1, 1, -1, -1, 1, -1, -1, 1, 1, 1, -1, -1, 1, -1, 1, 1, -1, -1, 1, -1, -1, 1, 1, 1, -1, -1, -1, -1, 1, 1, -1, -1, -1, 1, 1, 1, 1, 1, -1, -1, -1, -1, 1, 1, -1, -1, -1, 1, 1, 1, 1, 1, -1, -1, -1, -1, 1, 1, -1, -1, -1, -1, 1, 1, 1, -1, 1, -1, 1, 1, 1, 1, -1, -1, 1, -1, -1, 1, 1, 1, -1, -1, -1, -1, 1, 1, -1, -1, -1, -1, 1, 1, 1, -1, 1, -1, 1, 1, 1, 1, -1, -1, 1, -1, -1, 1, 1, 1]);
 Delta_1 = SparseArrays.sparse([1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4, 4, 5, 4, 5, 4, 5, 6, 6, 6, 6, 6, 7, 6, 7, 6, 7, 8, 8, 8, 8, 9, 10, 10, 9, 10, 10, 9, 10, 11, 12, 12, 11, 12, 12, 11, 12, 13, 14, 15, 14, 13, 14, 15, 14, 13, 14, 14, 15, 16, 16, 16, 16, 17, 18, 19, 18, 17, 18, 19, 18, 17, 18, 18, 19, 20, 20, 20, 20], [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 17, 18, 18, 19, 19, 20, 21, 22, 23, 24, 24, 25, 25, 26, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 37, 38, 39, 40, 41, 42, 43, 44, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 53, 54, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 67, 68, 68, 69, 70, 71, 72], Int8[1, -1, -1, 1, 1, -1, -1, 1, 1, -1, -1, 1, 1, -1, -1, 1, 1, -1, 1, -1, -1, 1, 1, -1, -1, 1, -1, 1, -1, 1, 1, -1, 1, -1, -1, 1, 1, -1, -1, -1, 1, 1, 1, -1, 1, -1, -1, -1, 1, 1, 1, -1, 1, -1, -1, 1, -1, -1, 1, 1, 1, -1, 1, -1, 1, -1, -1, 1, 1, -1, -1, 1, -1, -1, 1, 1, 1, -1, 1, -1, 1, -1, -1, 1]);
 
-V,EV,FE = chaincongruence(W,Delta_0,Delta_1);
+V,EV,FE,FV = chaincongruence(W,Delta_0,Delta_1,epsilon=1e-4);
 
 @show V;  # centroids of the 8 $\overset{\epsilon}{\sim}$ classes of W points
 @show EV;  # edges-by-vertices
 @show FE;  # faces-by-edges
-
+@show FV;  # faces-by-vertices
 

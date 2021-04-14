@@ -919,14 +919,23 @@ Verbose = true
 
     end
 
-
-    rV, rEV, rFE = Lar.Arrangement.merge_vertices(rV, rEV, rFE)
-
-	println("ciao >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
+if Verbose
+	println("\npre congruence >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
 	@show rV;
 	@show SparseArrays.findnz(rEV);
 	@show SparseArrays.findnz(rFE);
-	println("ciao <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<")
+	println("ciao pre congruence <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<\n")
+end
+
+    rV, rEV, rFE = Lar.Arrangement.merge_vertices(rV, rEV, rFE)
+
+if Verbose
+	println("\npost congruence >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
+	@show rV;
+	@show SparseArrays.findnz(rEV);
+	@show SparseArrays.findnz(rFE);
+	println("ciao post congruence <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<\n")
+end
 
     rCF = Arrangement.minimal_3cycles(rV, rEV, rFE)
 
