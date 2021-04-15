@@ -927,7 +927,9 @@ if Verbose
 	println("ciao pre congruence <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<\n")
 end
 
-    rV, rEV, rFE = Lar.Arrangement.merge_vertices(rV, rEV, rFE)
+    #rV, rEV, rFE = Lar.Arrangement.merge_vertices(rV, rEV, rFE)
+    rV, rEV, rFE, _  = Lar.local-congruence(rV, rEV, rFE, epsilon=10^-3)
+    rV, rEV, rFE = Lar.Points(rV), Lar.lar2cop(rEV), Lar.lar2cop(rFE)
 
 if Verbose
 	println("\npost congruence >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
@@ -941,7 +943,6 @@ end
 
     return rV, rEV, rFE, rCF
 end
-
 
 
 ###  2D triangulation

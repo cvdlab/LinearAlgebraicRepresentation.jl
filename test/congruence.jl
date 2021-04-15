@@ -1,10 +1,15 @@
+using LinearAlgebraicRepresentation
+using ViewerGL, LinearAlgebra, SparseArrays, DataStructures, NearestNeighbors
+L = Lar = LinearAlgebraicRepresentation
+GL = ViewerGL
+
 # initialization
-n = 10
+n = 3
 v,(_,ev,fv) = L.cuboidGrid([n,n],true)
 v = [v; zeros(1,(n+1)*(n+1))]
 g = (v,ev,fv)
 
-# range di numeri casuali piccoli 0e10-2 ≤ x ≤ 1e10-2
+# range di numeri casuali piccoli 0e10-2  x  1e10-2
 interval =  0e10-2 : 1e10-2
 
 # matrice 4x4 di numeri casuali piccoli (dipende dagli zeri)
@@ -31,10 +36,8 @@ VV = [[k] for  k=1:size(V,2)]
 GL.VIEW(push!(GL.numbering(.5)((V,[VV,EV,FV]), GL.COLORS[1], 0.1),GL.GLFrame2));
 Delta_0 = Lar.coboundary_0(EV::Lar.Cells)
 Delta_1 = Lar.coboundary_1(FV::Lar.Cells, EV::Lar.Cells)
-GL.VIEW(push!(GL.numbering(.5)((V,[VV,EV,FV]), GL.COLORS[1], 0.1),GL.GLFrame2));
 
+W,EW,FE,FW = Lar.chaincongruence(V, Delta_0, Delta_1, 1e-1);
 
-
-W,EW,FE,FW = chaincongruence(V,Delta_0,Delta_1,epsilon=0.05);
 WW = [[k] for  k=1:size(W,2)]
 GL.VIEW(push!(GL.numbering(.5)((Lar.Points(W),Lar.Cells[WW,EW,FW]), GL.COLORS[1], 0.1),GL.GLFrame2));

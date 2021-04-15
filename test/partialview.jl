@@ -34,18 +34,18 @@ Model = (Lar.Points(V), Lar.Cells[VV,EV,FV]);
 model = (Lar.Points(V), Lar.Cells[VV,EV,FV]);
 @show Model;
 @show model;
-skelDict = makesubsets(Model,model)
+skelDict = Lar.makesubsets(Model,model)
 #@show skelDict; # dizionario locale con chiavi globali (sD)
 
 Model = (Lar.Points(V), Lar.Cells[fVV,fEV,fFV]);
 model = (Lar.Points(V), Lar.Cells[fVV,fEV,fFV]);
 @show Model;
 @show model;
-skelDict = makesubsets(Model,model)
+skelDict = Lar.makesubsets(Model,model)
 #@show skelDict; # dizionario locale con chiavi globali (sD)
 
 Model = (Lar.Points(V), Lar.Cells[VV,EV,FV]);
 model = (Lar.Points(V), Lar.Cells[fVV,fEV,fFV]);
-skelDict = makesubsets(Model,model)
+skelDict = Lar.makesubsets(Model,model)
 #@show skelDict; # dizionario locale con chiavi globali (sD)
 
