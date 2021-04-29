@@ -88,6 +88,9 @@ function minimal_3cycles(V::Lar.Points, EV::Lar.ChainOp, FE::Lar.ChainOp)
 
         M = reshape([v1; v2; v3], 3, 3)
 
+@show triangulated_faces;
+@show f;
+@show t;
         triangle = triangulated_faces[f][t]
         third_v = setdiff(triangle, edge_vs)[1]
         vs = V[[edge_vs..., third_v], :]*M

@@ -8,7 +8,6 @@ V, (VV,EV,FV,CV) = Lar.simplex(3, true)
 tetra = V, EV,FV,CV
 twotetra = Lar.Struct([ tetra, Lar.t(0.25,0.25,0.25), tetra ])
 V,EV,FV,CV = Lar.struct2lar(twotetra)
-Lar.triangulate2d(V,EV)
 GL.VIEW([ GL.GLGrid(V,FV, GL.COLORS[1],.2) ]);
 
 GL.VIEW(GL.numbering(.5)((V,[[[v] for v=1:size(V,2)],EV,FV,CV]) ));
@@ -25,12 +24,11 @@ V, copEV, copFE, copCF = Lar.space_arrangement( W::Lar.Points, cop_EW::Lar.Chain
 EV = Lar.cop2lar(copEV)
 CV = [collect(Set(cat([FV[f]  for  f in cell]))) for cell in cop2lar(copCF)]
 FE = [findnz(copFE[k,:])[1] for k=1:size(copFE,1)]
-FV = [collect(Set(cat(EV[e] for e in FE[f]))) for f=1:length(FE)]
+FV = [union(EV[e] for e in FE[f]) for f=1:length(FE)]
 FV = convert(Lar.Cells, FV)
-W = convert(Lar.Points, V')
+W = convert(Lar.Points, V') # V'
 WW = [[k] for k=1:size(W,2)]
 
-GL.VIEW(GL.numbering(.25)((W,[WW,EV,FV]) ));  # OK !!
 
 triangulated_faces = Lar.triangulate(V, [copEV, copFE])
 FVs = convert(Array{Lar.Cells}, triangulated_faces)

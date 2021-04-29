@@ -8,6 +8,7 @@ store = [];
 scaling = 1.5;
 V,(VV,EV,FV,CV) = Lar.cuboid([0.25,0.25,0.25],true,[-0.25,-0.25,-0.25]);
 mybox = (V,CV,FV,EV);
+
 for k=1:10
 	size = rand()*scaling
 	scale = Lar.s(size,size,size)

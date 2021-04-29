@@ -27,7 +27,7 @@ triangles = Lar.triangulate2d(V, EV)
 GL.VIEW([ GL.GLGrid(V,triangles) ]);
 
 # generate edges
-ev = map(sort,cat([[[u,v], [v,w], [w,u]] for (u,v,w) in triangles]))
+ev = map(sort, GL.Cat([[[u,v], [v,w], [w,u]] for (u,v,w) in triangles]))
 # remove duplicated edges from triangulation
 nodupev = collect(Set(ev))
 

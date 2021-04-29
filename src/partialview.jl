@@ -114,7 +114,7 @@ function viewsubcomplexes(Model,ff,scaling)
 				#model = ( ([1 0 0.3; 0 1 0.2; 0 0 1] * V)[1:2,:], Lar.Cells[fVV,fEV,fFV]);
 				model = (Lar.Points(V), Lar.Cells[fVV,fEV,fFV]); @show model;
 				skelDict = makesubsets(Model,model)
-				GL.VIEW(push!(numbering(scaling)(V, skelDict, GL.COLORS[1], 0.1),GL.GLFrame2));
+				GL.VIEW(push!(numbering(scaling)(V, skelDict, GL.COLORS[1], 0.5),GL.GLFrame2));
 			end
 		end
 	

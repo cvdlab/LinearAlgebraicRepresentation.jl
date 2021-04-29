@@ -569,7 +569,7 @@ julia> cube_2 = L.Struct([L.t(0,0,0.5), L.r(0,0,pi/3), cube_1])
 
 julia> V,FV,EV = L.struct2lar(L.Struct([ cube_1, cube_2 ]))
 
-julia> V,bases,coboundaries = L.chaincomplex(V,FV,EV)
+julia> W,bases,coboundaries = L.chaincomplex(V,FV,EV)
 
 julia> (EV, FV, CV), (cscEV, cscFE, cscCF) = bases,coboundaries
 

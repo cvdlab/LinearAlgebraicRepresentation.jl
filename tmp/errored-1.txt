@@ -12,15 +12,18 @@ function testarrangement(V,CV,FV,EV)
 #		V, copEV, copFE, copCF = Lar.Arrangement.spatial_arrangement(
 		V, copEV, copFE, copCF = Lar.space_arrangement(
 				W::Lar.Points, cop_EV::Lar.ChainOp, cop_FE::Lar.ChainOp);
-				
-		@show "$(size(V,2)) - $(size(copEV, 1)) + $(size(copFE, 1)) - $(size(copCF, 1))" 
+println("\n>>>>>>>>>>> end of arrangement >>>>>>>>>>>>>>>>>>>>>>>>>>>\n")				
+		@show V;
+		@show copEV;
+		@show copFE; 
+		@show copCF; 
 
 
-		V = convert(Lar.Points, V');
-		V,CVs,FVs,EVs = Lar.pols2tria(V, copEV, copFE, copCF) # whole assembly
-		GL.VIEW(GL.GLExplode(V,FVs,1.1,1.1,1.1,99,1));
-		GL.VIEW(GL.GLExplode(V,EVs,1.5,1.5,1.5,99,1));
-		GL.VIEW(GL.GLExplode(V,CVs,1,1,1,99,1));
+	V = convert(Lar.Points, V');
+	V,CVs,FVs,EVs = Lar.pols2tria(V, copEV, copFE, copCF) # whole assembly
+	GL.VIEW(GL.GLExplode(V,FVs,1.1,1.1,1.1,99,1));
+	GL.VIEW(GL.GLExplode(V,EVs,1.5,1.5,1.5,99,1));
+	GL.VIEW(GL.GLExplode(V,CVs,1,1,1,99,1));
 end
 
 

@@ -1,5 +1,6 @@
 using LinearAlgebraicRepresentation
 Lar = LinearAlgebraicRepresentation
+using SparseArrays
 
 
 function interior_to_f(triangle,f,V,FV,EV,FE)
@@ -119,14 +120,14 @@ function build_copFC(rV, rcopEV, rcopFE)
 
 	# G&F -> Pao data structures
 	V = convert(Lar.Points, rV')
-	EV = cop2lar(rcopEV)
-	fe = cop2lar(rcopFE)
+	EV = Lar.cop2lar(rcopEV)
+	fe = Lar.cop2lar(rcopFE)
 	fv = [union([EV[e] for e in fe[f]]...) for f=1:length(fe)]
 	FV = convert(Lar.Cells, fv)
 	copFE = rcopFE
 VV = [[v] for v=1:size(V,2)]
-model = (V, (VV,EV,FV))
-#Plasm.View(Plasm.numbering(.01)(model))
+model = (V, [VV,EV,FV])
+#Plasm.View(Plasm.numbering(.25)(model))
 
 	copEF = copFE'
 	FE = [SparseArrays.findnz(copFE[k,:])[1] for k=1:size(copFE,1)]
@@ -165,11 +166,11 @@ model = (V, (VV,EV,FV))
 					error("no pivot")
 				end
 				# compute the new adj cell
-				fan = ord(abs(τ),bd1,V,FV,EV,FE) # ord(pivot,bd1)
+				fan = Lar.ord(abs(τ),bd1,V,FV,EV,FE) # ord(pivot,bd1)
 				if τ > 0
-					adj = mynext(fan,pivot)
+					adj = Lar.mynext(fan,pivot)
 				elseif τ < 0
-					adj = myprev(fan,pivot)
+					adj = Lar.myprev(fan,pivot)
 				end
 				# orient adj
 				if copEF[abs(τ),adj] ≠ copEF[abs(τ),pivot]
@@ -926,24 +927,46 @@ if Verbose
 	@show SparseArrays.findnz(rFE);
 	println("ciao pre congruence <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<\n")
 end
+rV, rcopEV, rcopFE = Lar.Arrangement.merge_vertices(rV, rEV, rFE)
+#V, EV, FV, FE  = Lar.chaincongruence(Matrix(rV'), rEV::Lar.ChainOp, rFE::Lar.ChainOp; epsilon=0.0001)
+#VV = [[k] for k=1:size(V,2)]
+#GL.VIEW(push!(GL.numbering(.5)((V,Lar.Cells[VV,EV,FV]), GL.COLORS[1], 0.5),GL.GLFrame2));
+#rV, rEV, rFE = Lar.Points(V'), Lar.lar2cop(EV), Lar.lar2cop(FE)
 
-    #rV, rEV, rFE = Lar.Arrangement.merge_vertices(rV, rEV, rFE)
-    rV, rEV, rFE, _  = Lar.local-congruence(rV, rEV, rFE, epsilon=10^-3)
-    rV, rEV, rFE = Lar.Points(rV), Lar.lar2cop(rEV), Lar.lar2cop(rFE)
+#function arrange3Dfaces(V, copEV, copFE)
+#EVs = Lar.FV2EVs(copEV, copFE) # polygonal face fragments
+#
+#triangulated_faces = Lar.triangulate2D(V, [copEV, copFE])
+#FVs = convert(Array{Lar.Cells}, triangulated_faces)
+#V = convert(Lar.Points,V')
+#return V,FVs,EVs
+#end
+#V,FVs,EVs = arrange3Dfaces(rV, rEV, rFE);
+#GL.VIEW(GL.GLExplode(V,FVs,1.1,1.1,1.1,99,1));
+#GL.VIEW(GL.GLExplode(V,EVs,1.5,1.5,1.5,99,1));
+
 
 if Verbose
 	println("\npost congruence >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
 	@show rV;
-	@show SparseArrays.findnz(rEV);
-	@show SparseArrays.findnz(rFE);
+	@show SparseArrays.findnz(rcopEV);
+	@show SparseArrays.findnz(rcopFE);
 	println("ciao post congruence <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<\n")
 end
 
-    rCF = Arrangement.minimal_3cycles(rV, rEV, rFE)
+    rcopCF = Arrangement.minimal_3cycles(rV, rcopEV, rcopFE)
+    #rcopCF = build_copFC(rcopV, rcopEV, rcopFE)
 
-    return rV, rEV, rFE, rCF
+    return rV, rcopEV, rcopFE, rcopCF
 end
 
+if Verbose
+	println("\npost arrangement >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
+	@show rV;
+	@show SparseArrays.findnz(rEV);
+	@show SparseArrays.findnz(rFE);
+	println("ciao post arrangement <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<\n")
+end
 
 ###  2D triangulation
 Lar = LinearAlgebraicRepresentation
