@@ -65,7 +65,7 @@ function ordering(triangles,V)
 end
 
 
-function ord(hinge::Int64, bd1::AbstractSparseVector{Int64,Int64}, V::Array{Float64,2},
+function ord(hinge::Int64, bd1::AbstractSparseVector{Int,Int}, V::Array{Float64,2},
 FV::Array{Array{Int64,1},1}, EV::Array{Array{Int64,1},1}, FE::Array{Array{Int64,1},1})
 	cells = SparseArrays.findnz(bd1)[1]
 	triangles = []
@@ -96,7 +96,6 @@ FV::Array{Array{Int64,1},1}, EV::Array{Array{Int64,1},1}, FE::Array{Array{Int64,
 	order = ordering(triangles,V)
 	return [cells[index] for index in order]
 end
-
 
 function mynext(cycle, pivot)
 	len = length(cycle)
@@ -946,27 +945,30 @@ rV, rcopEV, rcopFE = Lar.Arrangement.merge_vertices(rV, rEV, rFE)
 #GL.VIEW(GL.GLExplode(V,EVs,1.5,1.5,1.5,99,1));
 
 
-if Verbose
-	println("\npost congruence >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
-	@show rV;
-	@show SparseArrays.findnz(rcopEV);
-	@show SparseArrays.findnz(rcopFE);
-	println("ciao post congruence <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<\n")
-end
+	if Verbose
+		println("\npost congruence >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
+		@show rV;
+		@show SparseArrays.findnz(rcopEV);
+		@show SparseArrays.findnz(rcopFE);
+		println("ciao post congruence <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<\n")
+	end
 
-    rcopCF = Arrangement.minimal_3cycles(rV, rcopEV, rcopFE)
-    #rcopCF = build_copFC(rcopV, rcopEV, rcopFE)
+    #rcopCF = Arrangement.minimal_3cycles(rV, rcopEV, rcopFE)
+    rcopCF = build_copCF(rV, rcopEV, rcopFE)
 
     return rV, rcopEV, rcopFE, rcopCF
+
+	if Verbose
+		println("\npost arrangement >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
+		@show rV;
+		@show SparseArrays.findnz(rEV);
+		@show SparseArrays.findnz(rFE);
+		println("ciao post arrangement <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<\n")
+	error("STOP")
+	end
+
 end
 
-if Verbose
-	println("\npost arrangement >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
-	@show rV;
-	@show SparseArrays.findnz(rEV);
-	@show SparseArrays.findnz(rFE);
-	println("ciao post arrangement <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<\n")
-end
 
 ###  2D triangulation
 Lar = LinearAlgebraicRepresentation

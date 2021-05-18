@@ -21,11 +21,17 @@ V, copEV, copFE, copCF = Lar.space_arrangement( W::Lar.Points, cop_EW::Lar.Chain
 
 # copCF = OK !!
 
+		println("\npost arrangement >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
+		@show V;
+		@show SparseArrays.findnz(copEV);
+		@show SparseArrays.findnz(copFE);
+		println("ciao post arrangement <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<\n")
+
+
 EV = Lar.cop2lar(copEV)
 CV = [collect(Set(cat([FV[f]  for  f in cell]))) for cell in cop2lar(copCF)]
 FE = [findnz(copFE[k,:])[1] for k=1:size(copFE,1)]
-FV = [union(EV[e] for e in FE[f]) for f=1:length(FE)]
-FV = convert(Lar.Cells, FV)
+FV = [union([EV[e] for e in FE[f]]...) for f=1:length(FE)]
 W = convert(Lar.Points, V') # V'
 WW = [[k] for k=1:size(W,2)]
 
