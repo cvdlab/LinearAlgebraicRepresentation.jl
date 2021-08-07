@@ -8,7 +8,11 @@ function randombubbles()
 	mycircle(r,n) = Lar.circle(r)([n])
 	for k=1:50
 		r = rand()
-		n = rand(3:60)
+		n = 8
+		while true
+			n = abs(rand(Int8)+1)
+			if n>2 break end
+		end
 		scale = Lar.s(0.25,0.25)
 		transl = Lar.t(rand(2)...)
 		s = Lar.Struct([ transl, scale, mycircle(r,n) ])
@@ -20,7 +24,6 @@ function randombubbles()
 	GL.VIEW([ GL.GLLines(V,EV) ])
 
 	W,EW = Lar.fragmentlines((V,EV))
-println("\nECCOMI....n")
 	V,FVs,EVs = Lar.arrange2D(W,EW)
 end
 

@@ -65,7 +65,7 @@ function ordering(triangles,V)
 end
 
 
-function ord(hinge::Int64, bd1::AbstractSparseVector{Int,Int}, V::Array{Float64,2},
+function ord(hinge::Int64, bd1::AbstractSparseVector{Int64,Int64}, V::Array{Float64,2},
 FV::Array{Array{Int64,1},1}, EV::Array{Array{Int64,1},1}, FE::Array{Array{Int64,1},1})
 	cells = SparseArrays.findnz(bd1)[1]
 	triangles = []
@@ -96,6 +96,7 @@ FV::Array{Array{Int64,1},1}, EV::Array{Array{Int64,1},1}, FE::Array{Array{Int64,
 	order = ordering(triangles,V)
 	return [cells[index] for index in order]
 end
+
 
 function mynext(cycle, pivot)
 	len = length(cycle)
@@ -330,7 +331,6 @@ function buildFV(EV::Cells, face::Cell)
     return buildFV(build_copEV(EV), face)
 end
 
-
 """
     buildFV(copEV::ChainOp, face::Cell)
 
@@ -342,9 +342,6 @@ The edges are need to understand the topology of the face.
 In this method the input face must be expressed as a `Cell`(=`SparseVector{Int8, Int}`) and the edges as `ChainOp`.
 """
 function buildFV(copEV::ChainOp, face::Cell)
-#@show SparseArrays.findnz(copEV);
-#@show face;
-
     startv = -1
     nextv = 0
     edge = 0
@@ -897,28 +894,28 @@ function space_arrangement(V::Points, EV::ChainOp, FE::ChainOp, multiproc::Bool=
 
     else
 
-#      for sigma in 1:fs_num
-#          # print(sigma, "/", fs_num, "\r")
-#          nV, nEV, nFE = Lar.Arrangement.frag_face(
-#          	V, EV, FE, sp_idx, sigma)
-#          a,b,c = Lar.skel_merge(
-#          	rV, rEV, rFE, nV, nEV, nFE)
-#          rV=a; rEV=b; rFE=c
-#      end
+#       for sigma in 1:fs_num
+#           # print(sigma, "/", fs_num, "\r")
+#           nV, nEV, nFE = Lar.Arrangement.frag_face(
+#           	V, EV, FE, sp_idx, sigma)
+#           a,b,c = Lar.skel_merge(
+#           	rV, rEV, rFE, nV, nEV, nFE)
+#           rV=a; rEV=b; rFE=c
+#       end
 
-depot_V = Array{Array{Float64,2},1}(undef,fs_num)
-depot_EV = Array{Lar.ChainOp,1}(undef,fs_num)
-depot_FE = Array{Lar.ChainOp,1}(undef,fs_num)
-      for sigma in 1:fs_num
-          print(sigma, "/", fs_num, "\r")
-          nV, nEV, nFE = fragface( V, EV, FE, sp_idx, sigma)
-          depot_V[sigma] = nV
-          depot_EV[sigma] = nEV
-          depot_FE[sigma] = nFE
-      end
-rV = vcat(depot_V...)
-rEV = SparseArrays.blockdiag(depot_EV...)
-rFE = SparseArrays.blockdiag(depot_FE...)
+	depot_V = Array{Array{Float64,2},1}(undef,fs_num)
+	depot_EV = Array{ChainOp,1}(undef,fs_num)
+	depot_FE = Array{ChainOp,1}(undef,fs_num)
+       for sigma in 1:fs_num
+           print(sigma, "/", fs_num, "\r")
+           nV, nEV, nFE = Arrangement.frag_face( V, EV, FE, sp_idx, sigma)
+           depot_V[sigma] = nV
+           depot_EV[sigma] = nEV
+           depot_FE[sigma] = nFE
+       end
+	rV = vcat(depot_V...)
+	rEV = SparseArrays.blockdiag(depot_EV...)
+	rFE = SparseArrays.blockdiag(depot_FE...)
 Verbose = true
 
     end
@@ -931,13 +928,10 @@ if Verbose
 	println("ciao pre congruence <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<\n")
 end
 rV, rcopEV, rcopFE = Lar.Arrangement.merge_vertices(rV, rEV, rFE)
-
 #V, EV, FV, FE  = Lar.chaincongruence(Matrix(rV'), rEV::Lar.ChainOp, rFE::Lar.ChainOp; epsilon=0.0001)
 #VV = [[k] for k=1:size(V,2)]
-#GL.VIEW(push!(GL.numbering(.75)((V,Lar.Cells[VV,EV,FV]), GL.COLORS[1], 0.5),GL.GLFrame2));
-#rV, rcopEV, rcopFE = Lar.Points(V'), Lar.lar2cop(EV), Lar.lar2cop(FE)
-
-
+#GL.VIEW(push!(GL.numbering(.5)((V,Lar.Cells[VV,EV,FV]), GL.COLORS[1], 0.5),GL.GLFrame2));
+#rV, rEV, rFE = Lar.Points(V'), Lar.lar2cop(EV), Lar.lar2cop(FE)
 
 #function arrange3Dfaces(V, copEV, copFE)
 #EVs = Lar.FV2EVs(copEV, copFE) # polygonal face fragments
@@ -952,35 +946,27 @@ rV, rcopEV, rcopFE = Lar.Arrangement.merge_vertices(rV, rEV, rFE)
 #GL.VIEW(GL.GLExplode(V,EVs,1.5,1.5,1.5,99,1));
 
 
-	if Verbose
-		println("\npost congruence >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
-		@show rV;
-		@show SparseArrays.findnz(rcopEV);
-		@show SparseArrays.findnz(rcopFE);
-		println("ciao post congruence <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<\n")
-	end
-
-<<<<<<< HEAD
-    rcopCF = Arrangement.minimal_3cycles(rV, rcopEV, rcopFE)
-#    rcopCF = build_copFC(rV, rcopEV, rcopFE)
-=======
-    #rcopCF = Arrangement.minimal_3cycles(rV, rcopEV, rcopFE)
-    rcopCF = build_copCF(rV, rcopEV, rcopFE)
->>>>>>> e9ec5ac0a4e220201c71b30564a9798dc30ff5ed
-
-    return rV, rcopEV, rcopFE, rcopCF
-
-	if Verbose
-		println("\npost arrangement >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
-		@show rV;
-		@show SparseArrays.findnz(rEV);
-		@show SparseArrays.findnz(rFE);
-		println("ciao post arrangement <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<\n")
-	error("STOP")
-	end
-
+if Verbose
+	println("\npost congruence >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
+	@show rV;
+	@show SparseArrays.findnz(rcopEV);
+	@show SparseArrays.findnz(rcopFE);
+	println("ciao post congruence <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<\n")
 end
 
+    rcopCF = Arrangement.minimal_3cycles(rV, rcopEV, rcopFE)
+    #rcopCF = build_copFC(rcopV, rcopEV, rcopFE)
+
+    return rV, rcopEV, rcopFE, rcopCF
+end
+
+if Verbose
+	println("\npost arrangement >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
+	@show rV;
+	@show SparseArrays.findnz(rEV);
+	@show SparseArrays.findnz(rFE);
+	println("ciao post arrangement <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<\n")
+end
 
 ###  2D triangulation
 Lar = LinearAlgebraicRepresentation
