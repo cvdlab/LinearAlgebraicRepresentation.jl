@@ -9,7 +9,7 @@ scaling = 1.5;
 V,(VV,EV,FV,CV) = Lar.cuboid([0.25,0.25,0.25],true,[-0.25,-0.25,-0.25]);
 mybox = (V,CV,FV,EV);
 
-for k=1:10
+for k=1:5
 	size = rand()*scaling
 	scale = Lar.s(size,size,size)
 	transl = Lar.t(rand(3)...)
@@ -44,7 +44,7 @@ function testarrangement(V,CV,FV,EV)
 		cop_FE = Lar.coboundary_1(V, FV::Lar.Cells, EV::Lar.Cells);
 		W = convert(Lar.Points, V');
 
-		V, copEV, copFE, copCF = Lar.space_arrangement(
+		V, copEV, copFE, copCF = Lar.Arrangement.spatial_arrangement(
 				W::Lar.Points, cop_EV::Lar.ChainOp, cop_FE::Lar.ChainOp);
 
 		V = convert(Lar.Points, V');

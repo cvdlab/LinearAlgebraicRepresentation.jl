@@ -47,6 +47,9 @@ V,FVs,EVs = arrange3Dfaces(V, copEV, copFE);
 GL.VIEW(GL.GLExplode(V,FVs,1.1,1.1,1.1,99,1));
 GL.VIEW(GL.GLExplode(V,EVs,1.5,1.5,1.5,99,1));
 
+V,FVs,EVs = arrange3Dfaces(V, rEV, rFE);
+GL.VIEW(GL.GLExplode(V,FVs,1.1,1.1,1.1,99,1));
+GL.VIEW(GL.GLExplode(V,EVs,1.5,1.5,1.5,99,1));
 
 
 

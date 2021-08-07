@@ -22,9 +22,9 @@ end
 
 function minimal_3cycles(V::Lar.Points, EV::Lar.ChainOp, FE::Lar.ChainOp)
 
-@show V::Lar.Points;
-@show SparseArrays.findnz(EV::Lar.ChainOp);
-@show SparseArrays.findnz(FE::Lar.ChainOp);
+#@show V::Lar.Points;
+#@show SparseArrays.findnz(EV::Lar.ChainOp);
+#@show SparseArrays.findnz(FE::Lar.ChainOp);
 
 	triangulated_faces = Array{Any, 1}(undef, FE.m)
 
@@ -88,9 +88,9 @@ function minimal_3cycles(V::Lar.Points, EV::Lar.ChainOp, FE::Lar.ChainOp)
 
         M = reshape([v1; v2; v3], 3, 3)
 
-@show triangulated_faces;
-@show f;
-@show t;
+#@show triangulated_faces;
+#@show f;
+#@show t;
         triangle = triangulated_faces[f][t]
         third_v = setdiff(triangle, edge_vs)[1]
         vs = V[[edge_vs..., third_v], :]*M
@@ -118,9 +118,9 @@ println(">>>>>>>>>>>>> eccomi !!")
     function _minimal_cycles(V::Lar.Points,
     		ld_bounds::Lar.ChainOp)  # , EV)
 
-println(">>>>>>>>>>>>> eccomi !!!!")
-Verbose = true
-@show Verbose
+#println(">>>>>>>>>>>>> eccomi !!!!")
+#Verbose = false
+#@show Verbose
 
 
         lld_cellsnum, ld_cellsnum = size(ld_bounds)
@@ -142,18 +142,18 @@ Verbose = true
             return s
         end
         
-        for lld in 1:lld_cellsnum
+        for lld in 1:lld_cellsnum # for each edge (in 3D)
             as = []
-            for ld in ld_bounds[lld, :].nzind
+            for ld in ld_bounds[lld, :].nzind # for each face (ld) around the edge (lld)
                 push!(as, (ld, angles_fn(lld, ld)))
             end
             sort!(as, lt=(a,b)->a[2]<b[2])
             as = map(a->a[1], as)
-            angles[lld] = as
+            angles[lld] = as # return array of face angles around that edge
         end
 
-if Verbose @show collect(enumerate(angles)) end
-if Verbose @show collect(enumerate(Lar.cop2lar(ld_bounds))) end
+#if Verbose @show collect(enumerate(angles)) end
+#if Verbose @show collect(enumerate(Lar.cop2lar(ld_bounds))) end
         
         function nextprev(lld::Int64, ld::Int64, norp)
             as = angles[lld]

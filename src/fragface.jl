@@ -182,7 +182,7 @@ function fragface(V, cop_EV, cop_FE, sp_idx, sigma)
 	# format conversion of function parameters
 	EV = [findnz(cop_EV[k,:])[1] for k=1:size(cop_EV,1)]
 	FE = [findnz(cop_FE[k,:])[1] for k=1:size(cop_FE,1)]
-	FV = [collect(Set(cat(EV[e] for e in FE[f]))) for f=1:length(FE)]
+	FV = [union([EV[e] for e in FE[f]]...) for f=1:length(FE)]
 	V = convert(Lar.Points, V')
 
 	Q = face_mapping(V, FV, sigma)

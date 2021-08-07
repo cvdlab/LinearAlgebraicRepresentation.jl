@@ -25,4 +25,4 @@ function randomshapes()
 	GL.VIEW(GL.GLExplode(W,FVs,1,1,1,99,1));
 end
 
-randomshapes()
+randomshapes();

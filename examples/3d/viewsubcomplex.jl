@@ -16,6 +16,7 @@ copFE = SparseArrays.sparse([1, 4, 2, 5, 1, 6, 1, 7, 2, 8, 1, 9, 1, 2, 18, 20, 1
 FE = Lar.cop2lar(copFE) 
 FF = copFV * copFV'
 
+# array of arrays of faces incident on each face
 ff = [(SparseArrays.findnz(FF[k, :]))[1] for k = 1:size(FF, 2)]; # OK !!!
 
 #ff = [collect([1:length(ff)]...)] # OK
@@ -25,12 +26,13 @@ ff = [(SparseArrays.findnz(FF[k, :]))[1] for k = 1:size(FF, 2)]; # OK !!!
 #ff = [[21,22, 31, 32]]
 
 
-ffV = [FV[f] for f in ff]
-ffE = [union(FE[f]...) for f in ff]
+ffV = [FV[f] for f in ff] # vertices in each element f of ff
+ffE = [FE[f] for f in ff] # edges in each element f of ff
 
-Model = (convert(Lar.Points,V), Lar.Cells[VV,EV,FV,FE])
+VVV = [[v] for v=1:size(V,2)]
+Model = (convert(Lar.Points,V), Lar.Cells[VVV,EV,FV,FE])
 viewsubcomplex = Lar.viewsubcomplexes(Model,ff,.1)
 
-viewsubcomplex(1:5)
+viewsubcomplex(1:length(ff))
 
 

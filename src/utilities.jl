@@ -331,6 +331,7 @@ function buildFV(EV::Cells, face::Cell)
     return buildFV(build_copEV(EV), face)
 end
 
+
 """
     buildFV(copEV::ChainOp, face::Cell)
 
@@ -342,6 +343,9 @@ The edges are need to understand the topology of the face.
 In this method the input face must be expressed as a `Cell`(=`SparseVector{Int8, Int}`) and the edges as `ChainOp`.
 """
 function buildFV(copEV::ChainOp, face::Cell)
+#@show SparseArrays.findnz(copEV);
+#@show face;
+
     startv = -1
     nextv = 0
     edge = 0
@@ -894,28 +898,28 @@ function space_arrangement(V::Points, EV::ChainOp, FE::ChainOp, multiproc::Bool=
 
     else
 
-#       for sigma in 1:fs_num
-#           # print(sigma, "/", fs_num, "\r")
-#           nV, nEV, nFE = Lar.Arrangement.frag_face(
-#           	V, EV, FE, sp_idx, sigma)
-#           a,b,c = Lar.skel_merge(
-#           	rV, rEV, rFE, nV, nEV, nFE)
-#           rV=a; rEV=b; rFE=c
-#       end
+#      for sigma in 1:fs_num
+#          # print(sigma, "/", fs_num, "\r")
+#          nV, nEV, nFE = Lar.Arrangement.frag_face(
+#          	V, EV, FE, sp_idx, sigma)
+#          a,b,c = Lar.skel_merge(
+#          	rV, rEV, rFE, nV, nEV, nFE)
+#          rV=a; rEV=b; rFE=c
+#      end
 
-	depot_V = Array{Array{Float64,2},1}(undef,fs_num)
-	depot_EV = Array{ChainOp,1}(undef,fs_num)
-	depot_FE = Array{ChainOp,1}(undef,fs_num)
-       for sigma in 1:fs_num
-           print(sigma, "/", fs_num, "\r")
-           nV, nEV, nFE = Arrangement.frag_face( V, EV, FE, sp_idx, sigma)
-           depot_V[sigma] = nV
-           depot_EV[sigma] = nEV
-           depot_FE[sigma] = nFE
-       end
-	rV = vcat(depot_V...)
-	rEV = SparseArrays.blockdiag(depot_EV...)
-	rFE = SparseArrays.blockdiag(depot_FE...)
+depot_V = Array{Array{Float64,2},1}(undef,fs_num)
+depot_EV = Array{Lar.ChainOp,1}(undef,fs_num)
+depot_FE = Array{Lar.ChainOp,1}(undef,fs_num)
+      for sigma in 1:fs_num
+          print(sigma, "/", fs_num, "\r")
+          nV, nEV, nFE = fragface( V, EV, FE, sp_idx, sigma)
+          depot_V[sigma] = nV
+          depot_EV[sigma] = nEV
+          depot_FE[sigma] = nFE
+      end
+rV = vcat(depot_V...)
+rEV = SparseArrays.blockdiag(depot_EV...)
+rFE = SparseArrays.blockdiag(depot_FE...)
 Verbose = true
 
     end
@@ -928,10 +932,13 @@ if Verbose
 	println("ciao pre congruence <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<\n")
 end
 rV, rcopEV, rcopFE = Lar.Arrangement.merge_vertices(rV, rEV, rFE)
+
 #V, EV, FV, FE  = Lar.chaincongruence(Matrix(rV'), rEV::Lar.ChainOp, rFE::Lar.ChainOp; epsilon=0.0001)
 #VV = [[k] for k=1:size(V,2)]
-#GL.VIEW(push!(GL.numbering(.5)((V,Lar.Cells[VV,EV,FV]), GL.COLORS[1], 0.5),GL.GLFrame2));
-#rV, rEV, rFE = Lar.Points(V'), Lar.lar2cop(EV), Lar.lar2cop(FE)
+#GL.VIEW(push!(GL.numbering(.75)((V,Lar.Cells[VV,EV,FV]), GL.COLORS[1], 0.5),GL.GLFrame2));
+#rV, rcopEV, rcopFE = Lar.Points(V'), Lar.lar2cop(EV), Lar.lar2cop(FE)
+
+
 
 #function arrange3Dfaces(V, copEV, copFE)
 #EVs = Lar.FV2EVs(copEV, copFE) # polygonal face fragments
@@ -955,7 +962,7 @@ if Verbose
 end
 
     rcopCF = Arrangement.minimal_3cycles(rV, rcopEV, rcopFE)
-    #rcopCF = build_copFC(rcopV, rcopEV, rcopFE)
+#    rcopCF = build_copFC(rV, rcopEV, rcopFE)
 
     return rV, rcopEV, rcopFE, rcopCF
 end

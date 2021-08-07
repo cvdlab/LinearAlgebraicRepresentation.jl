@@ -291,8 +291,8 @@ julia> Matrix(cscFE)
 """
 function coboundary_1(FV::Array{Array{Int64,1},1}, EV::Array{Array{Int64,1},1}) # (::Cells, ::Cells)
 	copFV = Lar.lar2cop(FV)
-	I,J,Val = findnz(Lar.lar2cop(EV))
-	copVE = sparse(J,I,Val)
+	I,J,Val = SparseArrays.findnz(Lar.lar2cop(EV))
+	copVE = SparseArrays.sparse(J,I,Val)
 	triples = hcat([[i,j,1]  for (i,j,v)  in zip(findnz(copFV * copVE)...) if v==2]...)
 	I,J,Val = triples[1,:], triples[2,:], triples[3,:]
 	Val = convert(Array{Int8,1},Val)
@@ -304,12 +304,12 @@ function coboundary_1( V::Lar.Points, FV::Lar.Cells, EV::Lar.Cells, convex=true:
 	# generate unsigned operator's sparse matrix
 	cscFV = Lar.characteristicMatrix(FV)
 	cscEV = Lar.characteristicMatrix(EV)
-	##if size(V,1) == 3
-		##copFE = u_coboundary_1( FV::Cells, EV::Cells )
-	##elseif size(V,1) == 2
+	if size(V,1) == 3
+		copFE = Lar.u_coboundary_1( FV::Cells, EV::Cells )
+	elseif size(V,1) == 2
 		# greedy generation of incidence number signs
 		copFE = Lar.coboundary_1( V, cscFV::Lar.ChainOp, cscEV::Lar.ChainOp, convex, exterior)
-	##end
+	end
 	return copFE
 end
 
@@ -319,30 +319,30 @@ function coboundary_1( V::Lar.Points, cscFV::Lar.ChainOp, cscEV::Lar.ChainOp, co
 	EV = [findnz(cscEV[k,:])[1] for k=1:size(cscEV,1)]
 	cscEV = sparse(coboundary_0( EV::Cells ))
 	for f=1:size(cscFE,1)
-		chain = findnz(cscFE[f,:])[1]	#	dense
-		cycle = spzeros(Int8,cscFE.n)	#	sparse
+		chain = SparseArrays.findnz(cscFE[f,:])[1]	#	dense
+		cycle = SparseArrays.spzeros(Int8,cscFE.n)	#	sparse
 
-		edge = findnz(cscFE[f,:])[1][1]; sign = 1
+		edge = SparseArrays.findnz(cscFE[f,:])[1][1]; sign = 1
 		cycle[edge] = sign
 		chain = setdiff( chain, edge )
 		while chain != []
-			boundary = sparse(cycle') * cscEV
-			_,vs,vals = findnz(dropzeros(boundary))
+			boundary = SparseArrays.sparse(cycle') * cscEV
+			_,vs,vals = SparseArrays.findnz(dropzeros(boundary))
 
 			rindex = vals[1]==1 ? vf = vs[1] : vf = vs[2]
-			r_boundary = spzeros(Int8,cscEV.n)	#	sparse
+			r_boundary = SparseArrays.spzeros(Int8,cscEV.n)	#	sparse
 			r_boundary[rindex] = 1
 			r_coboundary = cscEV * r_boundary
 			r_edge = intersect(findnz(r_coboundary)[1],chain)[1]
-			r_coboundary = spzeros(Int8,cscEV.m)	#	sparse
+			r_coboundary = SparseArrays.spzeros(Int8,cscEV.m)	#	sparse
 			r_coboundary[r_edge] = EV[r_edge][1]<EV[r_edge][2] ? 1 : -1
 
 			lindex = vals[1]==-1 ? vi = vs[1] : vi = vs[2]
-			l_boundary = spzeros(Int8,cscEV.n)	#	sparse
+			l_boundary = SparseArrays.spzeros(Int8,cscEV.n)	#	sparse
 			l_boundary[lindex] = -1
 			l_coboundary = cscEV * l_boundary
 			l_edge = intersect(findnz(l_coboundary)[1],chain)[1]
-			l_coboundary = spzeros(Int8,cscEV.m)	#	sparse
+			l_coboundary = SparseArrays.spzeros(Int8,cscEV.m)	#	sparse
 			l_coboundary[l_edge] = EV[l_edge][1]<EV[l_edge][2] ? -1 : 1
 
 			if r_coboundary != -l_coboundary  # false iff last edge
@@ -357,7 +357,7 @@ function coboundary_1( V::Lar.Points, cscFV::Lar.ChainOp, cscEV::Lar.ChainOp, co
 			end
 			chain = setdiff(chain, findnz(cycle)[1])
 		end
-		for e in findnz(cscFE[f,:])[1]
+		for e in SparseArrays.findnz(cscFE[f,:])[1]
 			cscFE[f,e] = cycle[e]
 		end
 	end
@@ -559,19 +559,27 @@ C_0 to C_1  and from C_1 to C_2.
 
 # Example
 ```julia
+julia> using LinearAlgebraicRepresentation
 julia> L = Lar = LinearAlgebraicRepresentation
+julia> using ViewerGL
+julia> GL = ViewerGL
 
 julia> cube_1 = ([0 0 0 0 1 1 1 1; 0 0 1 1 0 0 1 1; 0 1 0 1 0 1 0 1],
 [[1,2,3,4],[5,6,7,8],[1,2,5,6],[3,4,7,8],[1,3,5,7],[2,4,6,8]],
 [[1,2],[3,4],[5,6],[7,8],[1,3],[2,4],[5,7],[6,8],[1,5],[2,6],[3,7],[4,8]] )
 
-julia> cube_2 = L.Struct([L.t(0,0,0.5), L.r(0,0,pi/3), cube_1])
+julia> cube_2 = L.Struct([L.t(0,0,0), L.r(0,0,pi/3), cube_1])
 
 julia> V,FV,EV = L.struct2lar(L.Struct([ cube_1, cube_2 ]))
 
 julia> W,bases,coboundaries = L.chaincomplex(V,FV,EV)
 
-julia> (EV, FV, CV), (cscEV, cscFE, cscCF) = bases,coboundaries
+julia> (EV, FV, CV), (copEV, copFE, copCF) = bases,coboundaries		
+julia> V = convert(Lar.Points, W);
+julia> V,CVs,FVs,EVs = Lar.pols2tria(V, copEV, copFE, copCF) # whole assembly
+julia> GL.VIEW(GL.GLExplode(V,FVs,1.1,1.1,1.1,99,1));
+julia> GL.VIEW(GL.GLExplode(V,EVs,1.5,1.5,1.5,99,1));
+julia> GL.VIEW(GL.GLExplode(V,CVs,1,1,1,99,0.2));
 
 julia> FV # bases[2]
 18-element Array{Array{Int64,1},1}:
@@ -632,7 +640,7 @@ function chaincomplex(V,FV,EV)
 	end
 	copEV = convert(ChainOp, LinearAlgebra.transpose(temp))
 	bases, coboundaries = (ord(EV),ord(FV),ord(CV)), (copEV,copFE,copCF)
-	W = convert(Points, (LinearAlgebra.transpose(V')))
+	W = convert(Points, (LinearAlgebra.transpose(W')))
 	return W,bases,coboundaries
 end
 
@@ -659,8 +667,9 @@ function arrange2D(V,EV)
 	W = convert(Points,V')
 	V, copEV, copFE = Arrangement.planar_arrangement(W::Points, cop_EW::ChainOp)
 	EVs = FV2EVs(copEV, copFE) # polygonal face fragments
-
+@show "CIAO ZERO"
 	triangulated_faces = triangulate2D(V, [copEV, copFE])
+@show "CIAO ONE"
 	FVs = convert(Array{Cells}, triangulated_faces)
 	V = convert(Points,V')
 	return V,FVs,EVs, copEV, copFE

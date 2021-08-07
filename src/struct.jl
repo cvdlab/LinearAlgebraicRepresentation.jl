@@ -299,14 +299,14 @@ function struct2lar(structure) # TODO: extend to true `LARmodels`
 						push!(outcell,vertDict[key])
 					end
 				end
-				append!(larmodel[k],[outcell])
+				push!(larmodel[k],outcell)
 			end
 		end
 	end
 
 	append!(larmodel[1], W)
 	V = hcat(larmodel[1]...)
-	chains = [convert(Lar.Cells, chain) for chain in larmodel[2:end]]
+	chains = [convert(Lar.Cells, sort!(union(chain))) for chain in larmodel[2:end]]
 	return (V, chains...)
 end
 
