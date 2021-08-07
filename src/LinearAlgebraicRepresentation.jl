@@ -115,6 +115,7 @@ module LinearAlgebraicRepresentation
    include("./fenvs.jl")
    include("./partialview.jl")
    include("./local-congruence.jl")
+   include("./TGW3d.jl")
 
    include("./arrangement/arrangement.jl")
    #planar_arrangement_1 = Arrangement.planar_arrangement_1
