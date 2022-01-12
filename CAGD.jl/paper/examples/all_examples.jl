@@ -1,18 +1,19 @@
-# To be executed from CAGD.jl
+todisplay = true
 
-todisplay = VERSION <= VersionNumber("1.2") ? true : false
-
-using CAGD
-using SparseArrays
 using LinearAlgebraicRepresentation
 Lar = LinearAlgebraicRepresentation
+using CAGD
+using SparseArrays
 if todisplay  using ViewerGL; GL = ViewerGL  end
 
-include("./CAGD.jl/paper/examples/cellular_complex.jl");
-include("./CAGD.jl/paper/examples/CSG_example.jl");
-include("./CAGD.jl/paper/examples/cycles_boundaries.jl");
-include("./CAGD.jl/paper/examples/planar_algebra_2D.jl");
-include("./CAGD.jl/paper/examples/solid_algebra_3D.jl");
-include("./CAGD.jl/paper/examples/space_arrangement_2d.jl");
-include("./CAGD.jl/paper/examples/space_arrangement.jl");
-include("./CAGD.jl/paper/examples/subdivision_of_2_cells.jl");
+include("./updatedLarFunctions.jl");
+
+
+include("./cellular_complex.jl");
+include("./CSG_example.jl");
+include("./cycles_boundaries.jl");
+include("./planar_algebra_2D.jl");
+include("./solid_algebra_3D.jl");
+include("./space_arrangement_2d.jl");
+include("./space_arrangement.jl");
+include("./subdivision_of_2_cells.jl");

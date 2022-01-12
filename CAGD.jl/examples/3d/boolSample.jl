@@ -106,7 +106,7 @@ cCF = convert(Lar.ChainOp, ((cCV*cFV').>0))
 CAGD.addModelCells!(model, 3, cCF)
 
 
-atol = 1e-9;
+atol = 1e-6;
 if todisplay  displayModel(model)  end
 
 split_model = CAGD.facesplitting(model, atol = atol)

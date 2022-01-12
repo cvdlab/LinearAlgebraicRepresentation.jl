@@ -30,7 +30,7 @@ if todisplay
     GL.VIEW(GL.GLExplode(A_model.G, FVs, 1.2, 1.2, 1.2, 99, 1));
 end
 
-innerpoints = Lar.internalpoints2d(A_model.G', A_model.T[1], A_model.T[2][1:end, :])
+innerpoints = internalpoints2d(A_model.G', A_model.T[1], A_model.T[2][1:end, :])
 # associate internal points to 2-cells
 listOfModels = Lar.evalStruct(squares)
 inputfacenumbers = [length(listOfModels[k][2]) for k=1:length(listOfModels)]

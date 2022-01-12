@@ -248,3 +248,16 @@ evaluates wich of those is the external one (in `comp` ordering).
 function getExternalBoundary(model, deg, cycles, comp)
     return findmax([length(cycles[:, comp[i]].nzind) for i = 1 : length(comp)])[2]
 end
+
+
+
+"""
+    function pcat(args)
+
+Utility function imported from old Lar developments.
+
+The function applies the reduction of (x,y) -> append!(x,y) over args.
+"""
+function pcat(args)
+	return reduce( (x,y) -> append!(x,y), args; init=[] )
+end

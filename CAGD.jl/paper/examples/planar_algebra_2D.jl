@@ -1,7 +1,7 @@
-wall = Lar.svg2lar("./test/svg/assembly/wall.svg", flag=false);
-openings = Lar.svg2lar("./test/svg/assembly/svg/openings.svg", flag=false);
-rectangle = Lar.svg2lar("./test/svg/assembly/rectangle.svg", flag=false);
-box = Lar.svg2lar("./test/svg/assembly/box.svg", flag=false);
+wall = Lar.svg2lar(string(@__DIR__, "/svg/wall.svg"), flag=false);
+openings = Lar.svg2lar(string(@__DIR__, "/svg/openings.svg"), flag=false);
+rectangle = Lar.svg2lar(string(@__DIR__, "/svg/rectangle.svg"), flag=false);
+box = Lar.svg2lar(string(@__DIR__, "/svg/box.svg"), flag=false);
 
 assembly = Lar.Struct([wall, openings, rectangle, box]);
 V,EV = Lar.struct2lar(assembly);
@@ -27,7 +27,7 @@ if todisplay
     GL.VIEW(GL.GLExplode(A_model.G, FVs, 4.0, 4.0, 4.0, 99, 1));
 end
 
-innerpoints = Lar.internalpoints2d(A_model.G', A_model.T[1], A_model.T[2][1:end, :])
+innerpoints = internalpoints2d(A_model.G', A_model.T[1], A_model.T[2][1:end, :])
 # associate internal points to 2-cells
 listOfModels = Lar.evalStruct(assembly)
 inputfacenumbers = [length(listOfModels[k][2]) for k=1:length(listOfModels)];

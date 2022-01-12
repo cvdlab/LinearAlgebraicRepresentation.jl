@@ -1,4 +1,4 @@
-npts = 64;
+npts = 32;
 
 ## METHOD 1
 
@@ -8,7 +8,7 @@ function cylinder(;r=1, h=1, n=8, k=1)
 	V = W .- [0,0,h*k/2]
 	FW = Lar.simplexFacets(CW)
 	FV = Lar.simplexBoundary_3(CW,FW)
-	EV = [[u,v] for (u,v) in sort(collect(Set(map(sort,cat(
+	EV = [[u,v] for (u,v) in sort(collect(Set(map(sort, CAGD.pcat(
 					[[[u,v],[v,w],[w,u]] for (u,v,w) in FV]))))) if u!=v]
 	return V,FV,EV
 end
@@ -45,6 +45,7 @@ end;
 ## METHOD 2
 
 # Build a cylinder
+npts = 64
 
 V,_ = Lar.rod()([npts, 1]);
 EV = [
