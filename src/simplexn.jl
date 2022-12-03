@@ -9,14 +9,14 @@ When `fullmodel==true` return a `LARmodel`, including the faces, from dimension 
 
 # Example
 ```
-using LinearAlgebraicRepresentation, Plasm, LinearAlgebra
+using LinearAlgebraicRepresentation, LinearAlgebra
 Lar = LinearAlgebraicRepresentation
 
 model = Lar.simplex(2)
-Plasm.view( Lar.simplex(2) )
+#Plasm.view( Lar.simplex(2) )
 
 V, cells = Lar.simplex(3, true)
-Plasm.view(Plasm.numbering(0.5)( (V,cells[1:end-1]) ))
+#Plasm.view(Plasm.numbering(0.5)( (V,cells[1:end-1]) ))
 ```
 """
 function simplex(n, fullmodel=false)
@@ -58,7 +58,7 @@ julia> model = (V,FV);
 
 julia> W,FW = extrudeSimplicial(model, pattern);
 
-julia> Plasm.view(W,FW)
+julia> #Plasm.view(W,FW)
 ```
 """
 function extrudeSimplicial(model::Lar.LAR, pattern)
@@ -141,11 +141,10 @@ julia> V
  0  0  0  0  0  0  0  0  0  0   0  1  1  1  1     10  10  10  10  10  10  10  10  10  10
  0  0  0  0  0  0  0  0  0  0   0  0  0  0  0      1   1   1   1   1   1   1   1   1   1
 
-julia> using Plasm
 
-julia> hpc = Plasm.lar2exploded_hpc(V,CV) # exploded visualization of the grid
+julia> #hpc = Plasm.lar2exploded_hpc(V,CV) # exploded visualization of the grid
 
-julia> Plasm.view(hpc)
+julia> #Plasm.view(hpc)
 
 julia> V,HV = simplexGrid([1,1,1,1]) # 4-dim cellular complex from the 4D simplex
 # output
@@ -177,7 +176,7 @@ julia> V,FV = Lar.simplexGrid([1,1]) # 2-dimensional complex
 # output
 ([0 1 0 1; 0 0 1 1], Array{Int64,1}[[1, 2, 3], [2, 3, 4]])
 
-julia> Plasm.view(V,FV)
+julia> #Plasm.view(V,FV)
 
 julia> W,CW = Lar.extrudeSimplicial((V,FV), [1])
 ([0.0 1.0 … 0.0 1.0; 0.0 0.0 … 1.0 1.0; 0.0 0.0 … 1.0 1.0],
@@ -189,7 +188,7 @@ julia> FW = Lar.simplexFacets(CW)
 [6,7,8],[3,5,6],[2,3,5],[2,3,4],[3,4,7],[1,2,3],[2,4,6],[2,5,6],
 [1,2,5],[2,3,6],[3,4,6]]
 
-julia> Plasm.view(W,FW)
+julia> #Plasm.view(W,FW)
 ```
 
 # Example
@@ -199,7 +198,7 @@ julia> V,(VV,EV,FV,CV) = Lar.cuboidGrid([3,3,3],true)
 
 julia> TV = Lar.simplexFacets(CV)
 
-julia> Plasm.view(V,TV)
+julia> #Plasm.view(V,TV)
 
 ```
 """
@@ -232,15 +231,15 @@ The transformation from quads to triangles works for any 2-complex, embedded in 
 ```
 V,FV = Lar.cuboidGrid([4,5])
 triangles = Lar.quads2triangles(FV::Lar.Cells)::Lar.Cells
-using Plasm
-Plasm.view((V,[triangles]))
+
+#Plasm.view((V,[triangles]))
 ```
 ## 3D example
 ```
 V,(VV,EV,FV,CV) = Lar.cuboidGrid([4,5,3],true)
 triangles = Lar.quads2triangles(FV::Lar.Cells)::Lar.Cells
-using Plasm
-Plasm.view((V,[triangles]))
+
+#Plasm.view((V,[triangles]))
 ```
 """
 function quads2triangles(quads::Lar.Cells)::Lar.Cells

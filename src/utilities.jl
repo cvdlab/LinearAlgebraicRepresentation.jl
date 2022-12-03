@@ -3,6 +3,11 @@ Lar = LinearAlgebraicRepresentation
 using SparseArrays
 
 
+function cat(args)
+	return reduce( (x,y) -> append!(x,y), args; init=[] )
+end
+
+
 function interior_to_f(triangle,f,V,FV,EV,FE)
 	v1,v2,v3 = triangle
 	u = V[:,v2]-V[:,v1]
@@ -65,8 +70,8 @@ function ordering(triangles,V)
 end
 
 
-function ord(hinge::Int64, bd1::AbstractSparseVector{Int64,Int64}, V::Array{Float64,2},
-FV::Array{Array{Int64,1},1}, EV::Array{Array{Int64,1},1}, FE::Array{Array{Int64,1},1})
+function ord(hinge::Int, bd1::AbstractSparseVector{Int,Int}, V::Array{Float64,2},
+FV::Array{Array{Int,1},1}, EV::Array{Array{Int,1},1}, FE::Array{Array{Int,1},1})
 	cells = SparseArrays.findnz(bd1)[1]
 	triangles = []
 
@@ -129,40 +134,44 @@ VV = [[v] for v=1:size(V,2)]
 model = (V, [VV,EV,FV])
 #Plasm.View(Plasm.numbering(.25)(model))
 
-	copEF = copFE'
+	copEF = transpose(copFE)
 	FE = [SparseArrays.findnz(copFE[k,:])[1] for k=1:size(copFE,1)]
 	# Initializations
 	m,n = size(copEF)
-	marks = zeros(Int8,n);
-	I = Int64[]; J = Int64[]; W = Int8[];
+	@show m,n;
+	marks = zeros(Int,n);
+	I = Int[]; J = Int[]; W = Int[];
 	jcol = 0
 	choose(marks) = findfirst(x -> x<2, marks)
-	
+
 	# Main loop (adding one copFC's column stepwise)
-	while sum(marks) < 2n
+	while sum(marks) < 2n # no robust condition ... make better
 		# select a (d−1)-cell, "seed" of the column extraction
 		σ = choose(marks)
 		if marks[σ] == 0
-			cd1 = sparsevec([σ], Int8[1], n)
+			cd1 = sparsevec([σ], Int[1], n)
 		elseif marks[σ] == 1
-			cd1 = sparsevec([σ], Int8[-1], n)
+			cd1 = sparsevec([σ], Int[-1], n)
 		end
 		# compute boundary cd2 of seed cell
 		cd2 = copEF * cd1
 		# loop until (boundary) cd2 becomes empty
 		while nnz(cd2)≠0
-			corolla = sparsevec([], Int8[], m)
+			corolla = sparsevec([], Int[], m)
 			# for each “hinge” τ cell
 			for τ ∈ (.*)(SparseArrays.findnz(cd2)...)
 				#compute the  coboundary
-				tau = sparsevec([abs(τ)], Int64[sign(τ)], m)  # ERROR: index out of bound here! 
+				@show τ;
+				tau = sparsevec([abs(τ)], Int[sign(τ)], m)  # ERROR: index out of bound here!
 				bd1 = transpose(transpose(tau) * copEF)
 				cells2D = SparseArrays.findnz(bd1)[1]
 				# compute the  support
 				inters = intersect(cells2D, SparseArrays.findnz(cd1)[1])
 				if inters ≠ []
 					pivot = inters[1]
+					@show pivot;
 				else
+				    @show marks;
 					error("no pivot")
 				end
 				# compute the new adj cell
@@ -178,6 +187,7 @@ model = (V, [VV,EV,FV])
 				else
 					corolla[adj] = -(cd1[pivot])
 				end
+				@show corolla;
 			end
 			# insert corolla cells in current cd1
 			for (k,val) in zip(SparseArrays.findnz(corolla)...)
@@ -300,7 +310,7 @@ function delete_edges(todel, V::Points, EV::ChainOp)
     EV = EV[tokeep, :]
 
     vertinds = 1:EV.n
-    todel = Array{Int64, 1}()
+    todel = Array{Int, 1}()
     for i in vertinds
         if length(EV[:, i].nzind) == 0
             push!(todel, i)
@@ -346,7 +356,7 @@ function buildFV(copEV::ChainOp, face::Cell)
     nextv = 0
     edge = 0
 
-    vs = Array{Int64, 1}()
+    vs = Array{Int, 1}()
 
     while startv != nextv
         if startv < 0
@@ -415,9 +425,9 @@ function build_copFE(FV::Lar.Cells, EV::Lar.Cells)
 	copFE = Lar.u_coboundary_1(FV, EV) # unsigned
 	faceedges = [findnz(copFE[f,:])[1] for f=1:size(copFE,1)]
 
-	f_edgepairs = Array{Array{Int64,1}}[]
+	f_edgepairs = Array{Array{Int,1}}[]
 	for f=1:size(copFE,1)
-		edgepairs = Array{Int64,1}[]
+		edgepairs = Array{Int,1}[]
 		for v in FV[f]
 			push!(edgepairs, [e for e in faceedges[f] if v in EV[e]])
 		end
@@ -495,7 +505,7 @@ function vequals(v1, v2)
 end
 
 
-function vcycle( copEV::Lar.ChainOp, copFE::Lar.ChainOp, f::Int64 )
+function vcycle( copEV::Lar.ChainOp, copFE::Lar.ChainOp, f::Int )
 	edges,signs = SparseArrays.findnz(copFE[f,:])
 	vpairs = [s>0 ? SparseArrays.findnz(copEV[e,:])[1] :
 					reverse(SparseArrays.findnz(copEV[e,:])[1])
@@ -541,7 +551,7 @@ function triangulate(V::Lar.Points, cc::Lar.ChainComplex)
 
         edges_idxs = copFE[f, :].nzind
         edge_num = length(edges_idxs)
-        edges = zeros(Int64, edge_num, 2)
+        edges = zeros(Int, edge_num, 2)
 
         #fv = Lar.buildFV(copEV, copFE[f, :])
         fv, edges = Lar.vcycle(copEV, copFE, f)
@@ -698,7 +708,7 @@ Use this function to export LAR models into OBJ
 	julia> (EV, FV, CV), (copEV, copFE, copCF) = bases, coboundaries
 
 	julia> FV # bases[2]
-	18-element Array{Array{Int64,1},1}:
+	18-element Array{Array{Int,1},1}:
 	 [1, 3, 4, 6]
 	 [2, 3, 5, 6]
 	 [7, 8, 9, 10]
@@ -719,19 +729,19 @@ Use this function to export LAR models into OBJ
 	 [14, 16, 18, 20]
 
 	julia> CV # bases[3]
-	3-element Array{Array{Int64,1},1}:
+	3-element Array{Array{Int,1},1}:
 	 [2, 3, 5, 6, 11, 12, 13, 14, 15, 16, 18, 19, 20]
 	 [2, 3, 5, 6, 11, 12, 13, 17]
 	 [1, 2, 3, 4, 6, 7, 8, 9, 10, 11, 12, 13, 17]
 
 	julia> copEV # coboundaries[1]
-	34×20 SparseMatrixCSC{Int8,Int64} with 68 stored entries: ...
+	34×20 SparseMatrixCSC{Int8,Int} with 68 stored entries: ...
 
 	julia> copFE # coboundaries[2]
-	18×34 SparseMatrixCSC{Int8,Int64} with 80 stored entries: ...
+	18×34 SparseMatrixCSC{Int8,Int} with 80 stored entries: ...
 
 	julia> copCF # coboundaries[3]
-	4×18 SparseMatrixCSC{Int8,Int64} with 36 stored entries: ...
+	4×18 SparseMatrixCSC{Int8,Int} with 36 stored entries: ...
 
 	objs = Lar.lar2obj(V'::Lar.Points, [coboundaries...])
 
@@ -859,6 +869,7 @@ end
 
 
 function space_arrangement(V::Points, EV::ChainOp, FE::ChainOp, multiproc::Bool=false)
+println("SONO-IO in space_arrangement")
 @show V::Points;
 @show SparseArrays.findnz(EV::ChainOp);
 @show SparseArrays.findnz(FE::ChainOp);
@@ -871,7 +882,7 @@ function space_arrangement(V::Points, EV::ChainOp, FE::ChainOp, multiproc::Bool=
     rFE = SparseArrays.spzeros(Int8,0,0)
 
     if (multiproc == true)
-        in_chan = Distributed.RemoteChannel(()->Channel{Int64}(0))
+        in_chan = Distributed.RemoteChannel(()->Channel{Int}(0))
         out_chan = Distributed.RemoteChannel(()->Channel{Tuple}(0))
 
         @async begin
@@ -908,7 +919,7 @@ function space_arrangement(V::Points, EV::ChainOp, FE::ChainOp, multiproc::Bool=
 	depot_FE = Array{ChainOp,1}(undef,fs_num)
        for sigma in 1:fs_num
            print(sigma, "/", fs_num, "\r")
-           nV, nEV, nFE = Arrangement.frag_face( V, EV, FE, sp_idx, sigma)
+           nV, nEV, nFE = Lar.Arrangement.frag_face( V, EV, FE, sp_idx, sigma)
            depot_V[sigma] = nV
            depot_EV[sigma] = nEV
            depot_FE[sigma] = nFE
@@ -916,16 +927,16 @@ function space_arrangement(V::Points, EV::ChainOp, FE::ChainOp, multiproc::Bool=
 	rV = vcat(depot_V...)
 	rEV = SparseArrays.blockdiag(depot_EV...)
 	rFE = SparseArrays.blockdiag(depot_FE...)
-Verbose = true
 
     end
+Verbose = true
 
 if Verbose
 	println("\npre congruence >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
 	@show rV;
 	@show SparseArrays.findnz(rEV);
 	@show SparseArrays.findnz(rFE);
-	println("ciao pre congruence <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<\n")
+	println("ciao pre congruence <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<\n")
 end
 rV, rcopEV, rcopFE = Lar.Arrangement.merge_vertices(rV, rEV, rFE)
 #V, EV, FV, FE  = Lar.chaincongruence(Matrix(rV'), rEV::Lar.ChainOp, rFE::Lar.ChainOp; epsilon=0.0001)
@@ -951,11 +962,12 @@ if Verbose
 	@show rV;
 	@show SparseArrays.findnz(rcopEV);
 	@show SparseArrays.findnz(rcopFE);
-	println("ciao post congruence <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<\n")
+	println("ciao post congruence <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<\n")
 end
 
-    rcopCF = Arrangement.minimal_3cycles(rV, rcopEV, rcopFE)
-    #rcopCF = build_copFC(rcopV, rcopEV, rcopFE)
+    #rcopCF = Arrangement.minimal_3cycles(rV, rcopEV, rcopFE)
+    rcopCF = build_copFC(rV, rcopEV, rcopFE)
+    println("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\n")
 
     return rV, rcopEV, rcopFE, rcopCF
 end
@@ -1076,13 +1088,13 @@ function triangulate2D(V::Lar.Points, cc::Lar.ChainComplex)::Array{Any, 1}
     for f in 1:copFE.m
         edges_idxs = copFE[f, :].nzind
         edge_num = length(edges_idxs)
-        edges = Array{Int64,1}[] #zeros(Int64, edge_num, 2)
+        edges = Array{Int,1}[] #zeros(Int, edge_num, 2)
 
 		# fv = Lar.buildFV(copEV, copFE[f, :])
 		fv = union(polygons[f]...)
         vs = V[fv, :]
 		edges = union(edgecycles[f]...)
-        edges = convert(Array{Int64,2}, hcat(edges...)')
+        edges = convert(Array{Int,2}, hcat(edges...)')
 
 		# triangulated_faces[f] = Triangle.constrained_triangulation(
         # 	vs, fv, edges, fill(true, edge_num))
@@ -1149,12 +1161,12 @@ julia> Matrix(Lar.lar2cop(CV))
 ```
 """
 function lar2cop(CV::Lar.Cells)::Lar.ChainOp
-	I = Int64[]; J = Int64[]; Value = Int8[];
+	I = Int[]; J = Int[]; Value = Int8[];
 	for k=1:size(CV,1)
 		n = length(CV[k])
-		append!(I, k * ones(Int64, n))
+		append!(I, k * ones(Int, n))
 		append!(J, CV[k])
-		append!(Value, ones(Int64, n))
+		append!(Value, ones(Int, n))
 	end
 	return SparseArrays.sparse(I,J,Value)
 end
@@ -1173,7 +1185,7 @@ Notice that `cop2lar` is the inverse function of `lar2cop`. their composition is
 julia> V,(VV,EV,FV,CV) = Lar.cuboid([1,1,1],true);
 
 julia> Lar.cop2lar(Lar.lar2cop(EV))
-12-element Array{Array{Int64,1},1}:
+12-element Array{Array{Int,1},1}:
  [1, 2]
  [3, 4]
    ...
@@ -1182,7 +1194,7 @@ julia> Lar.cop2lar(Lar.lar2cop(EV))
  [4, 8]
 
 julia> Lar.cop2lar(Lar.lar2cop(FV))
-6-element Array{Array{Int64,1},1}:
+6-element Array{Array{Int,1},1}:
  [1, 2, 3, 4]
  [5, 6, 7, 8]
  [1, 2, 5, 6]
@@ -1191,7 +1203,7 @@ julia> Lar.cop2lar(Lar.lar2cop(FV))
  [2, 4, 6, 8]
 
 julia> Lar.cop2lar(Lar.lar2cop(CV))
-1-element Array{Array{Int64,1},1}:
+1-element Array{Array{Int,1},1}:
  [1, 2, 3, 4, 5, 6, 7, 8]
 ```
 """
@@ -1272,8 +1284,8 @@ original and generated edges. `V` is given by column.
 # function triangulate2d(V, EV)
 #     # data for Constrained Delaunay Triangulation (CDT)
 #     points = convert(Array{Float64,2}, V')
-# 	points_map = Array{Int64,1}(collect(1:1:size(points)[1]))
-#     edges_list = convert(Array{Int64,2}, hcat(EV...)')
+# 	points_map = Array{Int,1}(collect(1:1:size(points)[1]))
+#     edges_list = convert(Array{Int,2}, hcat(EV...)')
 #     edge_boundary = [true for k=1:size(edges_list,1)]
 #     triangles = Triangle.constrained_triangulation(points,points_map,edges_list)
 #     # edges of the triangulation
@@ -1285,7 +1297,7 @@ original and generated edges. `V` is given by column.
 # 	edge_dict = Dict(zip(EV,1:length(EV)))
 # 	#edge_dict = Dict(zip(ev_nodups,1:length(ev_nodups)))
 #
-# 	triaedges = Array{Int64,1}(undef,0)
+# 	triaedges = Array{Int,1}(undef,0)
 # 	for (u,v) in ev
 # 		if haskey(edge_dict, [u,v])
 # 			push!(triaedges, edge_dict[[u,v]])
@@ -1300,14 +1312,14 @@ original and generated edges. `V` is given by column.
 #         counters[e]+=1
 #     end
 #     # compute inner triangles
-#     inneredges = Array{Array{Int64,1},1}()
+#     inneredges = Array{Array{Int,1},1}()
 #     for (k,value) in enumerate(counters)
 #        if value==2
 #            push!(inneredges, EV[k], reverse(EV[k]))
 #        end
 #     end
 #     # compute hole(s): wheater all (some?) triangle edges are inneredges
-#     holes = Array{Array{Int64,1},1}()
+#     holes = Array{Array{Int,1},1}()
 #     for (k,(u,v,w)) in enumerate(triangles)
 #         triangle = [[u,v],[v,w],[w,u]]
 #         if setdiff(triangle,inneredges)==[]
@@ -1322,11 +1334,11 @@ original and generated edges. `V` is given by column.
 #@show EV;
 #    # data for Constrained Delaunay Triangulation (CDT)
 #    points = convert(Array{Float64,2}, V')
-#	points_map = Array{Int64,1}(collect(1:1:size(points)[1]))
-#    edges_list = convert(Array{Int64,2}, hcat(EV...)')
+#	points_map = Array{Int,1}(collect(1:1:size(points)[1]))
+#    edges_list = convert(Array{Int,2}, hcat(EV...)')
 #    edge_boundary = [true for k=1:size(edges_list,1)] ## dead code !!
 #    trias = Triangle.constrained_triangulation(points,points_map,edges_list)
-#	innertriangles = Array{Int64,1}[]
+#	innertriangles = Array{Int,1}[]
 #	for (u,v,w) in trias
 #		point = (points[u,:]+points[v,:]+points[w,:])./3
 #		copEV = Lar.lar2cop(EV)
@@ -1348,7 +1360,7 @@ function constrained_triangulation2D(V::Lar.Points, EV::Lar.Cells)
 	triin.pointlist = V
 	triin.segmentlist = hcat(EV...)
 	(triout, vorout) = Triangulate.triangulate("pQ", triin)
-	trias = Array{Int64,1}[c[:] for c in eachcol(triout.trianglelist)]
+	trias = Array{Int,1}[c[:] for c in eachcol(triout.trianglelist)]
 	return trias
 end
 
@@ -1360,13 +1372,13 @@ end
 function triangulate2d(V::Lar.Points, EV::Lar.Cells)
    	 # data for Constrained Delaunay Triangulation (CDT)
    	 points = convert(Array{Float64,2}, V')
-	 # points_map = Array{Int64,1}(collect(1:1:size(points)[1]))
-   	 # edges_list = convert(Array{Int64,2}, hcat(EV...)')
+	 # points_map = Array{Int,1}(collect(1:1:size(points)[1]))
+   	 # edges_list = convert(Array{Int,2}, hcat(EV...)')
    	 # edge_boundary = [true for k=1:size(edges_list,1)] ## dead code !!
 	trias = constrained_triangulation2D(V::Lar.Points, EV::Lar.Cells)
 
  	#Triangle.constrained_triangulation(points,points_map,edges_list)
-	innertriangles = Array{Int64,1}[]
+	innertriangles = Array{Int,1}[]
 	for (u,v,w) in trias
 		point = (points[u,:]+points[v,:]+points[w,:])./3
 		copEV = Lar.lar2cop(EV)
@@ -1377,4 +1389,3 @@ function triangulate2d(V::Lar.Points, EV::Lar.Cells)
 	end
     return innertriangles
 end
-

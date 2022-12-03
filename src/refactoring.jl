@@ -166,8 +166,8 @@ data2d6 = Lar.Struct([ Lar.t(5,3.5), mycircle(.25,16) ])
 model2d = input_collection( [ data2d1, data2d2, data2d3, data2d4, data2d5, data2d6 ] )
 V,EV = model2d
 VV = [[k] for k in 1:size(V,2)];
-using Plasm
-Plasm.view( Plasm.numbering(.5)((V,[VV,EV])) )
+
+#Plasm.view( Plasm.numbering(.5)((V,[VV,EV])) )
 ```
 Note that `V,EV` is not a cellular complex, since 1-cells intersect out of 0-cells.
 
@@ -187,8 +187,8 @@ data3d5 = Lar.Struct([ Lar.t(4,0,0), Lar.s(0.4,0.4,0.4), mysphere ])
 model3d = input_collection([ data3d1, data3d2, data3d3, data3d4, data3d5 ])
 V,FV,EV = model3d
 VV = [[k] for k in 1:size(V,2)];
-using Plasm
-Plasm.view( Plasm.numbering(1)((V,[VV, EV])) )
+
+#Plasm.view( Plasm.numbering(1)((V,[VV, EV])) )
 ```
 
 Note that `V,FV,EV` is not a cellular complex, since 1-cells and
@@ -441,8 +441,8 @@ Pairwise *intersection* of 2D *line segments*.
 ```julia
 V,EV = model2d
 W, EW = Lar.fragmentlines(model2d) # OK
-using Plasm
-Plasm.viewexploded(W,EW)(1.2,1.2,1.2)
+
+#Plasm.viewexploded(W,EW)(1.2,1.2,1.2)
 ```
 """
 function fragmentlines(model)

@@ -51,7 +51,9 @@ function testarrangement(V,CV,FV,EV)
 		V,CVs,FVs,EVs = Lar.pols2tria(V, copEV, copFE, copCF) # whole assembly
 		GL.VIEW(GL.GLExplode(V,FVs,1.1,1.1,1.1,99,1));
 		GL.VIEW(GL.GLExplode(V,EVs,1.5,1.5,1.5,99,1));
-		GL.VIEW(GL.GLExplode(V,CVs,1,1,1,99,0.2));
+		sort!( CVs; by=x->length(x) )
+		GL.VIEW(GL.GLExplode(V,CVs[1:end-2],4.,4.,4.,99,0.5));
+		GL.VIEW(GL.GLExplode(V,[CVs[end]],4.,4.,4.,99,0.5));
 end
 
 testarrangement(V,CV,FV,EV);

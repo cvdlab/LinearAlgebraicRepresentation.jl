@@ -534,7 +534,6 @@ end
 #1-element Array{Array{Int64,1},1}:
 # [1, 2, 3, 4, 5, 6, 7, 8, 9, 10  …  240, 241, 242, 243, 244, 245, 246, 247, 248, 249]
 #
-#julia> using Plasm
 #
 #julia> Plasm.view(model)
 #```

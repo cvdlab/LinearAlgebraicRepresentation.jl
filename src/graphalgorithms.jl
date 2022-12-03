@@ -111,14 +111,12 @@ julia> EV = [[1, 2], [2, 3], [2, 4], [5, 10], [3, 12], [5, 11], [6, 7], [8, 9],
 			 
 julia> VV = [[k] for k=1:size(V,2)]
 
-julia> Plasm.view( Plasm.numbering(3)((V,[VV, EV])) )
 ```
 
 ```julia
 model = (V,EV)
 V,EVs = biconnectedComponent(model)
 EW = convert(Lar.Cells, union(EVs...))
-Plasm.view( Plasm.numbering(3)((V,[VV,EW])) )
 ```
 
 Another example:
@@ -128,7 +126,6 @@ V = [0. 1  0  0 -1;
 	 0  0  1 -1  0]
 EV = [[1,2],[2,3],[1,4],[4,5],[5,1],[1,3]  ,[2,4]]
 model = (V,EV)
-Plasm.view( Plasm.numbering(1)((V,[[[k] for k=1:size(V,2)],EV])) )
 V,EVs = Lar.biconnectedComponent(model)
 
 cscEV = Lar.characteristicMatrix(EV)
@@ -138,7 +135,6 @@ Matrix(Lar.characteristicMatrix(EV))
 
 V,EVs = biconnectedComponent(model)
 EW = convert(Lar.Cells, union(EVs...))
-Plasm.view( Plasm.numbering(.3)((V,[VV,EW])) )
 ```
 
 """
@@ -228,8 +224,6 @@ Compute maximal 2-edge-connected components of an undirected graph.
 ```julia
 V = hcat([[1.,2],[1,3],[0,3],[1,4],[2,3],[2,2],[1,1],[1,0],[0,1]]...)
 EV = [[3,4],[2,4],[2,3],[2,5],[1,2],[5,6],[1,6],[1,7],[7,9],[8,9],[7,8]]
-using Plasm
-Plasm.view( Plasm.numbering(1.3)((V,[[[k] for k=1:size(V,2)], EV])) )
 
 julia> edge_biconnect(EV::Lar.Cells)
 4-element Array{Array{Array{Int64,1},1},1}:
@@ -242,7 +236,6 @@ julia> edge_biconnect(EV::Lar.Cells)
 ```julia
 julia> V = hcat([[0,4],[4,4],[4,0],[2,0],[0,0],[2,2],[1,2],[3,2],[1,3],[3,3]]...)
 julia> EV = [[1,2],[9,10],[1,5],[7,9],[8,10],[2,3],[6,7],[6,8],[4,6],[4,5],[3,4]]
-julia> Plasm.view( Plasm.numbering(1.3)((V,[[[k] for k=1:size(V,2)], EV])) )
 
 julia> EVs = edge_biconnect(EV::Lar.Cells)
 3-element Array{Array{Array{Int64,1},1},1}:

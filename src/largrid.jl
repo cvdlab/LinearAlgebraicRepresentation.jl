@@ -10,16 +10,15 @@ FL primitive combinator to transform a binary function to an n-ary one.
 julia> mod1D = Lar.grid(repeat([.1,-.1],outer=5)...)
 ([0.0 0.1 … 0.9 1.0], Array{Int64,1}[[1, 2], [3, 4], [5, 6], [7, 8], [9, 10]])
 
-julia> using ViewerGL; GL = ViewerGL
 
-julia> GL.VIEW([ GL.GLFrame2, GL.GLGrid(mod1D..., GL.COLORS[1],1) ])
+#julia> GL.VIEW([ GL.GLFrame2, GL.GLGrid(mod1D..., GL.COLORS[1],1) ])
 
 julia> mod3D = Lar.INSR(Lar.larModelProduct)([mod1D,mod1D,mod1D])
 ([0.0 0.0 … 1.0 1.0; 0.0 0.0 … 1.0 1.0; 0.0 0.1 … 0.9 1.0],
 Array{Int64,1}[[1, 2, 12, 13, 122, 123, 133, 134], [3, 4, 14, 15, 124, 125, 135, 136],
 … [1063, 1064, 1074, 1075, 1184, 1185, 1195, 1196], [1065, 1066, 1076, 1077, 1186, 1187, 1197, 1198]])
 
-julia> GL.VIEW([ GL.GLFrame2, GL.GLPol(mod3D..., GL.COLORS[1],1) ])
+#julia> GL.VIEW([ GL.GLFrame2, GL.GLPol(mod3D..., GL.COLORS[1],1) ])
 ```
 """
 function INSR(f)
@@ -326,9 +325,8 @@ julia> cellGrid = larCellProd([c1, c1, c0])
 julia> grid3D = vertGrid,cellGrid
 ([0.0 0.0 … 3.0 3.0; 0.0 0.0 … 3.0 3.0; 0.0 1.0 … 1.0 2.0], Array{Int64,1}[[1, 4, 13, 16], [2, 5, 14, 17], … [32, 35, 44, 47], [33, 36, 45, 48]])
 
-julia> using Plasm
 
-julia> Plasm.view(grid3D)
+#julia> Plasm.view(grid3D)
 ```
 """
 function larCellProd(cellLists::Array{Cells,1})::Cells

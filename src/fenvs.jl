@@ -1,6 +1,6 @@
 using LinearAlgebraicRepresentation
 Lar = LinearAlgebraicRepresentation
-import Base.cat
+# import Base.cat
 using DataStructures
 
 

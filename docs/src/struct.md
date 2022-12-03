@@ -153,7 +153,6 @@ scene = L.struct2lar(L.Struct( repeat([ struct01, L.t(3,0) ], outer = 10) ));
 To see the generated 2D scene you need the `Plasm` module.
 
 ```julia
-using Plasm
 Plasm.view(scene[1],scene[2])
 Plasm.view(scene[1],scene[3])
 ```
@@ -165,7 +164,6 @@ A different example provides a `sphere`, and a `cylinder` instance suitably tran
 
 ```julia
 assembly = L.Struct([L.sphere()(), L.t(3,0,-1), L.cylinder()()])
-using Plasm
 Plasm.view(L.struct2lar(assembly))
 ```
 
@@ -182,9 +180,6 @@ The `refectory` model shown in Figure 1 is stepwise developed here. Of course, i
 ```julia
 using LinearAlgebraicRepresentation
 L = LinearAlgebraicRepresentation
-
-using Plasm
-View = Plasm.view
 ```
 ![](./images/parts.png)
 > **Figure 4:** The generation process of the `refectory` assembly shown in Figure 1.

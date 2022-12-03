@@ -131,8 +131,7 @@ Notice that there are two columns (2 and 13) with 3 ones, hence (3-2)+(3-2)=2 de
 ```julia
 
 VV = [[k] for k in 1:size(V,2)];
-using Plasm
-Plasm.view( Plasm.numbering(3)((V,[VV, EV, FV])) )
+#Plasm.view( Plasm.numbering(3)((V,[VV, EV, FV])) )
 ```
 """
 function fix_redundancy(target_mat, cscFV,cscEV) # incidence numbers > 2#E
@@ -423,15 +422,15 @@ characteristic matrices of `CV` and `FV`. Currently usable *only* with complexes
 (2) compute and show the *boundary* 2-cell array `boundary_2D_cells` by decodifying the (`mod 2`) result of multiplication of  the *boundary_3 matrix* `∂_2'`, transpose of *unsigned  coboundary_2* matrix  times the coordinate vector of the ``total`` 3-chain.
 
 ```julia
-julia> using SparseArrays, Plasm, Lar
+julia> using SparseArrays, Lar
 julia> V,(_,_,FV,CV) = Lar.cuboidGrid([32,32,16], true)
 julia> ∂_2 = Lar.u_coboundary_2( CV, FV)
 julia> coord_vect_of_all_3D_cells  = ones(size(∂_2,1),1)
 julia> coord_vect_of_boundary_2D_cells = ∂_2' * coord_vect_of_all_3D_cells .% 2
 julia> out = coord_vect_of_boundary_2D_cells
 julia> boundary_2D_cells = [ FV[f] for f in findnz(sparse(out))[1] ]
-julia> hpc = Plasm.lar2exploded_hpc(V, boundary_2D_cells)(1.25,1.25,1.25)
-julia> Plasm.view(hpc)
+#julia> hpc = Plasm.lar2exploded_hpc(V, boundary_2D_cells)(1.25,1.25,1.25)
+#julia> Plasm.view(hpc)
 ```
 ## Second example example
 
@@ -442,8 +441,8 @@ compute the boundary 2-complex of a random sub-image inside the block.
 julia> coord_vect_of_segment = [x>0.25 ? 1 : 0  for x in rand(size(∂_2,1)) ]
 julia> out = ∂_2' * coord_vect_of_segment .% 2
 julia> boundary_2D_cells = [ FV[f] for f in findnz(sparse(out))[1] ]
-julia> hpc = Plasm.lar2exploded_hpc(V, boundary_2D_cells)(1.1,1.1,1.1)
-julia> Plasm.view(hpc)
+#julia> hpc = Plasm.lar2exploded_hpc(V, boundary_2D_cells)(1.1,1.1,1.1)
+#julia> Plasm.view(hpc)
 ```
 
 """

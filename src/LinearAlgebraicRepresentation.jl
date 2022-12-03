@@ -114,7 +114,7 @@ module LinearAlgebraicRepresentation
    include("./bool2d.jl")
    include("./fenvs.jl")
    include("./partialview.jl")
-   include("./local-congruence.jl")
+   #include("./local-congruence.jl")
 
    include("./arrangement/arrangement.jl")
    #planar_arrangement_1 = Arrangement.planar_arrangement_1
