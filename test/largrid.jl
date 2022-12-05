@@ -10,14 +10,14 @@ Lar = LinearAlgebraicRepresentation
    end
    
    @testset "Grid_1 Tests" begin
-      @test repr(Lar.grid_1(1)) == "[0; 1]"
+      @test repr(Lar.grid_1(1)) == "[0; 1;;]"
       @test Lar.grid_1(2) == [0 1; 1 2]
       @test Lar.grid_1(3) == [0 1 2; 1 2 3]
    end
    
    @testset "Grid Tests" begin
       @test repr(Lar.larGrid(1)(0)) == "[0 1]"
-      @test repr(Lar.larGrid(1)(1)) == "[0; 1]"
+      @test repr(Lar.larGrid(1)(1)) == "[0; 1;;]"
       @test Lar.larGrid(2)(0) == [0  1  2]
       @test Lar.larGrid(2)(1) == [0 1; 1 2]
       @test Lar.larGrid(3)(0) == [0  1  2  3]
@@ -60,7 +60,8 @@ end
    @testset "Shape 1D Tests" begin
       @test Lar.index2addr([10])([0])==1
       @test Lar.index2addr([10])([9])==10
-      @test [Lar.index2addr([10])([index]) for index in collect(0:9)]==collect(1:10)
+      @test [Lar.index2addr([10])([index]) for index in 
+        collect(0:9)]==collect(1:10)
    end
 
    @testset "Shape 2d Tests" begin
@@ -70,9 +71,12 @@ end
       dd = "Tuple{Int64,Int64}[(0,0),(0,1),(1,0),(1,1),(2,0),(2,1)]"
       ee = "Tuple{Int64,Int64}[(0, 0), (0, 1), (1, 0), (1, 1), (2, 0), (2, 1)]"
       ff = repr( Lar.cart([collect(0:2),collect(0:1)]) )
-      @test [ Lar.index2addr([3,2])(collect(index)) for index in aa ]==collect(1:6)
-      @test [ Lar.index2addr([10,2])(collect(index)) for index in bb ] == collect(1:20)
-      @test [ Lar.index2addr([3,3])(collect(index)) for index in cc] == collect(1:9)
+      @test [ Lar.index2addr([3,2])(collect(index)) for index in 
+        aa]==collect(1:6)
+      @test [ Lar.index2addr([10,2])(collect(index)) for index in 
+        bb ] == collect(1:20)
+      @test [ Lar.index2addr([3,3])(collect(index)) for index in 
+        cc] == collect(1:9)
    end
 
    @testset "Shape 3d Tests" begin
@@ -136,9 +140,9 @@ end
       @test typeof(out) == Array{Int8,2}
       @test size(out) == (3,8)
       @test repr(out) == "Int8[0 0 0 0 1 1 1 1; 0 0 1 1 0 0 1 1; 0 1 0 1 0 1 0 1]"
-
       @testset "$n" for n in 1:4
-            data = [Lar.filterByOrder(n)[k] for (k,el) in enumerate(Lar.filterByOrder(n))]
+            data = [Lar.filterByOrder(n)[k] 
+                for (k,el) in enumerate(Lar.filterByOrder(n))]
             @test sum(map(length,data)) == 2^n
       end
 

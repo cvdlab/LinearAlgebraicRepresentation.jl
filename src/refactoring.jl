@@ -523,7 +523,7 @@ function congruence(model)
 	W,EW = model
 	# congruent vertices
 	balltree = NearestNeighbors.BallTree(W)
-	r = 0.0000000001
+	r = 0.00000001
 	near = Array{Any}(undef, size(W,2))
 	for k=1:size(W,2)
 		near[k] = union([NearestNeighbors.inrange(balltree, W[:,k], r, true)]...)

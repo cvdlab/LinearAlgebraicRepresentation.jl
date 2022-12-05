@@ -4,13 +4,16 @@ using ViewerGL
 GL = ViewerGL
 
 function randomshapes()
-	V,EV = Lar.randomcuboids(50, .4)
+	V,EV = Lar.randomcuboids(100, .4)
 	V = GL.normalize2(V,flag=true)
 	model2d = V,EV
 	Sigma =  Lar.spaceindex(model2d);
 	GL.VIEW([ GL.GLLines(V,EV, GL.COLORS[1]) ]);
 
+@show(V,EV)
 	W,EW = Lar.fraglines(1.5,1.5,1.5)((V,EV))
+@show(W,EW)
+	
 	GL.VIEW([ GL.GLLines(W,EW, GL.COLORS[1]) ]);
 
 	W = convert(Lar.Points, V')
