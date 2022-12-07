@@ -13,7 +13,6 @@ LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
 NearestNeighbors = "b8a86587-4115-5ab1-83bc-aa920d37bbce"
 Revise = "295af30f-e4ad-537b-8983-00126c2a3abe"
 SparseArrays = "2f01184e-e22b-5df5-ae63-d93ebab69eaf"
-#Triangle_jll = "5639c1d2-226c-5e70-8d55-b3095415a16a"
 Triangulate = "f7e6ffb2-c36d-4f8f-a77e-16e897189344"
 OrderedCollections = "bac558e1-5e72-5ebc-8fee-abe8a469f55d"
 

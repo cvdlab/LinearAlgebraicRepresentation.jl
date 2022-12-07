@@ -114,6 +114,7 @@ module LinearAlgebraicRepresentation
    include("./bool2d.jl")
    include("./fenvs.jl")
    include("./partialview.jl")
+   include("./two3three.jl")
    #include("./local-congruence.jl")
 
    include("./arrangement/arrangement.jl")

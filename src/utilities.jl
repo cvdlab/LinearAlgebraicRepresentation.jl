@@ -139,8 +139,8 @@ model = (V, [VV,EV,FV])
 	# Initializations
 	m,n = size(copEF)
 	@show m,n;
-	marks = zeros(Int,n);
-	I = Int[]; J = Int[]; W = Int[];
+	marks = zeros(Int64,n);
+	I = Int64[]; J = Int64[]; W = Int64[];
 	jcol = 0
 	choose(marks) = findfirst(x -> x<2, marks)
 
