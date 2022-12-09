@@ -22,10 +22,6 @@ end
 
 function minimal_3cycles(V::Lar.Points, EV::Lar.ChainOp, FE::Lar.ChainOp)
 
-@show V::Lar.Points;
-@show SparseArrays.findnz(EV::Lar.ChainOp);
-@show SparseArrays.findnz(FE::Lar.ChainOp);
-
 	triangulated_faces = Array{Any, 1}(undef, FE.m)
 
     function face_angle(e::Int, f::Int)
@@ -88,9 +84,6 @@ function minimal_3cycles(V::Lar.Points, EV::Lar.ChainOp, FE::Lar.ChainOp)
 
         M = reshape([v1; v2; v3], 3, 3)
 
-@show triangulated_faces;
-@show f;
-@show t;
         triangle = triangulated_faces[f][t]
         third_v = setdiff(triangle, edge_vs)[1]
         vs = V[[edge_vs..., third_v], :]*M
@@ -103,8 +96,6 @@ function minimal_3cycles(V::Lar.Points, EV::Lar.ChainOp, FE::Lar.ChainOp)
     #EF = FE'
     EF = convert(Lar.ChainOp, LinearAlgebra.transpose(FE))
 		println(">>>>>>>> going to loop?")
-Verbose = true
-@show Verbose
 		FC = Lar.Arrangement.minimal_cycles(face_angle, true)(V, EF)  # , EV)
 
 		#FC'
@@ -113,15 +104,9 @@ end
 
 
 function minimal_cycles(angles_fn::Function, verbose=true)
-println(">>>>>>>>>>>>> eccomi !!")
 
     function _minimal_cycles(V::Lar.Points,
     		ld_bounds::Lar.ChainOp)  # , EV)
-
-println(">>>>>>>>>>>>> eccomi !!!!")
-Verbose = true
-@show Verbose
-
 
         lld_cellsnum, ld_cellsnum = size(ld_bounds)
         count_marks = zeros(Int64, ld_cellsnum)

@@ -32,12 +32,12 @@ function pointsinout(V,EV, n=10000)
 end
 
 points_in, points_out, points_on = pointsinout(V,EV);
-pointsin = [vcat(points_in...) zeros(length(points_in),1)]
-pointsout = [vcat(points_out...) zeros(length(points_out),1)]
+pointsin = [vcat(points_in...) zeros(length(points_in),1)];
+pointsout = [vcat(points_out...) zeros(length(points_out),1)];
 
 polygon = [GL.GLLines(V,EV,GL.COLORS[1])];
-in_mesh = [GL.GLPoints(pointsin, GL.COLORS[2])]
-out_mesh = [GL.GLPoints(pointsout, GL.COLORS[3])]
+in_mesh = [GL.GLPoints(pointsin, GL.COLORS[2])];
+out_mesh = [GL.GLPoints(pointsout, GL.COLORS[3])];
 
-result = cat([polygon,in_mesh,out_mesh])
+result = Lar.cat([polygon,in_mesh,out_mesh]);
 GL.VIEW(result);

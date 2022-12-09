@@ -9,7 +9,7 @@ Lar = LinearAlgebraicRepresentation
 V,EV = Lar.randomcuboids(60, .35)
 V = GL.normalize2(V,flag=true)
 VV = [[k] for k=1:size(V,2)]
-GL.VIEW( GL.numbering(.05)((V,[VV, EV]),GL.COLORS[1]) )
+GL.VIEW( GL.numbering(.05)((V,[VV, EV]),GL.COLORS[1]) );
 
 # subdivision of input edges
 W = convert(Lar.Points, V')
@@ -21,24 +21,25 @@ V, copEV, copFE = Lar.planar_arrangement(W::Lar.Points, cop_EW::Lar.ChainOp)
 bicon_comps = Lar.Arrangement.biconnected_components(copEV)
 
 # visualization of component graphs
-EW = Lar.cop2lar(copEV)
-W = convert(Lar.Points, V')
-comps = [ GL.GLLines(W,EW[comp],GL.COLORS[(k-1)%12+1]) for (k,comp) in enumerate(bicon_comps) ]
+EW = Lar.cop2lar(copEV);
+W = convert(Lar.Points, V');
+comps = [ GL.GLLines(W,EW[comp],GL.COLORS[(k-1)%12+1]) for (k,comp) in  enumerate(bicon_comps) ];
 GL.VIEW(comps);
 
 # visualization of numbered arrangement
 VV = [[k] for k=1:size(V,1)]
 EV = Lar.cop2lar(copEV);
 FE = Lar.cop2lar(copFE);
-FV = cat([[EV[e] for e in face] for face in FE])
+FV = map(collect ∘ Set{Int},Lar.cat([EV[e] for e in face]) for face in FE);
+GL.VIEW( GL.numbering(.05)((W,[VV, EV, FV]),GL.COLORS[1]) );
 
 # final solid visualization
-triangulated_faces = Lar.triangulate2D(V, [copEV, copFE])
-V = convert(Lar.Points, V')
-FVs = convert(Array{Lar.Cells}, triangulated_faces)
+triangulated_faces = Lar.triangulate2D(V, [copEV, copFE]);
+V = convert(Lar.Points, V');
+FVs = convert(Array{Lar.Cells}, triangulated_faces);
 GL.VIEW(GL.GLExplode(V,FVs,1.2,1.2,1.2,99,1));
 
 # polygonal face boundaries
-EVs = Lar.FV2EVs(copEV, copFE)
-EVs = convert(Array{Array{Array{Int64,1},1},1}, EVs)
+EVs = Lar.FV2EVs(copEV, copFE);
+EVs = convert(Array{Array{Array{Int64,1},1},1}, EVs);
 GL.VIEW(GL.GLExplode(V,EVs,1.2,1.2,1.2,1,1));

@@ -24,10 +24,10 @@ function randomarrangement2d(V,EV)
 	return V,EVs,FVs
 end
 
-V,EV = Lar.randomcuboids(100, .4)
-V = GL.normalize2(V,flag=true)
+V,EV = Lar.randomcuboids(100, .4);
+V = GL.normalize2(V,flag=true);
 
-W,EVs,FVs = randomarrangement2d(V,EV)
+W,EVs,FVs = randomarrangement2d(V,EV);
 GL.VIEW(GL.GLExplode(W,EVs,1.2,1.2,1.2,1,1));
 GL.VIEW(GL.GLExplode(W,FVs,1.2,1.2,1.2,99,1));
 GL.VIEW(GL.GLExplode(W,FVs,1,1,1,99,1));

@@ -206,7 +206,7 @@ function svg2lar(filename::String; flag=true)::Lar.LAR
 	outlines = Array{Float64,1}[]
 	matchall(r::Regex, s::AbstractString; overlap::Bool=false) =
 		collect(( m.match for m=eachmatch(r,s,overlap=overlap) ));
-
+@show filename
 	for line in eachline(filename)
 		parts = split(lstrip(line), ' ')
 		elements = [part for part in parts if part≠""]

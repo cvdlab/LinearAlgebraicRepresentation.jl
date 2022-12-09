@@ -24,7 +24,7 @@ function stresstest2d()
 	data2d6 = Lar.Struct([ Lar.t(5,3.5), mycircle(.25,160) ])
 	data = [ data2d1, data2d2, data2d3, data2d4, data2d5,  data2d5a, data2d6 ]
 	model2d = input_collection( [ Lar.Struct(data), Lar.t(-pi/6,pi/3), Lar.Struct(data) ] )
-	V,EV = model2d
+	V,EV = model2d;
 	GL.VIEW([ GL.GLLines(V,EV, GL.COLORS[1]) ]);
 
 	W = convert(Lar.Points, V')
@@ -36,9 +36,9 @@ function stresstest2d()
 	V = convert(Lar.Points, V')
 	GL.VIEW(GL.GLExplode(V,FVs,1.2,1.2,1.2,99,1));
 
-	W, copEV, copFE = Lar.Arrangement.planar_arrangement(W::Lar.Points, cop_EW::Lar.ChainOp)
-	EVs = Lar.FV2EVs(copEV, copFE) # polygonal face fragments
-	V = convert(Lar.Points, W')
+	W, copEV, copFE = Lar.Arrangement.planar_arrangement(W::Lar.Points, cop_EW::Lar.ChainOp);
+	EVs = Lar.FV2EVs(copEV, copFE); # polygonal face fragments
+	V = convert(Lar.Points, W');
 	GL.VIEW(GL.GLExplode(V,EVs,1.2,1.2,1.2,99,1));
 	GL.VIEW(GL.GLExplode(V,EVs,1.2,1.2,1.2,1,1));
 end

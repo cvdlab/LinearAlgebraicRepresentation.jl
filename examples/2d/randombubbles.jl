@@ -29,7 +29,7 @@ end
 
 # ////////////////////////////////////////////////////////////
 # generation of 2D arrangement
-V,FVs,EVs = randombubbles()
+V,FVs,EVs = randombubbles();
 
 # native OpenGL visualization
 GL.VIEW(GL.GLExplode(V,FVs,1.2,1.2,1.2,1,1));

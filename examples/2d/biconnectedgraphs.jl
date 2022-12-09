@@ -23,15 +23,15 @@ function randlines(n=1000,t=0.2)
 	return model
 end
 
-model = randlines(n,t)
-Sigma = Lar.spaceindex(model)
-GL.VIEW([ GL.GLLines(model...)] )
+model = randlines(n,t);
+Sigma = Lar.spaceindex(model);
+GL.VIEW([ GL.GLLines(model...)] );
 
-W,EW = Lar.fraglines(1.5,1.5,1.5)(model)
+W,EW = Lar.fraglines(1.5,1.5,1.5)(model);
 GL.VIEW([ GL.GLLines(W,EW,GL.COLORS[1])] );
 
 W,EW = Lar.fragmentlines(model)
-V,EVs = Lar.biconnectedComponent((W,EW::Lar.Cells)) # 2-connected components (H & T)
+V,EVs = Lar.biconnectedComponent((W,EW::Lar.Cells)); # 2-connected components (H & T)
 
-graphs = [ GL.GLLines(V,EVs[k],GL.COLORS[(k-1)%12+1]) for k=1:length(EVs) ]
+graphs = [ GL.GLLines(V,EVs[k],GL.COLORS[(k-1)%12+1]) for k=1:length(EVs) ];
 GL.VIEW(graphs);
