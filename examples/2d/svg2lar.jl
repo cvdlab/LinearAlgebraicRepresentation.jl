@@ -10,15 +10,15 @@ function myshow(filename)
 	return V, EV
 end
 
-# myshow("../../test/svg/new.svg")
-# myshow("../../test/svg/curved.svg")
-# myshow("../../test/svg/twopaths.svg")
-# myshow("../../test/svg/paths.svg")
-# myshow("../../test/svg/boundarytest2.svg")
-# myshow("../../test/svg/tile.svg")
-# myshow("../../test/svg/interior.svg")
-V,EV = myshow("../../test/svg/holes.svg")
-# V,EV = myshow("../../test/svg/Lar.svg")
+# myshow("svg/new.svg")
+# myshow("svg/curved.svg")
+# myshow("svg/twopaths.svg")
+# myshow("svg/paths.svg")
+# myshow("svg/boundarytest2.svg")
+# myshow("svg/tile.svg")
+# myshow("svg/interior.svg")
+V,EV = myshow("svg/holes.svg")
+# V,EV = myshow("svg/Lar.svg")
 
 # subdivision of input edges
 W = convert(Lar.Points, V')
@@ -50,6 +50,6 @@ V,FVs,EVs = Lar.arrange2D(V,EW)
 GL.VIEW(GL.GLExplode(V,EVs,1.2,1.2,1.2,99,1));
 GL.VIEW(GL.GLExplode(V,FVs,1,1,1,99,1));  
 
-EVs = Lar.FV2EVs(copEV, copFE) # polygonal face boundaries
-EVs = convert(Array{Array{Array{Int64,1},1},1}, EVs)
-GL.VIEW(GL.GLExplode(V,EVs,1,1,1,3,1));  # TODO:  fix inner holes
+#EVs = Lar.FV2EVs(copEV, copFE) # polygonal face boundaries
+#EVs = convert(Array{Array{Array{Int64,1},1},1}, EVs)
+#GL.VIEW(GL.GLExplode(V,EVs,1,1,1,3,1));  # TODO:  fix inner holes
