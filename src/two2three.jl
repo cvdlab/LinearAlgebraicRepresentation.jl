@@ -1,5 +1,11 @@
 using LinearAlgebraicRepresentation
 Lar = LinearAlgebraicRepresentation
+using SparseArrays
+
+
+function cat(args)
+	return reduce( (x,y) -> append!(x,y), args; init=[] )
+end
 
 
 function interior_to_f(triangle,f,V,FV,EV,FE)

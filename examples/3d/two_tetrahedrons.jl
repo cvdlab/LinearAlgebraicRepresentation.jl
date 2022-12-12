@@ -21,9 +21,9 @@ V, copEV, copFE, copCF = Lar.space_arrangement( W::Lar.Points, cop_EW::Lar.Chain
 
 # copCF = OK !!
 
-V,CVs,FVs,EVs = Lar.pols2tria(V, copEV, copFE, copCF); # whole assembly
-GL.VIEW(GL.GLExplode(V,FVs,1.1,1.1,1.1,99,1));
-GL.VIEW(GL.GLExplode(V,EVs,1.5,1.5,1.5,99,1));
+V,CVs,FVs,EVs = Lar.pols2tria(V', copEV, copFE, copCF); # whole assembly
+GL.VIEW(GL.GLExplode(V,FVs,1.1,1.1,1.1,99,0.5));
+GL.VIEW(GL.GLExplode(V,EVs,1.5,1.5,1.5,99,0.5));
 sort!( CVs; by=x->length(x) );
 GL.VIEW(GL.GLExplode(V,CVs[1:end-1]
     ,1.,1.,1.,99,0.5));

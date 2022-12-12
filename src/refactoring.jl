@@ -158,10 +158,10 @@ mycircle(r,n) = Lar.circle(r)(n)
 
 data2d1 = (V,EV)
 data2d2 = Lar.Struct([ Lar.t(2,2), Lar.r(pi/3), Lar.t(-1.5,-2.5), (W,EW) ])
-data2d3 = Lar.Struct([ Lar.t(2,2), mycircle(2.5,16) ])
-data2d4 = Lar.Struct([ Lar.t(3.5,3.5), mycircle(.25,16) ])
-data2d5 = Lar.Struct([ Lar.t(5,3.5), mycircle(.5,16) ])
-data2d6 = Lar.Struct([ Lar.t(5,3.5), mycircle(.25,16) ])
+data2d3 = Lar.Struct([ Lar.t(2,2), mycircle(2.5,[16]) ])
+data2d4 = Lar.Struct([ Lar.t(3.5,3.5), mycircle(.25,[16]) ])
+data2d5 = Lar.Struct([ Lar.t(5,3.5), mycircle(.5,[16]) ])
+data2d6 = Lar.Struct([ Lar.t(5,3.5), mycircle(.25,[16]) ])
 
 model2d = input_collection( [ data2d1, data2d2, data2d3, data2d4, data2d5, data2d6 ] )
 V,EV = model2d

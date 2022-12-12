@@ -100,7 +100,7 @@ module LinearAlgebraicRepresentation
 
 
    include("./interface.jl")
-   include("./utilities.jl")
+   #include("./utilities.jl")
    include("./simplexn.jl")
    include("./largrid.jl")
    include("./mapper.jl")
