@@ -18,12 +18,20 @@ function spatial_index(V::Lar.Points, EV::Lar.ChainOp, FE::Lar.ChainOp)
     IntervalsType = IntervalValue{Float64, Int64}
     boxes1D = Array{IntervalsType, 2}(undef, 0, d)
 
+#@show V;
+#@show FE;
+#@show EV;
+
     for fi in 1:faces_num
+        #col1 = FE[fi,:].nzind; col2 = EV[1,:].nzind
+        #vidxs = abs.col1 * abs.col2
         vidxs = (abs.(FE[fi:fi,:])*abs.(EV))[1,:].nzind
         intervals = map((l,u)->IntervalsType(l,u,fi),
         	Lar.bbox(V[vidxs, :])...)
         boxes1D = vcat(boxes1D, intervals)
     end
+#@show boxes1D;
+
     trees = mapslices(IntervalTree{Float64, IntervalsType}, sort(boxes1D; dims=1), dims=1)
 
     function intersect_intervals(intervals)
@@ -42,6 +50,7 @@ function spatial_index(V::Lar.Points, EV::Lar.ChainOp, FE::Lar.ChainOp)
     end
 
     mapping
+#@show mapping;    
 end
 
 function face_int(V::Lar.Points, EV::Lar.ChainOp, face::Lar.Cell)

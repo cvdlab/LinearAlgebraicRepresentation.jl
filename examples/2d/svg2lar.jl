@@ -4,7 +4,6 @@ using ViewerGL,SparseArrays
 GL = ViewerGL
 
 function myshow(filename)
-@show filename
 	V, EV = Lar.svg2lar(filename)
 	GL.VIEW([ GL.GLLines(V,EV) ])
 	return V, EV

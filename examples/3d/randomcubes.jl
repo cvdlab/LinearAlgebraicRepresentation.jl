@@ -23,19 +23,19 @@ for k=1:10
 	if diag > 1/5
 		push!(store, obj)
 	end
-end
+end;
 
-str = Lar.Struct(store);
+global str = Lar.Struct(store);
 V,CV,FV,EV = Lar.struct2lar(str);
 # V = Plasm.normalize3D(V) TODO:  solve MethodError bug
 
 open("/tmp/lar.txt", "w") do f
-	write(f, "V = $V\n\n")
-	write(f, "CV = $CV\n\n")
-	write(f, "FV = $FV\n\n")
-	write(f, "EV = $EV\n\n")
-	close(f)
-end
+	write(f, "V = $V\n\n");
+	write(f, "CV = $CV\n\n");
+	write(f, "FV = $FV\n\n");
+	write(f, "EV = $EV\n\n");
+	close(f);
+end;
 
 GL.VIEW([ GL.GLPol(V,CV, GL.COLORS[2], 0.1) ]);
 
@@ -48,12 +48,13 @@ function testarrangement(V,CV,FV,EV)
 				W::Lar.Points, cop_EV::Lar.ChainOp, cop_FE::Lar.ChainOp);
 
 		V = convert(Lar.Points, V');
-		V,CVs,FVs,EVs = Lar.pols2tria(V, copEV, copFE, copCF) # whole assembly
+		V,CVs,FVs,EVs = Lar.pols2tria(V, copEV, copFE, copCF); # whole assembly
 		GL.VIEW(GL.GLExplode(V,FVs,1.1,1.1,1.1,99,1));
 		GL.VIEW(GL.GLExplode(V,EVs,1.5,1.5,1.5,99,1));
-		sort!( CVs; by=x->length(x) )
-		GL.VIEW(GL.GLExplode(V,CVs[1:end-2],4.,4.,4.,99,0.5));
+		sort!( CVs; by=x->length(x) );
+		GL.VIEW(GL.GLExplode(V,CVs[1:end-1]
+		    ,1.,1.,1.,99,0.5));
 		GL.VIEW(GL.GLExplode(V,[CVs[end]],4.,4.,4.,99,0.5));
-end
+end;
 
 testarrangement(V,CV,FV,EV);
