@@ -438,7 +438,7 @@ julia> larImageVerts([1,1,1])
  0  1  0  1  0  1  0  1
 ```
 """
-function larImageVerts( shape::Array{Int,1} )::Array{Int64,2}
+function larImageVerts( shape::Vector{Int64} )::Matrix{Int64}
    vertexDomain(n) = hcat([k for k in 0:n-1]...)
    vertLists = [vertexDomain(k+1) for k in shape]
    vertGrid = larVertProd(vertLists)

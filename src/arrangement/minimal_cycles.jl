@@ -1,4 +1,3 @@
-using LinearAlgebraicRepresentation
 Lar = LinearAlgebraicRepresentation
 
 function minimal_2cycles(V::Lar.Points, EV::Lar.ChainOp)
@@ -95,6 +94,7 @@ function minimal_3cycles(V::Lar.Points, EV::Lar.ChainOp, FE::Lar.ChainOp)
 
     #EF = FE'
     EF = convert(Lar.ChainOp, LinearAlgebra.transpose(FE))
+		stacktrace()
 		println(">>>>>>>> going to loop?")
 		FC = Lar.Arrangement.minimal_cycles(face_angle, true)(V, EF)  # , EV)
 
@@ -137,8 +137,10 @@ function minimal_cycles(angles_fn::Function, verbose=true)
             angles[lld] = as
         end
 
-if Verbose @show collect(enumerate(angles)) end
-if Verbose @show collect(enumerate(Lar.cop2lar(ld_bounds))) end
+#if Verbose @show collect(enumerate(angles)) end
+@show collect(enumerate(angles)) 
+#if Verbose @show collect(enumerate(Lar.cop2lar(ld_bounds))) end
+@show collect(enumerate(Lar.cop2lar(ld_bounds))) 
         
         function nextprev(lld::Int64, ld::Int64, norp)
             as = angles[lld]
@@ -168,7 +170,7 @@ if Verbose @show collect(enumerate(Lar.cop2lar(ld_bounds))) end
                 print(Int(floor(50 * sum(count_marks) / ld_cellsnum)), "%\r") # <<<<<<<<<<<<<<<<<<<
             end
 
-            c_ld = spzeros(Int8, ld_cellsnum)
+            c_ld = spzeros(Int64, ld_cellsnum)
             if count_marks[sigma] == 0
                 c_ld[sigma] = 1
             else

@@ -910,7 +910,7 @@ function space_arrangement(V::Points, EV::ChainOp, FE::ChainOp, multiproc::Bool=
 	depot_EV = Array{ChainOp,1}(undef,fs_num)
 	depot_FE = Array{ChainOp,1}(undef,fs_num)
        for sigma in 1:fs_num
-           print(sigma, "/", fs_num, "\r")
+           println(sigma, "/", fs_num, "\r")
            nV, nEV, nFE = Arrangement.frag_face( V, EV, FE, sp_idx, sigma)
            depot_V[sigma] = nV
            depot_EV[sigma] = nEV
@@ -928,6 +928,8 @@ function space_arrangement(V::Points, EV::ChainOp, FE::ChainOp, multiproc::Bool=
 #	println("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<")
 
     rV, rEV, rFE = Lar.Arrangement.merge_vertices(rV, rEV, rFE)
+    
+@show(">>>>>>>>>>>>>>")
 
     rCF = Arrangement.minimal_3cycles(rV, rEV, rFE)
 
