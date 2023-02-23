@@ -10,6 +10,7 @@ function allexamples3d()
 	include("twocubegrids.jl")
 	include("randomcubes.jl")
 	include("threerods.jl")
+	include("twocubes.jl")
 end
 
 allexamples3d()

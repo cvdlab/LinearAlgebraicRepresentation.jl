@@ -94,7 +94,7 @@ function minimal_3cycles(V::Lar.Points, EV::Lar.ChainOp, FE::Lar.ChainOp)
 
     #EF = FE'
     EF = convert(Lar.ChainOp, LinearAlgebra.transpose(FE))
-		stacktrace()
+@show stacktrace()
 		println(">>>>>>>> going to loop?")
 		FC = Lar.Arrangement.minimal_cycles(face_angle, true)(V, EF)  # , EV)
 

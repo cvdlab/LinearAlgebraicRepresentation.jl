@@ -5,6 +5,7 @@ using LinearAlgebraicRepresentation
 Lar = LinearAlgebraicRepresentation
 
 function allexamples2d()
+   include("twosquares.jl")
    include("arrangement2d.jl")
    include("biconnectedgraphs.jl")
    include("graphalgorithms.jl")
