@@ -138,9 +138,7 @@ function minimal_cycles(angles_fn::Function, verbose=true)
         end
 
 #if Verbose @show collect(enumerate(angles)) end
-@show collect(enumerate(angles)) 
 #if Verbose @show collect(enumerate(Lar.cop2lar(ld_bounds))) end
-@show collect(enumerate(Lar.cop2lar(ld_bounds))) 
         
         function nextprev(lld::Int64, ld::Int64, norp)
             as = angles[lld]

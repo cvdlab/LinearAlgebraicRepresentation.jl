@@ -1,5 +1,8 @@
-using LinearAlgebraicRepresentation, ViewerGL, SparseArrays
-Lar = LinearAlgebraicRepresentation; GL = ViewerGL
+using LinearAlgebraicRepresentation
+using ViewerGL
+using SparseArrays
+Lar = LinearAlgebraicRepresentation
+GL = ViewerGL
 import Base.union
 
 # 3D Boolean example generation

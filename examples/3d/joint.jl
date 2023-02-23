@@ -46,8 +46,8 @@ GL.VIEW([ GL.GLFrame, GL.GLLines(V,EV) ]);
 cop_EV = Lar.coboundary_0(EV::Lar.Cells);
 cop_EW = convert(Lar.ChainOp, cop_EV);
 cop_FE = Lar.coboundary_1(V, FV::Lar.Cells, EV::Lar.Cells);
-W = convert(Lar.Points, V');
+#W = convert(Lar.Points, V');
 
-V, copEV, copFE, copCF = Lar.space_arrangement( W, cop_EW, cop_FE)
+V, copEV, copFE, copCF = Lar.space_arrangement( V, cop_EW, cop_FE)
 
 
