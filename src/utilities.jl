@@ -875,7 +875,10 @@ println("SONO-IO in space_arrangement")
 @show SparseArrays.findnz(FE::ChainOp);
 
     fs_num = size(FE, 1)
-    sp_idx = Lar.Arrangement.spatial_index(V, EV, FE)
+    #sp_idx = Lar.Arrangement.spatial_index(V, EV, FE)
+    ev = Lar.cop2lar(EV) ; fe = Lar.cop2lar(FE) ; FV = [ union([ev for e in f]...) for f in fe] 
+    model = convert(Lar.Points,V'),FV
+    sp_idx = Lar.spaceindex(model)
 
     rV = Lar.Points(undef, 0,3)
     rEV = SparseArrays.spzeros(Int8,0,0)

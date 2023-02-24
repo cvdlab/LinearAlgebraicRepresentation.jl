@@ -658,8 +658,7 @@ function arrange2D(V,EV)
 	W = convert(Points,V')
 	V, copEV, copFE = Arrangement.planar_arrangement(W::Points, cop_EW::ChainOp)
 	EVs = FV2EVs(copEV, copFE) # polygonal face fragments
-@show copEV
-@show copFE
+
 	triangulated_faces = triangulate2D(V, [copEV, copFE])
 	FVs = convert(Array{Cells}, triangulated_faces)
 	V = convert(Points,V')

@@ -36,18 +36,18 @@ rod = Lar.apply(Lar.t(0,0,-1.5), cylinder(1,3,12,1))
 triple = Lar.Struct([ rod, Lar.r(pi/2,0,0), rod, Lar.r(0,pi/2,0), rod ])
 V,(_,EV,FV,_) = Lar.apply( Lar.s(2.5,2.5,2.5)*Lar.t(-.50,-.5,-.5), Lar.cuboidGrid([1,1,1],true) )
 cube = V,FV,EV
-W, EW, FW = catmullclark(V, EV, FV, 2)
-sphere = Lar.apply( Lar.s( 1.4, 1.4, 1.4), (W,FW,EW) )
-object = Lar.Struct([ triple, cube, sphere ])
-V,FV,EV = Lar.struct2lar(object)
+#W, EW, FW = catmullclark(V, EV, FV, 2)
+#sphere = Lar.apply( Lar.s( 1.4, 1.4, 1.4), (W,FW,EW) )
+#object = Lar.Struct([ triple, cube, sphere ])
+#V,FV,EV = Lar.struct2lar(object)
 
 GL.VIEW([ GL.GLFrame, GL.GLLines(V,EV) ]);
 
 cop_EV = Lar.coboundary_0(EV::Lar.Cells);
 cop_EW = convert(Lar.ChainOp, cop_EV);
 cop_FE = Lar.coboundary_1(V, FV::Lar.Cells, EV::Lar.Cells);
-#W = convert(Lar.Points, V');
+W = convert(Lar.Points, V');
 
-V, copEV, copFE, copCF = Lar.space_arrangement( V, cop_EW, cop_FE)
+V, copEV, copFE, copCF = Lar.space_arrangement( W, cop_EW, cop_FE)
 
 

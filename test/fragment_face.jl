@@ -348,7 +348,10 @@ function preprocessing(V,copEV,FV)
 	EF = [findnz(copEF[e,:])[1] for e=1:size(copEF,1)]
 	FE = [findnz(copFE[e,:])[1] for e=1:size(copFE,1)]
 
-	sp_idx = Lar.Arrangement.spatial_index(V, copEV, copFE)
+	#sp_idx = Lar.Arrangement.spatial_index(V, copEV, copFE)
+    ev = Lar.cop2lar(EV) ; fe = Lar.cop2lar(FE) ; FV = [ union([ev[e] for e in f]...) for f in fe] 
+    model = convert(Lar.Points,V'),FV
+    sp_idx = Lar.spaceindex(model)
 	space_idx = Array{Int,1}[]
 	for sigma = 1:length(FV)
 		edges = FE[sigma];

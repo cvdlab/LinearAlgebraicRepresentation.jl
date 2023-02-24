@@ -861,7 +861,12 @@ end
 function space_arrangement(V::Points, EV::ChainOp, FE::ChainOp, multiproc::Bool=false)
 
     fs_num = size(FE, 1)
-    sp_idx = Lar.Arrangement.spatial_index(V, EV, FE)
+    #sp_idx = Lar.Arrangement.spatial_index(V, EV, FE)
+    ev = Lar.cop2lar(EV) ; @show ev
+    fe = Lar.cop2lar(FE) ; @show fe
+    FV = [ union([ev[e] for e in f]...) for f in fe] ; @show FV
+    model = convert(Lar.Points,V'),FV
+    sp_idx = Lar.spaceindex(model)
 
     rV = Lar.Points(undef, 0,3)
     rEV = SparseArrays.spzeros(Int8,0,0)

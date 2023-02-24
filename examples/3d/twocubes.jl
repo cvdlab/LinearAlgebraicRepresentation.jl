@@ -16,8 +16,7 @@ function twocubes()
 	V,CVs,FVs,EVs = Lar.pols2tria(V', copEV, copFE, copCF); # whole assembly
 	GL.VIEW(GL.GLExplode(V,FVs,1.5,1.5,1.5,1));
 	GL.VIEW(GL.GLExplode(V,EVs,1.5,1.5,1.5,99,1));
-	GL.VIEW(GL.GLExplode(V,CVs[2:end],1,1,1,99,1));
+	GL.VIEW(GL.GLExplode(V,CVs[2:end],1.5,1.5,1.5,99,1));
 end
 
 twocubes()
-
