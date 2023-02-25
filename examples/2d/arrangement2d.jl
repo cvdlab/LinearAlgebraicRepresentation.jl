@@ -30,7 +30,7 @@ GL.VIEW(comps);
 VV = [[k] for k=1:size(V,1)]
 EV = Lar.cop2lar(copEV);
 FE = Lar.cop2lar(copFE);
-FV = map(collect ∘ Set{Int},Lar.cat([EV[e] for e in face]) for face in FE);
+FV = (union([EV[e] for e in face]...) for face in FE);
 GL.VIEW( GL.numbering(.05)((W,[VV, EV, FV]),GL.COLORS[1]) );
 
 # final solid visualization

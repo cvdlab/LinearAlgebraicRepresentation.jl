@@ -34,7 +34,7 @@ W = convert(Lar.Points, V');
 V,EVs = Lar.biconnectedComponent((W,EW::Lar.Cells)) # 2-connected components
 VV = [[k] for k=1:size(V,2)];
 meshes = [ GL.numbering(.1)((V, (VV,EVs[k])), GL.COLORS[k],1) for k=1:length(EVs) ];
-GL.VIEW( Lar.cat(meshes) );
+GL.VIEW( union(meshes...) );
 
 # final solid visualizations
 FE = [SparseArrays.findnz(copFE[k,:])[1] for k=1:size(copFE,1)]

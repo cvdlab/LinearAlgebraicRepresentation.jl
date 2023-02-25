@@ -38,9 +38,9 @@ function stresstest2d()
 
 	W, copEV, copFE = Lar.Arrangement.planar_arrangement(W::Lar.Points, cop_EW::Lar.ChainOp);
 	EVs = Lar.FV2EVs(copEV, copFE); # polygonal face fragments
-	V = convert(Lar.Points, W');
-	GL.VIEW(GL.GLExplode(V,EVs,1.2,1.2,1.2,99,1));
-	GL.VIEW(GL.GLExplode(V,EVs,1.2,1.2,1.2,1,1));
+	U = convert(Lar.Points, W');
+	GL.VIEW(GL.GLExplode(U,EVs,1.2,1.2,1.2,99,1));
+	GL.VIEW(GL.GLExplode(U,EVs,1.2,1.2,1.2,1,1));
 end
 
-stresstest2d()
+stresstest2d();

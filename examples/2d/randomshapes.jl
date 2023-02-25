@@ -10,9 +10,8 @@ function randomshapes()
 	Sigma =  Lar.spaceindex(model2d);
 	GL.VIEW([ GL.GLLines(V,EV, GL.COLORS[1]) ]);
 
-	W,EW = Lar.fraglines(1.5,1.5,1.5)((V,EV))
-	
-	GL.VIEW([ GL.GLLines(W,EW, GL.COLORS[1]) ]);
+#	W,EW = Lar.fraglines(1.5,1.5,1.5)((V,EV))
+#	GL.VIEW([ GL.GLLines(W,EW, GL.COLORS[1]) ]);
 
 	W = convert(Lar.Points, V')
 	cop_EV = Lar.coboundary_0(EV::Lar.Cells)
@@ -21,9 +20,9 @@ function randomshapes()
 
 	triangulated_faces = Lar.triangulate2D(V, [copEV, copFE]);
 	FVs = convert(Array{Lar.Cells}, triangulated_faces);
-	W = convert(Lar.Points, V');
-	GL.VIEW(GL.GLExplode(W,FVs,1.2,1.2,1.2,99,1));
-	GL.VIEW(GL.GLExplode(W,FVs,1,1,1,99,1));
+	V = convert(Lar.Points, V');
+	GL.VIEW(GL.GLExplode(V,FVs,1.2,1.2,1.2,99,1));
+	GL.VIEW(GL.GLExplode(V,FVs,1,1,1,99,1));
 end
 
 randomshapes();

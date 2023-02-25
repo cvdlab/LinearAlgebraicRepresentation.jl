@@ -39,5 +39,5 @@ polygon = [GL.GLLines(V,EV,GL.COLORS[1])];
 in_mesh = [GL.GLPoints(pointsin, GL.COLORS[2])];
 out_mesh = [GL.GLPoints(pointsout, GL.COLORS[3])];
 
-result = Lar.cat([polygon,in_mesh,out_mesh]);
+result = union([polygon,in_mesh,out_mesh]...);
 GL.VIEW(result);

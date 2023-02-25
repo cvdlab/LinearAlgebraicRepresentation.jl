@@ -184,7 +184,7 @@ data3d3 = Lar.Struct([ Lar.t(0,0.5,0), Lar.s(0.4,0.4,0.4), mysphere ])
 data3d4 = Lar.Struct([ Lar.t(4,0,0), Lar.s(0.8,0.8,0.8), mysphere ])
 data3d5 = Lar.Struct([ Lar.t(4,0,0), Lar.s(0.4,0.4,0.4), mysphere ])
 
-model3d = input_collection([ data3d1, data3d2, data3d3, data3d4, data3d5 ])
+model3d = Lar.input_collection([ data3d1, data3d2, data3d3, data3d4, data3d5 ])
 V,FV,EV = model3d
 VV = [[k] for k in 1:size(V,2)];
 
