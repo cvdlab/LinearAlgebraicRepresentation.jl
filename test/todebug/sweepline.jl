@@ -381,7 +381,7 @@ vals = [v for v in values(SL)]; for v in reverse(vals)	println(v) end
 					# Insert I into ξ
 					key = (I,"int",segA[4]); val = (I,I,"int",segB[4])
 					enqueue!(ξ, key,val) 
-@show eventdict;
+#@show eventdict;
 				end
 			end
 			if segA ≠ [] && segE2 ≠ []

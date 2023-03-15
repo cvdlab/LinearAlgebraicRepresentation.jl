@@ -40,8 +40,8 @@ GL.VIEW([ GL.GLGrid(V,EV, GL.COLORS[1],1), GL.GLFrame2 ]);
 
 # boolmatrix = Lar.booleanops2d((V,EV))
 W, copEV, copFE, boolmatrix = Lar.bool2d(assembly)
-@show Matrix(boolmatrix)
-@show Matrix(copFE)
+#@show Matrix(boolmatrix)
+#@show Matrix(copFE)
 A = boolmatrix[:,1]
 B = boolmatrix[:,2]
 AorB = A .| B

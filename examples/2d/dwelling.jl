@@ -12,7 +12,7 @@ assembly = Lar.Struct([wall , openings, rectangle, box])
 V,EV = Lar.struct2lar(assembly)
 GL.VIEW([ GL.GLFrame2, GL.GLGrid(V,EV, GL.COLORS[1],1) ]);
 W, copEV, copFE, boolmatrix = Lar.bool2d(assembly)
-@show Matrix(boolmatrix)
+#@show Matrix(boolmatrix)
 
 innerpoints = Lar.internalpoints2d(W,copEV,copFE[1:end,:])
 points = convert(Array{Float64,2}, hcat(innerpoints...)')

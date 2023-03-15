@@ -870,9 +870,9 @@ end
 
 function space_arrangement(V::Points, EV::ChainOp, FE::ChainOp, multiproc::Bool=false)
 println("SONO-IO in space_arrangement")
-@show V::Points;
-@show SparseArrays.findnz(EV::ChainOp);
-@show SparseArrays.findnz(FE::ChainOp);
+#@show V::Points;
+#@show SparseArrays.findnz(EV::ChainOp);
+#@show SparseArrays.findnz(FE::ChainOp);
 
     fs_num = size(FE, 1)
     #sp_idx = Lar.Arrangement.spatial_index(V, EV, FE)

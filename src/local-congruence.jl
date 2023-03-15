@@ -13,10 +13,10 @@ function chaincongruence(W, Delta_0, Delta_1; epsilon=1e-6)
 	copFE = coboundary_1(FV::Lar.Cells, EV::Lar.Cells)
 	FE = cop2lar(copFE)
 println("\n>>>>> final output from chaincongruence\n")
-@show V;
-@show EV;
-@show FV;
-@show FE;
+#@show V;
+#@show EV;
+#@show FV;
+#@show FE;
 	return V, EV, FV, FE
 end
 

@@ -1,6 +1,8 @@
 using LinearAlgebraicRepresentation
 using LinearAlgebra, SparseArrays, DataStructures
 Lar = LinearAlgebraicRepresentation
+using ViewerGL
+GL = ViewerGL
 
 
 
