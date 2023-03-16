@@ -30,7 +30,7 @@ ffV = [FV[f] for f in ff]
 ffE = [union(FE[f]...) for f in ff]
 
 Model = (convert(Lar.Points,V), Lar.Cells[VV,EV,FV,FE])
-viewsubcomplex = Lar.viewsubcomplexes(Model,ff,.1)
+viewsubcomplex = ../viewsubcomplexes(Model,ff,.1)
 
 viewsubcomplex(1:5)
 
