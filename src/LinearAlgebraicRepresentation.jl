@@ -113,7 +113,6 @@ module LinearAlgebraicRepresentation
    include("./bool3d.jl")
    include("./bool2d.jl")
    include("./fenvs.jl")
-   include("./partialview.jl")
    include("./two2three.jl")
    #include("./local-congruence.jl")
 

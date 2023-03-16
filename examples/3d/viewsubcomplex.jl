@@ -1,6 +1,7 @@
 using LinearAlgebraicRepresentation
 using ViewerGL, LinearAlgebra, SparseArrays, DataStructures
 Lar = LinearAlgebraicRepresentation; GL = ViewerGL
+include("../partialview.jl")
 
 
 # Example of numbered visualization of several 2-skeleton subcomplex models in 3D
@@ -30,7 +31,7 @@ ffV = [FV[f] for f in ff]
 ffE = [union(FE[f]...) for f in ff]
 
 Model = (convert(Lar.Points,V), Lar.Cells[VV,EV,FV,FE])
-viewsubcomplex = ../viewsubcomplexes(Model,ff,.1)
+viewsubcomplex = Lar.viewsubcomplexes(Model,ff,.1)
 
 viewsubcomplex(1:5)
 
