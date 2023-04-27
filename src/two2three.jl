@@ -342,9 +342,6 @@ The edges are need to understand the topology of the face.
 In this method the input face must be expressed as a `Cell`(=`SparseVector{Int8, Int}`) and the edges as `ChainOp`.
 """
 function buildFV(copEV::ChainOp, face::Cell)
-@show stacktrace()
-@show copEV
-@show face
     startv = -1
     nextv = 0
     edge = 0
@@ -862,16 +859,13 @@ end
 
 
 function space_arrangement(V::Points, EV::ChainOp, FE::ChainOp, multiproc::Bool=false)
-
     fs_num = size(FE, 1)
     #sp_idx = Lar.Arrangement.spatial_index(V, EV, FE)
     ev = Lar.cop2lar(EV) ; @show ev
     fe = Lar.cop2lar(FE) ; @show fe
     FV = [ union([ev[e] for e in f]...) for f in fe] ; 
-@show FV
     model = convert(Lar.Points,V'),FV
     sp_idx = Lar.spaceindex(model)
-@show sp_idx
 
     rV = Lar.Points(undef, 0,3)
     rEV = SparseArrays.spzeros(Int8,0,0)
@@ -901,14 +895,14 @@ function space_arrangement(V::Points, EV::ChainOp, FE::ChainOp, multiproc::Bool=
 
     else
 
-#      for sigma in 1:fs_num
-#          # print(sigma, "/", fs_num, "\r")
-#          nV, nEV, nFE = Lar.Arrangement.frag_face(
-#          	V, EV, FE, sp_idx, sigma)
-#          a,b,c = Lar.skel_merge(
-#          	rV, rEV, rFE, nV, nEV, nFE)
-#          rV=a; rEV=b; rFE=c
-#      end
+#     for sigma in 1:fs_num
+#         print(sigma, "/", fs_num, "\r")
+#         nV, nEV, nFE = Lar.Arrangement.frag_face(
+#         	V, EV, FE, sp_idx, sigma)
+#         a,b,c = Lar.skel_merge(
+#         	rV, rEV, rFE, nV, nEV, nFE)
+#         rV=a; rEV=b; rFE=c
+#     end
 
 	depot_V = Array{Array{Float64,2},1}(undef,fs_num)
 	depot_EV = Array{Lar.ChainOp,1}(undef,fs_num)
@@ -917,11 +911,11 @@ function space_arrangement(V::Points, EV::ChainOp, FE::ChainOp, multiproc::Bool=
            print(sigma, "/", fs_num, "\r")
            nV, nEV, nFE = Lar.Arrangement.frag_face( V, EV, FE, sp_idx, sigma)
            depot_V[sigma] = nV
-#@show nV
+@show nV
            depot_EV[sigma] = nEV
-#@show nV
+@show nEV
            depot_FE[sigma] = nFE
-#@show nV
+@show nFE
        end
 	rV = vcat(depot_V...)
 	rEV = SparseArrays.blockdiag(depot_EV...)

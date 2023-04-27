@@ -33,7 +33,6 @@ function numbering(sizeScaling=1.)
 		cells = skelDict #cells are dictionaries
 		meshes = []
 		if length(cells)>2
-@show cells
 			background = GL.GLHulls(V, cells[3], color, alpha)
 		end
 		if size(V,1)==2
