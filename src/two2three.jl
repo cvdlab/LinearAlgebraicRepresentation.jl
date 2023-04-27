@@ -922,16 +922,21 @@ function space_arrangement(V::Points, EV::ChainOp, FE::ChainOp, multiproc::Bool=
 	rFE = SparseArrays.blockdiag(depot_FE...)
 
     end
-#	println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
-#	@show rV;
-#	@show SparseArrays.findnz(rEV);
-#	@show SparseArrays.findnz(rFE);
-#	println("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<")
+println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
+@show rV;
+@show SparseArrays.findnz(rEV);
+@show SparseArrays.findnz(rFE);
+println("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<")
 
     rV, rEV, rFE = Lar.Arrangement.merge_vertices(rV, rEV, rFE)
+    #rV, rEV, rFE = Lar.chaincongruence(rV,rEV,rFE)
+
+@show rV;
+@show (rEV);
+@show (rFE);
 
     rCF = Arrangement.minimal_3cycles(rV, rEV, rFE)
-
+    rCF = Lar.Arrangement.minimal_3cycles(rV, rEV, rFE)
     return rV, rEV, rFE, rCF
 end
 
