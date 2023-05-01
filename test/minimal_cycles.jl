@@ -74,8 +74,8 @@ function _minimal_cycles(V::Lar.Points,ld_bounds::Lar.ChainOp)
         end
         c_lld = ld_bounds*c_ld
         while c_lld.nzind != []
-			#corolla = spzeros(Int8, ld_cellsnum)
-			corolla = zeros(Int64, ld_cellsnum)
+			corolla = spzeros(Int8, ld_cellsnum)
+			#corolla = zeros(Int64, ld_cellsnum)
             for tau in c_lld.nzind
                 b_ld = ld_bounds[tau, :]
                 pivot = intersect(c_ld.nzind, b_ld.nzind)[1]

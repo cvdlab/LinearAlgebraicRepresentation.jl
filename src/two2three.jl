@@ -124,10 +124,10 @@ function build_copFC(rV, rcopEV, rcopFE)
 	fv = [union([EV[e] for e in fe[f]]...) for f=1:length(fe)]
 	FV = convert(Lar.Cells, fv)
 	copFE = rcopFE
-VV = [[v] for v=1:size(V,2)]
-model = (V, (VV,EV,FV))
-#
-#Plasm.View(Plasm.numbering(.01)(model))
+#VV = [[v] for v=1:size(V,2)]
+#model = (V, (VV,EV,FV))
+##
+#Plasm.View(Plasm.numbering(.1)(model))
 
 	copEF = copFE'
 	FE = [SparseArrays.findnz(copFE[k,:])[1] for k=1:size(copFE,1)]
@@ -141,8 +141,8 @@ model = (V, (VV,EV,FV))
 	# Main loop (adding one copFC's column stepwise)
 	while sum(marks) < 2n
 		# select a (d−1)-cell, "seed" of the column extraction
-		σ = choose(marks)
-		if marks[σ] == 0
+		σ = choose(marks) # set seed 2-cell
+		if marks[σ] == 0 # set seed 2-chain
 			cd1 = sparsevec([σ], Int8[1], n)
 		elseif marks[σ] == 1
 			cd1 = sparsevec([σ], Int8[-1], n)
@@ -156,6 +156,7 @@ model = (V, (VV,EV,FV))
 			for τ ∈ (.*)(SparseArrays.findnz(cd2)...)
 				#compute the  coboundary
 				tau = sparsevec([abs(τ)], Int64[sign(τ)], m)  # ERROR: index out of bound here! 
+                # tau{Int8,Int} = sparsevec([abs(τ)], Int64[sign(τ)], m) ??
 				bd1 = transpose(transpose(tau) * copEF)
 				cells2D = SparseArrays.findnz(bd1)[1]
 				# compute the  support
@@ -166,11 +167,11 @@ model = (V, (VV,EV,FV))
 					error("no pivot")
 				end
 				# compute the new adj cell
-				fan = ord(abs(τ),bd1,V,FV,EV,FE) # ord(pivot,bd1)
+				fan = Lar.ord(abs(τ),bd1,V,FV,EV,FE) # ord(pivot,bd1)
 				if τ > 0
-					adj = mynext(fan,pivot)
+					adj = Lar.mynext(fan,pivot)
 				elseif τ < 0
-					adj = myprev(fan,pivot)
+					adj = Lar.myprev(fan,pivot)
 				end
 				# orient adj
 				if copEF[abs(τ),adj] ≠ copEF[abs(τ),pivot]
@@ -861,8 +862,8 @@ end
 function space_arrangement(V::Points, EV::ChainOp, FE::ChainOp, multiproc::Bool=false)
     fs_num = size(FE, 1)
     #sp_idx = Lar.Arrangement.spatial_index(V, EV, FE)
-    ev = Lar.cop2lar(EV) ; @show ev
-    fe = Lar.cop2lar(FE) ; @show fe
+    ev = Lar.cop2lar(EV) 
+    fe = Lar.cop2lar(FE) 
     FV = [ union([ev[e] for e in f]...) for f in fe] ; 
     model = convert(Lar.Points,V'),FV
     sp_idx = Lar.spaceindex(model)
@@ -911,10 +912,10 @@ function space_arrangement(V::Points, EV::ChainOp, FE::ChainOp, multiproc::Bool=
            print(sigma, "/", fs_num, "\r")
            nV, nEV, nFE = Lar.Arrangement.frag_face( V, EV, FE, sp_idx, sigma)
            depot_V[sigma] = nV
-@show nV
            depot_EV[sigma] = nEV
-@show nEV
            depot_FE[sigma] = nFE
+@show nV
+@show nEV
 @show nFE
        end
 	rV = vcat(depot_V...)
@@ -924,20 +925,20 @@ function space_arrangement(V::Points, EV::ChainOp, FE::ChainOp, multiproc::Bool=
     end
 println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
 @show rV;
-@show SparseArrays.findnz(rEV);
-@show SparseArrays.findnz(rFE);
+@show rEV;
+@show rFE;
 println("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<")
 
-    rV, rEV, rFE = Lar.Arrangement.merge_vertices(rV, rEV, rFE)
-    #rV, rEV, rFE = Lar.chaincongruence(rV,rEV,rFE)
+    nV, nEV, nFE = Lar.Arrangement.merge_vertices(rV, rEV, rFE)
+    #nV, nEV, nFE = Lar.chaincongruence(rV,rEV,rFE)
 
-@show rV;
-@show (rEV);
-@show (rFE);
+@show nV;
+@show (nEV);
+@show (nFE);
 
-    rCF = Arrangement.minimal_3cycles(rV, rEV, rFE)
-    rCF = Lar.Arrangement.minimal_3cycles(rV, rEV, rFE)
-    return rV, rEV, rFE, rCF
+    #nCF = Lar.Arrangement.minimal_3cycles(nV, nEV, nFE)
+    nCF = Lar.build_copFC(nV, nEV, nFE)
+    return nV, nEV, nFE, nCF
 end
 
 

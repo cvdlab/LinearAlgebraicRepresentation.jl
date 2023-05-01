@@ -37,6 +37,10 @@ function vcongruence(V::Matrix; epsilon=1e-6)
           append!(visited, nearvs) 
         end
     end
-   W = hcat([sum(V[:,class], dims=2)/length(class) for class in vclasses]...)
+   #W = hcat([sum(V[:,class], dims=2)/length(class) for class in vclasses]...)
+@show vclasses
+   sort!(vclasses)
+@show vclasses
+   W = hcat([V[:,class[1]] for class in vclasses]...)
    return W, vclasses
 end

@@ -76,7 +76,7 @@ function merge_vertices(V::Lar.Points, EV::Lar.ChainOp, FE::Lar.ChainOp, err=1e-
        end
    end
    nV = V[setdiff(collect(1:vertsnum), todelete), :]
-   V[30,:] = V[26,:] #<<<<<<<<<<<<<<<<<< TEST
+   #V[30,:] = V[26,:] #<<<<<<<<<<<<<<<<<< TEST
 
    # translate edges to take congruence into account
    edges = Array{Tuple{Int, Int}, 1}(undef, edgenum)
