@@ -929,8 +929,8 @@ println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
 @show rFE;
 println("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<")
 
-    #nV, nEV, nFE = Lar.Arrangement.merge_vertices(rV, rEV, rFE)
-    nV, nEV, nFE = Lar.chaincongruence(rV,rEV,rFE)
+    nV, nEV, nFE = Lar.Arrangement.merge_vertices(rV, rEV, rFE)
+    #nV, nEV, nFE = Lar.chaincongruence(rV,rEV,rFE)
 
 @show nV;
 @show (nEV);
