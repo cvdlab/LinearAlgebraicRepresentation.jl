@@ -64,8 +64,7 @@ function ordering(triangles,V)
 end
 
 
-function ord(hinge::Int64, bd1::AbstractSparseVector{Int64,Int64}, V::Array{Float64,2},
-FV::Array{Array{Int64,1},1}, EV::Array{Array{Int64,1},1}, FE::Array{Array{Int64,1},1})
+function ord(hinge::Int64, bd1::AbstractSparseVector, V::Points, FV::Cells, EV::Cells, FE::Cells)
 	cells = SparseArrays.findnz(bd1)[1]
 	triangles = []
 
@@ -929,8 +928,9 @@ println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
 @show rFE;
 println("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<")
 
-    nV, nEV, nFE = Lar.Arrangement.merge_vertices(rV, rEV, rFE)
-    #nV, nEV, nFE = Lar.chaincongruence(rV,rEV,rFE)
+    #nV, nEV, nFE = Lar.Arrangement.merge_vertices(rV, rEV, rFE)
+    nV, nEV, nFE = Lar.chaincongruence(rV,rEV,rFE)
+    nV, nEV, nFE = Lar.chaincongruence(nV, nEV, nFE)
 
 @show nV;
 @show (nEV);

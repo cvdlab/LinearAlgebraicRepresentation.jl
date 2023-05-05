@@ -8,21 +8,23 @@ store = [];
 scaling = 1.5;
 V,(VV,EV,FV,CV) = Lar.cuboid([0.25,0.25,0.25],true,[-0.25,-0.25,-0.25]);
 mybox = (V,CV,FV,EV);
+	str = Lar.Struct([mybox, Lar.t(0.25,0.25,0.25), Lar.s(1,1,1), Lar.r(0,0,0), mybox ])
 
-for k=1:10
-	size = rand()*scaling
-	scale = Lar.s(size,size,size)
-	transl = Lar.t(rand(3)...)
-	alpha = 2*pi*rand()
-	rx = Lar.r(alpha,0,0); ry = Lar.r(0,alpha,0); rz = Lar.r(0,0,alpha)
-	rot = rx * ry * rz
-	str = Lar.Struct([ transl, scale, rot, mybox ])
-	obj = Lar.struct2lar(str)
-	vs = obj[1]
-	diag = LinearAlgebra.norm(vs[:,8]-vs[:,1])
-	if diag > 1/5
-		push!(store, obj)
-	end
+
+for k=1:12
+    size = rand()*scaling
+    scale = Lar.s(size,size,size)
+    transl = Lar.t(rand(3)...)
+    alpha = 2*pi*rand()
+    rx = Lar.r(alpha,0,0); ry = Lar.r(0,alpha,0); rz = Lar.r(0,0,alpha)
+    rot = rx * ry * rz
+    str = Lar.Struct([ transl, scale, rot, mybox ])
+    obj = Lar.struct2lar(str)
+    vs = obj[1]
+    diag = LinearAlgebra.norm(vs[:,8]-vs[:,1])
+    if diag > 1/5
+        push!(store, obj)
+    end
 end;
 
 global str = Lar.Struct(store);
