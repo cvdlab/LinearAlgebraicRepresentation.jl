@@ -21,7 +21,6 @@ end
 
 # ////////////////////////////////////////////////////////////
 # generation of 2D arrangement
-GL.VIEW([ GL.GLLines(V,EV) ]);
 V,FVs,EVs = randombubbles();
 
 # native OpenGL visualization
